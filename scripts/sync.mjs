@@ -1,0 +1,140 @@
+#!/usr/bin/env node
+/**
+ * sync.mjs — genera los adaptadores (Claude Code y OpenCode) desde core/.
+ *
+ * core/ es la ÚNICA fuente de verdad de workflows y guías. Este script:
+ *   - sustituye los tokens {{guide:nombre}} por la referencia correcta de cada herramienta
+ *   - antepone el frontmatter propio de cada adaptador
+ *   - escribe los ficheros generados (NO editar a mano: se sobrescriben)
+ *
+ * Uso:  node scripts/sync.mjs
+ */
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+// ---------------------------------------------------------------------------
+// Metadatos por comando (frontmatter)
+// ---------------------------------------------------------------------------
+const COMMANDS = {
+  start: {
+    description:
+      'Toma una tarea de ClickUp, crea la rama de trabajo desde develop y el esqueleto de estado tasks/<taskId>/ (spec.md + progress.md). Mueve la tarea a "in progress". NO planifica en detalle ni implementa código.',
+    argumentHint:
+      "[taskId de ClickUp (opcional: si se omite, lista las tareas en 'to do' para elegir)]",
+  },
+  plan: {
+    description:
+      "Completa tasks/<taskId>/spec.md con criterios de aceptación, alcance y enfoque técnico tras explorar el repo (vía grafo de conocimiento si graphify está disponible). Requiere aprobación antes de guardar. NO modifica código ni el estado de ClickUp.",
+    argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+  },
+  implement: {
+    description:
+      'Implementa la tarea siguiendo spec.md con TDD, criterio a criterio, y actualiza progress.md. Commits, push y PR solo con aprobación explícita. Mueve la tarea de ClickUp a "review" al crear la PR.',
+    argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+  },
+  review: {
+    description:
+      "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones y seguridad, con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp.",
+    argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+  },
+};
+
+// Metadatos por guía (frontmatter de las skills de Claude)
+const GUIDES = {
+  "estados-tareas": {
+    description:
+      "Catálogo de estados de ClickUp del flujo y su mapeo a comandos del plugin. Úsala cuando necesites interpretar el estado de una tarea, decidir qué comando sugerir al usuario, o validar una transición de estado antes de proponerla.",
+  },
+  "registro-progreso": {
+    description:
+      "Procedimiento exacto para crear y actualizar tasks/<taskId>/progress.md. Úsala SIEMPRE que un comando deba registrar avance, crear el fichero inicial o actualizar el estado actual de una tarea. Garantiza que cualquier agente en sesión limpia recupere el contexto.",
+  },
+  "grafo-conocimiento": {
+    description:
+      "Procedimiento para explorar el repo vía el grafo de conocimiento de graphify en lugar de leer ficheros crudos. Úsala cuando un comando necesite entender la estructura del repo, localizar áreas afectadas por una tarea o analizar el impacto de un cambio. Incluye detección, construcción/actualización del grafo y fallback manual.",
+  },
+  "formato-toon": {
+    description:
+      "Convención de salida en formato TOON (Token-Oriented Object Notation) para datos estructurados. Úsala siempre que vayas a devolver listas largas de datos uniformes, múltiples rutas del grafo de graphify, esquemas de base de datos o salidas estructurales complejas — en lugar de JSON o YAML — para minimizar el consumo de tokens.",
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Resolución de referencias {{guide:x}} por adaptador
+// ---------------------------------------------------------------------------
+const ADAPTERS = {
+  claude: {
+    guideRef: (name) =>
+      "`" + name + "` (`${CLAUDE_PLUGIN_ROOT}/skills/" + name + "/SKILL.md`)",
+    commandPath: (name) => join(ROOT, "adapters/claude/commands", name + ".md"),
+    guidePath: (name) => join(ROOT, "adapters/claude/skills", name, "SKILL.md"),
+    commandFrontmatter: (meta) =>
+      [
+        "---",
+        "description: " + meta.description,
+        'argument-hint: "' + meta.argumentHint + '"',
+        "---",
+        "",
+      ].join("\n"),
+    guideFrontmatter: (name, meta) =>
+      [
+        "---",
+        "name: " + name,
+        "description: " + meta.description,
+        "user-invocable: false",
+        "---",
+        "",
+      ].join("\n"),
+  },
+  opencode: {
+    guideRef: (name) => "`" + name + "` (`.opencode/guides/" + name + ".md`)",
+    commandPath: (name) =>
+      join(ROOT, "adapters/opencode/.opencode/command", name + ".md"),
+    guidePath: (name) =>
+      join(ROOT, "adapters/opencode/.opencode/guides", name + ".md"),
+    commandFrontmatter: (meta) =>
+      [
+        "---",
+        "description: " + meta.description + " Uso: " + meta.argumentHint,
+        "---",
+        "",
+      ].join("\n"),
+    guideFrontmatter: () => "", // las guías de OpenCode son Markdown plano
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Generación
+// ---------------------------------------------------------------------------
+function substitute(text, adapter) {
+  return text.replace(/\{\{guide:([a-z-]+)\}\}/g, (_, name) => {
+    if (!GUIDES[name]) throw new Error("Guía desconocida en token: " + name);
+    return ADAPTERS[adapter].guideRef(name);
+  });
+}
+
+let written = 0;
+for (const adapter of Object.keys(ADAPTERS)) {
+  const A = ADAPTERS[adapter];
+
+  for (const [name, meta] of Object.entries(COMMANDS)) {
+    const body = readFileSync(join(ROOT, "core/workflows", name + ".md"), "utf8");
+    const out = A.commandFrontmatter(meta) + substitute(body, adapter);
+    mkdirSync(dirname(A.commandPath(name)), { recursive: true });
+    writeFileSync(A.commandPath(name), out);
+    written++;
+  }
+
+  for (const [name, meta] of Object.entries(GUIDES)) {
+    const body = readFileSync(join(ROOT, "core/guides", name + ".md"), "utf8");
+    const out = A.guideFrontmatter(name, meta) + substitute(body, adapter);
+    mkdirSync(dirname(A.guidePath(name)), { recursive: true });
+    writeFileSync(A.guidePath(name), out);
+    written++;
+  }
+}
+
+console.log("sync.mjs: " + written + " ficheros generados desde core/.");

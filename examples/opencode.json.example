@@ -1,0 +1,14 @@
+{
+  "//": "Plantilla de opencode.json para el repo consumidor (OpenCode). Copia como opencode.json en la raíz, sustituye placeholders. Si pones aquí la API key, AÑADE opencode.json a .gitignore; mejor aún: usa una variable de entorno. VERIFICA el formato exacto en https://opencode.ai/docs por si ha cambiado.",
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "clickup": {
+      "type": "local",
+      "command": ["npx", "-y", "@taazkareem/clickup-mcp-server@latest"],
+      "environment": {
+        "CLICKUP_API_KEY": "pk_TU_API_KEY_DE_CLICKUP",
+        "CLICKUP_TEAM_ID": "TU_TEAM_ID"
+      }
+    }
+  }
+}

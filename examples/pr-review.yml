@@ -1,0 +1,25 @@
+name: Revisión de PR con Claude
+
+# Caller para repos consumidores del marketplace "biomas".
+# Copia este fichero a .github/workflows/pr-review.yml de tu repo y ajusta TU_USUARIO.
+#
+# IMPRESCINDIBLE: en reusable workflows los permisos se conceden AQUÍ, en el job
+# caller, no en el workflow reusable. Sin id-token: write la action falla el
+# intercambio OIDC.
+#
+# Requiere el secret ANTHROPIC_API_KEY configurado en el repo
+# (Settings → Secrets and variables → Actions).
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  review:
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    uses: TU_USUARIO/custom-ia-plugin/.github/workflows/review.yml@v0.1.0
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

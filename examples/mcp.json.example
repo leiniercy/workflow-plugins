@@ -1,0 +1,13 @@
+{
+  "//": "Plantilla de .mcp.json para el repo consumidor. Copia este fichero como .mcp.json, sustituye los placeholders y AÑADE .mcp.json A .gitignore — contiene credenciales y JAMÁS debe versionarse.",
+  "mcpServers": {
+    "clickup": {
+      "command": "npx",
+      "args": ["-y", "@taazkareem/clickup-mcp-server@latest"],
+      "env": {
+        "CLICKUP_API_KEY": "pk_TU_API_KEY_DE_CLICKUP",
+        "CLICKUP_TEAM_ID": "TU_TEAM_ID"
+      }
+    }
+  }
+}

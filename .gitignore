@@ -1,0 +1,20 @@
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+
+# Node (por si se añaden scripts con dependencias)
+node_modules/
+
+# Artefactos locales de prueba
+graphify-out/
+*.log
+
+# Credenciales — NUNCA versionar
+.mcp.json
+.env
+.env.*

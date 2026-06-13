@@ -1,0 +1,49 @@
+name: Revisión automática de PR (reusable)
+
+# Workflow reusable del marketplace "biomas".
+# Los repos consumidores lo invocan vía workflow_call (ver examples/pr-review.yml).
+# IMPORTANTE: los permissions se declaran en el JOB DEL CALLER, no aquí.
+
+on:
+  workflow_call:
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: true
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Revisión con Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Eres un revisor de código independiente. Revisa esta pull request y publica
+            UN comentario con tu informe. Solo comentas: no apruebas, no bloqueas, no
+            modificas código.
+
+            Procedimiento:
+            1. Extrae el taskId del nombre de la rama (patrón tipo/taskId_slug) o del
+               título de la PR ([taskId] ...). Si existe tasks/<taskId>/spec.md, léelo:
+               es la fuente de verdad de lo que la PR debe cumplir.
+            2. Analiza el diff completo en cinco dimensiones:
+               - Cumplimiento de spec: cada criterio de aceptación implementado y testeado
+                 (omite esta dimensión si no hay spec.md, indicándolo).
+               - Bugs: errores lógicos, edge cases, manejo de errores, problemas de
+                 hidratación/SSR de Next.js.
+               - Tests: cobertura de criterios, calidad de aserciones, casos ausentes.
+               - Convenciones: coherencia con los patrones existentes del repo.
+               - Seguridad: secretos, validación de inputs, exposición indebida en
+                 cliente, inyección.
+            3. Clasifica cada hallazgo por severidad: Crítico / Alto / Medio / Bajo, con
+               fichero, línea y sugerencia de corrección.
+            4. Cierra con un veredicto justificado: "Aprobado" o "Cambios requeridos".
+
+            Sé concreto y breve. Sin hallazgos relevantes, dilo en un párrafo y no
+            rellenes con nits.

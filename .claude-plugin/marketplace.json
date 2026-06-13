@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "biomas",
+  "owner": {
+    "name": "Leiniercy",
+    "email": "TU_EMAIL@ejemplo.com"
+  },
+  "plugins": [
+    {
+      "name": "custom-ia-plugin",
+      "source": "./adapters/claude",
+      "description": "Flujo de desarrollo guiado por tareas de ClickUp: planificación con spec.md, implementación con TDD, revisión y continuidad entre sesiones."
+    }
+  ]
+}

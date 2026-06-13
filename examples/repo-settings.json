@@ -1,0 +1,16 @@
+{
+  "//": "Bloque para el .claude/settings.json del repo consumidor. Ajusta TU_USUARIO y el tag en 'ref' (el pin va en ref, nunca como sufijo # del repo).",
+  "extraKnownMarketplaces": {
+    "biomas": {
+      "source": {
+        "source": "github",
+        "repo": "TU_USUARIO/custom-ia-plugin",
+        "ref": "v0.1.0"
+      }
+    }
+  },
+  "autoUpdate": false,
+  "enabledPlugins": {
+    "custom-ia-plugin@biomas": true
+  }
+}
