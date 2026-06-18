@@ -94,10 +94,10 @@ Aporta técnicas concretas para subir la señal y bajar los falsos positivos de 
 | Patrón | Qué es | Aplicación a nuestro plugin | Estado |
 |---|---|---|---|
 | **Tiering de modelos** | haiku para descartes baratos (¿el PR necesita review?), sonnet para resúmenes/CLAUDE.md, opus para bugs | `/review` podría despachar subagentes con el modelo adecuado por dimensión (haiku: convenciones/nits; opus: bugs/seguridad) | 🔜 (alto valor) |
-| **Scoring de confianza 0-100 + umbral 80** | Cada hallazgo se puntúa; se descartan los < 80 | Añadir confianza por hallazgo en el informe de `/review` y filtrar ruido | 🔜 (alto valor) |
-| **Pase de validación adversarial** | Subagentes que intentan *refutar* cada hallazgo antes de reportarlo | Validar cada hallazgo Crítico/Alto antes de incluirlo; reduce falsos positivos | 🔜 (alto valor) |
-| `allowed-tools` en el frontmatter del comando | Restringe las tools que el comando puede usar (privilegio mínimo) | **Hace cumplir técnicamente** el "solo-lectura" de `/review` (sin Edit/Write), no solo por prosa | 🔜 (alto valor; refuerza las banderas rojas de review) |
-| Lista explícita de falsos positivos | Enumera qué NO flaggear (preexistente, nitpicks, lo que pilla el linter…) | Encaja con nuestras banderas rojas; añadir a `/review` la lista de "qué no reportar" | 🟡 (banderas rojas ya, falta la lista de no-flag) |
+| **Scoring de confianza 0-100 + umbral** | Cada hallazgo se puntúa; se descartan los de baja confianza | Confianza por hallazgo en `/review` con umbral ≥ 75 (Fase 4.2) | ✅ `b98d04d` |
+| **Pase de validación adversarial** | Subagentes que intentan *refutar* cada hallazgo antes de reportarlo | Auto-refutación de cada hallazgo antes de incluirlo en `/review` | 🟡 `b98d04d` (como auto-refutación del propio agente, no subagentes independientes aún) |
+| `allowed-tools` en el frontmatter del comando | Restringe las tools que el comando puede usar (privilegio mínimo) | **Hace cumplir técnicamente** el "solo-lectura" de `/review` (sin Edit/Write/Task; Bash acotado) | ✅ `b98d04d` |
+| Lista explícita de falsos positivos | Enumera qué NO flaggear (preexistente, nitpicks, lo que pilla el linter…) | Lista "qué NO reportar" añadida a `/review` (Fase 4.3) | ✅ `b98d04d` |
 | Agentes independientes en paralelo | Varias perspectivas simultáneas sobre el diff | Nuestras 5 dimensiones podrían correr en paralelo como subagentes | 🔜 |
 | Preámbulo "Agent assumptions" | "Las tools funcionan; no las pruebes; llama solo con propósito" | Directiva de eficiencia para nuestros comandos que despachan subagentes | 🔜 |
 | Skip/guard automático | Salta PRs cerrados/draft/triviales/ya-revisados | Ya tenemos detección de trabajo previo en `/start`; extensible a `/review` | 🟡 |
@@ -129,11 +129,12 @@ esta skill mejora justo el trabajo de UI que hace `/implement`.
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
 
-1. **Endurecer `/review` con técnicas de `code-review`** (alto valor): `allowed-tools` para
-   forzar solo-lectura + scoring de confianza + lista de no-flag + (opcional) validación
-   adversarial de hallazgos Críticos/Altos. → patrones de §3.
+1. ✅ **Endurecer `/review` con técnicas de `code-review`** — hecho en `b98d04d`:
+   `allowed-tools` read-only + scoring de confianza + lista de no-flag + auto-refutación.
+   _Pendiente opcional:_ validación adversarial con subagentes independientes (hoy es
+   auto-refutación del propio agente).
 2. **Tiering de modelos en subagentes** de `/review` (y `/plan`): haiku/sonnet/opus por
-   dimensión/tarea. → §3.
+   dimensión/tarea. → §3. _(Siguiente sugerido.)_
 3. **Skills auto-activables**: dejar de marcar todas las guías como `user-invocable:false`
    donde tenga sentido (p.ej. `estados-tareas`). → §2, §4.
 4. **Reescribir guías con la plantilla de skill** (persona + anti-patrones + proceso). → §4.
@@ -153,6 +154,7 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 | Tablas de "Banderas rojas" en los 4 workflows | superpowers / frontend-design | `8c198fb` |
 | CI anti-drift (`sync.mjs` + `git diff`) | superpowers (disciplina `check-*`) | `bac5610` |
 | `.gitattributes` con `eol=lf` (EOL determinista) | endurecimiento propio | `3b02f60` |
+| `/review` read-only (allowed-tools) + confianza + no-flag + auto-refutación | code-review | `b98d04d` |
 
 ---
 
