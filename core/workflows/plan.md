@@ -64,3 +64,15 @@ Itera con el usuario hasta que apruebe. SOLO entonces escribe `spec.md`.
 Resume: criterios de aceptación (cuántos y cuáles), enfoque elegido, riesgos señalados.
 Recomienda `/implement` como siguiente paso: el plan está aprobado y el agente implementador
 trabajará criterio a criterio contra spec.md.
+
+## Banderas rojas (no te las saltes)
+
+Si te sorprendes pensando algo de la columna izquierda, DETENTE: estás racionalizando
+saltarte el contrato.
+
+| Pensamiento | Realidad |
+|---|---|
+| "Empiezo a escribir código mientras planifico" | /plan no toca código. Tu único output persistente es spec.md. |
+| "Guardo spec.md ya y lo repaso luego con el usuario" | spec.md se escribe SOLO tras aprobación explícita (Fase 4). |
+| "El grafo dice que es así, lo doy por hecho" | INFERRED/AMBIGUOUS son hipótesis: confírmalas en el código antes de escribirlas (Fase 3). |
+| "Pongo criterios genéricos para avanzar" | Cada criterio debe ser verificable con un test o una acción concreta; es la sección que usará /implement. |

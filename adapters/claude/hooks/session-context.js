@@ -1,15 +1,19 @@
 #!/usr/bin/env node
 /**
- * Hook SessionStart de inyección de contexto de tarea (exclusivo de Claude Code).
+ * Hook SessionStart de inyección de contexto + bootstrap del flujo
+ * (exclusivo de Claude Code).
  *
- * Al iniciar/limpiar/compactar una sesión, si la rama actual sigue el patrón
- * `<tipo>/<taskId>_<slug>` y existe `tasks/<taskId>/`, inyecta automáticamente
- * el "Estado actual" de progress.md y los criterios de aceptación pendientes de
- * spec.md. Da continuidad entre sesiones sin base de datos externa.
+ * Al iniciar/limpiar/compactar una sesión:
+ *   - En una rama de tarea (`<tipo>/<taskId>_<slug>`): inyecta el "Estado actual"
+ *     de progress.md, los criterios pendientes de spec.md y un PRÓXIMO PASO
+ *     sugerido (derivado del estado de la spec) + recordatorio de gates. Así el
+ *     flujo se auto-conduce sin que el usuario recuerde qué comando toca.
+ *   - Fuera de una rama de tarea, si el repo ya usa el flujo (existe `tasks/`):
+ *     un recordatorio mínimo de una línea. Sin ruido en repos no adoptados.
  *
- * Contrato de hook: jamás rompe la sesión. Cualquier fallo (no es repo git, git
- * no disponible, sin tarea en la rama, ficheros ausentes) degrada en silencio
- * emitiendo `{"continue":true}` y saliendo con código 0.
+ * Tono deliberadamente SUAVE (sugiere, no impone): el plugin mantiene los gates
+ * humanos. Contrato de hook: jamás rompe la sesión — cualquier fallo (no es repo
+ * git, git ausente, ficheros inexistentes) degrada en silencio con código 0.
  */
 const { execFileSync } = require("child_process");
 const { readFileSync, existsSync } = require("fs");
@@ -85,18 +89,48 @@ try {
     git(["rev-parse", "--abbrev-ref", "HEAD"], cwd);
   if (!branch || branch === "HEAD") emit(null);
 
+  const hasTasksDir = existsSync(join(root, "tasks"));
+
   // 3. taskId desde el patrón <tipo>/<taskId>_<slug>.
   const match = branch.match(/^(?:feat|fix|chore|refactor|docs)\/([^_]+)_/);
-  if (!match) emit(null);
+  if (!match) {
+    // Fuera de rama de tarea: recordatorio mínimo SOLO si el repo ya usa el flujo.
+    if (hasTasksDir) {
+      emit(
+        "## custom-ia-plugin\n\n" +
+          "Este repo usa el flujo guiado por tareas, pero `" +
+          branch +
+          "` no es una rama de tarea. Para empezar una tarea: `/start <taskId>`; " +
+          "para retomar una, haz checkout de su rama `<tipo>/<taskId>_<slug>`."
+      );
+    }
+    emit(null);
+  }
   const taskId = match[1];
 
-  // 4. Ficheros de estado de la tarea.
+  // 4. Estado de la tarea.
   const taskDir = join(root, "tasks", taskId);
   const progressPath = join(taskDir, "progress.md");
   const specPath = join(taskDir, "spec.md");
-  if (!existsSync(progressPath) && !existsSync(specPath)) emit(null);
+
+  if (!existsSync(progressPath) && !existsSync(specPath)) {
+    // Rama de tarea sin esqueleto: lo habitual es no haber corrido /start.
+    emit(
+      "## custom-ia-plugin\n\n" +
+        "Estás en la rama de tarea `" +
+        branch +
+        "` (`" +
+        taskId +
+        "`) pero no existe `tasks/" +
+        taskId +
+        "/`. Sugerido: `/start " +
+        taskId +
+        "` para crear el esqueleto (spec.md + progress.md) antes de continuar."
+    );
+  }
 
   const parts = [];
+  let nextStep = null;
 
   if (existsSync(progressPath)) {
     const progress = readFileSync(progressPath, "utf8");
@@ -107,25 +141,50 @@ try {
   if (existsSync(specPath)) {
     const spec = readFileSync(specPath, "utf8");
     const criterios = section(spec, /criterios de aceptaci[óo]n/i);
-    if (criterios) {
-      const pendientes = criterios
-        .split(/\r?\n/)
-        .filter((l) => /^\s*-\s*\[ \]/.test(l))
-        .map((l) => l.trim());
-      if (pendientes.length) {
-        parts.push(
-          "**Criterios de aceptación pendientes (" +
-            pendientes.length +
-            "):**\n" +
-            pendientes.join("\n")
-        );
-      }
+    const enfoque = section(spec, /enfoque t[ée]cnico/i);
+    const placeholder = /_pendiente de \/plan_/i;
+
+    const items = criterios
+      .split(/\r?\n/)
+      .filter((l) => /^\s*-\s*\[[ xX]\]/.test(l));
+    const pendientes = items
+      .filter((l) => /^\s*-\s*\[ \]/.test(l))
+      .map((l) => l.trim());
+
+    if (pendientes.length) {
+      parts.push(
+        "**Criterios de aceptación pendientes (" +
+          pendientes.length +
+          "):**\n" +
+          pendientes.join("\n")
+      );
     }
+
+    // Próximo paso sugerido (suave, derivado del estado de la spec).
+    if (
+      placeholder.test(criterios) ||
+      placeholder.test(enfoque) ||
+      (!criterios && !enfoque)
+    ) {
+      nextStep =
+        "La especificación está incompleta (secciones `_pendiente de /plan_`). " +
+        "Sugerido: `/plan` para completarla — `/implement` se negará sin criterios definidos.";
+    } else if (pendientes.length) {
+      nextStep =
+        "Sugerido: `/implement` para continuar criterio a criterio con TDD.";
+    } else if (items.length) {
+      nextStep =
+        "Todos los criterios están marcados. Sugerido: `/review` para un diagnóstico " +
+        "independiente antes de pedir revisión humana.";
+    }
+  } else {
+    nextStep = "No existe `spec.md`. Sugerido: `/plan` para crear la especificación.";
   }
 
-  if (!parts.length) emit(null);
+  // Si no hay ni estado, ni criterios, ni un próximo paso útil: no inyectamos.
+  if (!parts.length && !nextStep) emit(null);
 
-  const context =
+  let context =
     "## Contexto de tarea activa (custom-ia-plugin)\n\n" +
     "Estás en la rama `" +
     branch +
@@ -133,12 +192,15 @@ try {
     taskId +
     "`). Estado recuperado de `tasks/" +
     taskId +
-    "/`:\n\n" +
-    parts.join("\n\n") +
-    "\n\nUsa `/implement` para continuar o `/review` para diagnosticar. " +
-    "La fuente de verdad es `tasks/" +
+    "/`:";
+
+  if (parts.length) context += "\n\n" + parts.join("\n\n");
+  if (nextStep) context += "\n\n### Próximo paso\n" + nextStep;
+  context +=
+    "\n\n_Gates: pide aprobación antes de cualquier acción visible (commit, push, PR, " +
+    "cambio de estado en ClickUp). La fuente de verdad es `tasks/" +
     taskId +
-    "/spec.md`.";
+    "/spec.md`._";
 
   emit(context);
 } catch {

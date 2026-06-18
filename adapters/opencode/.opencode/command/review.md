@@ -69,3 +69,15 @@ explícitamente, registra los hallazgos en `progress.md` siguiendo la guía
 en una sesión limpia futura. Si el veredicto es Aprobado: recomienda pedir revisión humana
 de la PR; el workflow de CI del plugin habrá dejado además su propio comentario de
 revisión automática.
+
+## Banderas rojas (no te las saltes)
+
+Si te sorprendes pensando algo de la columna izquierda, DETENTE: estás violando tu contrato
+de solo-lectura.
+
+| Pensamiento | Realidad |
+|---|---|
+| "Corrijo este bug pequeño de paso" | /review SOLO informa. Modificar código es trabajo de /implement (modo corrección). |
+| "Actualizo spec.md o progress.md con lo que veo" | No escribes en spec.md; en progress.md solo si el usuario lo pide explícitamente (Fase 5). |
+| "Construyo el grafo para analizar mejor" | Solo-lectura: usa el grafo si ya existe, nunca lo construyas ni actualices (Fase 2.4). |
+| "Marco la tarea como aprobada en ClickUp" | /review no cambia estados; el cierre a 'complete' es siempre humano. |

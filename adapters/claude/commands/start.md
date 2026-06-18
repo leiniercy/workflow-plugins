@@ -66,3 +66,15 @@ NO hagas commit automáticamente. Pregunta si el usuario quiere commitear el esq
 Resume en 3-4 líneas: tarea, rama, ficheros creados, estado en ClickUp. Recomienda el
 siguiente paso: ejecutar `/plan` para completar la especificación antes de tocar código,
 porque /implement se niega a trabajar sin criterios de aceptación definidos.
+
+## Banderas rojas (no te las saltes)
+
+Si te sorprendes pensando algo de la columna izquierda, DETENTE: estás racionalizando
+saltarte un gate.
+
+| Pensamiento | Realidad |
+|---|---|
+| "Creo la rama directamente, el nombre es obvio" | El nombre sale del contenido de la tarea y necesita el visto bueno del usuario: propón y espera aprobación (Fase 4). |
+| "Ya hay carpeta o rama para esta tarea, las rehago" | Nunca recrees trabajo previo: informa de lo encontrado y ofrece retomar (Fase 3). |
+| "Muevo la tarea a 'in progress' de una vez" | Toda transición de estado pasa por aprobación explícita; es responsabilidad exclusiva de /start (Fase 5). |
+| "El working tree tiene cambios pero puedo seguir" | Detente: working tree limpio es pre-requisito (Fase 1). |

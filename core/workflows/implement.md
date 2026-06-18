@@ -75,3 +75,17 @@ Resume: criterios completados (o hallazgos corregidos), commits, PR (enlace), es
 ClickUp. Recomienda `/review` como siguiente paso para un diagnóstico independiente antes
 de pedir revisión humana — detecta desviaciones de spec, bugs y huecos de tests sin tocar
 nada.
+
+## Banderas rojas (no te las saltes)
+
+Si te sorprendes pensando algo de la columna izquierda, DETENTE: estás racionalizando
+saltarte el contrato.
+
+| Pensamiento | Realidad |
+|---|---|
+| "Es un cambio trivial, no hace falta test" | TDD aplica igual: test que falla → código mínimo → verde (Fase 3). Lo simple se vuelve complejo. |
+| "Implemento y luego le escribo el test" | El test va PRIMERO y debe fallar por la razón correcta. Código escrito antes del test, se borra y se rehace. |
+| "La spec está casi completa, ya empiezo" | Si hay placeholders `_pendiente de /plan_` en criterios o enfoque, niégate y manda a `/plan` (Fase 2). |
+| "Commiteo / pusheo / abro la PR y aviso después" | Commit, push y PR solo con aprobación explícita del usuario (Fases 3 y 4). |
+| "El enfoque de la spec no encaja, improviso por aquí" | Detente, explica el problema y propón actualizar spec.md ("Decisiones tomadas") antes de desviarte. |
+| "Consulto ClickUp para decidir qué implementar" | La fuente de verdad es spec.md, no ClickUp (Fase 3). |

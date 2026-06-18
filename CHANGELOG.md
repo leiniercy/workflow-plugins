@@ -13,6 +13,16 @@ Versionado [SemVer](https://semver.org/lang/es/).
   los criterios de aceptación pendientes de `spec.md`. Degradación silenciosa total (no es
   repo git, git ausente, rama sin patrón de tarea, ficheros inexistentes) — un hook nunca
   rompe la sesión. Resuelve la rama vía `git symbolic-ref` para soportar ramas sin commits.
+- **Bootstrap de auto-conducción en el hook SessionStart**: además del estado, el hook
+  inyecta un "Próximo paso" derivado del estado de `spec.md` (placeholders → `/plan`;
+  criterios pendientes → `/implement`; todos marcados → `/review`) y un recordatorio de
+  gates. Fuera de una rama de tarea, si el repo ya usa el flujo (existe `tasks/`), añade un
+  recordatorio mínimo de una línea; sin `tasks/` no inyecta nada (cero ruido). Tono suave:
+  sugiere, no impone, coherente con los gates humanos del plugin.
+- **Tablas de "Banderas rojas" en los 4 workflows** (`core/workflows/*.md`): catálogo de
+  racionalizaciones prohibidas por comando (p. ej. en `/implement`: "es trivial, no hace
+  falta test"; en `/review`: "corrijo este bug de paso") para que el agente no se
+  autoconvenza de saltarse un gate. Se propagan a ambos adaptadores vía `sync.mjs`.
 - **`.mcp.json` empaquetado en el plugin** (`adapters/claude/.mcp.json`, generado por
   `sync.mjs`): Claude Code auto-registra el MCP de ClickUp al instalar el plugin, leyendo
   `CLICKUP_API_KEY`/`CLICKUP_TEAM_ID` de variables de entorno. Elimina el paso manual de
