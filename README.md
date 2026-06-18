@@ -40,6 +40,10 @@ Esto regenera `adapters/claude/{commands,skills}` y `adapters/opencode/.opencode
 sustituyendo los tokens por la ruta correcta de cada herramienta y anteponiendo el
 frontmatter propio de cada una. Los ficheros generados se sobrescriben: no los edites a mano.
 
+> **Mejoras y referencias:** los patrones de otros plugins analizados (claude-mem,
+> superpowers, code-review, frontend-design) y su estado de adopción están catalogados en
+> [docs/referencias.md](docs/referencias.md) — consúltalo antes de planear una mejora.
+
 ## El flujo (igual en ambas herramientas)
 
 | Comando | Qué hace | Transición de ClickUp |
