@@ -3,6 +3,29 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es/1.1.0/).
 Versionado [SemVer](https://semver.org/lang/es/).
 
+## [No publicado]
+
+### Añadido
+
+- **Hook `SessionStart` de continuidad entre sesiones** (`adapters/claude/hooks/session-context.js`,
+  exclusivo de Claude Code): al iniciar/limpiar/compactar una sesión sobre una rama de tarea
+  (`<tipo>/<taskId>_<slug>`), inyecta automáticamente el "Estado actual" de `progress.md` y
+  los criterios de aceptación pendientes de `spec.md`. Degradación silenciosa total (no es
+  repo git, git ausente, rama sin patrón de tarea, ficheros inexistentes) — un hook nunca
+  rompe la sesión. Resuelve la rama vía `git symbolic-ref` para soportar ramas sin commits.
+- **`.mcp.json` empaquetado en el plugin** (`adapters/claude/.mcp.json`, generado por
+  `sync.mjs`): Claude Code auto-registra el MCP de ClickUp al instalar el plugin, leyendo
+  `CLICKUP_API_KEY`/`CLICKUP_TEAM_ID` de variables de entorno. Elimina el paso manual de
+  copiar un fichero con credenciales por repo consumidor. `MCP_SERVERS` queda como fuente
+  única en `sync.mjs`. La plantilla `examples/mcp.json.example` se mantiene como alternativa
+  para credenciales por proyecto.
+
+### Cambiado
+
+- **Manifiestos completados**: `plugin.json` y `marketplace.json` con autor, email, homepage
+  y repositorio reales (`leiniercy/custom-ia-plugin`). La entrada del plugin en
+  `marketplace.json` declara ahora `"version": "0.1.0"`, coherente con el pin por tag.
+
 ## [0.1.0] - 2026-06-12
 
 ### Añadido

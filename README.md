@@ -14,11 +14,12 @@ custom-ia-plugin/
 ├── scripts/
 │   └── sync.mjs               genera los adaptadores desde core/
 ├── adapters/
-│   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hook)
+│   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
 │   │   ├── .claude-plugin/plugin.json
+│   │   ├── .mcp.json          (generado por sync.mjs — MCP de ClickUp por env vars)
 │   │   ├── commands/          (generado por sync.mjs — no editar a mano)
 │   │   ├── skills/            (generado por sync.mjs — no editar a mano)
-│   │   └── hooks/             notificación sonora (exclusivo de Claude Code)
+│   │   └── hooks/             SessionStart (contexto de tarea) + Stop (notificación sonora)
 │   └── opencode/
 │       └── .opencode/         carpeta lista para copiar al repo consumidor
 │           ├── command/       (generado por sync.mjs — no editar a mano)
@@ -60,8 +61,14 @@ historial inmutable en `progress.md`.
 - **GitHub CLI (`gh`)** opcional pero recomendado (creación de PRs).
 - **ClickUp**: API key personal (ClickUp → Settings → Apps → API Token, empieza por `pk_`)
   y tu `TEAM_ID` (el número en la URL `app.clickup.com/<TEAM_ID>/...`).
-- **graphify** (opcional): `pipx install graphifyy` (con doble *y*; el comando CLI es
+- **graphify** (opcional): `uv install graphifyy` (con doble *y*; el comando CLI es
   `graphify`). Añade `graphify-out/` al `.gitignore` del repo consumidor.
+
+## Instalación graphifyy en windows
+- python-3.13.14-amd64.exe from https://www.python.org/downloads/
+- powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+- C:\Users\TU_USUARIO\.local\bin\uvx.exe --from graphifyy graphify install --project
+- uvx --from graphifyy graphify install --project
 
 ## Instalación — Claude Code
 
@@ -71,83 +78,45 @@ historial inmutable en `progress.md`.
 2. En el **repo consumidor**, copia `examples/repo-settings.json` como
    `.claude/settings.json` (o fusiónalo con el existente). Apunta al repo y al tag:
    el plugin queda pineado a `v0.1.0` con `autoUpdate: false`.
-3. Copia `examples/mcp.json.example` como `.mcp.json` en el repo consumidor y rellena
-   `CLICKUP_API_KEY` y `CLICKUP_TEAM_ID`. **No lo commitees** (ya está en `.gitignore`).
+3. **ClickUp por variables de entorno (recomendado).** El plugin ya incluye su propio
+   `.mcp.json` (`adapters/claude/.mcp.json`, generado por `sync.mjs`) que Claude Code
+   auto-registra al instalarlo. Solo necesitas exportar las credenciales en tu entorno —
+   no hace falta crear ningún fichero con secretos en el repo consumidor:
+
+   ```bash
+   # PowerShell:  $env:CLICKUP_API_KEY="pk_..."; $env:CLICKUP_TEAM_ID="123456"
+   export CLICKUP_API_KEY="pk_..."
+   export CLICKUP_TEAM_ID="123456"
+   ```
+
+   Claude Code expande `${CLICKUP_API_KEY}` y `${CLICKUP_TEAM_ID}` al cargar el `.mcp.json`.
+   _(Alternativa por repo: copia `examples/mcp.json.example` como `.mcp.json` con los
+   valores literales y añádelo al `.gitignore` — útil si prefieres credenciales por proyecto.)_
 4. Abre Claude Code en el repo: aceptará el marketplace `biomas` y cargará el plugin.
    Comprueba con `/help` que aparecen `/start`, `/plan`, `/implement`, `/review`.
+   Al abrir una sesión sobre una rama de tarea (`<tipo>/<taskId>_<slug>`), el hook
+   `SessionStart` inyecta automáticamente el "Estado actual" de `progress.md` y los
+   criterios pendientes de `spec.md` — continuidad entre sesiones sin intervención manual.
 
-### B) Prueba en local (desarrollo del plugin)
-
-```bash
-claude --plugin-dir D:/Github/Nextjs/custom-ia-plugin/adapters/claude
-```
-
-> Nota: la ruta apunta al **adaptador**, no a la raíz del repo.
-
-### Extra incluido solo en Claude Code
-
-- **Hook `Stop`** con notificación sonora multiplataforma cuando Claude termina
-  (`adapters/claude/hooks/`). OpenCode no incluye equivalente en esta versión.
+## Instalación — ClaudeCode
+1. Levanta la terminar con claude
+2. Ejecuta el comando /init 
+3. ejecuta /plugin marketplace add leiniercy/custom-ia-plugin
+4. ejecuta /plugin install custom-ia-plugin@biomas
+5. ejecuta /reload-plugins
+6. ejecuta /graphify src → solo el código fuente
+           /graphify src --mode deep → extracción más rica (más relaciones inferidas, más tokens)
+           /graphify src --wiki → además genera un wiki navegable (graphify-out/wiki/index.md)
 
 ## Instalación — OpenCode
 
-> ⚠️ **Verifica contra la documentación oficial** (https://opencode.ai/docs): los detalles
-> de formato (`.opencode/command/`, esquema de `opencode.json`) provienen de información
-> de enero de 2026 y pueden haber cambiado.
+OpenCode no cuenta con un marketplace interno de comandos Markdown: la instalación consiste simplemente en copiar los archivos necesarios a tu proyecto.
 
-OpenCode no tiene marketplace de comandos Markdown: la instalación es copiar ficheros.
+1. Agrega los comandos y guías: Copia la carpeta adapters/opencode/.opencode/ a la raíz del repositorio de tu proyecto.
+(La estructura resultante debe ser <repo>/.opencode/command/*.md y <repo>/.opencode/guides/*.md).
 
-1. Copia la carpeta `adapters/opencode/.opencode/` a la **raíz del repo consumidor**
-   (quedará `<repo>/.opencode/command/*.md` y `<repo>/.opencode/guides/*.md`).
-2. Copia `examples/opencode.json.example` como `opencode.json` en la raíz del repo
-   consumidor y rellena `CLICKUP_API_KEY` y `CLICKUP_TEAM_ID`. Si dejas la key en el
-   fichero, añádelo a `.gitignore`; mejor aún, usa variables de entorno.
-3. Copia `examples/AGENTS.md.example` como `AGENTS.md` en la raíz del repo consumidor
-   (OpenCode lo lee automáticamente como contexto del proyecto).
-4. Abre OpenCode en el repo y escribe `/start`: debería aparecer el comando con su
-   descripción.
+2. Configura las credenciales (opencode.json): Copia el archivo examples/opencode.json.example, pégalo en la raíz del repositorio y renómbralo como opencode.json. Luego, completa los campos CLICKUP_API_KEY y CLICKUP_TEAM_ID.
 
-Decide en equipo si `.opencode/` se versiona en el repo consumidor (recomendado: sí,
-así todo el equipo comparte el flujo) o se mantiene local.
+3. Define el contexto del agente (AGENTS.md): Copia examples/AGENTS.md.example, pégalo en la raíz del repositorio y renómbralo como AGENTS.md. OpenCode leerá este archivo automáticamente para entender el contexto y las reglas del proyecto al iniciar.
 
-## CI: revisión automática de PRs (agnóstica)
-
-`.github/workflows/review.yml` es un workflow **reusable** que revisa cada PR con Claude
-(lee `tasks/<taskId>/spec.md`, analiza 5 dimensiones, comenta con severidades y veredicto;
-nunca modifica código). Funciona igual aunque el código se haya escrito con OpenCode.
-
-En el repo consumidor:
-
-1. Copia `examples/pr-review.yml` a `.github/workflows/pr-review.yml` (incluye los
-   `permissions` necesarios, también `id-token: write`).
-2. Crea el secret `ANTHROPIC_API_KEY` en GitHub (Settings → Secrets → Actions).
-3. Ajusta en el `uses:` el usuario/repo/tag de este repositorio.
-
-## Publicación y versionado
-
-```bash
-cd D:/Github/Nextjs/custom-ia-plugin
-git init -b main
-git add .
-git commit -m "feat: plugin custom-ia-plugin v0.1.0 (marketplace biomas)"
-gh repo create custom-ia-plugin --public --source=. --push
-git tag v0.1.0
-git push --tags
-```
-
-Para publicar cambios: edita `core/`, ejecuta `node scripts/sync.mjs`, commitea, sube un
-tag nuevo (`v0.1.1`) y actualiza el `ref` en el `settings.json` de los repos consumidores.
-
-## Solución de problemas
-
-- **No aparecen los comandos (Claude)**: revisa que `.claude/settings.json` apunta al repo
-  correcto y que el tag del `ref` existe. En local, recuerda que `--plugin-dir` apunta a
-  `adapters/claude`.
-- **No aparecen los comandos (OpenCode)**: confirma que los `.md` están en
-  `<repo>/.opencode/command/` y consulta la doc oficial por si la ruta ha cambiado.
-- **El MCP de ClickUp no conecta**: verifica `pk_...` y `TEAM_ID`; prueba
-  `npx -y @taazkareem/clickup-mcp-server@latest` a mano para ver el error real. Todos los
-  comandos degradan a modo manual (pegas ID/título/descripción) si el MCP falla.
-- **graphify no instalado**: es opcional; los comandos continúan con exploración manual.
-- **Los adaptadores divergen del core**: alguien editó los ficheros generados a mano.
-  Ejecuta `node scripts/sync.mjs` para restaurar la coherencia.
+4. Verifica la instalación: Abre OpenCode dentro de tu repositorio y escribe /start. Debería aparecer el panel de comandos con su descripción correspondiente.

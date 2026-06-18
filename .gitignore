@@ -18,3 +18,8 @@ graphify-out/
 .mcp.json
 .env
 .env.*
+
+# Excepción: el .mcp.json EMPAQUETADO del plugin Claude usa solo placeholders de
+# variables de entorno (sin secretos) y DEBE versionarse para que Claude Code lo
+# auto-registre al instalar el plugin. Lo genera scripts/sync.mjs.
+!adapters/claude/.mcp.json

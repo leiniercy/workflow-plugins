@@ -42,6 +42,23 @@ const COMMANDS = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// Servidores MCP (fuente única). Se generan los ficheros de configuración de
+// cada adaptador a partir de aquí para evitar drift entre herramientas.
+// Las credenciales se leen de variables de entorno: el usuario las exporta una
+// vez (CLICKUP_API_KEY, CLICKUP_TEAM_ID) y NO se versiona ningún secreto.
+// ---------------------------------------------------------------------------
+const MCP_SERVERS = {
+  clickup: {
+    command: "npx",
+    args: ["-y", "@taazkareem/clickup-mcp-server@latest"],
+    env: {
+      CLICKUP_API_KEY: "${CLICKUP_API_KEY}",
+      CLICKUP_TEAM_ID: "${CLICKUP_TEAM_ID}",
+    },
+  },
+};
+
 // Metadatos por guía (frontmatter de las skills de Claude)
 const GUIDES = {
   "estados-tareas": {
@@ -136,5 +153,15 @@ for (const adapter of Object.keys(ADAPTERS)) {
     written++;
   }
 }
+
+// ---------------------------------------------------------------------------
+// .mcp.json del adaptador Claude: se sirve EN LA RAÍZ DEL PLUGIN para que Claude
+// Code lo auto-registre al instalarlo (no hay que copiar nada a mano por repo).
+// Claude Code expande ${VAR} desde el entorno al cargar el fichero.
+// ---------------------------------------------------------------------------
+const claudeMcp = JSON.stringify({ mcpServers: MCP_SERVERS }, null, 2) + "\n";
+const claudeMcpPath = join(ROOT, "adapters/claude/.mcp.json");
+writeFileSync(claudeMcpPath, claudeMcp);
+written++;
 
 console.log("sync.mjs: " + written + " ficheros generados desde core/.");

@@ -3,11 +3,12 @@
   "name": "biomas",
   "owner": {
     "name": "Leiniercy",
-    "email": "TU_EMAIL@ejemplo.com"
+    "email": "leiner.caraballo@rockstardata.ai"
   },
   "plugins": [
     {
       "name": "custom-ia-plugin",
+      "version": "0.1.0",
       "source": "./adapters/claude",
       "description": "Flujo de desarrollo guiado por tareas de ClickUp: planificación con spec.md, implementación con TDD, revisión y continuidad entre sesiones."
     }

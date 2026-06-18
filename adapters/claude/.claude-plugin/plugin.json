@@ -4,10 +4,10 @@
   "description": "Flujo de desarrollo guiado por tareas de ClickUp para proyectos Next.js: /start toma la tarea y crea la rama, /plan produce spec.md explorando el repo vía grafo de conocimiento (graphify), /implement ejecuta con TDD y /review diagnostica sin modificar. Estado persistido en tasks/<taskId>/ para continuidad entre sesiones.",
   "author": {
     "name": "Leiniercy",
-    "email": "TU_EMAIL@ejemplo.com"
+    "email": "leiner.caraballo@rockstardata.ai"
   },
-  "homepage": "https://github.com/TU_USUARIO/custom-ia-plugin",
-  "repository": "https://github.com/TU_USUARIO/custom-ia-plugin",
+  "homepage": "https://github.com/leiniercy/custom-ia-plugin",
+  "repository": "https://github.com/leiniercy/custom-ia-plugin",
   "license": "MIT",
   "keywords": [
     "claude-code",
