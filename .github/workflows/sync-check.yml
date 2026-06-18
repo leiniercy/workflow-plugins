@@ -1,0 +1,45 @@
+name: Adaptadores en sync con core/
+
+# CI propio de este repo (no reusable). Garantiza que los ficheros generados en
+# adapters/ son EXACTAMENTE lo que produce scripts/sync.mjs desde core/. Falla si
+# alguien editó un adaptador a mano (drift) o cambió core/ sin regenerar.
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "core/**"
+      - "scripts/sync.mjs"
+      - "adapters/**"
+      - ".github/workflows/sync-check.yml"
+  pull_request:
+    paths:
+      - "core/**"
+      - "scripts/sync.mjs"
+      - "adapters/**"
+      - ".github/workflows/sync-check.yml"
+
+jobs:
+  sync-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Regenerar adaptadores desde core/
+        run: node scripts/sync.mjs
+
+      - name: Verificar que no hay drift
+        run: |
+          if [ -n "$(git status --porcelain -- adapters/)" ]; then
+            echo "::error::Los adaptadores están desincronizados con core/. Ejecuta 'node scripts/sync.mjs' y commitea los cambios."
+            git --no-pager diff -- adapters/
+            git status --porcelain -- adapters/
+            exit 1
+          fi
+          echo "✓ Adaptadores en sync con core/."

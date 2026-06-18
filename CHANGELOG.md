@@ -23,6 +23,10 @@ Versionado [SemVer](https://semver.org/lang/es/).
   racionalizaciones prohibidas por comando (p. ej. en `/implement`: "es trivial, no hace
   falta test"; en `/review`: "corrijo este bug de paso") para que el agente no se
   autoconvenza de saltarse un gate. Se propagan a ambos adaptadores vía `sync.mjs`.
+- **CI de sincronización core↔adaptadores** (`.github/workflows/sync-check.yml`): en cada
+  push/PR que toque `core/`, `scripts/sync.mjs` o `adapters/`, regenera con `sync.mjs` y
+  falla si los adaptadores divergen (drift por edición manual de un generado o por cambiar
+  `core/` sin regenerar). Blinda la regla de mantenimiento "editar solo en `core/`".
 - **`.mcp.json` empaquetado en el plugin** (`adapters/claude/.mcp.json`, generado por
   `sync.mjs`): Claude Code auto-registra el MCP de ClickUp al instalar el plugin, leyendo
   `CLICKUP_API_KEY`/`CLICKUP_TEAM_ID` de variables de entorno. Elimina el paso manual de
