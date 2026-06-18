@@ -1,0 +1,14 @@
+# Finales de línea deterministas en todas las plataformas.
+# El repositorio almacena LF y extrae LF incluso en Windows: evita el ruido de
+# autocrlf y garantiza que scripts/sync.mjs genere los adaptadores con el mismo
+# EOL que los ficheros commiteados (lo verifica .github/workflows/sync-check.yml).
+* text=auto eol=lf
+
+# Binarios explícitos (por si se añaden assets): nunca normalizar fin de línea.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
