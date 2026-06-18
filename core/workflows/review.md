@@ -42,30 +42,72 @@ Examina el diff y los ficheros afectados completos (no solo las líneas cambiada
 5. **Seguridad**: secretos hardcodeados, validación de inputs, exposición de datos en
    cliente (variables NEXT_PUBLIC_ indebidas), inyección, dependencias sospechosas.
 
-## Fase 4 — Informe
+## Fase 4 — Validación, confianza e informe
 
-Presenta los hallazgos clasificados por severidad:
+Antes de reportar, sube la señal y filtra el ruido (técnica del plugin oficial `code-review`).
+
+### 4.1 — Auto-refutación de cada hallazgo
+
+Para CADA hallazgo candidato de la Fase 3, intenta REFUTARLO antes de incluirlo: vuelve al
+código fuente y compruébalo en su contexto completo, no solo en el diff. Para cumplimiento de
+spec, confirma que el criterio existe y que ningún test ya lo cubre. Para hallazgos vía grafo
+INFERRED/AMBIGUOUS, confírmalos en el código. Si no puedes sostener el hallazgo con evidencia
+concreta, descártalo: los falsos positivos erosionan la confianza y hacen perder tiempo.
+
+### 4.2 — Confianza (0-100) y umbral
+
+Asigna a cada hallazgo superviviente un nivel de confianza:
+
+| Confianza | Significado |
+|---|---|
+| 0 | falso positivo / no sostenible |
+| 25 | quizá real |
+| 50 | real pero menor |
+| 75 | real e importante |
+| 100 | certero |
+
+Reporta solo hallazgos con **confianza ≥ 75**. Los de 50-74 agrúpalos en una nota breve
+("posibles, baja confianza", una línea cada uno); descarta todo lo que esté por debajo de 50.
+
+### 4.3 — Qué NO reportar (falsos positivos)
+
+No flaggees, aunque parezcan defectos:
+
+- Problemas preexistentes no introducidos por la rama.
+- Código que parece un bug pero es correcto en su contexto.
+- Nitpicks que un senior no marcaría.
+- Lo que un linter/formatter ya detecta (y NO ejecutes el linter para verificarlo).
+- Calidad general (cobertura, estilo) salvo que spec.md o una convención del repo la exija.
+- Líneas con un comentario de ignore del linter.
+
+### 4.4 — Informe
+
+Presenta los hallazgos (confianza ≥ 75) clasificados por severidad:
 
 - **Crítico**: rompe funcionalidad, seguridad comprometida o criterio de aceptación fallido.
 - **Alto**: bug probable o desviación significativa de spec.
 - **Medio**: deuda técnica, test ausente, convención rota.
 - **Bajo**: estilo, nits, sugerencias.
 
-Cada hallazgo: fichero y línea, descripción, y sugerencia de corrección (descrita, NO
-aplicada). Si la lista de hallazgos es larga y uniforme, preséntala en formato TOON según
-la guía {{guide:formato-toon}}. Cierra con un veredicto: **Aprobado** o
-**Cambios requeridos**, justificado.
+Cada hallazgo: fichero y línea, descripción, **confianza**, y sugerencia de corrección
+(descrita, NO aplicada). Si la lista es larga y uniforme, preséntala en formato TOON según la
+guía {{guide:formato-toon}}. Cierra con un veredicto justificado: **Aprobado** o
+**Cambios requeridos**. Si no hay hallazgos ≥ 75, dilo en una línea (p. ej. "Sin hallazgos de
+alta confianza; revisadas las cinco dimensiones").
 
 ## Fase 5 — Cierre
 
-Resume el veredicto en 2-3 líneas. Si hay hallazgos Críticos o Altos: recomienda
-`/implement` (en esta misma sesión detectará el modo corrección por el contexto de la
-conversación). Excepción única a tu contrato de solo-lectura: si el usuario te lo pide
-explícitamente, registra los hallazgos en `progress.md` siguiendo la guía
-{{guide:registro-progreso}}, para que /implement pueda detectar el modo corrección incluso
-en una sesión limpia futura. Si el veredicto es Aprobado: recomienda pedir revisión humana
-de la PR; el workflow de CI del plugin habrá dejado además su propio comentario de
-revisión automática.
+Resume el veredicto en 2-3 líneas. Si hay hallazgos Críticos o Altos: recomienda `/implement`,
+que detectará el modo corrección por el contexto de esta conversación y trabajará sobre los
+hallazgos.
+
+**Persistencia de hallazgos:** /review nunca escribe ficheros — el contrato solo-lectura está
+reforzado por `allowed-tools` (no dispones de `Edit`/`Write`). Si quieres que los hallazgos
+sobrevivan a una sesión limpia futura, es `/implement` quien los registra en `progress.md` al
+entrar en modo corrección; indícaselo al usuario en lugar de intentar escribir tú.
+
+Si el veredicto es Aprobado: recomienda pedir revisión humana de la PR; el workflow de CI del
+plugin habrá dejado además su propio comentario de revisión automática.
 
 ## Banderas rojas (no te las saltes)
 
@@ -75,6 +117,7 @@ de solo-lectura.
 | Pensamiento | Realidad |
 |---|---|
 | "Corrijo este bug pequeño de paso" | /review SOLO informa. Modificar código es trabajo de /implement (modo corrección). |
-| "Actualizo spec.md o progress.md con lo que veo" | No escribes en spec.md; en progress.md solo si el usuario lo pide explícitamente (Fase 5). |
+| "Actualizo spec.md o progress.md con lo que veo" | /review NO escribe ficheros (allowed-tools lo impide). Persistir hallazgos es trabajo de /implement (Fase 5). |
+| "Reporto esto por si acaso, aunque no estoy seguro" | Solo reportas confianza ≥ 75; intenta refutar cada hallazgo antes de incluirlo (Fase 4). |
 | "Construyo el grafo para analizar mejor" | Solo-lectura: usa el grafo si ya existe, nunca lo construyas ni actualices (Fase 2.4). |
 | "Marco la tarea como aprobada en ClickUp" | /review no cambia estados; el cierre a 'complete' es siempre humano. |

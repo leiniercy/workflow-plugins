@@ -39,6 +39,23 @@ const COMMANDS = {
     description:
       "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones y seguridad, con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp.",
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+    // Lista blanca de herramientas (solo Claude Code): hace cumplir el contrato
+    // solo-lectura de /review a nivel de tool, no solo por prosa. Sin Edit/Write/
+    // Task. Bash acotado a git de lectura y a consultas de grafo (NUNCA build/update).
+    allowedTools: [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git blame:*)",
+      "Bash(git status:*)",
+      "Bash(graphify query:*)",
+      "Bash(graphify explain:*)",
+      "Bash(graphify path:*)",
+      "Bash(graphify --version:*)",
+    ],
   },
 };
 
@@ -88,14 +105,20 @@ const ADAPTERS = {
       "`" + name + "` (`${CLAUDE_PLUGIN_ROOT}/skills/" + name + "/SKILL.md`)",
     commandPath: (name) => join(ROOT, "adapters/claude/commands", name + ".md"),
     guidePath: (name) => join(ROOT, "adapters/claude/skills", name, "SKILL.md"),
-    commandFrontmatter: (meta) =>
-      [
+    commandFrontmatter: (meta) => {
+      const lines = [
         "---",
         "description: " + meta.description,
         'argument-hint: "' + meta.argumentHint + '"',
-        "---",
-        "",
-      ].join("\n"),
+      ];
+      // allowed-tools es frontmatter propio de Claude Code; solo se emite si el
+      // comando lo declara (p. ej. /review, que es solo-lectura).
+      if (meta.allowedTools && meta.allowedTools.length) {
+        lines.push("allowed-tools: " + meta.allowedTools.join(", "));
+      }
+      lines.push("---", "");
+      return lines.join("\n");
+    },
     guideFrontmatter: (name, meta) =>
       [
         "---",

@@ -33,12 +33,24 @@ Versionado [SemVer](https://semver.org/lang/es/).
   copiar un fichero con credenciales por repo consumidor. `MCP_SERVERS` queda como fuente
   única en `sync.mjs`. La plantilla `examples/mcp.json.example` se mantiene como alternativa
   para credenciales por proyecto.
+- **`/review` endurecido con técnicas del plugin oficial `code-review`** (referencia §3 de
+  `docs/referencias.md`): `allowed-tools` read-only en el frontmatter de Claude (sin
+  `Edit`/`Write`/`Task`; `Bash` acotado a git de lectura y consultas de grafo) que hace
+  cumplir el contrato solo-lectura a nivel de herramienta; auto-refutación de cada hallazgo
+  antes de reportarlo; scoring de confianza 0-100 con umbral ≥ 75; y lista explícita de
+  "qué NO reportar" (falsos positivos). `allowedTools` se declara por comando en `sync.mjs`
+  y solo el adaptador Claude lo emite.
 
 ### Cambiado
 
 - **Manifiestos completados**: `plugin.json` y `marketplace.json` con autor, email, homepage
   y repositorio reales (`leiniercy/custom-ia-plugin`). La entrada del plugin en
   `marketplace.json` declara ahora `"version": "0.1.0"`, coherente con el pin por tag.
+- **Contrato de `/review` ahora 100 % solo-lectura**: se elimina la antigua excepción por la
+  que `/review` podía escribir hallazgos en `progress.md`. La persistencia de hallazgos pasa
+  a `/implement`: al entrar en modo corrección desde un informe de `/review` presente en la
+  conversación, registra los hallazgos en `progress.md` antes de trabajarlos, garantizando la
+  recuperación en sesiones limpias futuras.
 
 ## [0.1.0] - 2026-06-12
 

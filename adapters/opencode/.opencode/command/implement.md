@@ -21,7 +21,11 @@ Eres el agente implementador. Tu contrato: trabajar contra `spec.md`, dejar rast
    - Si en el contexto de la conversación hay un informe reciente de /review con hallazgos
      Críticos/Altos/Medios pendientes, o la última entrada de progress.md registra
      hallazgos de revisión sin resolver: modo CORRECCIÓN — trabaja sobre esos hallazgos,
-     no sobre criterios nuevos.
+     no sobre criterios nuevos. **Si los hallazgos vienen del informe en conversación y aún
+     NO constan en progress.md** (porque /review es solo-lectura y no escribe ficheros),
+     regístralos primero como una entrada de fase "review" siguiendo la guía
+     `registro-progreso` (`.opencode/guides/registro-progreso.md`) (nota: "hallazgos de revisión pendientes") para que la
+     corrección sea recuperable en una sesión limpia futura; luego trabájalos.
    - Si no hay entradas de fase "implement" en progress.md: modo TRABAJO NUEVO — empieza
      por el primer criterio de aceptación.
    - Si hay entradas "implement" con criterios parciales: modo CONTINUACIÓN — retoma desde
