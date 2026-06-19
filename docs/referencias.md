@@ -93,9 +93,9 @@ Aporta técnicas concretas para subir la señal y bajar los falsos positivos de 
 
 | Patrón | Qué es | Aplicación a nuestro plugin | Estado |
 |---|---|---|---|
-| **Tiering de modelos** | haiku para descartes baratos (¿el PR necesita review?), sonnet para resúmenes/CLAUDE.md, opus para bugs | `/review` despacha 3 agentes de plugin read-only por tier: opus (bugs+seguridad), sonnet (spec+tests), haiku (convenciones); degrada a análisis en línea en OpenCode | ✅ `b3e576b` |
+| **Tiering de modelos** | haiku para descartes baratos (¿el PR necesita review?), sonnet para resúmenes/CLAUDE.md, opus para bugs | `/review` despacha 3 agentes read-only por dimensión (opus: bugs+seguridad, sonnet: spec+tests, haiku: convenciones) + un verificador adversarial (opus); `/plan` delega la reconnaissance a `explorador-repo` (sonnet). Degrada a análisis en línea en OpenCode | ✅ `b3e576b`+`d7e41fb` |
 | **Scoring de confianza 0-100 + umbral** | Cada hallazgo se puntúa; se descartan los de baja confianza | Confianza por hallazgo con umbral ≥ 75, ahora en la guía `revision-hallazgos` (fuente única) | ✅ `b98d04d`+`b3e576b` |
-| **Pase de validación adversarial** | Subagentes que intentan *refutar* cada hallazgo antes de reportarlo | Auto-refutación de cada hallazgo, ahora distribuida en **subagentes independientes por dimensión** (cada uno refuta lo suyo); el orquestador re-aplica el umbral al sintetizar | 🟡 `b98d04d`+`b3e576b` (auto-refutación distribuida; falta refutación CRUZADA entre agentes) |
+| **Pase de validación adversarial** | Subagentes que intentan *refutar* cada hallazgo antes de reportarlo | Tras la síntesis, un agente independiente `verificador-hallazgos` (opus, contexto fresco) intenta refutar CADA hallazgo (refutación cruzada, no auto-refutación); el orquestador solo reporta los `confirmado` | ✅ `b98d04d`+`b3e576b`+`d7e41fb` |
 | `allowed-tools` en el frontmatter del comando | Restringe las tools que el comando puede usar (privilegio mínimo) | **Corrección:** `allowed-tools` es PRE-APROBACIÓN de permisos, no un sandbox duro — pre-autoriza solo lectura en `/review` (privilegio mínimo), pero el solo-lectura DURO lo dan los **agentes** revisores (su campo `tools` SÍ es allowlist hard) | ✅ `b98d04d` (afirmación corregida en `b3e576b`) |
 | Lista explícita de falsos positivos | Enumera qué NO flaggear (preexistente, nitpicks, lo que pilla el linter…) | Lista "qué NO reportar" en la guía `revision-hallazgos` (Fase 4.1 de `/review` la referencia) | ✅ `b98d04d`+`b3e576b` |
 | Agentes independientes en paralelo | Varias perspectivas simultáneas sobre el diff | Las 5 dimensiones corren como 3 subagentes en paralelo, agrupadas por tier de modelo | ✅ `b3e576b` |
@@ -131,11 +131,12 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 
 1. ✅ **Endurecer `/review` con técnicas de `code-review`** — hecho en `b98d04d`:
    `allowed-tools` read-only + scoring de confianza + lista de no-flag + auto-refutación.
-2. ✅ **Tiering de modelos en subagentes** de `/review` — hecho en `b3e576b`: 3 agentes de
-   plugin read-only (opus: bugs+seguridad, sonnet: spec+tests, haiku: convenciones); `/review`
-   los despacha en paralelo y degrada a análisis en línea en OpenCode. De paso, la validación
-   adversarial pasa a subagentes independientes por dimensión. _Pendiente opcional:_ refutación
-   CRUZADA entre agentes y tiering en subagentes de `/plan`. → §3.
+2. ✅ **Tiering de modelos en subagentes** de `/review` y `/plan` — `b3e576b`+`d7e41fb`:
+   `/review` despacha 3 agentes read-only por dimensión (opus/sonnet/haiku) + un verificador
+   adversarial independiente (`verificador-hallazgos`, opus) que refuta los hallazgos antes del
+   informe; `/plan` delega la reconnaissance estructural a `explorador-repo` (sonnet). Todos
+   read-only duros (`tools: Read, Grep, Glob`); degradan a análisis/exploración en línea en
+   OpenCode. → §3.
 3. **Skills auto-activables**: dejar de marcar todas las guías como `user-invocable:false`
    donde tenga sentido (p.ej. `estados-tareas`). → §2, §4. _(Siguiente sugerido.)_
 4. **Reescribir guías con la plantilla de skill** (persona + anti-patrones + proceso). → §4.
@@ -157,6 +158,7 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 | `.gitattributes` con `eol=lf` (EOL determinista) | endurecimiento propio | `3b02f60` |
 | `/review` read-only (allowed-tools) + confianza + no-flag + auto-refutación | code-review | `b98d04d` |
 | Tiering de modelos en `/review` vía 3 agentes read-only + corrección de la afirmación sobre `allowed-tools` | code-review | `b3e576b` |
+| Refutación cruzada (`verificador-hallazgos`, opus) en `/review` + explorador read-only en `/plan` (`explorador-repo`, sonnet) | code-review / superpowers | `d7e41fb` |
 
 ---
 

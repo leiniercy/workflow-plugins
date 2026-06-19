@@ -56,6 +56,18 @@ Versionado [SemVer](https://semver.org/lang/es/).
   **pre-aprobación de permisos** (no un sandbox): refuerza el contrato junto con la prosa y
   las banderas rojas, pero el bloqueo DURO de solo-lectura lo dan los agentes revisores (su
   campo `tools`). Prosa de `core/workflows/review.md` y de `docs/referencias.md` actualizada.
+- **Validación adversarial independiente en `/review`** (`core/agents/verificador-hallazgos.md`,
+  opus, read-only): tras sintetizar los hallazgos de los agentes por dimensión, `/review`
+  despacha un verificador independiente que intenta REFUTAR cada hallazgo con contexto fresco
+  (¿preexistente?, ¿correcto en su contexto?, ¿ya cubierto por un test?, contradicciones
+  cruzadas) y devuelve un veredicto por hallazgo; el orquestador solo reporta los `confirmado`.
+  Completa el patrón de validación adversarial del plugin oficial `code-review` (Fase 4.2).
+  Degrada a una segunda pasada escéptica en línea en OpenCode.
+- **Tiering en la exploración de `/plan`** (`core/agents/explorador-repo.md`, sonnet,
+  read-only): `/plan` conserva graphify como acelerador (lo ejecuta el orquestador) y delega la
+  reconnaissance estructural del repo a un explorador que devuelve un mapa en TOON (estructura
+  Next.js, convenciones, ficheros candidatos, riesgos), liberando al planificador para razonar
+  el enfoque y dialogarlo con el usuario. Degrada a exploración en línea en OpenCode.
 
 ### Cambiado
 
