@@ -36,6 +36,15 @@ ANTES de proponer un enfoque, entiende el código real. Sigue la guía
    El enfoque debe nacer del código existente, no de suposiciones genéricas; el grafo
    reduce dónde mirar, no sustituye mirar.
 
+**Reparto del trabajo (tiering):** la consulta a graphify (paso 1) la haces tú, el
+orquestador (es el acelerador opcional y requiere su CLI). La reconnaissance estructural
+(pasos 2-3) puedes delegarla: **si dispones del agente `explorador-repo`**, despáchalo
+pasándole la descripción de la tarea y los resultados del grafo si los hubo; te devolverá un
+mapa estructurado (estructura, convenciones, ficheros candidatos, riesgos) con un modelo más
+barato, y tú te centras en razonar el enfoque y dialogarlo con el usuario. **Si no dispones
+de él** (p. ej. en OpenCode), explora tú mismo. El mapa orienta; las decisiones de diseño se
+confirman siempre en el código.
+
 ## Fase 4 — Propuesta de especificación (gate de aprobación)
 
 Redacta la especificación completa y PRESÉNTALA en el chat antes de escribirla a disco:

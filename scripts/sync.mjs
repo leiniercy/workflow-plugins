@@ -91,6 +91,18 @@ const AGENTS = {
     model: "haiku",
     tools: ["Read", "Grep", "Glob"],
   },
+  "verificador-hallazgos": {
+    description:
+      "Verificador adversarial independiente de /review (solo-lectura). Despáchalo UNA vez tras recoger los hallazgos de los agentes por dimensión: intenta REFUTAR cada hallazgo contra el código y devuelve un veredicto (confirmado/refutado/dudoso) por hallazgo. Filtra falsos positivos antes del informe; no emite el veredicto final.",
+    model: "opus",
+    tools: ["Read", "Grep", "Glob"],
+  },
+  "explorador-repo": {
+    description:
+      "Explorador de repositorio read-only para la Fase 3 de /plan. Despáchalo para mapear estructura del proyecto Next.js, convenciones vigentes, ficheros candidatos y señales de riesgo, y devolver un mapa estructurado (TOON). No propone el plan ni escribe ficheros: el planificador razona el enfoque a partir de su mapa.",
+    model: "sonnet",
+    tools: ["Read", "Grep", "Glob"],
+  },
 };
 
 // ---------------------------------------------------------------------------

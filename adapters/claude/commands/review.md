@@ -68,18 +68,30 @@ pasa a la Fase 4 a sintetizarlos.
 dimensiones en línea, leyendo el diff y los ficheros afectados completos, y aplica a cada
 hallazgo la validación de la Fase 4 antes de incluirlo.
 
-## Fase 4 — Validación, síntesis e informe
+## Fase 4 — Síntesis, refutación cruzada e informe
 
-### 4.1 — Validación de cada hallazgo
+### 4.1 — Síntesis de los hallazgos candidatos
 
-Todo hallazgo —venga de un subagente o de tu análisis en línea— debe pasar la disciplina de
-la guía `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`): auto-refutación contra el código en su contexto completo,
-confianza 0-100 con umbral ≥ 75, lista de "qué NO reportar" y severidad. Los subagentes ya la
-aplicaron a sus dimensiones; al sintetizar, **deduplica** los hallazgos que varias dimensiones
-señalen sobre la misma línea y **reaplica el umbral** al conjunto. Para hallazgos vía grafo
-(Fase 2.4) marcados INFERRED/AMBIGUOUS, confírmalos en el código antes de incluirlos.
+Reúne los hallazgos de los tres agentes (o de tu análisis en línea). Todos deben cumplir la
+disciplina de la guía `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`): confianza 0-100 con umbral ≥ 75, lista de
+"qué NO reportar" y severidad. **Deduplica** los que varias dimensiones señalen sobre la misma
+línea y **reaplica el umbral** al conjunto. Para hallazgos vía grafo (Fase 2.4) marcados
+INFERRED/AMBIGUOUS, confírmalos en el código.
 
-### 4.2 — Informe
+### 4.2 — Refutación cruzada (validación adversarial independiente)
+
+**Si dispones del agente `verificador-hallazgos`**: despáchalo UNA vez con la lista de
+hallazgos candidatos sintetizados, el diff y el spec. Es un revisor independiente que NO los
+encontró y cuyo trabajo es intentar REFUTARLOS (¿preexistente?, ¿correcto en su contexto
+completo?, ¿ya cubierto por un test?, ¿contradice a otro hallazgo?). Quédate solo con los que
+marque `confirmado`; descarta los `refutado` y reubica los `dudoso` en la nota de baja
+confianza. Es la validación adversarial del plugin oficial `code-review`: un agente distinto,
+con contexto fresco, intenta tumbar lo que otro afirmó.
+
+**Si NO dispones de ese agente** (p. ej. en OpenCode): haz tú una segunda pasada escéptica
+sobre cada hallazgo superviviente, con la misma intención de refutarlo, antes de reportarlo.
+
+### 4.3 — Informe
 
 Presenta los hallazgos supervivientes (confianza ≥ 75) clasificados por severidad (Crítico /
 Alto / Medio / Bajo, según la guía `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`)). Cada hallazgo: fichero y
