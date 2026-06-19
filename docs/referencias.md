@@ -50,7 +50,7 @@ pero con un motor pesado. Tomamos los patrones, no la maquinaria.
 | Inyección de contexto en `SessionStart` | Reinyecta contexto relevante al iniciar sesión | Hook que inyecta `Estado actual` + criterios pendientes | ✅ `7ebd0ae` |
 | Versión en `plugin.json` **y** en el marketplace | Misma versión en ambos manifiestos, sincronizada | Añadida `version` al entry del marketplace | ✅ `7ebd0ae` |
 | Progressive disclosure (índice barato → detalle solo de IDs filtrados) | Búsqueda en 3 capas (search→timeline→get) para ahorrar tokens ~10x | Aplicable al listado de tareas de ClickUp y a resultados del grafo; encaja con TOON | 🟡 (TOON ya cubre la presentación; falta el patrón índice→detalle) |
-| `doctor` / `version-check` | Comando que diagnostica coherencia de la instalación | Un check de coherencia `plugin.json`↔`marketplace.json`↔`CHANGELOG` antes de publicar | 🔜 |
+| `doctor` / `version-check` | Comando que diagnostica coherencia de la instalación | `scripts/check-version.mjs` verifica que `plugin.json`↔`marketplace.json`↔`CHANGELOG` coinciden; corre en CI (`version-check.yml`) y antes de publicar | ✅ `fd69db1` |
 | Tags `<private>` para excluir contenido sensible | Marca contenido que no debe persistirse | Marginal: nuestro estado vive en el repo, no en BD | ⛔ (sin BD que filtrar) |
 | Worker service / SQLite / Chroma / viewer | Motor de memoria | — | ⛔ (sobre-ingeniería para nuestro alcance) |
 
@@ -76,7 +76,7 @@ clave: superpowers es **ambiental** (las skills se disparan solas), nosotros som
 | Hook *polyglot* `run-hook.cmd` (cmd→bash) + nombres sin extensión | Sortea que Claude Code en Windows antepone `bash` a comandos con `.sh` | No nos hace falta: nuestros hooks son `node` (cross-platform); evitamos el problema de raíz | ⛔ (innecesario; ventaja nuestra) |
 | Manejo multi-campo de salida del hook (`additional_context` vs `hookSpecificOutput.additionalContext`) | Emite el campo que cada harness consume | Solo targeteamos Claude Code → `hookSpecificOutput.additionalContext` (ya correcto) | ✅ (validado) |
 | Prosa neutral de plataforma + mapa de tools por harness | Una sola carpeta de skills, sin generar copias | Alternativa a nuestro `sync.mjs` (genera N copias). Nuestra vía evita prosa abstracta; el drift se neutraliza con el CI check | ⛔ (decisión consciente: preferimos generar) |
-| Rama `dev` para PRs + `scripts/bump-version.sh` + `.version-bump.json` | Contribuciones contra `dev`; bump de versión sincronizado en todos los manifiestos | Script de bump al publicar 0.1.1 (toca `plugin.json` y `marketplace.json`) | 🔜 |
+| Rama `dev` para PRs + `scripts/bump-version.sh` + `.version-bump.json` | Contribuciones contra `dev`; bump de versión sincronizado en todos los manifiestos | `scripts/bump-version.mjs` sincroniza `plugin.json` + `marketplace.json` + `CHANGELOG` (la rama `dev` y el `.version-bump.json` no se adoptan: trabajamos por ramas `feat/*` y la versión vive en `plugin.json`) | 🟡 `fd69db1` (bump sí; rama `dev` no) |
 | Tests de comportamiento de skills (¿de verdad se activan?) | Prompts que verifican que una skill se dispara y se sigue | Eval ligero: prompts que verifican que el agente elige el comando correcto | 🔜 |
 | Subagent-driven development (subagente por tarea, revisión en 2 etapas) | Despacha un subagente fresco por tarea con revisión spec→calidad | Posible para planes grandes en `/implement`; hoy trabajamos en el agente principal | 🔜 (evaluar; puede chocar con "empezar pequeño") |
 
@@ -146,9 +146,11 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 4. ✅ **Reescribir guías con la plantilla de skill** — `73679a3`: persona + anti-patrones
    nombrados + proceso + autocrítica en las 3 guías procedurales; rol + anti-patrones (sin
    persona forzada) en las 2 de referencia. → §4.
-5. **Script de bump de versión** que sincronice `plugin.json` + `marketplace.json` + `CHANGELOG`
-   (+ check de coherencia tipo `doctor`). → §1, §2. _(Siguiente sugerido.)_
+5. ✅ **Script de bump de versión** — `fd69db1`: `bump-version.mjs` sincroniza `plugin.json` +
+   `marketplace.json` + `CHANGELOG`, y `check-version.mjs` (doctor, en CI) falla si divergen.
+   → §1, §2.
 6. **Tests de comportamiento de skills/comandos** (eval ligero de activación). → §2.
+   _(Siguiente sugerido.)_
 7. **Add-on `frontend-design`** para tareas de UI en Next.js (evaluar empaquetado y licencia). → §4.
 
 ## Registro de lo ya adoptado
@@ -167,6 +169,7 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 | Refutación cruzada (`verificador-hallazgos`, opus) en `/review` + explorador read-only en `/plan` (`explorador-repo`, sonnet) | code-review / superpowers | `d7e41fb` |
 | Auto-activación de guías documentada + descripciones afinadas (corrige la premisa sobre `user-invocable`) | superpowers / frontend-design | `ea0e156` |
 | Guías reescritas con la plantilla de skill (persona + anti-patrones + proceso + autocrítica) | frontend-design | `73679a3` |
+| Scripts de bump y doctor de versión + CI de coherencia (`plugin.json`/`marketplace.json`/`CHANGELOG`) | claude-mem / superpowers | `fd69db1` |
 
 ---
 
