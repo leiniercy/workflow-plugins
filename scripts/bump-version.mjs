@@ -24,6 +24,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PLUGIN_JSON = join(ROOT, "adapters/claude/.claude-plugin/plugin.json");
 const MARKETPLACE_JSON = join(ROOT, ".claude-plugin/marketplace.json");
 const CHANGELOG = join(ROOT, "CHANGELOG.md");
+const REPO_SETTINGS = join(ROOT, "examples/repo-settings.json");
 const PLUGIN_NAME = "custom-ia-plugin";
 
 function parseVersion(v) {
@@ -72,6 +73,16 @@ if (!changelog.includes(MARKER)) {
 }
 const replacement = `## [No publicado]\n\n## [${next}] - ${today}`;
 writeFileSync(CHANGELOG, changelog.replace(MARKER, replacement));
+
+// 4) examples/repo-settings.json — el `ref` (tag) que copian los repos consumidores
+const settings = JSON.parse(readFileSync(REPO_SETTINGS, "utf8"));
+const biomas = settings.extraKnownMarketplaces && settings.extraKnownMarketplaces.biomas;
+if (biomas && biomas.source) {
+  biomas.source.ref = "v" + next;
+  writeFileSync(REPO_SETTINGS, JSON.stringify(settings, null, 2) + "\n");
+} else {
+  throw new Error("No se encontró extraKnownMarketplaces.biomas.source en repo-settings.json");
+}
 
 console.log(`bump-version: ${current} -> ${next}`);
 console.log("  ✓ plugin.json, marketplace.json y CHANGELOG actualizados");

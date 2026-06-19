@@ -18,6 +18,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PLUGIN_JSON = join(ROOT, "adapters/claude/.claude-plugin/plugin.json");
 const MARKETPLACE_JSON = join(ROOT, ".claude-plugin/marketplace.json");
 const CHANGELOG = join(ROOT, "CHANGELOG.md");
+const REPO_SETTINGS = join(ROOT, "examples/repo-settings.json");
 const PLUGIN_NAME = "custom-ia-plugin";
 
 const pluginV = JSON.parse(readFileSync(PLUGIN_JSON, "utf8")).version;
@@ -26,6 +27,9 @@ const marketV = (market.plugins || []).find((p) => p.name === PLUGIN_NAME)?.vers
 // Primera cabecera "## [X.Y.Z]" del CHANGELOG (la de "[No publicado]" no casa con \d).
 const changelogMatch = readFileSync(CHANGELOG, "utf8").match(/^## \[(\d+\.\d+\.\d+)\]/m);
 const changelogV = changelogMatch ? changelogMatch[1] : null;
+// El `ref` (tag) de la plantilla que copian los consumidores debe ser "v" + versión.
+const settings = JSON.parse(readFileSync(REPO_SETTINGS, "utf8"));
+const settingsRef = settings.extraKnownMarketplaces?.biomas?.source?.ref;
 
 const problems = [];
 if (!pluginV) problems.push("plugin.json no declara `version`.");
@@ -36,6 +40,10 @@ if (pluginV && marketV && pluginV !== marketV) {
 }
 if (pluginV && changelogV && pluginV !== changelogV) {
   problems.push(`plugin.json (${pluginV}) != última versión del CHANGELOG (${changelogV}).`);
+}
+if (!settingsRef) problems.push("examples/repo-settings.json no tiene extraKnownMarketplaces.biomas.source.ref.");
+if (pluginV && settingsRef && settingsRef !== "v" + pluginV) {
+  problems.push(`examples/repo-settings.json ref (${settingsRef}) != v${pluginV}.`);
 }
 
 if (problems.length) {

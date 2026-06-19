@@ -50,6 +50,11 @@ criterio de aceptación pendiente, en orden:
    (`feat(<taskId>): <criterio>` o el tipo que corresponda) y ejecútalo SOLO si el usuario
    aprueba. Puede preferir agrupar varios criterios: respétalo.
 
+**UI en Next.js (opcional):** si el criterio implica interfaz y tienes instalada la skill
+`frontend-design` (add-on oficial de Anthropic, ver README), aprovéchala en el paso 2 para
+diseñar el componente con intención visual antes de cablear la lógica. Es una recomendación
+que compone con el ciclo TDD; degrada sin problema si no está instalada.
+
 En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo (test
 que reproduce el problema → corrección → verificación → registro con fase "implement" y
 nota "corrección de hallazgo de review" → gate de commit).

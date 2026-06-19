@@ -5,6 +5,23 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Recomendación del add-on `frontend-design`** (backlog #7): para tareas de UI en Next.js, el
+  README y el workflow `/implement` recomiendan la skill oficial de Anthropic `frontend-design`
+  como add-on **opcional**. NO se redistribuye — es software propietario de Anthropic
+  (© Anthropic PBC, todos los derechos reservados), así que se compone por **recomendación**: el
+  usuario la instala aparte y `/implement` la aprovecha para diseñar UI si está instalada,
+  degradando sin problema si no.
+
+### Cambiado
+
+- **`bump-version`/`check-version` cubren también `examples/repo-settings.json`**: el `ref` (tag
+  pineado que copian los repos consumidores) se sube y se verifica junto a `plugin.json`,
+  `marketplace.json` y el CHANGELOG, para que no quede desfasado tras publicar. README
+  actualizado: árbol de arquitectura con `agents/`, los scripts y los CI; el pin del ejemplo
+  apunta al último tag publicado.
+
 ## [0.1.2] - 2026-06-19
 
 ### Añadido

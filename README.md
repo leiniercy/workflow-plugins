@@ -10,22 +10,23 @@ revisión independiente y continuidad entre sesiones vía `progress.md`.
 custom-ia-plugin/
 ├── core/                      ← ÚNICA fuente de verdad (editar SOLO aquí)
 │   ├── workflows/             start.md · plan.md · implement.md · review.md
-│   └── guides/                estados-tareas · registro-progreso · grafo-conocimiento · formato-toon
-├── scripts/
-│   └── sync.mjs               genera los adaptadores desde core/
+│   ├── guides/                estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos
+│   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · verificador-hallazgos · explorador-repo
+├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior
 ├── adapters/
 │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
 │   │   ├── .claude-plugin/plugin.json
 │   │   ├── .mcp.json          (generado por sync.mjs — MCP de ClickUp por env vars)
 │   │   ├── commands/          (generado por sync.mjs — no editar a mano)
 │   │   ├── skills/            (generado por sync.mjs — no editar a mano)
+│   │   ├── agents/            (generado por sync.mjs — subagentes read-only de /review y /plan)
 │   │   └── hooks/             SessionStart (contexto de tarea) + Stop (notificación sonora)
 │   └── opencode/
 │       └── .opencode/         carpeta lista para copiar al repo consumidor
 │           ├── command/       (generado por sync.mjs — no editar a mano)
 │           └── guides/        (generado por sync.mjs — no editar a mano)
 ├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a adapters/claude)
-├── .github/workflows/review.yml      ← CI de revisión de PRs (agnóstico de la herramienta)
+├── .github/workflows/         review.yml (CI de PRs) · sync-check · version-check · behavior-check
 └── examples/                  plantillas para repos consumidores
 ```
 
@@ -58,6 +59,18 @@ todo lo visible (commits, push, PR, estados), `$ARGUMENTS` con fallback por infe
 rama, detección de modo por contexto, degradación elegante si falta ClickUp o graphify, y
 historial inmutable en `progress.md`.
 
+## Add-on recomendado: diseño de UI (`frontend-design`)
+
+Para tareas de **interfaz en Next.js**, este flujo compone bien con la skill oficial de
+Anthropic [`frontend-design`](https://github.com/anthropics/claude-code/tree/main/plugins/frontend-design)
+(genera UI distintiva — paleta, tipografía, layout — evitando la "estética genérica de IA").
+
+Es **opcional y se instala aparte**: `frontend-design` es software propietario de Anthropic
+(© Anthropic PBC), por lo que **no se redistribuye** con este plugin — solo lo recomendamos.
+Instálalo siguiendo su repositorio oficial (enlace arriba). Cuando lo tengas instalado,
+`/implement` lo aprovechará para diseñar componentes de UI antes de cablear la lógica; si no
+está, el flujo degrada sin problema.
+
 ## Requisitos comunes
 
 - **Git** y la rama base `develop` en el repo consumidor.
@@ -81,7 +94,7 @@ historial inmutable en `progress.md`.
 1. Publica este repo en GitHub (ver "Publicación") o usa el repo ya publicado.
 2. En el **repo consumidor**, copia `examples/repo-settings.json` como
    `.claude/settings.json` (o fusiónalo con el existente). Apunta al repo y al tag:
-   el plugin queda pineado a `v0.1.0` con `autoUpdate: false`.
+   el plugin queda pineado al último tag publicado (p. ej. `v0.1.2`) con `autoUpdate: false`.
 3. **ClickUp por variables de entorno (recomendado).** El plugin ya incluye su propio
    `.mcp.json` (`adapters/claude/.mcp.json`, generado por `sync.mjs`) que Claude Code
    auto-registra al instalarlo. Solo necesitas exportar las credenciales en tu entorno —
