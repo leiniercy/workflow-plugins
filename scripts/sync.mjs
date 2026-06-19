@@ -122,7 +122,13 @@ const MCP_SERVERS = {
   },
 };
 
-// Metadatos por guía (frontmatter de las skills de Claude)
+// Metadatos por guía. En Claude generan skills con `user-invocable: false`: eso SOLO las
+// oculta del menú `/` (no son comandos accionables), pero siguen siendo AUTO-ACTIVABLES por
+// el modelo a partir de su `description` — no ponemos `disable-model-invocation`. Por eso el
+// `description` se redacta como disparador ambiental ("Úsala cuando…"): es lo que decide
+// cuándo se carga la guía sin que un comando la referencie. (revision-hallazgos se mantiene
+// con disparador acotado a /review a propósito: es una subrutina interna, no conocimiento
+// ambiental.)
 const GUIDES = {
   "estados-tareas": {
     description:
@@ -130,11 +136,11 @@ const GUIDES = {
   },
   "registro-progreso": {
     description:
-      "Procedimiento exacto para crear y actualizar tasks/<taskId>/progress.md. Úsala SIEMPRE que un comando deba registrar avance, crear el fichero inicial o actualizar el estado actual de una tarea. Garantiza que cualquier agente en sesión limpia recupere el contexto.",
+      "Procedimiento exacto para crear y actualizar tasks/<taskId>/progress.md. Úsala SIEMPRE que vayas a registrar avance de una tarea, crear su fichero de estado inicial o actualizar su estado actual. Garantiza que cualquier agente en sesión limpia recupere el contexto.",
   },
   "grafo-conocimiento": {
     description:
-      "Procedimiento para explorar el repo vía el grafo de conocimiento de graphify en lugar de leer ficheros crudos. Úsala cuando un comando necesite entender la estructura del repo, localizar áreas afectadas por una tarea o analizar el impacto de un cambio. Incluye detección, construcción/actualización del grafo y fallback manual.",
+      "Procedimiento para explorar el repo vía el grafo de conocimiento de graphify en lugar de leer ficheros crudos. Úsala cuando necesites entender la estructura del repo, localizar áreas afectadas por una tarea o analizar el impacto de un cambio. Incluye detección, construcción/actualización del grafo y fallback manual.",
   },
   "formato-toon": {
     description:
