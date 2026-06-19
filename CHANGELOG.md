@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.1.1] - 2026-06-19
+
 ### Añadido
 
 - **Hook `SessionStart` de continuidad entre sesiones** (`adapters/claude/hooks/session-context.js`,
