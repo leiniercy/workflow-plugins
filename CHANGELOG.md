@@ -34,12 +34,28 @@ Versionado [SemVer](https://semver.org/lang/es/).
   única en `sync.mjs`. La plantilla `examples/mcp.json.example` se mantiene como alternativa
   para credenciales por proyecto.
 - **`/review` endurecido con técnicas del plugin oficial `code-review`** (referencia §3 de
-  `docs/referencias.md`): `allowed-tools` read-only en el frontmatter de Claude (sin
-  `Edit`/`Write`/`Task`; `Bash` acotado a git de lectura y consultas de grafo) que hace
-  cumplir el contrato solo-lectura a nivel de herramienta; auto-refutación de cada hallazgo
-  antes de reportarlo; scoring de confianza 0-100 con umbral ≥ 75; y lista explícita de
-  "qué NO reportar" (falsos positivos). `allowedTools` se declara por comando en `sync.mjs`
-  y solo el adaptador Claude lo emite.
+  `docs/referencias.md`): `allowed-tools` read-only en el frontmatter de Claude (`Bash` acotado
+  a git de lectura y consultas de grafo) que pre-autoriza solo herramientas de lectura
+  (privilegio mínimo); auto-refutación de cada hallazgo antes de reportarlo; scoring de
+  confianza 0-100 con umbral ≥ 75; y lista explícita de "qué NO reportar" (falsos positivos).
+  `allowedTools` se declara por comando en `sync.mjs` y solo el adaptador Claude lo emite.
+- **Tiering de modelos en `/review` vía 3 agentes de plugin read-only** (referencia §3 de
+  `docs/referencias.md`; backlog #2): `/review` despacha en paralelo, en lugar de analizar
+  las cinco dimensiones en el agente principal, tres subagentes especializados con el modelo
+  adecuado a su coste/complejidad — `revisor-bugs-seguridad` (opus: bugs + seguridad),
+  `revisor-spec-tests` (sonnet: cumplimiento de spec + tests) y `revisor-convenciones`
+  (haiku: convenciones). Cada agente declara `tools: Read, Grep, Glob`, una **allowlist
+  DURA**: es el bloqueo de solo-lectura real (no pueden modificar nada ni despachar más
+  agentes). La validación adversarial pasa así a subagentes independientes por dimensión. La
+  disciplina de validación (auto-refutación + confianza + no-flag + severidad) se extrae a la
+  guía `revision-hallazgos` como fuente única, referenciada por `/review` y por los agentes.
+  Los agentes son exclusivos del adaptador Claude (los genera `sync.mjs`); en OpenCode
+  `/review` degrada al análisis en línea de las cinco dimensiones.
+- **Corrección sobre `allowed-tools`**: se rectifica la afirmación de que `allowed-tools` de
+  un slash command "hace cumplir el solo-lectura a nivel de herramienta". En realidad es
+  **pre-aprobación de permisos** (no un sandbox): refuerza el contrato junto con la prosa y
+  las banderas rojas, pero el bloqueo DURO de solo-lectura lo dan los agentes revisores (su
+  campo `tools`). Prosa de `core/workflows/review.md` y de `docs/referencias.md` actualizada.
 
 ### Cambiado
 

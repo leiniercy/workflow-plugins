@@ -93,12 +93,12 @@ Aporta técnicas concretas para subir la señal y bajar los falsos positivos de 
 
 | Patrón | Qué es | Aplicación a nuestro plugin | Estado |
 |---|---|---|---|
-| **Tiering de modelos** | haiku para descartes baratos (¿el PR necesita review?), sonnet para resúmenes/CLAUDE.md, opus para bugs | `/review` podría despachar subagentes con el modelo adecuado por dimensión (haiku: convenciones/nits; opus: bugs/seguridad) | 🔜 (alto valor) |
-| **Scoring de confianza 0-100 + umbral** | Cada hallazgo se puntúa; se descartan los de baja confianza | Confianza por hallazgo en `/review` con umbral ≥ 75 (Fase 4.2) | ✅ `b98d04d` |
-| **Pase de validación adversarial** | Subagentes que intentan *refutar* cada hallazgo antes de reportarlo | Auto-refutación de cada hallazgo antes de incluirlo en `/review` | 🟡 `b98d04d` (como auto-refutación del propio agente, no subagentes independientes aún) |
-| `allowed-tools` en el frontmatter del comando | Restringe las tools que el comando puede usar (privilegio mínimo) | **Hace cumplir técnicamente** el "solo-lectura" de `/review` (sin Edit/Write/Task; Bash acotado) | ✅ `b98d04d` |
-| Lista explícita de falsos positivos | Enumera qué NO flaggear (preexistente, nitpicks, lo que pilla el linter…) | Lista "qué NO reportar" añadida a `/review` (Fase 4.3) | ✅ `b98d04d` |
-| Agentes independientes en paralelo | Varias perspectivas simultáneas sobre el diff | Nuestras 5 dimensiones podrían correr en paralelo como subagentes | 🔜 |
+| **Tiering de modelos** | haiku para descartes baratos (¿el PR necesita review?), sonnet para resúmenes/CLAUDE.md, opus para bugs | `/review` despacha 3 agentes de plugin read-only por tier: opus (bugs+seguridad), sonnet (spec+tests), haiku (convenciones); degrada a análisis en línea en OpenCode | ✅ `b3e576b` |
+| **Scoring de confianza 0-100 + umbral** | Cada hallazgo se puntúa; se descartan los de baja confianza | Confianza por hallazgo con umbral ≥ 75, ahora en la guía `revision-hallazgos` (fuente única) | ✅ `b98d04d`+`b3e576b` |
+| **Pase de validación adversarial** | Subagentes que intentan *refutar* cada hallazgo antes de reportarlo | Auto-refutación de cada hallazgo, ahora distribuida en **subagentes independientes por dimensión** (cada uno refuta lo suyo); el orquestador re-aplica el umbral al sintetizar | 🟡 `b98d04d`+`b3e576b` (auto-refutación distribuida; falta refutación CRUZADA entre agentes) |
+| `allowed-tools` en el frontmatter del comando | Restringe las tools que el comando puede usar (privilegio mínimo) | **Corrección:** `allowed-tools` es PRE-APROBACIÓN de permisos, no un sandbox duro — pre-autoriza solo lectura en `/review` (privilegio mínimo), pero el solo-lectura DURO lo dan los **agentes** revisores (su campo `tools` SÍ es allowlist hard) | ✅ `b98d04d` (afirmación corregida en `b3e576b`) |
+| Lista explícita de falsos positivos | Enumera qué NO flaggear (preexistente, nitpicks, lo que pilla el linter…) | Lista "qué NO reportar" en la guía `revision-hallazgos` (Fase 4.1 de `/review` la referencia) | ✅ `b98d04d`+`b3e576b` |
+| Agentes independientes en paralelo | Varias perspectivas simultáneas sobre el diff | Las 5 dimensiones corren como 3 subagentes en paralelo, agrupadas por tier de modelo | ✅ `b3e576b` |
 | Preámbulo "Agent assumptions" | "Las tools funcionan; no las pruebes; llama solo con propósito" | Directiva de eficiencia para nuestros comandos que despachan subagentes | 🔜 |
 | Skip/guard automático | Salta PRs cerrados/draft/triviales/ya-revisados | Ya tenemos detección de trabajo previo en `/start`; extensible a `/review` | 🟡 |
 | Enlaces con SHA completo + rango de líneas | `…/blob/<sha>/file#L67-L72` para enlaces estables | Útil si `/review` enlaza al código; combinable con el formato TOON de hallazgos | 🔜 (menor) |
@@ -131,12 +131,13 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 
 1. ✅ **Endurecer `/review` con técnicas de `code-review`** — hecho en `b98d04d`:
    `allowed-tools` read-only + scoring de confianza + lista de no-flag + auto-refutación.
-   _Pendiente opcional:_ validación adversarial con subagentes independientes (hoy es
-   auto-refutación del propio agente).
-2. **Tiering de modelos en subagentes** de `/review` (y `/plan`): haiku/sonnet/opus por
-   dimensión/tarea. → §3. _(Siguiente sugerido.)_
+2. ✅ **Tiering de modelos en subagentes** de `/review` — hecho en `b3e576b`: 3 agentes de
+   plugin read-only (opus: bugs+seguridad, sonnet: spec+tests, haiku: convenciones); `/review`
+   los despacha en paralelo y degrada a análisis en línea en OpenCode. De paso, la validación
+   adversarial pasa a subagentes independientes por dimensión. _Pendiente opcional:_ refutación
+   CRUZADA entre agentes y tiering en subagentes de `/plan`. → §3.
 3. **Skills auto-activables**: dejar de marcar todas las guías como `user-invocable:false`
-   donde tenga sentido (p.ej. `estados-tareas`). → §2, §4.
+   donde tenga sentido (p.ej. `estados-tareas`). → §2, §4. _(Siguiente sugerido.)_
 4. **Reescribir guías con la plantilla de skill** (persona + anti-patrones + proceso). → §4.
 5. **Script de bump de versión** que sincronice `plugin.json` + `marketplace.json` + `CHANGELOG`
    (+ check de coherencia tipo `doctor`). → §1, §2.
@@ -155,8 +156,9 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 | CI anti-drift (`sync.mjs` + `git diff`) | superpowers (disciplina `check-*`) | `bac5610` |
 | `.gitattributes` con `eol=lf` (EOL determinista) | endurecimiento propio | `3b02f60` |
 | `/review` read-only (allowed-tools) + confianza + no-flag + auto-refutación | code-review | `b98d04d` |
+| Tiering de modelos en `/review` vía 3 agentes read-only + corrección de la afirmación sobre `allowed-tools` | code-review | `b3e576b` |
 
 ---
 
-_Última actualización: 2026-06-18. Mantén este documento al día cuando adoptes un patrón o
+_Última actualización: 2026-06-19. Mantén este documento al día cuando adoptes un patrón o
 analices un repo nuevo._
