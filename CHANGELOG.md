@@ -5,6 +5,18 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Eval de comportamiento híbrido** (backlog #6, patrón de `superpowers` §2): verifica que los
+  prompts producen el comportamiento esperado del agente, no solo que los ficheros son
+  correctos. Dos mitades: (a) **determinista** — `scripts/check-behavior.mjs` asevera los
+  contratos estructurales (read-only de `/review`, `tools`/modelo de cada agente,
+  auto-activación de guías, banderas rojas presentes) sobre los artefactos shipped, como test
+  INDEPENDIENTE de `sync.mjs`; corre en el nuevo CI `behavior-check.yml`. (b) **manual** —
+  `docs/eval-comportamiento.md`, una checklist de prompts → comportamiento esperado
+  (auto-activación, routing por estado, respeto de gates, tiering, degradación) para ejecutar
+  antes de publicar.
+
 ## [0.1.1] - 2026-06-19
 
 ### Añadido

@@ -1,0 +1,38 @@
+name: Contratos de comportamiento
+
+# Mitad determinista del eval de comportamiento (#6): asevera los contratos que
+# encodean el comportamiento del plugin (read-only de /review, tools/modelo de los
+# agentes, auto-activación de guías, banderas rojas). La mitad manual vive en
+# docs/eval-comportamiento.md.
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "core/**"
+      - "scripts/sync.mjs"
+      - "scripts/check-behavior.mjs"
+      - "adapters/**"
+      - ".github/workflows/behavior-check.yml"
+  pull_request:
+    paths:
+      - "core/**"
+      - "scripts/sync.mjs"
+      - "scripts/check-behavior.mjs"
+      - "adapters/**"
+      - ".github/workflows/behavior-check.yml"
+
+jobs:
+  behavior-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Asevera los contratos de comportamiento
+        run: node scripts/check-behavior.mjs
