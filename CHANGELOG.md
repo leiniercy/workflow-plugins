@@ -71,6 +71,13 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Cambiado
 
+- **Guías reescritas con la plantilla de skill** (`core/guides/*.md`, patrón de
+  `frontend-design`): cada guía gana un **rol** explícito, **anti-patrones nombrados** (que
+  generalizan las banderas rojas), un **proceso** claro y, en las procedurales, una
+  **autocrítica** de cierre. Se aplica al nivel que encaja con cada guía sin inflar el texto:
+  las tres procedurales (`registro-progreso`, `grafo-conocimiento`, `revision-hallazgos`) con
+  la plantilla completa; las dos de referencia (`estados-tareas`, `formato-toon`) con el
+  espíritu (rol + anti-patrones), sin forzar una persona sobre una tabla de consulta.
 - **Auto-activación de las guías (skills) documentada y afinada**: se aclara que
   `user-invocable: false` solo oculta la skill del menú `/` y **no** bloquea la auto-activación
   del modelo (eso sería `disable-model-invocation: true`, que no usamos). Las guías ya se

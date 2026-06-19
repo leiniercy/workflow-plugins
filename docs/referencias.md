@@ -118,7 +118,7 @@ esta skill mejora justo el trabajo de UI que hace `/implement`.
 | Patrón | Qué es | Aplicación a nuestro plugin | Estado |
 |---|---|---|---|
 | Skill auto-activable vía `description` fuerte | "Guidance for … Use when …" dispara la skill sin invocación explícita | Ya aplica: las guías se auto-activan por `description` (lo gobierna ese campo, no el flag `user-invocable`); redactadas como "Úsala cuando…" | ✅ `ea0e156` |
-| Plantilla de skill: **persona + anti-patrones nombrados + proceso + autocrítica** | Da rol, nombra los defaults a evitar, define proceso e itera con auto-revisión | Modelo para reescribir nuestras guías; "nombra los defaults a evitar" generaliza nuestras banderas rojas | 🟡 (banderas rojas aplican la idea; falta la persona/proceso) |
+| Plantilla de skill: **persona + anti-patrones nombrados + proceso + autocrítica** | Da rol, nombra los defaults a evitar, define proceso e itera con auto-revisión | Aplicada a las guías: las 3 procedurales (`registro-progreso`, `grafo-conocimiento`, `revision-hallazgos`) con plantilla completa; las 2 de referencia (`estados-tareas`, `formato-toon`) con el espíritu (rol + anti-patrones), sin forzar persona en una tabla de consulta | ✅ `73679a3` |
 | Bucle plan → autocrítica contra el brief → build | Propone un plan, lo critica contra el brief, y solo entonces implementa | Ya vive en `/plan` (gate de aprobación) e `/implement`; podríamos añadir auto-crítica explícita del enfoque antes de codificar | 🟡 |
 | Campo `license` en el frontmatter de la skill | Declara licencia a nivel de skill | Trivial de añadir a nuestras skills | 🔜 (menor) |
 | **Skill `frontend-design` como add-on** | La propia skill de diseño UI | Empaquetarla/recomendarla junto a nuestro plugin para tareas de UI en Next.js (atribuir, MIT/ver licencia) | 🔜 (sinergia fuerte; evaluar) |
@@ -143,10 +143,11 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
    auto-activan por `description`; se afinaron las descripciones command-scoped
    (`grafo-conocimiento`, `registro-progreso`) para disparo ambiental y se documentó la
    intención en `sync.mjs`. → §2, §4.
-4. **Reescribir guías con la plantilla de skill** (persona + anti-patrones + proceso). → §4.
-   _(Siguiente sugerido.)_
+4. ✅ **Reescribir guías con la plantilla de skill** — `73679a3`: persona + anti-patrones
+   nombrados + proceso + autocrítica en las 3 guías procedurales; rol + anti-patrones (sin
+   persona forzada) en las 2 de referencia. → §4.
 5. **Script de bump de versión** que sincronice `plugin.json` + `marketplace.json` + `CHANGELOG`
-   (+ check de coherencia tipo `doctor`). → §1, §2.
+   (+ check de coherencia tipo `doctor`). → §1, §2. _(Siguiente sugerido.)_
 6. **Tests de comportamiento de skills/comandos** (eval ligero de activación). → §2.
 7. **Add-on `frontend-design`** para tareas de UI en Next.js (evaluar empaquetado y licencia). → §4.
 
@@ -165,6 +166,7 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 | Tiering de modelos en `/review` vía 3 agentes read-only + corrección de la afirmación sobre `allowed-tools` | code-review | `b3e576b` |
 | Refutación cruzada (`verificador-hallazgos`, opus) en `/review` + explorador read-only en `/plan` (`explorador-repo`, sonnet) | code-review / superpowers | `d7e41fb` |
 | Auto-activación de guías documentada + descripciones afinadas (corrige la premisa sobre `user-invocable`) | superpowers / frontend-design | `ea0e156` |
+| Guías reescritas con la plantilla de skill (persona + anti-patrones + proceso + autocrítica) | frontend-design | `73679a3` |
 
 ---
 
