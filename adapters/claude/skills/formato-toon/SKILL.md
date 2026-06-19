@@ -5,10 +5,12 @@ user-invocable: false
 ---
 # Formato TOON — eficiencia de contexto en salidas estructuradas
 
-TOON (Token-Oriented Object Notation) representa los mismos datos que JSON con una
-fracción de los tokens: declara los campos UNA vez en una cabecera y elimina llaves,
-corchetes repetidos y comillas innecesarias. El ahorro crece con el número de filas
-(en listas uniformes largas, típicamente 40-60% menos tokens que JSON).
+Cuando vayas a presentar datos estructurados, **elige el formato por su coste en tokens**: para
+listas uniformes largas, TOON ahorra contexto frente a JSON/YAML. TOON (Token-Oriented Object
+Notation) representa los mismos datos que JSON con una fracción de los tokens: declara los
+campos UNA vez en una cabecera y elimina llaves, corchetes repetidos y comillas innecesarias.
+El ahorro crece con el número de filas (en listas uniformes largas, típicamente 40-60% menos
+tokens que JSON).
 
 ## Sintaxis
 

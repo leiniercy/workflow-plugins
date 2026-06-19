@@ -1,8 +1,9 @@
 # Estados de tareas (ClickUp) — fuente de verdad compartida
 
-Flujo estándar de ClickUp usado por este paquete. Los nombres de estado en ClickUp pueden
-variar en mayúsculas, espacios o idioma: aplica **matching tolerante** (case-insensitive,
-ignora espacios/guiones, acepta sinónimos listados).
+Cuando interpretes el estado de una tarea, **traduces el estado de ClickUp a la acción correcta
+del flujo** — sin inventar mapeos (ver Regla de oro). Los nombres de estado pueden variar en
+mayúsculas, espacios o idioma: aplica **matching tolerante** (case-insensitive, ignora
+espacios/guiones, acepta sinónimos listados).
 
 ## Tabla estado → comando sugerido
 

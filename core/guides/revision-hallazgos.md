@@ -1,49 +1,47 @@
 # Validación y puntuación de hallazgos de revisión
 
-Disciplina común para subir la señal y bajar los falsos positivos de un hallazgo de
-revisión, antes de incluirlo en un informe. La aplican tanto `/review` (al sintetizar)
-como los subagentes revisores por dimensión. Es la técnica del plugin oficial `code-review`.
+Cuando valides un hallazgo, eres **escéptico por defecto**: tu trabajo es REFUTARLO antes de
+dejarlo pasar, no confirmarlo por inercia. Un falso positivo cuesta más que un hallazgo omitido
+— erosiona la confianza en la revisión y hace perder tiempo. Esta disciplina la aplican tanto
+`/review` (al sintetizar) como los subagentes revisores; es la técnica del plugin oficial
+`code-review`.
 
-## 1 — Auto-refutación de cada hallazgo
+## Proceso
 
-Para CADA hallazgo candidato, intenta REFUTARLO antes de incluirlo: vuelve al código fuente
-y compruébalo en su contexto COMPLETO, no solo en el diff. Para cumplimiento de spec,
-confirma que el criterio existe y que ningún test ya lo cubre. Para hallazgos derivados del
-grafo (INFERRED/AMBIGUOUS), confírmalos leyendo el código. Si no puedes sostener el hallazgo
-con evidencia concreta, descártalo: los falsos positivos erosionan la confianza y hacen
-perder tiempo.
+1. **Auto-refutación.** Para CADA hallazgo candidato, vuelve al código fuente y compruébalo en
+   su contexto COMPLETO, no solo en el diff. Para cumplimiento de spec, confirma que el criterio
+   existe y que ningún test ya lo cubre. Para hallazgos del grafo (INFERRED/AMBIGUOUS),
+   confírmalos leyendo el código. Si no lo sostienes con evidencia concreta, descártalo.
+2. **Confianza (0-100) y umbral.** Asigna a cada superviviente un nivel:
 
-## 2 — Confianza (0-100) y umbral
+   | Confianza | Significado |
+   |---|---|
+   | 0 | falso positivo / no sostenible |
+   | 25 | quizá real |
+   | 50 | real pero menor |
+   | 75 | real e importante |
+   | 100 | certero |
 
-Asigna a cada hallazgo superviviente un nivel de confianza:
+   Solo cuentan los de **confianza ≥ 75**. Los de 50-74 van a una nota breve ("posibles, baja
+   confianza", una línea cada uno); por debajo de 50 se descartan.
+3. **Severidad** del que pasa el umbral: **Crítico** (rompe funcionalidad, seguridad
+   comprometida o criterio fallido), **Alto** (bug probable o desviación significativa de spec),
+   **Medio** (deuda técnica, test ausente, convención rota), **Bajo** (estilo, nits).
 
-| Confianza | Significado |
-|---|---|
-| 0 | falso positivo / no sostenible |
-| 25 | quizá real |
-| 50 | real pero menor |
-| 75 | real e importante |
-| 100 | certero |
+## Anti-patrones (qué NO reportar, aunque parezca defecto)
 
-Solo cuentan los hallazgos con **confianza ≥ 75**. Los de 50-74 se agrupan en una nota breve
-("posibles, baja confianza", una línea cada uno); todo lo que esté por debajo de 50 se descarta.
+- **Lo preexistente** — problemas que la rama no introdujo.
+- **El falso bug** — código que parece roto pero es correcto en su contexto completo.
+- **El nitpick** — lo que un senior no marcaría.
+- **El trabajo del linter** — lo que ya detecta el linter/formatter (y NO lo ejecutes para
+  verificarlo); ni líneas con un comentario de ignore del linter.
+- **La calidad genérica** — cobertura o estilo, salvo que spec.md o una convención del repo lo
+  exija.
+- **El "por si acaso"** — reportar algo de lo que no estás seguro. Si no pasa la auto-refutación
+  con evidencia, no entra.
 
-## 3 — Qué NO reportar (falsos positivos)
+## Autocrítica antes de reportar
 
-No flaggees, aunque parezcan defectos:
-
-- Problemas preexistentes no introducidos por la rama.
-- Código que parece un bug pero es correcto en su contexto.
-- Nitpicks que un senior no marcaría.
-- Lo que un linter/formatter ya detecta (y NO ejecutes el linter para verificarlo).
-- Calidad general (cobertura, estilo) salvo que spec.md o una convención del repo la exija.
-- Líneas con un comentario de ignore del linter.
-
-## 4 — Severidad
-
-Clasifica cada hallazgo que pasa el umbral:
-
-- **Crítico**: rompe funcionalidad, seguridad comprometida o criterio de aceptación fallido.
-- **Alto**: bug probable o desviación significativa de spec.
-- **Medio**: deuda técnica, test ausente, convención rota.
-- **Bajo**: estilo, nits, sugerencias.
+Por cada hallazgo, pregúntate: **¿lo sostendría ante el autor con el código delante?** Si la
+respuesta titubea, baja su confianza o descártalo. La revisión vale por lo que confirma, no por
+lo que enumera.
