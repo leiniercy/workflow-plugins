@@ -39,13 +39,18 @@ const COMMANDS = {
     description:
       "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones y seguridad, con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp.",
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
-    // Lista blanca de herramientas (solo Claude Code): hace cumplir el contrato
-    // solo-lectura de /review a nivel de tool, no solo por prosa. Sin Edit/Write/
-    // Task. Bash acotado a git de lectura y a consultas de grafo (NUNCA build/update).
+    // Lista blanca de herramientas (solo Claude Code). OJO: `allowed-tools` en un
+    // slash command NO es un sandbox duro — es PRE-APROBACIÓN de permisos (esas tools
+    // corren sin prompt; otras seguirían el flujo normal de permisos). Aquí pre-autoriza
+    // solo herramientas de lectura (privilegio mínimo), reforzando el contrato junto con
+    // la prosa y las banderas rojas. El bloqueo DURO de solo-lectura lo dan los agentes
+    // revisores (su campo `tools` SÍ es allowlist hard). `Agent` pre-autoriza despachar
+    // esos subagentes; Bash queda acotado a git de lectura y consultas de grafo.
     allowedTools: [
       "Read",
       "Glob",
       "Grep",
+      "Agent",
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git show:*)",
@@ -56,6 +61,35 @@ const COMMANDS = {
       "Bash(graphify path:*)",
       "Bash(graphify --version:*)",
     ],
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Agentes de plugin (solo Claude Code). Subagentes de solo-lectura que /review
+// despacha por dimensión, cada uno con el modelo adecuado a su coste/complejidad
+// (tiering, patrón del plugin oficial code-review). Su campo `tools` es una
+// allowlist DURA: Read/Grep/Glob y nada más → no pueden modificar nada ni
+// despachar otros agentes. OpenCode no recibe agentes: /review degrada al análisis
+// en línea de las cinco dimensiones.
+// ---------------------------------------------------------------------------
+const AGENTS = {
+  "revisor-bugs-seguridad": {
+    description:
+      "Subagente de /review (solo-lectura) para las dimensiones de BUGS y SEGURIDAD. Despáchalo en paralelo desde /review para auditar errores lógicos, edge cases, SSR/hidratación, secretos, validación de inputs e inyección. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
+    model: "opus",
+    tools: ["Read", "Grep", "Glob"],
+  },
+  "revisor-spec-tests": {
+    description:
+      "Subagente de /review (solo-lectura) para las dimensiones de CUMPLIMIENTO DE SPEC y TESTS. Despáchalo en paralelo desde /review para comprobar criterios de aceptación y la cobertura/calidad de los tests. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
+    model: "sonnet",
+    tools: ["Read", "Grep", "Glob"],
+  },
+  "revisor-convenciones": {
+    description:
+      "Subagente de /review (solo-lectura) para la dimensión de CONVENCIONES del repo. Despáchalo en paralelo desde /review para detectar desviaciones de patrones ya establecidos (estructura, naming, estado, fetching). Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
+    model: "haiku",
+    tools: ["Read", "Grep", "Glob"],
   },
 };
 
@@ -94,6 +128,10 @@ const GUIDES = {
     description:
       "Convención de salida en formato TOON (Token-Oriented Object Notation) para datos estructurados. Úsala siempre que vayas a devolver listas largas de datos uniformes, múltiples rutas del grafo de graphify, esquemas de base de datos o salidas estructurales complejas — en lugar de JSON o YAML — para minimizar el consumo de tokens.",
   },
+  "revision-hallazgos": {
+    description:
+      "Disciplina para validar y puntuar un hallazgo de revisión antes de reportarlo: auto-refutación contra el código, escala de confianza 0-100 con umbral ≥ 75, lista de qué NO reportar y clasificación por severidad. Úsala en /review y en los subagentes revisores para subir la señal y bajar los falsos positivos.",
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -105,6 +143,7 @@ const ADAPTERS = {
       "`" + name + "` (`${CLAUDE_PLUGIN_ROOT}/skills/" + name + "/SKILL.md`)",
     commandPath: (name) => join(ROOT, "adapters/claude/commands", name + ".md"),
     guidePath: (name) => join(ROOT, "adapters/claude/skills", name, "SKILL.md"),
+    agentPath: (name) => join(ROOT, "adapters/claude/agents", name + ".md"),
     commandFrontmatter: (meta) => {
       const lines = [
         "---",
@@ -125,6 +164,18 @@ const ADAPTERS = {
         "name: " + name,
         "description: " + meta.description,
         "user-invocable: false",
+        "---",
+        "",
+      ].join("\n"),
+    // Agentes: solo el adaptador Claude los define. `tools` es la allowlist DURA
+    // (read-only) y `model` fija el tier (opus/sonnet/haiku).
+    agentFrontmatter: (name, meta) =>
+      [
+        "---",
+        "name: " + name,
+        "description: " + meta.description,
+        "tools: " + meta.tools.join(", "),
+        "model: " + meta.model,
         "---",
         "",
       ].join("\n"),
@@ -174,6 +225,18 @@ for (const adapter of Object.keys(ADAPTERS)) {
     mkdirSync(dirname(A.guidePath(name)), { recursive: true });
     writeFileSync(A.guidePath(name), out);
     written++;
+  }
+
+  // Agentes: solo los adaptadores que los soporten (hoy, Claude Code). OpenCode no
+  // define agentPath → se omite y /review degrada al análisis en línea.
+  if (A.agentPath) {
+    for (const [name, meta] of Object.entries(AGENTS)) {
+      const body = readFileSync(join(ROOT, "core/agents", name + ".md"), "utf8");
+      const out = A.agentFrontmatter(name, meta) + substitute(body, adapter);
+      mkdirSync(dirname(A.agentPath(name)), { recursive: true });
+      writeFileSync(A.agentPath(name), out);
+      written++;
+    }
   }
 }
 
