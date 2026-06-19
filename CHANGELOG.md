@@ -71,6 +71,13 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Cambiado
 
+- **Auto-activación de las guías (skills) documentada y afinada**: se aclara que
+  `user-invocable: false` solo oculta la skill del menú `/` y **no** bloquea la auto-activación
+  del modelo (eso sería `disable-model-invocation: true`, que no usamos). Las guías ya se
+  auto-activan por su `description`; se afinaron las descripciones de `grafo-conocimiento` y
+  `registro-progreso` (antes "command-scoped") para que disparen de forma ambiental, y se
+  documentó la intención en `sync.mjs`. `revision-hallazgos` se mantiene acotada a `/review` a
+  propósito (subrutina interna). No se cambió ningún flag: el estado deseado ya existía.
 - **Manifiestos completados**: `plugin.json` y `marketplace.json` con autor, email, homepage
   y repositorio reales (`leiniercy/custom-ia-plugin`). La entrada del plugin en
   `marketplace.json` declara ahora `"version": "0.1.0"`, coherente con el pin por tag.

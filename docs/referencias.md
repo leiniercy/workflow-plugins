@@ -71,7 +71,7 @@ clave: superpowers es **ambiental** (las skills se disparan solas), nosotros som
 |---|---|---|---|
 | Bootstrap en `SessionStart` que auto-conduce el flujo | Inyecta instrucciones que hacen al agente comprobar skills antes de actuar | Bootstrap **suave**: el hook sugiere el próximo comando según el estado de la spec + recuerda gates | ✅ `8c198fb` |
 | Tablas de "Banderas rojas" | Catálogo de racionalizaciones prohibidas que endurece los gates | Añadidas a los 4 workflows de `core/` | ✅ `8c198fb` |
-| Skills auto-activables vía `description` | El campo `description` es el disparador ("Use when…") | Nuestras guías son `user-invocable:false` y solo se cargan desde comandos; podrían auto-dispararse (p.ej. `estados-tareas`) | 🔜 |
+| Skills auto-activables vía `description` | El campo `description` es el disparador ("Use when…") | **Aclaración:** `user-invocable:false` NO bloquea la auto-activación (solo oculta del menú `/`). Sin `disable-model-invocation`, nuestras guías YA se auto-activan por su `description`; afinadas las descripciones command-scoped para disparo ambiental | ✅ `ea0e156` |
 | `check-*` scripts en CI (disciplina anti-drift) | CI que falla si se violan invariantes del repo | Check que regenera con `sync.mjs` y falla si `adapters/` diverge de `core/` | ✅ `bac5610` |
 | Hook *polyglot* `run-hook.cmd` (cmd→bash) + nombres sin extensión | Sortea que Claude Code en Windows antepone `bash` a comandos con `.sh` | No nos hace falta: nuestros hooks son `node` (cross-platform); evitamos el problema de raíz | ⛔ (innecesario; ventaja nuestra) |
 | Manejo multi-campo de salida del hook (`additional_context` vs `hookSpecificOutput.additionalContext`) | Emite el campo que cada harness consume | Solo targeteamos Claude Code → `hookSpecificOutput.additionalContext` (ya correcto) | ✅ (validado) |
@@ -117,7 +117,7 @@ esta skill mejora justo el trabajo de UI que hace `/implement`.
 
 | Patrón | Qué es | Aplicación a nuestro plugin | Estado |
 |---|---|---|---|
-| Skill auto-activable vía `description` fuerte | "Guidance for … Use when …" dispara la skill sin invocación explícita | Refuerza el patrón de superpowers; aplicar a nuestras guías | 🔜 |
+| Skill auto-activable vía `description` fuerte | "Guidance for … Use when …" dispara la skill sin invocación explícita | Ya aplica: las guías se auto-activan por `description` (lo gobierna ese campo, no el flag `user-invocable`); redactadas como "Úsala cuando…" | ✅ `ea0e156` |
 | Plantilla de skill: **persona + anti-patrones nombrados + proceso + autocrítica** | Da rol, nombra los defaults a evitar, define proceso e itera con auto-revisión | Modelo para reescribir nuestras guías; "nombra los defaults a evitar" generaliza nuestras banderas rojas | 🟡 (banderas rojas aplican la idea; falta la persona/proceso) |
 | Bucle plan → autocrítica contra el brief → build | Propone un plan, lo critica contra el brief, y solo entonces implementa | Ya vive en `/plan` (gate de aprobación) e `/implement`; podríamos añadir auto-crítica explícita del enfoque antes de codificar | 🟡 |
 | Campo `license` en el frontmatter de la skill | Declara licencia a nivel de skill | Trivial de añadir a nuestras skills | 🔜 (menor) |
@@ -137,9 +137,14 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
    informe; `/plan` delega la reconnaissance estructural a `explorador-repo` (sonnet). Todos
    read-only duros (`tools: Read, Grep, Glob`); degradan a análisis/exploración en línea en
    OpenCode. → §3.
-3. **Skills auto-activables**: dejar de marcar todas las guías como `user-invocable:false`
-   donde tenga sentido (p.ej. `estados-tareas`). → §2, §4. _(Siguiente sugerido.)_
+3. ✅ **Skills auto-activables** — `ea0e156`: hallazgo de que `user-invocable:false` solo
+   oculta del menú `/` y NO bloquea la auto-activación (volcar el flag, como sugería la versión
+   inicial de este punto, habría expuesto guías internas como comandos). Las guías ya se
+   auto-activan por `description`; se afinaron las descripciones command-scoped
+   (`grafo-conocimiento`, `registro-progreso`) para disparo ambiental y se documentó la
+   intención en `sync.mjs`. → §2, §4.
 4. **Reescribir guías con la plantilla de skill** (persona + anti-patrones + proceso). → §4.
+   _(Siguiente sugerido.)_
 5. **Script de bump de versión** que sincronice `plugin.json` + `marketplace.json` + `CHANGELOG`
    (+ check de coherencia tipo `doctor`). → §1, §2.
 6. **Tests de comportamiento de skills/comandos** (eval ligero de activación). → §2.
@@ -159,6 +164,7 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 | `/review` read-only (allowed-tools) + confianza + no-flag + auto-refutación | code-review | `b98d04d` |
 | Tiering de modelos en `/review` vía 3 agentes read-only + corrección de la afirmación sobre `allowed-tools` | code-review | `b3e576b` |
 | Refutación cruzada (`verificador-hallazgos`, opus) en `/review` + explorador read-only en `/plan` (`explorador-repo`, sonnet) | code-review / superpowers | `d7e41fb` |
+| Auto-activación de guías documentada + descripciones afinadas (corrige la premisa sobre `user-invocable`) | superpowers / frontend-design | `ea0e156` |
 
 ---
 
