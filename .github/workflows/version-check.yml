@@ -1,0 +1,36 @@
+name: Coherencia de versión
+
+# Verifica que la versión coincide en los tres sitios donde vive (plugin.json,
+# marketplace.json y CHANGELOG). Falla si divergen — el "doctor" de scripts/check-version.mjs.
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "adapters/claude/.claude-plugin/plugin.json"
+      - ".claude-plugin/marketplace.json"
+      - "CHANGELOG.md"
+      - "scripts/check-version.mjs"
+      - ".github/workflows/version-check.yml"
+  pull_request:
+    paths:
+      - "adapters/claude/.claude-plugin/plugin.json"
+      - ".claude-plugin/marketplace.json"
+      - "CHANGELOG.md"
+      - "scripts/check-version.mjs"
+      - ".github/workflows/version-check.yml"
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Comprobar coherencia de versión
+        run: node scripts/check-version.mjs

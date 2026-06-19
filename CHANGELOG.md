@@ -68,6 +68,12 @@ Versionado [SemVer](https://semver.org/lang/es/).
   reconnaissance estructural del repo a un explorador que devuelve un mapa en TOON (estructura
   Next.js, convenciones, ficheros candidatos, riesgos), liberando al planificador para razonar
   el enfoque y dialogarlo con el usuario. Degrada a exploración en línea en OpenCode.
+- **Scripts de versión** (`scripts/bump-version.mjs`, `scripts/check-version.mjs`):
+  `bump-version <patch|minor|major|X.Y.Z>` sube la versión de forma SINCRONIZADA en los tres
+  sitios donde vive (`plugin.json`, la entrada de `marketplace.json` y el CHANGELOG, que mueve
+  "[No publicado]" a la versión con fecha y abre uno nuevo vacío). `check-version` es el
+  "doctor" que falla si esas tres versiones divergen. Nuevo CI `version-check.yml` ejecuta el
+  doctor en cada push/PR que toque la versión.
 
 ### Cambiado
 
