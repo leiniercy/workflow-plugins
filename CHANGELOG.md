@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.1.2] - 2026-06-19
+
 ### Añadido
 
 - **Eval de comportamiento híbrido** (backlog #6, patrón de `superpowers` §2): verifica que los

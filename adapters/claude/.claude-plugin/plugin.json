@@ -1,6 +1,6 @@
 {
   "name": "custom-ia-plugin",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Flujo de desarrollo guiado por tareas de ClickUp para proyectos Next.js: /start toma la tarea y crea la rama, /plan produce spec.md explorando el repo vía grafo de conocimiento (graphify), /implement ejecuta con TDD y /review diagnostica sin modificar. Estado persistido en tasks/<taskId>/ para continuidad entre sesiones.",
   "author": {
     "name": "Leiniercy",
