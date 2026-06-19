@@ -121,7 +121,7 @@ esta skill mejora justo el trabajo de UI que hace `/implement`.
 | Plantilla de skill: **persona + anti-patrones nombrados + proceso + autocrítica** | Da rol, nombra los defaults a evitar, define proceso e itera con auto-revisión | Aplicada a las guías: las 3 procedurales (`registro-progreso`, `grafo-conocimiento`, `revision-hallazgos`) con plantilla completa; las 2 de referencia (`estados-tareas`, `formato-toon`) con el espíritu (rol + anti-patrones), sin forzar persona en una tabla de consulta | ✅ `73679a3` |
 | Bucle plan → autocrítica contra el brief → build | Propone un plan, lo critica contra el brief, y solo entonces implementa | Ya vive en `/plan` (gate de aprobación) e `/implement`; podríamos añadir auto-crítica explícita del enfoque antes de codificar | 🟡 |
 | Campo `license` en el frontmatter de la skill | Declara licencia a nivel de skill | Trivial de añadir a nuestras skills | 🔜 (menor) |
-| **Skill `frontend-design` como add-on** | La propia skill de diseño UI | Empaquetarla/recomendarla junto a nuestro plugin para tareas de UI en Next.js (atribuir, MIT/ver licencia) | 🔜 (sinergia fuerte; evaluar) |
+| **Skill `frontend-design` como add-on** | La propia skill de diseño UI | **Recomendada, no empaquetada:** es propietaria de Anthropic (© Anthropic PBC, verificado en su LICENSE), así que NO se redistribuye. El README y `/implement` la sugieren como add-on opcional para UI en Next.js; el usuario la instala aparte | ✅ `e759f23` |
 
 ---
 
@@ -152,8 +152,13 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 6. ✅ **Tests de comportamiento de skills/comandos** — `858c065`: eval híbrido — mitad
    determinista (`check-behavior.mjs`, en CI) que asevera los contratos + mitad manual
    (`docs/eval-comportamiento.md`) para lo no determinista. → §2.
-7. **Add-on `frontend-design`** para tareas de UI en Next.js (evaluar empaquetado y licencia). → §4.
-   _(Siguiente sugerido.)_
+7. ✅ **Add-on `frontend-design`** — `e759f23`: la evaluación concluyó que es propietario de
+   Anthropic (no se puede empaquetar); integrado por **recomendación** (README + nota en
+   `/implement`), el usuario lo instala aparte. → §4.
+
+**Backlog consumido (#1–#7).** Nuevas mejoras salen de analizar repos nuevos (añade una sección
+`## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba (p. ej.
+`license` en skills §4, auto-crítica explícita en `/plan` §4, progressive disclosure §1).
 
 ## Registro de lo ya adoptado
 
@@ -173,6 +178,7 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 | Guías reescritas con la plantilla de skill (persona + anti-patrones + proceso + autocrítica) | frontend-design | `73679a3` |
 | Scripts de bump y doctor de versión + CI de coherencia (`plugin.json`/`marketplace.json`/`CHANGELOG`) | claude-mem / superpowers | `fd69db1` |
 | Eval de comportamiento híbrido (check determinista en CI + checklist manual) | superpowers | `858c065` |
+| Recomendación del add-on `frontend-design` (composición, no redistribución: es propietario) | frontend-design | `e759f23` |
 
 ---
 
