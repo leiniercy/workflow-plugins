@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:opencode.ai)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(gh api *)",
+      "Bash(grep -nE \"bash|pattern|\\\\\"\\\\\\\\*\\\\\"|git |allow|deny|ask|object|wildcard\")",
+      "Bash(node scripts/sync.mjs)",
+      "Bash(node scripts/check-behavior.mjs)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('adapters/opencode/.opencode/opencode.json','utf8'\\)\\); console.log\\('opencode.json: JSON válido ✓'\\)\")"
+    ]
+  }
+}
