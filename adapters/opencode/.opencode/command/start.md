@@ -18,7 +18,7 @@ lee ANTES de crear la rama porque el nombre de la rama (tipo y slug) sale de su 
 
 - Si `$ARGUMENTS` contiene un taskId: úsalo.
 - Si está vacío: lista las tareas de ClickUp en estado "to do" (usa matching tolerante del
-  estado según la guía `estados-tareas` (`.opencode/guides/estados-tareas.md`)) y pide al usuario que elija una. No elijas tú.
+  estado según la guía `estados-tareas` (skill de OpenCode, auto-activable)) y pide al usuario que elija una. No elijas tú.
 
 Lee la tarea completa de ClickUp: título, descripción, comentarios relevantes, prioridad.
 
@@ -51,7 +51,7 @@ Presenta la propuesta y ESPERA aprobación explícita del usuario antes de crear
    Rellena Propósito y Contexto con lo que sepas de la tarea; deja el resto con placeholders
    `_pendiente de /plan_`.
 3. Crea `tasks/<taskId>/progress.md` siguiendo EXACTAMENTE el formato de la guía
-   `registro-progreso` (`.opencode/guides/registro-progreso.md`). Primera entrada: fase "start", resultado "rama y esqueleto
+   `registro-progreso` (skill de OpenCode, auto-activable). Primera entrada: fase "start", resultado "rama y esqueleto
    creados".
 4. **Transición de estado (responsabilidad exclusiva de /start):** propón mover la tarea de
    ClickUp a "in progress". Ejecuta el cambio SOLO tras aprobación del usuario. Ningún otro

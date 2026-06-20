@@ -9,7 +9,7 @@
  *
  * Uso:  node scripts/sync.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -39,6 +39,10 @@ const COMMANDS = {
     description:
       "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones y seguridad, con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp.",
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+    // OpenCode: ejecuta /review bajo el agente primario read-only `revisor` (su
+    // `permission` BLOQUEA edición y todo bash salvo git/graphify de lectura). Es el
+    // refuerzo equivalente —y más fuerte— al `allowed-tools` de Claude de abajo.
+    opencodeAgent: "revisor",
     // Lista blanca de herramientas (solo Claude Code). OJO: `allowed-tools` en un
     // slash command NO es un sandbox duro — es PRE-APROBACIÓN de permisos (esas tools
     // corren sin prompt; otras seguirían el flujo normal de permisos). Aquí pre-autoriza
@@ -199,19 +203,58 @@ const ADAPTERS = {
       ].join("\n"),
   },
   opencode: {
-    guideRef: (name) => "`" + name + "` (`.opencode/guides/" + name + ".md`)",
+    // Las guías se generan como SKILL.md (skills de OpenCode): el modelo las
+    // auto-activa por su `description` vía la herramienta `skill`, igual que en
+    // Claude. Por eso la referencia cruzada es por NOMBRE, no por ruta.
+    guideRef: (name) => "`" + name + "` (skill de OpenCode, auto-activable)",
     commandPath: (name) =>
       join(ROOT, "adapters/opencode/.opencode/command", name + ".md"),
+    // Skills: <repo>/.opencode/skills/<name>/SKILL.md (OpenCode requiere el plural).
     guidePath: (name) =>
-      join(ROOT, "adapters/opencode/.opencode/guides", name + ".md"),
-    commandFrontmatter: (meta) =>
-      [
+      join(ROOT, "adapters/opencode/.opencode/skills", name, "SKILL.md"),
+    // Subagentes: <repo>/.opencode/agent/<name>.md (el loader acepta singular y plural).
+    agentPath: (name) =>
+      join(ROOT, "adapters/opencode/.opencode/agent", name + ".md"),
+    commandFrontmatter: (meta) => {
+      const lines = [
         "---",
         "description: " + meta.description + " Uso: " + meta.argumentHint,
+      ];
+      // Comandos read-only (p. ej. /review) se ejecutan bajo un agente primario
+      // cuyo `permission` bloquea de verdad la escritura (ver agente `revisor`).
+      if (meta.opencodeAgent) lines.push("agent: " + meta.opencodeAgent);
+      lines.push("---", "");
+      return lines.join("\n");
+    },
+    // Guías → skills: frontmatter mínimo (name + description). El `name` debe
+    // casar el nombre del directorio y el patrón ^[a-z0-9]+(-[a-z0-9]+)*$.
+    guideFrontmatter: (name, meta) =>
+      [
+        "---",
+        "name: " + name,
+        "description: " + meta.description,
         "---",
         "",
       ].join("\n"),
-    guideFrontmatter: () => "", // las guías de OpenCode son Markdown plano
+    // Subagentes read-only DURO: en OpenCode `permission` es un bloqueo real (no
+    // pre-aprobación). edit/bash/webfetch/websearch/task = deny equivale al
+    // `tools: [Read, Grep, Glob]` de Claude (read/grep/glob/list siguen permitidos
+    // por defecto). `model` se omite a propósito: hereda el de la sesión (portable
+    // entre proveedores; el tiering opcional se documenta en docs/opencode-integracion.md).
+    agentFrontmatter: (name, meta) =>
+      [
+        "---",
+        "description: " + meta.description,
+        "mode: subagent",
+        "permission:",
+        "  edit: deny",
+        "  bash: deny",
+        "  webfetch: deny",
+        "  websearch: deny",
+        "  task: deny",
+        "---",
+        "",
+      ].join("\n"),
   },
 };
 
@@ -267,5 +310,89 @@ const claudeMcp = JSON.stringify({ mcpServers: MCP_SERVERS }, null, 2) + "\n";
 const claudeMcpPath = join(ROOT, "adapters/claude/.mcp.json");
 writeFileSync(claudeMcpPath, claudeMcp);
 written++;
+
+// ---------------------------------------------------------------------------
+// OpenCode: artefactos que NO salen de core/ (glue específico del adaptador).
+// ---------------------------------------------------------------------------
+
+// (a) Agente primario `revisor`: ejecuta /review en modo read-only DURO. A
+// diferencia de Claude (donde `allowed-tools` es pre-aprobación, no sandbox), aquí
+// `permission` BLOQUEA de verdad: deny a edición y a todo bash salvo git y graphify
+// de LECTURA (mismo perímetro que el allowed-tools de /review en Claude). En
+// `permission.bash` gana la última regla que coincide, así que el catch-all "*": deny
+// va primero y las excepciones de lectura después.
+const opencodeRevisor =
+  [
+    "---",
+    "description: Agente de revisión read-only del flujo. Ejecuta /review: solo diagnostica, nunca modifica código, ficheros de estado ni ClickUp.",
+    "mode: primary",
+    "permission:",
+    "  edit: deny",
+    "  webfetch: deny",
+    "  websearch: deny",
+    "  bash:",
+    '    "*": deny',
+    '    "git diff*": allow',
+    '    "git log*": allow',
+    '    "git show*": allow',
+    '    "git blame*": allow',
+    '    "git status*": allow',
+    '    "graphify query*": allow',
+    '    "graphify explain*": allow',
+    '    "graphify path*": allow',
+    '    "graphify --version*": allow',
+    "---",
+    "",
+    "Eres el agente de **revisión read-only** del flujo de desarrollo. Tu única función es",
+    "ejecutar el comando `/review`: diagnosticar los cambios frente a `spec.md` y reportar.",
+    "Tu contrato es estricto: **solo informas**. No editas ficheros, no commiteas, no haces",
+    "push, no cambias estados en ClickUp. Solo puedes leer y ejecutar git/graphify de lectura;",
+    "el resto de bash está bloqueado por tu `permission`.",
+    "",
+    "Despacha en paralelo los subagentes revisores read-only (`revisor-bugs-seguridad`,",
+    "`revisor-spec-tests`, `revisor-convenciones`) y, tras sintetizar, el `verificador-hallazgos`,",
+    "tal como detalla el comando `/review`. Si el usuario quiere corregir algo tras tu informe,",
+    "lo pedirá explícitamente con `/implement` (que detecta el modo corrección).",
+    "",
+  ].join("\n");
+const opencodeRevisorPath = join(ROOT, "adapters/opencode/.opencode/agent/revisor.md");
+mkdirSync(dirname(opencodeRevisorPath), { recursive: true });
+writeFileSync(opencodeRevisorPath, opencodeRevisor);
+written++;
+
+// (b) opencode.json del adaptador, desde la MISMA fuente MCP_SERVERS (evita drift con
+// el .mcp.json de Claude). OpenCode lee `<repo>/.opencode/opencode.json`, así que el
+// consumidor solo copia la carpeta `.opencode/` y queda configurado. Sin secretos
+// versionados: se traduce `${VAR}` (Claude) → `{env:VAR}` (sustitución de OpenCode).
+const opencodeMcp = Object.fromEntries(
+  Object.entries(MCP_SERVERS).map(([name, s]) => [
+    name,
+    {
+      type: "local",
+      command: [s.command, ...s.args],
+      environment: Object.fromEntries(
+        Object.entries(s.env).map(([k, v]) => [
+          k,
+          v.replace(/^\$\{(\w+)\}$/, "{env:$1}"),
+        ])
+      ),
+    },
+  ])
+);
+const opencodeConfig =
+  JSON.stringify(
+    { $schema: "https://opencode.ai/config.json", mcp: opencodeMcp },
+    null,
+    2
+  ) + "\n";
+const opencodeConfigPath = join(ROOT, "adapters/opencode/.opencode/opencode.json");
+writeFileSync(opencodeConfigPath, opencodeConfig);
+written++;
+
+// (c) Limpieza: las guías ahora son skills (.opencode/skills/). Borra el directorio
+// antiguo de Markdown plano si quedó de una generación previa, para no dejar copias
+// obsoletas que el consumidor pudiera arrastrar.
+const legacyGuidesDir = join(ROOT, "adapters/opencode/.opencode/guides");
+if (existsSync(legacyGuidesDir)) rmSync(legacyGuidesDir, { recursive: true, force: true });
 
 console.log("sync.mjs: " + written + " ficheros generados desde core/.");

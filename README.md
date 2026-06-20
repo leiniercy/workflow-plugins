@@ -127,13 +127,35 @@ está, el flujo degrada sin problema.
 
 ## Instalación — OpenCode
 
-OpenCode no cuenta con un marketplace interno de comandos Markdown: la instalación consiste simplemente en copiar los archivos necesarios a tu proyecto.
+> **Integración a fondo:** para el detalle completo de cómo OpenCode carga cada pieza
+> (comandos, subagentes, skills, MCP, AGENTS.md, plugins), la brecha actual frente al
+> adaptador de Claude y el plan para llegar al 100 % de paridad, consulta
+> [docs/opencode-integracion.md](docs/opencode-integracion.md).
 
-1. Agrega los comandos y guías: Copia la carpeta adapters/opencode/.opencode/ a la raíz del repositorio de tu proyecto.
-(La estructura resultante debe ser <repo>/.opencode/command/*.md y <repo>/.opencode/guides/*.md).
+OpenCode no cuenta con un marketplace interno: la instalación consiste en copiar la carpeta
+`.opencode/` del adaptador a tu proyecto. Esa carpeta ya trae **todo** generado por `sync.mjs`.
 
-2. Configura las credenciales (opencode.json): Copia el archivo examples/opencode.json.example, pégalo en la raíz del repositorio y renómbralo como opencode.json. Luego, completa los campos CLICKUP_API_KEY y CLICKUP_TEAM_ID.
+1. **Copia el adaptador completo:** copia `adapters/opencode/.opencode/` a la raíz del repo.
+   Resultado: `<repo>/.opencode/` con `command/*.md` (comandos `/start` `/plan` `/implement`
+   `/review`), `agent/*.md` (subagentes read-only de `/review` y `/plan` + el primario
+   `revisor`), `skills/*/SKILL.md` (las guías, auto-activables) y `opencode.json` (MCP de
+   ClickUp). OpenCode lee `<repo>/.opencode/opencode.json` automáticamente.
 
-3. Define el contexto del agente (AGENTS.md): Copia examples/AGENTS.md.example, pégalo en la raíz del repositorio y renómbralo como AGENTS.md. OpenCode leerá este archivo automáticamente para entender el contexto y las reglas del proyecto al iniciar.
+2. **Exporta las credenciales (sin secretos en el repo):** el `opencode.json` usa la
+   sustitución `{env:VAR}` de OpenCode, así que solo exportas las variables en tu entorno:
 
-4. Verifica la instalación: Abre OpenCode dentro de tu repositorio y escribe /start. Debería aparecer el panel de comandos con su descripción correspondiente.
+   ```bash
+   # PowerShell:  $env:CLICKUP_API_KEY="pk_..."; $env:CLICKUP_TEAM_ID="123456"
+   export CLICKUP_API_KEY="pk_..."
+   export CLICKUP_TEAM_ID="123456"
+   ```
+   _(Alternativa por proyecto: copia `examples/opencode.json.example` a la raíz con valores
+   literales y añádelo al `.gitignore`.)_
+
+3. **Define el contexto (AGENTS.md):** copia `examples/AGENTS.md.example` como `AGENTS.md` en
+   la raíz. OpenCode lo lee automáticamente para entender las reglas del flujo.
+
+4. **Verifica:** abre OpenCode en el repo y comprueba — `/` muestra los comandos; `@` muestra
+   los subagentes (`revisor-bugs-seguridad`, etc.); `/review` los despacha en paralelo y **no
+   puede editar** ficheros (bloqueo real por `permission`). Si dudas de rutas en tu versión,
+   `opencode debug paths` lista los directorios que escanea.

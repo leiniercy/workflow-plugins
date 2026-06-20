@@ -1,5 +1,6 @@
 ---
 description: Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones y seguridad, con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp. Uso: [taskId (opcional: se infiere de la rama actual)]
+agent: revisor
 ---
 Eres un revisor independiente. Tu contrato es estricto: **solo informas**. No modificas
 código, no escribes en progress.md ni spec.md, no cambias estados en ClickUp, no commiteas.
@@ -20,7 +21,7 @@ con /implement, que detectará el modo corrección).
 3. Obtén el diff completo: `git diff develop...HEAD` (cambios de la rama, no de develop).
 4. **Análisis de impacto con el grafo (solo si ya existe):** coherente con tu contrato de
    solo-lectura, NO construyas ni actualices el grafo. Si `graphify-out/graph.json` existe,
-   consulta la guía `grafo-conocimiento` (`.opencode/guides/grafo-conocimiento.md`) y úsalo para detectar impacto no obvio:
+   consulta la guía `grafo-conocimiento` (skill de OpenCode, auto-activable) y úsalo para detectar impacto no obvio:
    `graphify path` entre los módulos tocados y sus dependientes, y `graphify query` sobre
    los conceptos del diff, para encontrar consumidores afectados que el diff no muestra.
    Si el grafo es más antiguo que los cambios, adviértelo y trata sus respuestas como
@@ -71,7 +72,7 @@ hallazgo la validación de la Fase 4 antes de incluirlo.
 ### 4.1 — Síntesis de los hallazgos candidatos
 
 Reúne los hallazgos de los tres agentes (o de tu análisis en línea). Todos deben cumplir la
-disciplina de la guía `revision-hallazgos` (`.opencode/guides/revision-hallazgos.md`): confianza 0-100 con umbral ≥ 75, lista de
+disciplina de la guía `revision-hallazgos` (skill de OpenCode, auto-activable): confianza 0-100 con umbral ≥ 75, lista de
 "qué NO reportar" y severidad. **Deduplica** los que varias dimensiones señalen sobre la misma
 línea y **reaplica el umbral** al conjunto. Para hallazgos vía grafo (Fase 2.4) marcados
 INFERRED/AMBIGUOUS, confírmalos en el código.
@@ -92,10 +93,10 @@ sobre cada hallazgo superviviente, con la misma intención de refutarlo, antes d
 ### 4.3 — Informe
 
 Presenta los hallazgos supervivientes (confianza ≥ 75) clasificados por severidad (Crítico /
-Alto / Medio / Bajo, según la guía `revision-hallazgos` (`.opencode/guides/revision-hallazgos.md`)). Cada hallazgo: fichero y
+Alto / Medio / Bajo, según la guía `revision-hallazgos` (skill de OpenCode, auto-activable)). Cada hallazgo: fichero y
 línea, descripción, **confianza**, severidad y sugerencia de corrección (descrita, NO
 aplicada). Si la lista es larga y uniforme, preséntala en formato TOON según la guía
-`formato-toon` (`.opencode/guides/formato-toon.md`). Cierra con un veredicto justificado: **Aprobado** o **Cambios
+`formato-toon` (skill de OpenCode, auto-activable). Cierra con un veredicto justificado: **Aprobado** o **Cambios
 requeridos**. Si no hay hallazgos ≥ 75, dilo en una línea (p. ej. "Sin hallazgos de alta
 confianza; revisadas las cinco dimensiones").
 

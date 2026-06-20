@@ -1,3 +1,7 @@
+---
+name: grafo-conocimiento
+description: Procedimiento para explorar el repo vía el grafo de conocimiento de graphify en lugar de leer ficheros crudos. Úsala cuando necesites entender la estructura del repo, localizar áreas afectadas por una tarea o analizar el impacto de un cambio. Incluye detección, construcción/actualización del grafo y fallback manual.
+---
 # Grafo de conocimiento (graphify) — exploración eficiente del repo
 
 Cuando explores el repo, el grafo es tu **acelerador, no tu oráculo**: orienta dónde mirar con
@@ -28,7 +32,7 @@ NUNCA como requisito bloqueante.
    - **Impacto / qué conecta A con B:** `graphify path "<NodoA>" "<NodoB>"`.
 
 **Formato de salida:** para listas largas y uniformes del grafo (nodos con metadatos, rutas,
-áreas afectadas, aristas) usa formato TOON siguiendo la guía `formato-toon` (`.opencode/guides/formato-toon.md`) en lugar de
+áreas afectadas, aristas) usa formato TOON siguiendo la guía `formato-toon` (skill de OpenCode, auto-activable) en lugar de
 JSON/YAML. Para resúmenes o conclusiones, prosa normal.
 
 ## Anti-patrones (nómbralos para no caer en ellos)

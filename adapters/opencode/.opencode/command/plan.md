@@ -25,7 +25,7 @@ Eres el agente planificador. Tu único output persistente es `spec.md`. No tocas
 ## Fase 3 — Exploración del repositorio (grafo primero, manual como fallback)
 
 ANTES de proponer un enfoque, entiende el código real. Sigue la guía
-`grafo-conocimiento` (`.opencode/guides/grafo-conocimiento.md`):
+`grafo-conocimiento` (skill de OpenCode, auto-activable):
 
 1. Si graphify está disponible y hay grafo (o el usuario aprueba construir/actualizar):
    orienta la exploración con `GRAPH_REPORT.md`/wiki, localiza áreas afectadas con
@@ -65,7 +65,7 @@ Itera con el usuario hasta que apruebe. SOLO entonces escribe `spec.md`.
 
 1. Escribe `spec.md` aprobado. En "Decisiones tomadas", registra las decisiones de diseño
    discutidas y las alternativas descartadas con su porqué.
-2. Añade entrada a `progress.md` siguiendo la guía `registro-progreso` (`.opencode/guides/registro-progreso.md`): fase "plan",
+2. Añade entrada a `progress.md` siguiendo la guía `registro-progreso` (skill de OpenCode, auto-activable): fase "plan",
    resultado "especificación aprobada", notas con lo esencial.
 3. NO cambies el estado de ClickUp: esa transición no pertenece a este comando.
 4. Pregunta si el usuario quiere commitear el spec (`docs(<taskId>): spec de la tarea`) y

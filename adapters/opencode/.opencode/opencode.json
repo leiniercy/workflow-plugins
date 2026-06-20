@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "clickup": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@taazkareem/clickup-mcp-server@latest"
+      ],
+      "environment": {
+        "CLICKUP_API_KEY": "{env:CLICKUP_API_KEY}",
+        "CLICKUP_TEAM_ID": "{env:CLICKUP_TEAM_ID}"
+      }
+    }
+  }
+}

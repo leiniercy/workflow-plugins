@@ -1,3 +1,7 @@
+---
+name: formato-toon
+description: Convención de salida en formato TOON (Token-Oriented Object Notation) para datos estructurados. Úsala siempre que vayas a devolver listas largas de datos uniformes, múltiples rutas del grafo de graphify, esquemas de base de datos o salidas estructurales complejas — en lugar de JSON o YAML — para minimizar el consumo de tokens.
+---
 # Formato TOON — eficiencia de contexto en salidas estructuradas
 
 Cuando vayas a presentar datos estructurados, **elige el formato por su coste en tokens**: para

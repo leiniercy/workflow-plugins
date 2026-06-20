@@ -1,3 +1,7 @@
+---
+name: revision-hallazgos
+description: Disciplina para validar y puntuar un hallazgo de revisión antes de reportarlo: auto-refutación contra el código, escala de confianza 0-100 con umbral ≥ 75, lista de qué NO reportar y clasificación por severidad. Úsala en /review y en los subagentes revisores para subir la señal y bajar los falsos positivos.
+---
 # Validación y puntuación de hallazgos de revisión
 
 Cuando valides un hallazgo, eres **escéptico por defecto**: tu trabajo es REFUTARLO antes de

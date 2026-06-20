@@ -24,7 +24,7 @@ Eres el agente implementador. Tu contrato: trabajar contra `spec.md`, dejar rast
      no sobre criterios nuevos. **Si los hallazgos vienen del informe en conversación y aún
      NO constan en progress.md** (porque /review es solo-lectura y no escribe ficheros),
      regístralos primero como una entrada de fase "review" siguiendo la guía
-     `registro-progreso` (`.opencode/guides/registro-progreso.md`) (nota: "hallazgos de revisión pendientes") para que la
+     `registro-progreso` (skill de OpenCode, auto-activable) (nota: "hallazgos de revisión pendientes") para que la
      corrección sea recuperable en una sesión limpia futura; luego trabájalos.
    - Si no hay entradas de fase "implement" en progress.md: modo TRABAJO NUEVO — empieza
      por el primer criterio de aceptación.
@@ -43,7 +43,7 @@ criterio de aceptación pendiente, en orden:
 2. **Implementación mínima** que hace pasar el test, respetando las convenciones del repo
    detectadas en /plan.
 3. **Verificación**: suite de tests completa + lint + type-check si existen.
-4. **Registro**: añade entrada a `progress.md` (guía `registro-progreso` (`.opencode/guides/registro-progreso.md`)): fase
+4. **Registro**: añade entrada a `progress.md` (guía `registro-progreso` (skill de OpenCode, auto-activable)): fase
    "implement", criterio completado, resultado, notas. Marca el checkbox del criterio en
    spec.md.
 5. **Commit (gate):** propón el commit con mensaje convencional
