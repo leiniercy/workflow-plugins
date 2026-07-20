@@ -5,7 +5,18 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.2.0] - 2026-07-20
+
 ### Añadido
+
+- **Guía `historias-usuario` cableada en `/plan`**: nueva guía en `core/guides/historias-usuario.md`
+  (skill auto-activable en ambos adaptadores) que define cómo redactar cada requisito como Historia
+  de Usuario en `spec.md`: historia (rol + valor), contexto de proceso de negocio, comportamientos
+  válidos/no válidos, criterios de aceptación en formato Given/When/Then y su diseño de casos de
+  prueba derivado, con tabla de trazabilidad Proceso→RF→HU→CA→EC y molde CRUD reutilizable. La Fase 4
+  de `/plan` la referencia vía `{{guide:historias-usuario}}`, así los criterios de aceptación nacen
+  verificables y con su escenario de prueba (EC). Mantiene una sola fuente de verdad del
+  comportamiento y deja los datos de gestión (programador, iteración, tiempos, riesgo) en ClickUp.
 
 - **Recomendación del add-on `frontend-design`** (backlog #7): para tareas de UI en Next.js, el
   README y el workflow `/implement` recomiendan la skill oficial de Anthropic `frontend-design`

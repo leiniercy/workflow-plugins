@@ -51,10 +51,16 @@ confirman siempre en el código.
 
 ## Fase 4 — Propuesta de especificación (gate de aprobación)
 
-Redacta la especificación completa y PRESÉNTALA en el chat antes de escribirla a disco:
+Redacta la especificación completa y PRESÉNTALA en el chat antes de escribirla a disco.
+Estructura cada requisito como una Historia de Usuario siguiendo la guía
+`historias-usuario` (`${CLAUDE_PLUGIN_ROOT}/skills/historias-usuario/SKILL.md`): historia (rol + valor), contexto de proceso de negocio,
+comportamientos válidos/no válidos, criterios de aceptación en Given/When/Then, diseño de
+casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos de gestión
+(programador, iteración, tiempos, riesgo) NO van en spec.md: viven en ClickUp.
 
-- **Criterios de aceptación**: checklist verificable, cada ítem comprobable con un test o
-  una acción concreta. Es la sección más importante: /implement trabajará contra ella.
+- **Criterios de aceptación**: checklist verificable en formato Given/When/Then, cada ítem
+  comprobable con un test o una acción concreta y con su escenario de prueba (EC) asociado.
+  Es la sección más importante: /implement trabajará contra ella.
 - **Alcance / Fuera de alcance**: explícitos, para acotar el trabajo.
 - **Enfoque técnico**: ficheros a crear/modificar, decisiones de diseño, estrategia de tests.
 - **Áreas afectadas** (si usaste el grafo, indica qué señaló y qué verificaste),

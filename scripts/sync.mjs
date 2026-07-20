@@ -154,6 +154,10 @@ const GUIDES = {
     description:
       "Disciplina para validar y puntuar un hallazgo de revisión antes de reportarlo: auto-refutación contra el código, escala de confianza 0-100 con umbral ≥ 75, lista de qué NO reportar y clasificación por severidad. Úsala en /review y en los subagentes revisores para subir la señal y bajar los falsos positivos.",
   },
+  "historias-usuario": {
+    description:
+      "Plantilla y procedimiento para redactar requisitos como Historias de Usuario en spec.md: historia (rol + valor), contexto de proceso de negocio, comportamientos válidos/no válidos, criterios de aceptación en Given/When/Then, diseño de casos de prueba derivado y tabla de trazabilidad Proceso→RF→HU→CA→EC. Úsala al definir los criterios de aceptación durante /plan, y siempre que redactes o revises una HU, su plan de pruebas o su vínculo con el proceso de negocio. Mantiene una sola fuente de verdad del comportamiento y deja los datos de gestión (programador, iteración, tiempos, riesgo) en ClickUp.",
+  },
 };
 
 // ---------------------------------------------------------------------------
