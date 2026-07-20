@@ -5,7 +5,7 @@
       "source": {
         "source": "github",
         "repo": "TU_USUARIO/custom-ia-plugin",
-        "ref": "v0.1.2"
+        "ref": "v0.2.0"
       }
     }
   },
