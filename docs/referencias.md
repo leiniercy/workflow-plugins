@@ -5,7 +5,8 @@
 > aplican (o no) a nuestro plugin**.
 >
 > **Estado** de cada patrón:
-> `✅ adoptado` · `🔜 pendiente` · `🟡 parcial` · `⛔ descartado (con motivo)`
+> `✅ adoptado` · `🔜 pendiente` · `🟡 parcial` · `⛔ descartado (con motivo)` ·
+> `📖 referencia (citada, no es un patrón adoptable)`
 
 ## Cómo usar este documento
 
@@ -155,6 +156,45 @@ contradecirlo.
 
 ---
 
+## 6. Bibliografía de testing — ISTQB · ISO 29119 · Playwright · Selenium · Jest/Testing Library · JMeter · Postman · OWASP Juice Shop · Ministry of Testing · Test Automation University
+
+**Qué es:** no es un repo ni un plugin, sino un **currículo de testing**: normativa y fundamentos
+(ISTQB Foundation Level + glosario; ISO/IEC/IEEE 29119 partes 1–5), herramientas de automatización
+(Playwright, Selenium, Jest + Testing Library), tipos especializados (JMeter para rendimiento,
+Postman para API, OWASP Juice Shop para seguridad) y comunidad/formación (Ministry of Testing,
+Test Automation University).
+
+**Relación con nosotros:** el plugin no es un framework de test sino un **workflow de desarrollo**;
+su "fase de pruebas" vive en tres artefactos —el diseño de casos de `/plan` (guía
+`historias-usuario`), el ciclo TDD de `/implement` y las dimensiones de tests/seguridad de
+`/review`—. Por eso esta bibliografía aporta **vocabulario, técnicas y checklists que se hornean en
+las guías y agentes, nunca maquinaria nueva ni comandos nuevos**. Filtro clave: los tipos
+no-funcionales (rendimiento, API, seguridad activa) se **nombran** en la estrategia; su ejecución
+es del repo objetivo, no del plugin.
+
+| Fuente | Qué aporta | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **[1] ISTQB** (Foundation + glosario) | Técnicas de caja negra (partición de equivalencia, valores límite, tabla de decisión, transición de estados), vocabulario (defecto/error/fallo, oráculo), 7 principios, cobertura | Nueva sección "Técnicas de diseño de casos de prueba" en `historias-usuario`: formaliza la matriz V/I/N/A que ya existía | ✅ rama `feat/bibliografia-testing` |
+| **[2] ISO/IEC/IEEE 29119** (partes 1–5) | Parte 4: técnicas + medida de cobertura; Parte 2: testing basado en riesgo; Parte 3: plantillas documentales | Parte 4 refuerza a ISTQB en `historias-usuario`; testing basado en riesgo → sección "Riesgos" de `/plan`; plantillas descartadas (spec.md esbelto, gestión en ClickUp) | 🟡 (técnicas ✅ · riesgo 🔜 · plantillas ⛔) |
+| **[3] Playwright** | E2E cross-browser, auto-wait, locators por rol/accesibilidad | E2E por defecto en Next.js en la nueva guía `niveles-y-tipos-de-prueba` | ✅ rama `feat/bibliografia-testing` |
+| **[4] Selenium** | WebDriver (estándar W3C), Grid distribuido | Fallback: solo si el repo objetivo ya lo usa (respetar el runner existente) | 📖 referencia |
+| **[5] Jest + Testing Library** | "Probar comportamiento, no implementación"; niveles unidad/componente | Respaldo canónico a la bandera roja del paso 1 del TDD de `/implement`; niveles en `niveles-y-tipos-de-prueba` | ✅ rama `feat/bibliografia-testing` |
+| **[6] Apache JMeter** | Rendimiento/carga (throughput, tiempos, percentiles) | Tipo no-funcional a **nombrar** en la estrategia (`niveles-y-tipos-de-prueba`); su ejecución es del repo objetivo | 🟡 (nombrado, no integrado) |
+| **[7] Postman** | Testing de API, Newman (CI), contract testing | Nivel/tipo API a **nombrar** en `niveles-y-tipos-de-prueba`; su ejecución es del repo objetivo | 🟡 (nombrado, no integrado) |
+| **[8] OWASP Juice Shop** | Taxonomía OWASP Top 10 de vulnerabilidades web | Checklist OWASP Top 10 adaptado a Next.js en `revisor-bugs-seguridad` y en la dim. 5 de `/review` | ✅ rama `feat/bibliografia-testing` |
+| **[9] Ministry of Testing** | Whole-team quality, corriente context-driven (contrapeso a la formalidad de 29119) | Encuadre cultural; citada como fuente al redactar/mantener las guías de pruebas | 📖 referencia |
+| **[10] Test Automation University** | Cursos gratuitos por tema (web, API, rendimiento, programación) | Material para profundizar cada técnica al mantener las guías | 📖 referencia |
+
+**Adoptado en esta iteración:** técnicas de caja negra en `historias-usuario` · guía nueva
+`niveles-y-tipos-de-prueba` (pirámide + tipos no-funcionales a nombrar) · checklist OWASP Top 10
+en `/review` · "comportamiento, no implementación" en el TDD de `/implement`.
+**Descartado por el filtro:** plantillas documentales de 29119-3 (spec.md esbelto; gestión en
+ClickUp) e integrar maquinaria no-funcional (JMeter/Newman/Selenium-Grid) o empaquetar Juice Shop
+—son del repo objetivo, no del plugin—.
+**Pendiente (🔜):** testing basado en riesgo (29119-2) en la sección "Riesgos" de `/plan`.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -188,7 +228,8 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 
 **Backlog consumido (#1–#7).** Nuevas mejoras salen de analizar repos nuevos (añade una sección
 `## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba (p. ej.
-`license` en skills §4, auto-crítica explícita en `/plan` §4, progressive disclosure §1).
+`license` en skills §4, auto-crítica explícita en `/plan` §4, progressive disclosure §1,
+testing basado en riesgo §6/[2]).
 
 ## Registro de lo ya adoptado
 
@@ -213,6 +254,10 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 | Guía `codigo-limpio` (código limpio + 21 olores + refactor seguro) | refactoring.guru | rama `feat/guias-codigo-limpio-patrones` |
 | Guía `patrones-diseno` (crítica-first: patrón solo ante el problema real) | refactoring.guru | rama `feat/guias-codigo-limpio-patrones` |
 | Dimensión «Convenciones y deuda técnica» en `/review` + `revisor-convenciones` | refactoring.guru | rama `feat/guias-codigo-limpio-patrones` |
+| Técnicas de diseño de casos de caja negra (partición, valores límite, tabla de decisión, estados) en `historias-usuario` | ISTQB / ISO 29119-4 | rama `feat/bibliografia-testing` |
+| Guía `niveles-y-tipos-de-prueba` (pirámide + tipos no-funcionales a nombrar, no integrar) | ISTQB / Jest+Testing Library / Playwright | rama `feat/bibliografia-testing` |
+| Checklist OWASP Top 10 adaptado a Next.js en `revisor-bugs-seguridad` y dim. 5 de `/review` | OWASP Juice Shop | rama `feat/bibliografia-testing` |
+| «Comportamiento, no implementación» en el paso 1 del ciclo TDD de `/implement` | Jest + Testing Library | rama `feat/bibliografia-testing` |
 
 ---
 
