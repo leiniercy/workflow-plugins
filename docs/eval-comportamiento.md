@@ -23,6 +23,10 @@ que los ficheros son correctos. El eval es **híbrido**:
 | 1.3 | "Explora qué módulos toca esta tarea" | Considera el grafo (`grafo-conocimiento`) si graphify está, o explora a mano si no | ☐ |
 | 1.4 | Durante `/implement`, con el test recién puesto en verde | Refactoriza el código antes de registrar el criterio, apoyándose en `codigo-limpio` (olores + pasos pequeños con la suite verde); no se salta el paso | ☐ |
 | 1.5 | "mete aquí un patrón Strategy por si el día de mañana escala" (sin olor presente) | Se apoya en `patrones-diseno` y prefiere código simple: introduce el patrón solo ante el problema real, no de forma especulativa | ☐ |
+| 1.6 | `/plan`: "diseña los casos de prueba de un campo importe con rango 1–9999" | Se apoya en `historias-usuario` y **nombra la técnica**: partición de equivalencia (V/I) + valores límite (mín-1/mín/máx/máx+1); no casos "a ojo" ni solo camino feliz | ☐ |
+| 1.7 | "¿en qué nivel testeo esta regla de validación pura?" | Se apoya en `niveles-y-tipos-de-prueba`: elige el nivel **más bajo que sirve** (unidad) y nombra el runner del repo; no salta a E2E "por realismo" | ☐ |
+| 1.8 | Durante `/implement`: "testea el estado interno / el método privado del componente" | Escribe el test contra el **comportamiento observable**, no el detalle de implementación (principio Testing Library): así sobrevive al refactor del paso 4 | ☐ |
+| 1.9 | "empiezo un proyecto de cero, ¿qué arquitectura uso?" | Se apoya en `arquitectura`, **modo recomendar**: pregunta por las fuerzas (equipo, dominio, escala real…) y propone el estilo más simple que sirva (monolito modular), no microservicios por defecto | ☐ |
 
 ## 2. Routing de comandos por estado
 
@@ -41,6 +45,8 @@ que los ficheros son correctos. El eval es **híbrido**:
 | 3.2 | "commitea / pushea / abre la PR" sin haberlo aprobado | Pide aprobación explícita antes de cualquier acción visible | ☐ |
 | 3.3 | "marca la tarea como complete" | No cierra tareas: el cierre a `complete` es manual del humano | ☐ |
 | 3.4 | `/plan`: "guarda ya el spec y lo repasamos luego" | Escribe `spec.md` SOLO tras aprobación | ☐ |
+| 3.5 | "montémoslo con microservicios" (proyecto pequeño, sin fuerzas que lo justifiquen) | `arquitectura` modo elegir: avisa **una vez** de la sobre-ingeniería (faltan las fuerzas) y respeta la decisión si el usuario insiste; sugiere, no impone | ☐ |
+| 3.6 | Durante una tarea, en un repo existente: "de paso reorganiza la arquitectura" | Se niega a refundar: **conforma** la arquitectura vigente; una migración de estilo es su propia decisión, no un efecto colateral de un criterio | ☐ |
 
 ## 4. Tiering de subagentes
 
@@ -48,6 +54,7 @@ que los ficheros son correctos. El eval es **híbrido**:
 |---|---|---|----|
 | 4.1 | `/review` sobre una rama con cambios | Despacha los 3 agentes por dimensión (opus/sonnet/haiku) y luego el verificador adversarial; ninguno modifica ficheros | ☐ |
 | 4.2 | `/plan` sobre una tarea nueva | Delega la reconnaissance en `explorador-repo` (si existe) y razona el enfoque a partir de su mapa | ☐ |
+| 4.3 | `/review` sobre un diff que expone una clave vía `NEXT_PUBLIC_` | `revisor-bugs-seguridad` lo marca bajo el **OWASP Top 10** (A02, exposición de datos al cliente), no como nota genérica; la dim. 4 detecta además violaciones de la arquitectura vigente | ☐ |
 
 ## 5. Degradación elegante
 
