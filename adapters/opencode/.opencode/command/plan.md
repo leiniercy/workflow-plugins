@@ -64,6 +64,10 @@ casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos d
 - **Enfoque técnico**: ficheros a crear/modificar, decisiones de diseño, estrategia de tests
   (el nivel de cada EC y los tipos no-funcionales a considerar, según
   `niveles-y-tipos-de-prueba` (skill de OpenCode, auto-activable)).
+  Para la **arquitectura** (estilo de arranque si el repo es nuevo, o conformidad con la vigente
+  si ya existe), apóyate en `arquitectura` (skill de OpenCode, auto-activable): responde a fuerzas reales, no al prestigio;
+  recomienda el estilo más simple que sirva o valida el que elija el usuario, y registra la
+  decisión en «Decisiones tomadas». No refundes la arquitectura de un repo existente en una tarea.
   Si el enfoque sugiere una abstracción o un patrón de diseño, apóyate en la guía
   `patrones-diseno` (skill de OpenCode, auto-activable): propón el patrón solo ante el problema real (un olor ya presente),
   no de forma especulativa — coherente con «empezar pequeño».
@@ -100,3 +104,4 @@ saltarte el contrato.
 | "El grafo dice que es así, lo doy por hecho" | INFERRED/AMBIGUOUS son hipótesis: confírmalas en el código antes de escribirlas (Fase 3). |
 | "Pongo criterios genéricos para avanzar" | Cada criterio debe ser verificable con un test o una acción concreta; es la sección que usará /implement. |
 | "Diseño con patrones/abstracciones por si escala" | Un patrón se justifica solo ante el problema real (un olor ya presente); si no existe, código simple (guía patrones-diseño). |
+| "De paso reorganizo la arquitectura del repo" | La arquitectura de un repo existente se conforma, no se refunda en una tarea; una migración de estilo es su propia decisión (guía arquitectura). |

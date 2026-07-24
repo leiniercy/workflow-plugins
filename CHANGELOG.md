@@ -5,6 +5,23 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Guía nueva `arquitectura`** (fuente: Martin Fowler, Richards & Ford —*Fundamentals of Software
+  Architecture* y *The Hard Parts*— y DDD de Vlad Khononov; ver §7 de `docs/referencias.md`): skill
+  auto-activable en ambos adaptadores, un piso por encima de `patrones-diseno`, para decidir y
+  respetar la arquitectura a nivel de módulo/sistema. **Crítica-first**: la arquitectura responde a
+  fuerzas reales, no al prestigio. Catálogo de estilos (monolito en capas, monolito modular,
+  hexagonal, event-driven, service-based, microservicios) con la fuerza que justifica cada uno y su
+  coste; DDD transversal (táctico solo en el *core*); criterios de decisión; y el default conservador
+  (monolito modular + hexagonal solo donde haya un adaptador real + DDD táctico solo en el *core*),
+  con migración StranglerFig cuando una fuerza aparezca. Dos **modos** —recomendar (pregunta las
+  fuerzas y propone el estilo más simple que sirva) o elegir (presenta el catálogo y valida la
+  elección del usuario)— y dos **situaciones** —conformar la arquitectura de un repo existente vs
+  elegir el estilo de arranque de uno nuevo—. Cableada en el «Enfoque técnico» de `/plan` y en la
+  dimensión 4 de `/review` (`revisor-convenciones`), con una bandera roja nueva en `/plan` («de paso
+  reorganizo la arquitectura del repo»). Registrada en `sync.mjs` y aseverada en `check-behavior.mjs`.
+
 ## [0.4.0] - 2026-07-24
 
 ### Añadido

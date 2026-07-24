@@ -170,6 +170,10 @@ const GUIDES = {
     description:
       "Criterio para elegir a qué NIVEL probar cada criterio (unidad, componente, integración, E2E/aceptación — la pirámide de pruebas) y con qué herramienta por defecto en Next.js (Jest/Vitest, Testing Library, Playwright), y qué TIPOS no-funcionales (rendimiento, seguridad/OWASP, API/contrato, accesibilidad) marcar en la estrategia sin integrar su maquinaria en el plugin. Úsala al definir la estrategia de tests en /plan y al elegir el nivel y el runner de un test en /implement. Prioriza el nivel más bajo que verifique el comportamiento; no persigue cobertura por cobertura. Basada en ISTQB, Testing Library, Playwright y Jest.",
   },
+  "arquitectura": {
+    description:
+      "Guía crítica-first para decidir y respetar la ARQUITECTURA del sistema, un piso por encima de los patrones GoF: catálogo de estilos (monolito en capas, monolito modular, hexagonal/puertos, event-driven, service-based, microservicios) con la fuerza que justifica cada uno y su coste, DDD transversal (estratégico/táctico, solo en el core), criterios de decisión y el default conservador (monolito modular). Úsala en el «Enfoque técnico» de /plan al elegir el estilo de arranque de un repo nuevo o conformar el de uno existente, y en /review para comprobar que un cambio respeta la arquitectura, las capas y el bounded context vigentes. Dos modos: recomendar (pregunta las fuerzas y propone el estilo más simple que sirva) o elegir (presenta el catálogo y valida la elección del usuario). La arquitectura es respuesta a fuerzas reales, no elección por prestigio. Basada en Fowler, Richards & Ford y DDD (Khononov).",
+  },
 };
 
 // ---------------------------------------------------------------------------

@@ -44,12 +44,13 @@ solo las líneas cambiadas):
 3. **Tests**: cobertura de los criterios, calidad de las aserciones, casos límite ausentes,
    tests que pasan por razones incorrectas.
 4. **Convenciones y deuda técnica**: coherencia con los patrones del repo (estructura,
-   naming, estilos, manejo de estado, fetching de datos) y **olores de código** que el diff
-   introduzca o empeore — método/clase desmesurados, duplicación, condicionales por tipo,
-   obsesión por primitivos, acoplamiento (envidia de características, cadenas de mensajes) —
-   según la guía `codigo-limpio` (`${CLAUDE_PLUGIN_ROOT}/skills/codigo-limpio/SKILL.md`). Repórtalos como deuda técnica (severidad
-   normalmente Media) solo si superan el umbral de `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`) y no son
-   preexistentes, nitpicks ni trabajo del linter.
+   naming, estilos, manejo de estado, fetching de datos), la **conformidad con la arquitectura
+   vigente** (fronteras de módulo, capas, bounded context; según `arquitectura` (`${CLAUDE_PLUGIN_ROOT}/skills/arquitectura/SKILL.md`)) y
+   **olores de código** que el diff introduzca o empeore — método/clase desmesurados,
+   duplicación, condicionales por tipo, obsesión por primitivos, acoplamiento (envidia de
+   características, cadenas de mensajes) — según la guía `codigo-limpio` (`${CLAUDE_PLUGIN_ROOT}/skills/codigo-limpio/SKILL.md`). Repórtalos
+   como deuda técnica (severidad normalmente Media) solo si superan el umbral de
+   `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`) y no son preexistentes, nitpicks ni trabajo del linter.
 5. **Seguridad**: recorre el diff con el **OWASP Top 10** como checklist, adaptado a Next.js —
    control de acceso (route handlers/server actions sin authz, IDOR), exposición de datos al
    cliente (`NEXT_PUBLIC_` indebidas, filtraciones Server→Client), inyección (SQL/NoSQL,
