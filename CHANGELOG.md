@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.5.0] - 2026-07-24
+
 ### Añadido
 
 - **Guía nueva `arquitectura`** (fuente: Martin Fowler, Richards & Ford —*Fundamentals of Software
