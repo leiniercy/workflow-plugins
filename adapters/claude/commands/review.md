@@ -50,8 +50,12 @@ solo las líneas cambiadas):
    según la guía `codigo-limpio` (`${CLAUDE_PLUGIN_ROOT}/skills/codigo-limpio/SKILL.md`). Repórtalos como deuda técnica (severidad
    normalmente Media) solo si superan el umbral de `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`) y no son
    preexistentes, nitpicks ni trabajo del linter.
-5. **Seguridad**: secretos hardcodeados, validación de inputs, exposición de datos en
-   cliente (variables NEXT_PUBLIC_ indebidas), inyección, dependencias sospechosas.
+5. **Seguridad**: recorre el diff con el **OWASP Top 10** como checklist, adaptado a Next.js —
+   control de acceso (route handlers/server actions sin authz, IDOR), exposición de datos al
+   cliente (`NEXT_PUBLIC_` indebidas, filtraciones Server→Client), inyección (SQL/NoSQL,
+   `dangerouslySetInnerHTML`, SSRF), secretos hardcodeados, mala configuración y dependencias
+   vulnerables. El agente `revisor-bugs-seguridad` lo detalla por categoría; en línea, recórrelo
+   igual.
 
 ### Cómo ejecutar el análisis — subagentes con tiering, o en línea
 

@@ -79,7 +79,7 @@ const COMMANDS = {
 const AGENTS = {
   "revisor-bugs-seguridad": {
     description:
-      "Subagente de /review (solo-lectura) para las dimensiones de BUGS y SEGURIDAD. Despáchalo en paralelo desde /review para auditar errores lógicos, edge cases, SSR/hidratación, secretos, validación de inputs e inyección. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
+      "Subagente de /review (solo-lectura) para las dimensiones de BUGS y SEGURIDAD. Despáchalo en paralelo desde /review para auditar errores lógicos, edge cases y SSR/hidratación, y la seguridad con el marco OWASP Top 10 adaptado a Next.js (control de acceso, inyección, exposición de datos al cliente, mala configuración, dependencias vulnerables). Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
     model: "opus",
     tools: ["Read", "Grep", "Glob"],
   },
@@ -156,7 +156,7 @@ const GUIDES = {
   },
   "historias-usuario": {
     description:
-      "Plantilla y procedimiento para redactar requisitos como Historias de Usuario en spec.md: historia (rol + valor), contexto de proceso de negocio, comportamientos válidos/no válidos, criterios de aceptación en Given/When/Then, diseño de casos de prueba derivado y tabla de trazabilidad Proceso→RF→HU→CA→EC. Úsala al definir los criterios de aceptación durante /plan, y siempre que redactes o revises una HU, su plan de pruebas o su vínculo con el proceso de negocio. Mantiene una sola fuente de verdad del comportamiento y deja los datos de gestión (programador, iteración, tiempos, riesgo) en ClickUp.",
+      "Plantilla y procedimiento para redactar requisitos como Historias de Usuario en spec.md: historia (rol + valor), contexto de proceso de negocio, comportamientos válidos/no válidos, criterios de aceptación en Given/When/Then, diseño de casos de prueba derivado con técnicas de caja negra (partición de equivalencia, valores límite, tabla de decisión, transición de estados, pruebas por pares) y tabla de trazabilidad Proceso→RF→HU→CA→EC. Úsala al definir los criterios de aceptación durante /plan, al diseñar los casos de prueba de una HU, y siempre que redactes o revises una HU, su plan de pruebas o su vínculo con el proceso de negocio. Mantiene una sola fuente de verdad del comportamiento y deja los datos de gestión (programador, iteración, tiempos, riesgo) en ClickUp.",
   },
   "codigo-limpio": {
     description:
@@ -165,6 +165,10 @@ const GUIDES = {
   "patrones-diseno": {
     description:
       "Catálogo de patrones de diseño (GoF) como referencia con freno anti-sobre-ingeniería: mapa olor→patrón, la crítica (aplicar un patrón solo cuando su problema ya existe; preferir código simple o features del lenguaje) y Singleton como anti-patrón. Úsala al razonar el enfoque técnico en /plan y al valorar una abstracción durante el refactor de /implement, para introducir un patrón solo ante el problema real. Basada en refactoring.guru.",
+  },
+  "niveles-y-tipos-de-prueba": {
+    description:
+      "Criterio para elegir a qué NIVEL probar cada criterio (unidad, componente, integración, E2E/aceptación — la pirámide de pruebas) y con qué herramienta por defecto en Next.js (Jest/Vitest, Testing Library, Playwright), y qué TIPOS no-funcionales (rendimiento, seguridad/OWASP, API/contrato, accesibilidad) marcar en la estrategia sin integrar su maquinaria en el plugin. Úsala al definir la estrategia de tests en /plan y al elegir el nivel y el runner de un test en /implement. Prioriza el nivel más bajo que verifique el comportamiento; no persigue cobertura por cobertura. Basada en ISTQB, Testing Library, Playwright y Jest.",
   },
 };
 

@@ -61,7 +61,9 @@ casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos d
   comprobable con un test o una acción concreta y con su escenario de prueba (EC) asociado.
   Es la sección más importante: /implement trabajará contra ella.
 - **Alcance / Fuera de alcance**: explícitos, para acotar el trabajo.
-- **Enfoque técnico**: ficheros a crear/modificar, decisiones de diseño, estrategia de tests.
+- **Enfoque técnico**: ficheros a crear/modificar, decisiones de diseño, estrategia de tests
+  (el nivel de cada EC y los tipos no-funcionales a considerar, según
+  `niveles-y-tipos-de-prueba` (skill de OpenCode, auto-activable)).
   Si el enfoque sugiere una abstracción o un patrón de diseño, apóyate en la guía
   `patrones-diseno` (skill de OpenCode, auto-activable): propón el patrón solo ante el problema real (un olor ya presente),
   no de forma especulativa — coherente con «empezar pequeño».

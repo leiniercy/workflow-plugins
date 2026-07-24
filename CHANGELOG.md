@@ -5,6 +5,41 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Técnicas de diseño de casos de prueba en `historias-usuario`** (fuente: ISTQB Foundation
+  Level + ISO/IEC/IEEE 29119-4, ver §6 de `docs/referencias.md`): nueva sección que formaliza la
+  matriz V/I/N/A ya existente como lo que es —partición de equivalencia y tabla de decisión— y
+  añade **valores límite (BVA)**, **transición de estados** y **pruebas por pares**, con una tabla
+  técnica→cuándo→cobertura mínima y una regla práctica. Fija el límite de alcance: la cobertura de
+  caja blanca es del runner en `/implement`, no del diseño de la spec. Tres anti-patrones nuevos
+  (límites sin probar, combinaciones a fuerza bruta, no nombrar la técnica) y una pregunta de
+  autocrítica.
+- **Guía nueva `niveles-y-tipos-de-prueba`** (fuente: ISTQB, Jest + Testing Library, Playwright):
+  skill auto-activable en ambos adaptadores con la **pirámide de pruebas** (unidad / componente /
+  integración / E2E / aceptación → qué verifica, cuándo elegirla y herramienta por defecto en
+  Next.js) y un checklist de **tipos no-funcionales a nombrar, no integrar** (rendimiento→JMeter/k6,
+  seguridad→OWASP, API→Postman/Newman, accesibilidad, regresión). Cableada en `/plan` (estrategia de
+  tests) e `/implement` (elección de nivel/runner en el paso 1 del TDD). Registrada en `sync.mjs` y
+  aseverada en `check-behavior.mjs`.
+- **Checklist OWASP Top 10 (2021) adaptado a Next.js en la dimensión de seguridad** (fuente: OWASP
+  Juice Shop, §6 de `docs/referencias.md`): `revisor-bugs-seguridad` y la dimensión 5 de `/review`
+  recorren A01–A10 con casos propios de Next.js (control de acceso en route handlers/server actions,
+  IDOR, exposición `NEXT_PUBLIC_`/Server→Client, inyección/XSS/SSRF, mala configuración, dependencias
+  vulnerables) en lugar de una lista suelta de ejemplos.
+
+### Cambiado
+
+- **Paso 1 del ciclo TDD de `/implement`: «comportamiento, no implementación»** (fuente: Testing
+  Library): el test se escribe contra el comportamiento observable, no contra detalles internos
+  (estado, métodos privados, estructura del DOM), citando el principio de Testing Library y
+  ligándolo a que el test sobreviva al refactor del paso 4. Bandera roja nueva.
+- **`docs/referencias.md`**: nueva §6 «Bibliografía de testing» (ISTQB, ISO 29119, Playwright,
+  Selenium, Jest/Testing Library, JMeter, Postman, OWASP Juice Shop, Ministry of Testing, Test
+  Automation University) con tabla por fuente y estados; leyenda ampliada con `📖 referencia`;
+  registro de lo adoptado y backlog actualizados (queda 🔜 el testing basado en riesgo de 29119-2 en
+  la sección «Riesgos» de `/plan`).
+
 ## [0.3.0] - 2026-07-24
 
 ### Añadido

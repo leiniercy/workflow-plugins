@@ -38,9 +38,14 @@ Eres el agente implementador. Tu contrato: trabajar contra `spec.md`, dejar rast
 La fuente de verdad es `spec.md`; NO consultes ClickUp para decidir qué hacer. Para CADA
 criterio de aceptación pendiente, en orden:
 
-1. **Test primero**: escribe el test que verifica el criterio (usa el runner que ya exista
-   en el repo; si no hay ninguno, propón uno acorde al stack y espera aprobación antes de
-   añadir dependencias). Ejecuta y confirma que falla por la razón correcta.
+1. **Test primero**: escribe el test que verifica el criterio contra su **comportamiento
+   observable**, no contra detalles de implementación (estado interno, métodos privados,
+   estructura del DOM). Es el principio de Testing Library —cuanto más se parezca el test a
+   cómo se usa el software, más confianza da— y además hace que el test sobreviva al refactor
+   del paso 4. Elige el nivel más bajo que verifique de verdad el criterio (unidad/componente/
+   integración/E2E) según `niveles-y-tipos-de-prueba` (`${CLAUDE_PLUGIN_ROOT}/skills/niveles-y-tipos-de-prueba/SKILL.md`), y usa el runner que ya exista en
+   el repo; si no hay ninguno, propón uno acorde al stack y espera aprobación antes de añadir
+   dependencias. Ejecuta y confirma que falla por la razón correcta.
 2. **Implementación mínima** que hace pasar el test, respetando las convenciones del repo
    detectadas en /plan.
 3. **Verificación**: suite de tests completa + lint + type-check si existen.
@@ -110,4 +115,5 @@ saltarte el contrato.
 | "El enfoque de la spec no encaja, improviso por aquí" | Detente, explica el problema y propón actualizar spec.md ("Decisiones tomadas") antes de desviarte. |
 | "Consulto ClickUp para decidir qué implementar" | La fuente de verdad es spec.md, no ClickUp (Fase 3). |
 | "Funciona, el test pasa, ya está" | El ciclo es red-green-**refactor**: con la suite en verde, limpia los olores que introdujiste antes de registrar (Fase 3, paso 4; guía código-limpio). |
+| "Testeo el estado interno o el método privado para que sea más fácil verificar" | Testea el **comportamiento observable**, no la implementación: un test acoplado al detalle se rompe al refactorizar aunque el comportamiento siga bien (principio de Testing Library; Fase 3, paso 1). |
 | "Meto una abstracción/patrón por si acaso o por si escala" | Un patrón se justifica solo si su problema ya existe; anticiparlo es sobre-ingeniería (guía patrones-diseño). |
