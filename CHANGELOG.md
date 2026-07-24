@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.3.0] - 2026-07-24
+
 ### Añadido
 
 - **Guías `codigo-limpio` y `patrones-diseno`** (fuente: refactoring.guru, ver §5 de
