@@ -195,6 +195,61 @@ ClickUp) e integrar maquinaria no-funcional (JMeter/Newman/Selenium-Grid) o empa
 
 ---
 
+## 7. Bibliografía de arquitectura — Fowler · Richards & Ford · microservices.io · MS Azure Architecture Center · DDD (Khononov) · eShop · domain-driven-hexagon · nodebestpractices · system-design-primer
+
+**Qué es:** un cuerpo de conocimiento de **arquitectura de software** a nivel de módulo/sistema —un
+piso por encima de los patrones GoF de §5—: catálogos de estilos y patrones (Martin Fowler; MS Azure
+Architecture Center; microservices.io de Chris Richardson), criterios de decisión y análisis de
+trade-offs (Richards & Ford: *Fundamentals of Software Architecture* y *The Hard Parts*), DDD
+digerible (Khononov, *Learning DDD*) e implementaciones/repos de referencia (dotnet eShop;
+Sairyss/domain-driven-hexagon en TS/NestJS; goldbergyoni/nodebestpractices; donnemartin/
+system-design-primer).
+
+**Relación con nosotros:** son **dos usos distintos que conviene separar** para no caer en
+sobre-ingeniería (imán mayor que el de los patrones GoF). (a) **Conocimiento a la altitud del
+plugin** → una futura guía `arquitectura` crítica-first, por encima de `patrones-diseno`, para las
+dos únicas preguntas que el plugin hace sobre repos que **ya existen**: en `/plan`, «¿dónde debe
+vivir este código y está justificada la abstracción?»; en `/review`, «¿el cambio respeta la
+arquitectura / el bounded context existente?». (b) **El habilitador de la visión larga** → un
+refactor de **perfiles de stack** que desacople los 6 defaults de Next.js hoy presentes en `core/`
+(medidos: `explorador-repo`, `plan`, `review`, `revisor-bugs-seguridad`, `niveles-y-tipos-de-prueba`,
+`implement`) para servir también a backends NestJS/DDD. El espinazo del workflow (spec → plan → TDD →
+review → gates → continuidad) **no tiene dependencia estructural de Next.js**, así que ampliar es
+*parametrizar*, no reescribir. El diseño greenfield («diséñame un sistema») queda **fuera**: subiría
+de altitud y rompería «empezar pequeño».
+
+| Fuente | Qué aporta | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **martinfowler.com** | Monolito modular, «microservices premium / you must be this tall», StranglerFig, PoEAA, cuándo NO distribuir | Fuente canónica y **aliada crítica-first** de la futura guía `arquitectura` | 🔜 fuente primaria |
+| **Richards & Ford** (*Fundamentals* + *The Hard Parts*) | Catálogo de estilos (layered, microkernel, event-driven, service-based, microservicios) + **criterios de decisión y análisis de trade-offs** | El esqueleto «cómo elegir» de la guía; encaja con el ADN anti-especulativo del plugin | 🔜 fuente primaria |
+| **microservices.io** (Chris Richardson) | Saga, API Gateway, Database per Service, CQRS, Event Sourcing con problema/solución/trade-offs | Solo los **criterios** y el framing «distribuye si debes»; el catálogo de patrones distribuidos es imán de sobre-ingeniería | 🟡 (criterios sí; patrones bajo demanda) |
+| **MS Azure Architecture Center** | Catálogo extenso de patrones agnósticos con diagramas y ejemplos | Cherry-pick de descripciones agnósticas; **NADA de especificidades Azure**; demasiado vasto para adoptar entero | 📖 referencia |
+| **Learning DDD** (Vlad Khononov) | DDD digerible: bounded contexts, agregados, estratégico vs táctico | Sub-parte DDD de la guía; enriquece `historias-usuario` y `/plan` cuando el target es DDD por capas | 🔜 |
+| **Sairyss/domain-driven-hexagon** | DDD + hexagonal + clean architecture en **TS/NestJS**, línea por línea | El **mejor modelo concreto** para el futuro perfil de stack NestJS; hoy, referencia | 📖 (clave para el perfil NestJS) |
+| **dotnet-architecture/eShop** | Implementación de referencia de microservicios + DDD + CQRS | Estudiar, no incrustar (como Juice Shop en §6) | 📖 referencia |
+| **goldbergyoni/nodebestpractices** | Prácticas Node + sección de arquitectura | Fuente de *defaults* Node/NestJS para el futuro perfil de stack; algo puede rozar `codigo-limpio` | 🟡 / 📖 |
+| **donnemartin/system-design-primer** | Diseño de sistemas a gran escala (casos tipo entrevista: Twitter, acortador de URLs) | Fuera de la altitud del plugin (greenfield/escala, no a nivel de tarea sobre repo existente) | ⛔ fuera de alcance / 📖 |
+
+**Encaje inmediato (✅ rama `feat/bibliografia-testing`):** guía `arquitectura` **crítica-first**
+—monolito modular primero; layered / hexagonal / DDD / event-driven / microservicios con «cuándo sí /
+cuándo no» y criterios de decisión, en dos modos (recomendar / elegir) y dos situaciones (conformar el
+repo existente / elegir el arranque de uno nuevo)— cableada en el «Enfoque técnico» de `/plan` y en la
+dimensión 4 de `/review`, un piso por encima de `patrones-diseno` y con su misma disciplina (una
+frontera o estilo se justifica ante un problema real, no «por si escala»). Fuentes: Fowler +
+Richards&Ford + microservices.io (solo criterios) + Khononov. Sirve incluso a los usuarios Next.js de
+hoy (una app Next también decide dónde vive el dominio y sus fronteras de módulo).
+**Visión larga (🔜, iniciativa aparte):** refactor de **perfiles de stack** (parametrizar los 6
+defaults de Next.js; añadir un perfil NestJS/DDD modelado con Sairyss + nodebestpractices + eShop como
+referencia). Emprender **cuando exista un target NestJS real** (p. ej. el marketplace), no de forma
+especulativa.
+**Referencia (📖):** MS Azure Center (sin especificidades Azure), eShop, domain-driven-hexagon,
+nodebestpractices — citadas como fuente, no incrustadas.
+**Descartado / fuera de alcance (⛔):** generadores de scaffolding, «modo microservicios», codegen de
+Saga/Event-Sourcing y convertir el plugin en asesor de diseño de sistemas (subir de altitud);
+system-design-primer por altitud (greenfield/escala, no a nivel de tarea).
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -229,7 +284,7 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 **Backlog consumido (#1–#7).** Nuevas mejoras salen de analizar repos nuevos (añade una sección
 `## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba (p. ej.
 `license` en skills §4, auto-crítica explícita en `/plan` §4, progressive disclosure §1,
-testing basado en riesgo §6/[2]).
+testing basado en riesgo §6/[2] y perfiles de stack §7 — la guía `arquitectura` §7 ya está ✅).
 
 ## Registro de lo ya adoptado
 
@@ -258,6 +313,7 @@ testing basado en riesgo §6/[2]).
 | Guía `niveles-y-tipos-de-prueba` (pirámide + tipos no-funcionales a nombrar, no integrar) | ISTQB / Jest+Testing Library / Playwright | rama `feat/bibliografia-testing` |
 | Checklist OWASP Top 10 adaptado a Next.js en `revisor-bugs-seguridad` y dim. 5 de `/review` | OWASP Juice Shop | rama `feat/bibliografia-testing` |
 | «Comportamiento, no implementación» en el paso 1 del ciclo TDD de `/implement` | Jest + Testing Library | rama `feat/bibliografia-testing` |
+| Guía `arquitectura` crítica-first (estilos + DDD transversal + default modular; modos recomendar/elegir) en `/plan` y `/review` | Fowler / Richards & Ford / Khononov | rama `feat/bibliografia-testing` |
 
 ---
 
