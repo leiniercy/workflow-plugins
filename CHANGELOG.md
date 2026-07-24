@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.4.0] - 2026-07-24
+
 ### Añadido
 
 - **Técnicas de diseño de casos de prueba en `historias-usuario`** (fuente: ISTQB Foundation
