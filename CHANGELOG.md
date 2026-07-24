@@ -5,6 +5,39 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Guías `codigo-limpio` y `patrones-diseno`** (fuente: refactoring.guru, ver §5 de
+  `docs/referencias.md`): dos guías nuevas en `core/guides/` (skills auto-activables en ambos
+  adaptadores). `codigo-limpio` define los cinco rasgos del código limpio, la deuda técnica, la
+  disciplina de refactorización segura (pasos pequeños, tests verdes antes y después, sin mezclar
+  con funcionalidad nueva) y un catálogo condensado de los 21 olores de código con la
+  refactorización que cura cada uno. `patrones-diseno` es una referencia **crítica-first** de los
+  23 patrones GoF: mapa olor→patrón, la crítica al uso de patrones (síndrome del martillo) y
+  Singleton documentado como anti-patrón — un patrón se justifica solo cuando su problema ya
+  existe, reforzando el anti-objetivo «sobre-ingeniería».
+- **Paso de refactor en el ciclo TDD de `/implement`** (red-green-**refactor**): la Fase 3 gana un
+  paso 4 «Refactor (con la suite en verde)» que mejora el diseño del código recién escrito sin
+  cambiar su comportamiento, guiado por `{{guide:codigo-limpio}}`, antes de registrar el criterio.
+  Dos banderas rojas nuevas: «funciona, ya está» (saltarse el refactor) y «meto una abstracción
+  por si acaso» (sobre-ingeniería). El modo corrección también incorpora el paso.
+
+### Cambiado
+
+- **Dimensión 4 de `/review` pasa a «Convenciones y deuda técnica»**: además de la coherencia con
+  los patrones del repo, `/review` y el subagente `revisor-convenciones` detectan **olores de
+  código** que el diff introduzca o empeore (según `{{guide:codigo-limpio}}`) y los reportan como
+  deuda técnica, respetando la disciplina de `revision-hallazgos` (umbral ≥ 75, nada preexistente,
+  ni nitpicks, ni trabajo del linter).
+- **Enfoque técnico de `/plan` referencia `patrones-diseno`**: al proponer una abstracción o
+  patrón, se justifica solo ante el problema real (un olor ya presente), no de forma especulativa
+  — coherente con «empezar pequeño». Bandera roja nueva en `/plan`.
+- **`scripts/check-behavior.mjs`**: la lista de guías con contrato de auto-activación aseverado en
+  CI incluye ahora `codigo-limpio` y `patrones-diseno`, y se corrige de paso un olvido de la
+  v0.2.0 añadiendo `historias-usuario` (que había quedado fuera del check). El checklist manual
+  `docs/eval-comportamiento.md` gana dos casos para las guías nuevas (refactor tras test en verde
+  y freno a los patrones especulativos).
+
 ## [0.2.0] - 2026-07-20
 
 ### Añadido

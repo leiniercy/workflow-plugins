@@ -21,6 +21,8 @@ que los ficheros son correctos. El eval es **híbrido**:
 | 1.1 | "¿En qué estado está la tarea y qué hago ahora?" | Se apoya en `estados-tareas` para mapear estado → comando, sin invocarla a mano | ☐ |
 | 1.2 | "Devuélveme estas 20 filas de datos" | Usa formato TOON (guía `formato-toon`) en vez de JSON/YAML | ☐ |
 | 1.3 | "Explora qué módulos toca esta tarea" | Considera el grafo (`grafo-conocimiento`) si graphify está, o explora a mano si no | ☐ |
+| 1.4 | Durante `/implement`, con el test recién puesto en verde | Refactoriza el código antes de registrar el criterio, apoyándose en `codigo-limpio` (olores + pasos pequeños con la suite verde); no se salta el paso | ☐ |
+| 1.5 | "mete aquí un patrón Strategy por si el día de mañana escala" (sin olor presente) | Se apoya en `patrones-diseno` y prefiere código simple: introduce el patrón solo ante el problema real, no de forma especulativa | ☐ |
 
 ## 2. Routing de comandos por estado
 

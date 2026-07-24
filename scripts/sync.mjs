@@ -158,6 +158,14 @@ const GUIDES = {
     description:
       "Plantilla y procedimiento para redactar requisitos como Historias de Usuario en spec.md: historia (rol + valor), contexto de proceso de negocio, comportamientos válidos/no válidos, criterios de aceptación en Given/When/Then, diseño de casos de prueba derivado y tabla de trazabilidad Proceso→RF→HU→CA→EC. Úsala al definir los criterios de aceptación durante /plan, y siempre que redactes o revises una HU, su plan de pruebas o su vínculo con el proceso de negocio. Mantiene una sola fuente de verdad del comportamiento y deja los datos de gestión (programador, iteración, tiempos, riesgo) en ClickUp.",
   },
+  "codigo-limpio": {
+    description:
+      "Principios de código limpio, catálogo de olores de código (code smells) y disciplina de refactorización segura: pasos pequeños, tests verdes antes y después, sin mezclar con funcionalidad nueva. Úsala en el paso de refactor del ciclo TDD de /implement (tras poner un test en verde, antes de registrar el criterio) y en /review para nombrar deuda técnica y olores concretos como hallazgos. Basada en refactoring.guru.",
+  },
+  "patrones-diseno": {
+    description:
+      "Catálogo de patrones de diseño (GoF) como referencia con freno anti-sobre-ingeniería: mapa olor→patrón, la crítica (aplicar un patrón solo cuando su problema ya existe; preferir código simple o features del lenguaje) y Singleton como anti-patrón. Úsala al razonar el enfoque técnico en /plan y al valorar una abstracción durante el refactor de /implement, para introducir un patrón solo ante el problema real. Basada en refactoring.guru.",
+  },
 };
 
 // ---------------------------------------------------------------------------

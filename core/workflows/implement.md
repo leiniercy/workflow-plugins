@@ -40,10 +40,17 @@ criterio de aceptación pendiente, en orden:
 2. **Implementación mínima** que hace pasar el test, respetando las convenciones del repo
    detectadas en /plan.
 3. **Verificación**: suite de tests completa + lint + type-check si existen.
-4. **Registro**: añade entrada a `progress.md` (guía {{guide:registro-progreso}}): fase
+4. **Refactor (con la suite en verde)**: mejora el diseño del código recién escrito SIN
+   cambiar su comportamiento, siguiendo la guía {{guide:codigo-limpio}}. Pasos pequeños,
+   re-ejecutando la suite tras cada uno (debe seguir verde) y sin añadir funcionalidad:
+   busca los olores que acabas de introducir (método largo, duplicación, condicional
+   anidada, nombres pobres, números mágicos) y aplícales su refactorización. Si valoras
+   introducir una abstracción o patrón, consulta {{guide:patrones-diseno}} y hazlo SOLO si
+   el problema ya existe, nunca "por si acaso". Si no hay nada que limpiar, dilo y sigue.
+5. **Registro**: añade entrada a `progress.md` (guía {{guide:registro-progreso}}): fase
    "implement", criterio completado, resultado, notas. Marca el checkbox del criterio en
    spec.md.
-5. **Commit (gate):** propón el commit con mensaje convencional
+6. **Commit (gate):** propón el commit con mensaje convencional
    (`feat(<taskId>): <criterio>` o el tipo que corresponda) y ejecútalo SOLO si el usuario
    aprueba. Puede preferir agrupar varios criterios: respétalo.
 
@@ -53,8 +60,8 @@ diseñar el componente con intención visual antes de cablear la lógica. Es una
 que compone con el ciclo TDD; degrada sin problema si no está instalada.
 
 En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo (test
-que reproduce el problema → corrección → verificación → registro con fase "implement" y
-nota "corrección de hallazgo de review" → gate de commit).
+que reproduce el problema → corrección → verificación → refactor con la suite en verde →
+registro con fase "implement" y nota "corrección de hallazgo de review" → gate de commit).
 
 Si durante la implementación descubres que el enfoque de spec.md es inviable: DETENTE,
 explica el problema, y propón actualizar spec.md (sección "Decisiones tomadas") antes de
@@ -98,3 +105,5 @@ saltarte el contrato.
 | "Commiteo / pusheo / abro la PR y aviso después" | Commit, push y PR solo con aprobación explícita del usuario (Fases 3 y 4). |
 | "El enfoque de la spec no encaja, improviso por aquí" | Detente, explica el problema y propón actualizar spec.md ("Decisiones tomadas") antes de desviarte. |
 | "Consulto ClickUp para decidir qué implementar" | La fuente de verdad es spec.md, no ClickUp (Fase 3). |
+| "Funciona, el test pasa, ya está" | El ciclo es red-green-**refactor**: con la suite en verde, limpia los olores que introdujiste antes de registrar (Fase 3, paso 4; guía código-limpio). |
+| "Meto una abstracción/patrón por si acaso o por si escala" | Un patrón se justifica solo si su problema ya existe; anticiparlo es sobre-ingeniería (guía patrones-diseño). |

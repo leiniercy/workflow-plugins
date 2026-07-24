@@ -43,8 +43,13 @@ solo las líneas cambiadas):
    consumidores detectados vía grafo (Fase 2.4) y confirmados en código.
 3. **Tests**: cobertura de los criterios, calidad de las aserciones, casos límite ausentes,
    tests que pasan por razones incorrectas.
-4. **Convenciones**: coherencia con los patrones del repo (estructura, naming, estilos,
-   manejo de estado, fetching de datos).
+4. **Convenciones y deuda técnica**: coherencia con los patrones del repo (estructura,
+   naming, estilos, manejo de estado, fetching de datos) y **olores de código** que el diff
+   introduzca o empeore — método/clase desmesurados, duplicación, condicionales por tipo,
+   obsesión por primitivos, acoplamiento (envidia de características, cadenas de mensajes) —
+   según la guía `codigo-limpio` (`${CLAUDE_PLUGIN_ROOT}/skills/codigo-limpio/SKILL.md`). Repórtalos como deuda técnica (severidad
+   normalmente Media) solo si superan el umbral de `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`) y no son
+   preexistentes, nitpicks ni trabajo del linter.
 5. **Seguridad**: secretos hardcodeados, validación de inputs, exposición de datos en
    cliente (variables NEXT_PUBLIC_ indebidas), inyección, dependencias sospechosas.
 

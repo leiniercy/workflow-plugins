@@ -19,9 +19,19 @@ convención: dedúcela del código existente).
 
 ## Tu dimensión
 
-**Convenciones**: coherencia con los patrones del repo — estructura de carpetas, naming,
-estilos, manejo de estado, fetching de datos, organización de componentes. Un hallazgo válido
-es una desviación de un patrón YA establecido en el repo, no una preferencia tuya.
+**Convenciones y deuda técnica**, en dos frentes:
+
+- **(a) Convenciones:** coherencia con los patrones del repo — estructura de carpetas, naming,
+  estilos, manejo de estado, fetching de datos, organización de componentes. Un hallazgo válido
+  es una desviación de un patrón YA establecido en el repo, no una preferencia tuya.
+- **(b) Olores de código:** los que el diff **introduzca o empeore**, según la guía
+  `codigo-limpio` (`${CLAUDE_PLUGIN_ROOT}/skills/codigo-limpio/SKILL.md`) — método/clase desmesurados, duplicación, condicional por tipo,
+  obsesión por primitivos, envidia de características, cadenas de mensajes. Repórtalos como
+  deuda técnica (severidad normalmente Media), con la refactorización que los curaría.
+
+En ambos frentes: nada **preexistente** que la rama no introdujo, ni sobre-ingeniería sugerida
+como «mejora» (una abstracción de más también es deuda). No propongas patrones de diseño salvo
+que un olor concreto los justifique.
 
 ## Validación
 

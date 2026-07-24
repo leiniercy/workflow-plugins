@@ -63,6 +63,9 @@ casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos d
   Es la sección más importante: /implement trabajará contra ella.
 - **Alcance / Fuera de alcance**: explícitos, para acotar el trabajo.
 - **Enfoque técnico**: ficheros a crear/modificar, decisiones de diseño, estrategia de tests.
+  Si el enfoque sugiere una abstracción o un patrón de diseño, apóyate en la guía
+  `patrones-diseno` (`${CLAUDE_PLUGIN_ROOT}/skills/patrones-diseno/SKILL.md`): propón el patrón solo ante el problema real (un olor ya presente),
+  no de forma especulativa — coherente con «empezar pequeño».
 - **Áreas afectadas** (si usaste el grafo, indica qué señaló y qué verificaste),
   **Dependencias** (marcando bloqueantes), **Riesgos**.
 
@@ -95,3 +98,4 @@ saltarte el contrato.
 | "Guardo spec.md ya y lo repaso luego con el usuario" | spec.md se escribe SOLO tras aprobación explícita (Fase 4). |
 | "El grafo dice que es así, lo doy por hecho" | INFERRED/AMBIGUOUS son hipótesis: confírmalas en el código antes de escribirlas (Fase 3). |
 | "Pongo criterios genéricos para avanzar" | Cada criterio debe ser verificable con un test o una acción concreta; es la sección que usará /implement. |
+| "Diseño con patrones/abstracciones por si escala" | Un patrón se justifica solo ante el problema real (un olor ya presente); si no existe, código simple (guía patrones-diseño). |

@@ -125,6 +125,36 @@ esta skill mejora justo el trabajo de UI que hace `/implement`.
 
 ---
 
+## 5. refactoring.guru — patrones de diseño y refactorización (código limpio)
+
+**Qué es:** no es un repo ni un plugin, sino una **fuente de conocimiento** (refactoring.guru,
+basada en Fowler y el GoF): catálogo de **23 patrones de diseño** en 3 familias (creacionales,
+estructurales, de comportamiento), **21 olores de código** (code smells) en 5 familias, **66
+técnicas de refactorización** en 6 familias, y la disciplina de **código limpio** (qué es,
+deuda técnica, cuándo y cómo refactorizar de forma segura). Incluye una página de **crítica a
+los patrones** especialmente valiosa para nosotros.
+
+**Relación con nosotros:** encaja de lleno con el ADN del plugin (TDD + revisión + calidad).
+Aterriza en tres puntos concretos: el **paso de refactor** que le faltaba al ciclo TDD de
+`/implement` (red-green-**refactor**), la dimensión de **deuda técnica** de `/review` (olores
+nombrados en vez de «convención rota» difusa) y el criterio de **cuándo introducir una
+abstracción** en el enfoque de `/plan`. Ojo con el filtro: los patrones son el clásico imán de
+sobre-ingeniería, así que la guía de patrones se redactó **crítica-first** (aplicar un patrón
+solo ante el problema real), reforzando el anti-objetivo «sobre-ingeniería» en vez de
+contradecirlo.
+
+| Patrón | Qué es | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| Paso **refactor** en el ciclo TDD | red-green-**refactor**: con la suite en verde, limpiar antes de cerrar el criterio | Nuevo paso 4 en la Fase 3 de `/implement`, guiado por `codigo-limpio` (pasos pequeños, verde antes/después, sin features nuevas) | ✅ rama `feat/guias-codigo-limpio-patrones` |
+| Guía **código limpio + olores + refactor seguro** | 5 rasgos del código limpio, catálogo condensado de los 21 olores con su cura, disciplina de refactor | Nueva guía `core/guides/codigo-limpio.md` (skill auto-activable en ambos adaptadores); referenciada por `/implement` y `/review` | ✅ rama `feat/guias-codigo-limpio-patrones` |
+| Guía **patrones de diseño (crítica-first)** | Mapa olor→patrón + las 3 familias + la crítica (síndrome del martillo) | Nueva guía `core/guides/patrones-diseno.md`; referenciada por `/plan` (enfoque) y `/implement` (refactor). Introducir patrón solo ante el problema real | ✅ rama `feat/guias-codigo-limpio-patrones` |
+| Dimensión **deuda técnica** en la revisión | Olores de código como hallazgos accionables | Dimensión 4 de `/review` pasa a «Convenciones y deuda técnica»; `revisor-convenciones` detecta olores que el diff introduce, con la disciplina de `revision-hallazgos` (umbral, no-flag, no preexistentes) | ✅ rama `feat/guias-codigo-limpio-patrones` |
+| **Singleton como anti-patrón** | El propio sitio lo marca: viola SRP, acopla, dificulta tests | Documentado en `patrones-diseno` con la alternativa (inyección de dependencias) | ✅ rama `feat/guias-codigo-limpio-patrones` |
+| **Crítica a los patrones** + olor _Generalidad especulativa_ | «Aplicar patrones en todas partes es sobre-ingeniería» | Refuerza el anti-objetivo «sobre-ingeniería» del filtro; banderas rojas nuevas en `/plan` e `/implement` | ✅ rama `feat/guias-codigo-limpio-patrones` |
+| Catálogo **navegable** completo (23 patrones × 66 técnicas, un doc por cada uno) | Referencia enciclopédica al estilo del sitio | Descartado: inflaría el plugin. Las guías **condensan** lo accionable (mapa olor→técnica/patrón) y enlazan el vocabulario; el detalle exhaustivo vive en la web | ⛔ (sobre-ingeniería documental para nuestro alcance) |
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -179,8 +209,12 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
 | Scripts de bump y doctor de versión + CI de coherencia (`plugin.json`/`marketplace.json`/`CHANGELOG`) | claude-mem / superpowers | `fd69db1` |
 | Eval de comportamiento híbrido (check determinista en CI + checklist manual) | superpowers | `858c065` |
 | Recomendación del add-on `frontend-design` (composición, no redistribución: es propietario) | frontend-design | `e759f23` |
+| Paso `refactor` en el ciclo TDD de `/implement` (red-green-refactor) | refactoring.guru | rama `feat/guias-codigo-limpio-patrones` |
+| Guía `codigo-limpio` (código limpio + 21 olores + refactor seguro) | refactoring.guru | rama `feat/guias-codigo-limpio-patrones` |
+| Guía `patrones-diseno` (crítica-first: patrón solo ante el problema real) | refactoring.guru | rama `feat/guias-codigo-limpio-patrones` |
+| Dimensión «Convenciones y deuda técnica» en `/review` + `revisor-convenciones` | refactoring.guru | rama `feat/guias-codigo-limpio-patrones` |
 
 ---
 
-_Última actualización: 2026-06-19. Mantén este documento al día cuando adoptes un patrón o
+_Última actualización: 2026-07-24. Mantén este documento al día cuando adoptes un patrón o
 analices un repo nuevo._

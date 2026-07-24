@@ -75,7 +75,7 @@ for (const [name, model] of Object.entries(AGENTS)) {
 }
 
 // --- 5 guías: auto-activables (user-invocable:false, sin disable-model-invocation, con description) ---
-const GUIDES = ["estados-tareas", "registro-progreso", "grafo-conocimiento", "formato-toon", "revision-hallazgos"];
+const GUIDES = ["estados-tareas", "registro-progreso", "grafo-conocimiento", "formato-toon", "revision-hallazgos", "historias-usuario", "codigo-limpio", "patrones-diseno"];
 for (const g of GUIDES) {
   const body = read(join(CLAUDE, "skills", g, "SKILL.md"));
   assert(body !== null, `skill ${g} existe`);
