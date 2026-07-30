@@ -32,17 +32,24 @@ jobs:
             1. Extrae el taskId del nombre de la rama (patrón tipo/taskId_slug) o del
                título de la PR ([taskId] ...). Si existe tasks/<taskId>/spec.md, léelo:
                es la fuente de verdad de lo que la PR debe cumplir.
-            2. Analiza el diff completo en cinco dimensiones:
+            2. Detecta el stack del repo (manifiesto, framework) y analiza el diff completo
+               en seis dimensiones, adaptando los checks al stack:
                - Cumplimiento de spec: cada criterio de aceptación implementado y testeado
                  (omite esta dimensión si no hay spec.md, indicándolo).
-               - Bugs: errores lógicos, edge cases, manejo de errores, problemas de
-                 hidratación/SSR de Next.js.
+               - Bugs: errores lógicos, edge cases, manejo de errores y fallos propios del
+                 paradigma del stack (p. ej. hidratación/SSR si el framework renderiza en
+                 servidor).
                - Tests: cobertura de criterios, calidad de aserciones, casos ausentes.
                - Convenciones: coherencia con los patrones existentes del repo.
-               - Seguridad: secretos, validación de inputs, exposición indebida en
-                 cliente, inyección.
+               - Seguridad (OWASP Top 10): secretos, validación de inputs, exposición
+                 indebida en cliente, inyección, control de acceso, gestión de sesión.
+               - Usabilidad/accesibilidad: SOLO si el diff toca UI (alt, labels, semántica,
+                 teclado, validación de formularios, mensajes de error útiles); si no toca
+                 UI, indícalo en una línea.
             3. Clasifica cada hallazgo por severidad: Crítico / Alto / Medio / Bajo, con
-               fichero, línea y sugerencia de corrección.
+               fichero, línea, la característica ISO 25010 afectada (adecuación funcional,
+               fiabilidad, seguridad, mantenibilidad, capacidad de interacción…) y
+               sugerencia de corrección.
             4. Cierra con un veredicto justificado: "Aprobado" o "Cambios requeridos".
 
             Sé concreto y breve. Sin hallazgos relevantes, dilo en un párrafo y no

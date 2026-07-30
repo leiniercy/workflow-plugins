@@ -5,6 +5,49 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.6.0] - 2026-07-30
+
+### Añadido
+
+- **Guía nueva `calidad-producto`** (fuente: ISO/IEC 25010:2023, familia SQuaRE; ver §8 de
+  `docs/referencias.md`): skill auto-activable en ambos adaptadores con el modelo de calidad de
+  producto como **taxonomía compartida** — las 9 características con subcaracterísticas, el
+  mapeo a las dimensiones de `/review` y la disciplina anti-inventario (una característica se
+  marca solo ante una fuerza real, con criterio verificable). Cableada en `/plan` (nueva
+  sección «Requisitos no funcionales» del enfoque técnico) y en el informe de `/review` (cada
+  hallazgo se etiqueta con su característica ISO 25010). Registrada en `sync.mjs` y aseverada
+  en `check-behavior.mjs`.
+- **Guía nueva `usabilidad-accesibilidad` + dimensión 6 de `/review`** (fuente: 10 heurísticas
+  de Nielsen, WCAG 2.2 y lista de chequeo de usabilidad de laboratorio de pruebas UCI,
+  destiladas; §8 de `docs/referencias.md`): cubre la característica «capacidad de interacción»
+  de ISO 25010 con la frontera dura **verificable en código vs evaluación manual** (títulos/
+  estados, lenguaje del usuario, validación cliente+servidor, mensajes de error útiles,
+  alt/labels/semántica/teclado/foco; lo estético se nombra, no se intenta). Nuevo subagente
+  read-only `revisor-usabilidad-accesibilidad` (sonnet) con **gate de aplicabilidad**: se
+  despacha solo si el diff toca UI. Cableada además en los CA de UI de `/plan` y en el paso 1
+  del TDD de `/implement`.
+- **Checks de gestión de sesión y autenticación en `revisor-bugs-seguridad`** (fuente: lista de
+  chequeo de seguridad UCI destilada y modernizada a criterio OWASP/NIST actual; §8 de
+  `docs/referencias.md`): A07 amplía con mensajes de login que revelan cuál credencial falló,
+  sesión no invalidada en el servidor tras logout (botón «Atrás»/URL copiada), ID de sesión sin
+  rotar/predecible/en URL, expiración por inactividad y política de contraseñas (mínimo ≥ 8,
+  lockout/rate limit, historial); A01 añade operaciones peligrosas sobre la propia cuenta
+  (admin que se auto-elimina, degradar al último admin) y propagación inmediata de cambios de
+  rol; A05 añade errores que filtran internals (consulta a BD, versiones).
+
+### Cambiado
+
+- **Core agnóstico de stack** (primer paso de la visión «perfiles de stack», §7 de
+  `docs/referencias.md`): los defaults duros de Next.js en `core/` se sustituyen por la
+  instrucción de **detectar el stack del repo** (manifiesto, framework, paradigma de render) y
+  adaptar los checks, conservando los casos concretos como ejemplos ilustrativos multi-stack
+  (p. ej. `NEXT_PUBLIC_`/`VITE_`, `dangerouslySetInnerHTML`/`v-html`). Afecta a `plan`,
+  `review`, `implement`, `explorador-repo`, `revisor-bugs-seguridad`,
+  `niveles-y-tipos-de-prueba` (tabla de herramientas «según el stack»), las descripciones de
+  `sync.mjs`, el workflow reusable de CI y `plugin.json`.
+- **`/review` pasa de 5 a 6 dimensiones** (usabilidad/accesibilidad) y el informe etiqueta cada
+  hallazgo con su característica ISO 25010 además de la severidad.
+
 ## [0.5.0] - 2026-07-24
 
 ### Añadido

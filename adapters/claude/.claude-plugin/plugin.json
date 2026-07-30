@@ -1,7 +1,7 @@
 {
   "name": "custom-ia-plugin",
-  "version": "0.5.0",
-  "description": "Flujo de desarrollo guiado por tareas de ClickUp para proyectos Next.js: /start toma la tarea y crea la rama, /plan produce spec.md explorando el repo vía grafo de conocimiento (graphify), /implement ejecuta con TDD y /review diagnostica sin modificar. Estado persistido en tasks/<taskId>/ para continuidad entre sesiones.",
+  "version": "0.6.0",
+  "description": "Flujo de desarrollo guiado por tareas de ClickUp, agnóstico de stack (detecta el framework del repo y adapta los checks): /start toma la tarea y crea la rama, /plan produce spec.md explorando el repo vía grafo de conocimiento (graphify), /implement ejecuta con TDD y /review diagnostica en 6 dimensiones (taxonomía ISO 25010) sin modificar. Estado persistido en tasks/<taskId>/ para continuidad entre sesiones.",
   "author": {
     "name": "Leiniercy",
     "email": "leiner.caraballo@rockstardata.ai"
@@ -14,7 +14,8 @@
     "workflow",
     "clickup",
     "tdd",
-    "nextjs",
+    "iso-25010",
+    "quality",
     "task-management",
     "graphify",
     "knowledge-graph"

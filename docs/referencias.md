@@ -250,6 +250,38 @@ system-design-primer por altitud (greenfield/escala, no a nivel de tarea).
 
 ---
 
+## 8. ISO/IEC 25010 (calidad de producto) + listas de chequeo de laboratorio (seguridad y usabilidad)
+
+**Qué es:** el **modelo de calidad de producto** de la familia SQuaRE (ISO 25000): 9
+características en la edición 2023 (adecuación funcional, eficiencia de desempeño,
+compatibilidad, capacidad de interacción, fiabilidad, seguridad, mantenibilidad, flexibilidad,
+protección frente a riesgos) con subcaracterísticas — el vocabulario estándar para especificar
+y evaluar calidad. Más dos **listas de chequeo de laboratorio de pruebas (UCI)**: una de
+seguridad (23 checks binarios de confidencialidad/integridad/autenticidad, muy centrada en
+sesión y autenticación) y una de usabilidad (heurísticas de Nielsen aplicadas a portal web).
+
+**Relación con nosotros:** la norma da lo que el plugin no tenía — una **taxonomía compartida**
+que revela huecos de cobertura (faltaban capacidad de interacción y eficiencia de desempeño) y
+etiqueta hallazgos y NFRs con lenguaje estándar, al lado de ISTQB/29119 (§6) y OWASP. Las
+listas NO se adoptan tal cual (formato binario Sí/No incompatible con la disciplina de
+confianza 0-100; ítems visuales no verificables desde un diff; puntos desactualizados como
+contraseñas de 6 caracteres): se **destilan** — la de seguridad a casos concretos de
+sesión/auth en A01/A05/A07, la de usabilidad al subconjunto verificable en código de la nueva
+guía.
+
+**Encaje (✅):** guía `calidad-producto` (taxonomía + mapeo dimensión↔característica + NFRs con
+criterio verificable en `/plan`, anti-inventario); guía `usabilidad-accesibilidad` (Nielsen +
+WCAG 2.2 destiladas a lo revisable en código) + dimensión 6 de `/review` con
+`revisor-usabilidad-accesibilidad` (sonnet, solo si el diff toca UI); checks de sesión/auth
+destilados y modernizados en `revisor-bugs-seguridad` (logout sin invalidar en servidor,
+mensajes de login reveladores, admin que borra su propia cuenta, política de contraseñas).
+**Descartado por el filtro:** adoptar las listas como checklist literal; evaluar estética/
+contraste desde el diff (se nombra como evaluación manual/E2E); ISO 25040 (proceso de
+evaluación formal — burocracia de laboratorio, no de plugin); "protección frente a riesgos"
+(safety) salvo dominio que lo exija.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -314,8 +346,12 @@ testing basado en riesgo §6/[2] y perfiles de stack §7 — la guía `arquitect
 | Checklist OWASP Top 10 adaptado a Next.js en `revisor-bugs-seguridad` y dim. 5 de `/review` | OWASP Juice Shop | rama `feat/bibliografia-testing` |
 | «Comportamiento, no implementación» en el paso 1 del ciclo TDD de `/implement` | Jest + Testing Library | rama `feat/bibliografia-testing` |
 | Guía `arquitectura` crítica-first (estilos + DDD transversal + default modular; modos recomendar/elegir) en `/plan` y `/review` | Fowler / Richards & Ford / Khononov | rama `feat/bibliografia-testing` |
+| Guía `calidad-producto` (taxonomía ISO 25010: NFRs en `/plan`, etiquetado de hallazgos en `/review`) | ISO/IEC 25010 (§8) | rama `feat/iso25010-usabilidad` |
+| Guía `usabilidad-accesibilidad` + dimensión 6 de `/review` (`revisor-usabilidad-accesibilidad`, sonnet, gate «solo si toca UI») | Nielsen / WCAG 2.2 / checklist UCI (§8) | rama `feat/iso25010-usabilidad` |
+| Checks de sesión/auth destilados y modernizados en `revisor-bugs-seguridad` (A01/A05/A07) | Checklist de seguridad UCI (§8) / OWASP | rama `feat/iso25010-usabilidad` |
+| Core agnóstico de stack: detección de stack + ejemplos ilustrativos (primer paso de «perfiles de stack» §7) | Visión larga §7 | rama `feat/iso25010-usabilidad` |
 
 ---
 
-_Última actualización: 2026-07-24. Mantén este documento al día cuando adoptes un patrón o
+_Última actualización: 2026-07-30. Mantén este documento al día cuando adoptes un patrón o
 analices un repo nuevo._

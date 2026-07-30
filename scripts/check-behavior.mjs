@@ -55,11 +55,12 @@ for (const cmd of ["start", "plan", "implement", "review"]) {
   assert(body !== null && /Banderas rojas/i.test(body), `/${cmd} tiene tabla de Banderas rojas`);
 }
 
-// --- 5 agentes: read-only DURO (tools exacto) + modelo por tier ---
+// --- 6 agentes: read-only DURO (tools exacto) + modelo por tier ---
 const AGENTS = {
   "revisor-bugs-seguridad": "opus",
   "revisor-spec-tests": "sonnet",
   "revisor-convenciones": "haiku",
+  "revisor-usabilidad-accesibilidad": "sonnet",
   "verificador-hallazgos": "opus",
   "explorador-repo": "sonnet",
 };
@@ -74,8 +75,8 @@ for (const [name, model] of Object.entries(AGENTS)) {
   assert(field(fm, "model") === model, `${name} model = ${model} — actual: ${field(fm, "model")}`);
 }
 
-// --- 5 guías: auto-activables (user-invocable:false, sin disable-model-invocation, con description) ---
-const GUIDES = ["estados-tareas", "registro-progreso", "grafo-conocimiento", "formato-toon", "revision-hallazgos", "historias-usuario", "codigo-limpio", "patrones-diseno", "niveles-y-tipos-de-prueba", "arquitectura"];
+// --- guías: auto-activables (user-invocable:false, sin disable-model-invocation, con description) ---
+const GUIDES = ["estados-tareas", "registro-progreso", "grafo-conocimiento", "formato-toon", "revision-hallazgos", "historias-usuario", "codigo-limpio", "patrones-diseno", "niveles-y-tipos-de-prueba", "arquitectura", "calidad-producto", "usabilidad-accesibilidad"];
 for (const g of GUIDES) {
   const body = read(join(CLAUDE, "skills", g, "SKILL.md"));
   assert(body !== null, `skill ${g} existe`);

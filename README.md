@@ -10,8 +10,8 @@ revisión independiente y continuidad entre sesiones vía `progress.md`.
 custom-ia-plugin/
 ├── core/                      ← ÚNICA fuente de verdad (editar SOLO aquí)
 │   ├── workflows/             start.md · plan.md · implement.md · review.md
-│   ├── guides/                estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos
-│   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · verificador-hallazgos · explorador-repo
+│   ├── guides/                estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · usabilidad-accesibilidad
+│   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo
 ├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior
 ├── adapters/
 │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
@@ -52,7 +52,7 @@ frontmatter propio de cada una. Los ficheros generados se sobrescriben: no los e
 | `/start [taskId]` | Lee la tarea, crea rama `tipo/taskId_slug` desde `develop` y el esqueleto `tasks/<taskId>/` (spec.md + progress.md) | `to do → in progress` (con aprobación) |
 | `/plan [taskId]` | Explora el repo (grafo de graphify si está disponible) y completa `spec.md` con criterios de aceptación, alcance y enfoque | ninguna |
 | `/implement [taskId]` | TDD criterio a criterio contra spec.md; commits/push/PR solo con aprobación | `in progress → review` al crear la PR (con aprobación) |
-| `/review [taskId]` | Diagnóstico en 5 dimensiones frente a spec.md; **solo informa** | ninguna |
+| `/review [taskId]` | Diagnóstico en 6 dimensiones frente a spec.md (taxonomía ISO 25010; usabilidad/accesibilidad solo si el diff toca UI); **solo informa** | ninguna |
 
 El paso a `complete` es siempre humano. Principios transversales: gates de aprobación para
 todo lo visible (commits, push, PR, estados), `$ARGUMENTS` con fallback por inferencia de
@@ -61,7 +61,7 @@ historial inmutable en `progress.md`.
 
 ## Add-on recomendado: diseño de UI (`frontend-design`)
 
-Para tareas de **interfaz en Next.js**, este flujo compone bien con la skill oficial de
+Para tareas de **interfaz web**, este flujo compone bien con la skill oficial de
 Anthropic [`frontend-design`](https://github.com/anthropics/claude-code/tree/main/plugins/frontend-design)
 (genera UI distintiva — paleta, tipografía, layout — evitando la "estética genérica de IA").
 

@@ -1,5 +1,5 @@
 ---
-description: Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones y seguridad, con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp. Uso: [taskId (opcional: se infiere de la rama actual)]
+description: Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones, seguridad y usabilidad/accesibilidad (taxonomía ISO 25010), con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp. Uso: [taskId (opcional: se infiere de la rama actual)]
 agent: revisor
 ---
 Eres un revisor independiente. Tu contrato es estricto: **solo informas**. No modificas
@@ -29,16 +29,20 @@ con /implement, que detectará el modo corrección).
    reportarlo.
 5. NO consultes ClickUp: la fuente de verdad de la revisión es spec.md y el código.
 
-## Fase 3 — Análisis en cinco dimensiones
+## Fase 3 — Análisis en seis dimensiones
 
-Las cinco dimensiones a cubrir (examinando el diff y los ficheros afectados COMPLETOS, no
-solo las líneas cambiadas):
+Las seis dimensiones a cubrir (examinando el diff y los ficheros afectados COMPLETOS, no
+solo las líneas cambiadas) corresponden a características de calidad de ISO 25010 — el mapa
+completo está en `calidad-producto` (skill de OpenCode, auto-activable). **Detecta primero el stack del repo** (manifiesto
+— `package.json`, `pyproject.toml`, `go.mod`… —, framework y paradigma de render si es web) y
+adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el contrato:
 
 1. **Cumplimiento de spec**: cada criterio de aceptación, ¿está implementado y verificado
    por un test? Señala criterios incompletos, parciales o implementados de forma distinta
    a lo especificado sin registro en "Decisiones tomadas".
 2. **Bugs**: errores lógicos, edge cases sin manejar, condiciones de carrera, manejo de
-   errores ausente, problemas de hidratación/SSR típicos de Next.js. Incluye roturas en
+   errores ausente y los fallos propios del paradigma del stack (p. ej. hidratación/SSR en
+   frameworks web con render en servidor, ciclo de vida/async en otros). Incluye roturas en
    consumidores detectados vía grafo (Fase 2.4) y confirmados en código.
 3. **Tests**: cobertura de los criterios, calidad de las aserciones, casos límite ausentes,
    tests que pasan por razones incorrectas.
@@ -50,17 +54,24 @@ solo las líneas cambiadas):
    características, cadenas de mensajes) — según la guía `codigo-limpio` (skill de OpenCode, auto-activable). Repórtalos
    como deuda técnica (severidad normalmente Media) solo si superan el umbral de
    `revision-hallazgos` (skill de OpenCode, auto-activable) y no son preexistentes, nitpicks ni trabajo del linter.
-5. **Seguridad**: recorre el diff con el **OWASP Top 10** como checklist, adaptado a Next.js —
-   control de acceso (route handlers/server actions sin authz, IDOR), exposición de datos al
-   cliente (`NEXT_PUBLIC_` indebidas, filtraciones Server→Client), inyección (SQL/NoSQL,
-   `dangerouslySetInnerHTML`, SSRF), secretos hardcodeados, mala configuración y dependencias
-   vulnerables. El agente `revisor-bugs-seguridad` lo detalla por categoría; en línea, recórrelo
-   igual.
+5. **Seguridad**: recorre el diff con el **OWASP Top 10** como checklist, adaptado al stack
+   detectado — control de acceso (endpoints/handlers sin authz, IDOR), exposición de datos al
+   cliente (variables públicas del framework, filtraciones servidor→cliente), inyección
+   (SQL/NoSQL, XSS, SSRF), gestión de sesión y autenticación, secretos hardcodeados, mala
+   configuración y dependencias vulnerables. El agente `revisor-bugs-seguridad` lo detalla por
+   categoría; en línea, recórrelo igual.
+6. **Usabilidad y accesibilidad**: SOLO si el diff toca UI (componentes, vistas, plantillas,
+   formularios, textos de interfaz); si no, decláralo no aplicable en una línea. Aplica la
+   guía `usabilidad-accesibilidad` (skill de OpenCode, auto-activable): solo lo verificable en código (títulos/estados,
+   lenguaje del usuario, validación cliente+servidor, mensajes de error útiles, alt/labels/
+   semántica/teclado), solo lo que el diff introduce o empeora; lo estético/visual se nombra
+   como evaluación manual, no se reporta.
 
 ### Cómo ejecutar el análisis — subagentes con tiering, o en línea
 
 **Si dispones de los agentes revisores del plugin** (`revisor-bugs-seguridad`,
-`revisor-spec-tests`, `revisor-convenciones`): despáchalos EN PARALELO como subagentes,
+`revisor-spec-tests`, `revisor-convenciones`, `revisor-usabilidad-accesibilidad`):
+despáchalos EN PARALELO como subagentes,
 pasándole a cada uno el contexto que ya recopilaste en la Fase 2 (contenido de spec.md, el
 diff completo, los hallazgos del grafo si los hubo y las notas de progress.md). El reparto y
 el modelo de cada uno (tiering por coste/complejidad, patrón del plugin oficial `code-review`):
@@ -68,12 +79,15 @@ el modelo de cada uno (tiering por coste/complejidad, patrón del plugin oficial
 - `revisor-bugs-seguridad` (opus) → dimensiones 2 (bugs) y 5 (seguridad).
 - `revisor-spec-tests` (sonnet) → dimensiones 1 (cumplimiento de spec) y 3 (tests).
 - `revisor-convenciones` (haiku) → dimensión 4 (convenciones).
+- `revisor-usabilidad-accesibilidad` (sonnet) → dimensión 6 (usabilidad/accesibilidad).
+  **Despáchalo SOLO si el diff toca UI**; si no, registra la dimensión como no aplicable
+  sin gastar el agente.
 
 Cada subagente es solo-lectura por su campo `tools` (no puede modificar nada ni despachar
 más agentes) y devuelve sus hallazgos ya auto-refutados y puntuados. Recoge sus informes y
 pasa a la Fase 4 a sintetizarlos.
 
-**Si NO dispones de esos agentes** (p. ej. en OpenCode): analiza tú mismo las cinco
+**Si NO dispones de esos agentes** (p. ej. en OpenCode): analiza tú mismo las seis
 dimensiones en línea, leyendo el diff y los ficheros afectados completos, y aplica a cada
 hallazgo la validación de la Fase 4 antes de incluirlo.
 
@@ -81,7 +95,7 @@ hallazgo la validación de la Fase 4 antes de incluirlo.
 
 ### 4.1 — Síntesis de los hallazgos candidatos
 
-Reúne los hallazgos de los tres agentes (o de tu análisis en línea). Todos deben cumplir la
+Reúne los hallazgos de los agentes despachados (o de tu análisis en línea). Todos deben cumplir la
 disciplina de la guía `revision-hallazgos` (skill de OpenCode, auto-activable): confianza 0-100 con umbral ≥ 75, lista de
 "qué NO reportar" y severidad. **Deduplica** los que varias dimensiones señalen sobre la misma
 línea y **reaplica el umbral** al conjunto. Para hallazgos vía grafo (Fase 2.4) marcados
@@ -104,11 +118,12 @@ sobre cada hallazgo superviviente, con la misma intención de refutarlo, antes d
 
 Presenta los hallazgos supervivientes (confianza ≥ 75) clasificados por severidad (Crítico /
 Alto / Medio / Bajo, según la guía `revision-hallazgos` (skill de OpenCode, auto-activable)). Cada hallazgo: fichero y
-línea, descripción, **confianza**, severidad y sugerencia de corrección (descrita, NO
-aplicada). Si la lista es larga y uniforme, preséntala en formato TOON según la guía
-`formato-toon` (skill de OpenCode, auto-activable). Cierra con un veredicto justificado: **Aprobado** o **Cambios
-requeridos**. Si no hay hallazgos ≥ 75, dilo en una línea (p. ej. "Sin hallazgos de alta
-confianza; revisadas las cinco dimensiones").
+línea, descripción, **confianza**, severidad, la **característica ISO 25010** afectada (según
+`calidad-producto` (skill de OpenCode, auto-activable); p. ej. «Seguridad → autenticidad», «Mantenibilidad») y sugerencia
+de corrección (descrita, NO aplicada). Si la lista es larga y uniforme, preséntala en formato
+TOON según la guía `formato-toon` (skill de OpenCode, auto-activable). Cierra con un veredicto justificado: **Aprobado** o
+**Cambios requeridos**. Si no hay hallazgos ≥ 75, dilo en una línea (p. ej. "Sin hallazgos de
+alta confianza; revisadas las seis dimensiones").
 
 ## Fase 5 — Cierre
 

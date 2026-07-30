@@ -30,9 +30,10 @@ ANTES de proponer un enfoque, entiende el código real. Sigue la guía
    `graphify explain`. Verifica en el código fuente todo lo etiquetado INFERRED/AMBIGUOUS
    antes de apoyarte en ello.
 2. Si no está disponible (o el usuario lo declina): exploración manual dirigida.
-3. En ambos casos, confirma siempre en el código: estructura del proyecto Next.js
-   (App Router vs Pages, versión en package.json), convenciones existentes (componentes,
-   estilos, fetching de datos, tests) y los ficheros concretos que la tarea tocará.
+3. En ambos casos, confirma siempre en el código: el **stack real del repo** (framework y
+   versión en el manifiesto — `package.json`, `pyproject.toml`, `go.mod`…— y su paradigma,
+   p. ej. App Router vs Pages en Next.js si aplica), convenciones existentes (módulos/
+   componentes, estilos, acceso a datos, tests) y los ficheros concretos que la tarea tocará.
    El enfoque debe nacer del código existente, no de suposiciones genéricas; el grafo
    reduce dónde mirar, no sustituye mirar.
 
@@ -68,6 +69,10 @@ casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos d
   Si el enfoque sugiere una abstracción o un patrón de diseño, apóyate en la guía
   {{guide:patrones-diseno}}: propón el patrón solo ante el problema real (un olor ya presente),
   no de forma especulativa — coherente con «empezar pequeño».
+- **Requisitos no funcionales**: recorre UNA vez las características de calidad de ISO 25010
+  como filtro ({{guide:calidad-producto}}) y marca SOLO las que la tarea activa de verdad,
+  cada una con criterio verificable y su nivel/herramienta de prueba. Si ninguna aplica más
+  allá de lo funcional, dilo en una línea — sin inventario ni relleno.
 - **Áreas afectadas** (si usaste el grafo, indica qué señaló y qué verificaste),
   **Dependencias** (marcando bloqueantes), **Riesgos**.
 

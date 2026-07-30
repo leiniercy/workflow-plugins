@@ -27,6 +27,8 @@ que los ficheros son correctos. El eval es **híbrido**:
 | 1.7 | "¿en qué nivel testeo esta regla de validación pura?" | Se apoya en `niveles-y-tipos-de-prueba`: elige el nivel **más bajo que sirve** (unidad) y nombra el runner del repo; no salta a E2E "por realismo" | ☐ |
 | 1.8 | Durante `/implement`: "testea el estado interno / el método privado del componente" | Escribe el test contra el **comportamiento observable**, no el detalle de implementación (principio Testing Library): así sobrevive al refactor del paso 4 | ☐ |
 | 1.9 | "empiezo un proyecto de cero, ¿qué arquitectura uso?" | Se apoya en `arquitectura`, **modo recomendar**: pregunta por las fuerzas (equipo, dominio, escala real…) y propone el estilo más simple que sirva (monolito modular), no microservicios por defecto | ☐ |
+| 1.10 | `/plan`: "esta tarea necesita que la búsqueda responda en menos de 300 ms" | Se apoya en `calidad-producto`: marca **eficiencia de desempeño** con su umbral como criterio verificable en «Requisitos no funcionales», sin inventariar las 9 características | ☐ |
+| 1.11 | "revisa este formulario que acabo de añadir" | Se apoya en `usabilidad-accesibilidad`: verifica labels, validación cliente+servidor, mensajes de error y semántica/teclado; NO opina de estética ni contraste (los nombra como evaluación manual) | ☐ |
 
 ## 2. Routing de comandos por estado
 
@@ -52,9 +54,11 @@ que los ficheros son correctos. El eval es **híbrido**:
 
 | # | Prompt | Esperado | OK |
 |---|---|---|----|
-| 4.1 | `/review` sobre una rama con cambios | Despacha los 3 agentes por dimensión (opus/sonnet/haiku) y luego el verificador adversarial; ninguno modifica ficheros | ☐ |
+| 4.1 | `/review` sobre una rama con cambios | Despacha los agentes por dimensión (opus/sonnet/haiku) y luego el verificador adversarial; ninguno modifica ficheros | ☐ |
 | 4.2 | `/plan` sobre una tarea nueva | Delega la reconnaissance en `explorador-repo` (si existe) y razona el enfoque a partir de su mapa | ☐ |
-| 4.3 | `/review` sobre un diff que expone una clave vía `NEXT_PUBLIC_` | `revisor-bugs-seguridad` lo marca bajo el **OWASP Top 10** (A02, exposición de datos al cliente), no como nota genérica; la dim. 4 detecta además violaciones de la arquitectura vigente | ☐ |
+| 4.3 | `/review` sobre un diff que expone una clave vía la variable pública del framework (p. ej. `NEXT_PUBLIC_`) | `revisor-bugs-seguridad` lo marca bajo el **OWASP Top 10** (A02, exposición de datos al cliente) etiquetado con su característica ISO 25010 (Seguridad → confidencialidad), no como nota genérica; la dim. 4 detecta además violaciones de la arquitectura vigente | ☐ |
+| 4.4 | `/review` sobre un diff que SOLO toca backend (sin UI) | NO despacha `revisor-usabilidad-accesibilidad`: declara la dimensión 6 no aplicable en una línea | ☐ |
+| 4.5 | `/review` sobre un diff con un componente de UI nuevo | Despacha `revisor-usabilidad-accesibilidad` (sonnet); sus hallazgos citan `fichero:línea` verificables (labels, semántica, validación), sin juicios estéticos | ☐ |
 
 ## 5. Degradación elegante
 
@@ -62,4 +66,5 @@ que los ficheros son correctos. El eval es **híbrido**:
 |---|---|---|----|
 | 5.1 | Sin MCP de ClickUp configurado | Cualquier comando degrada a modo manual e informa, sin bloquear | ☐ |
 | 5.2 | Sin graphify instalado | `/plan` y `/review` exploran a mano; nada se detiene por su ausencia | ☐ |
-| 5.3 | En OpenCode (sin agentes de plugin) | `/review` analiza las 5 dimensiones en línea; `/plan` explora en línea | ☐ |
+| 5.3 | En OpenCode (sin agentes de plugin) | `/review` analiza las 6 dimensiones en línea; `/plan` explora en línea | ☐ |
+| 5.4 | Repo consumidor que NO es Next.js (p. ej. Python/FastAPI o Vue) | Los comandos detectan el stack por el manifiesto y adaptan checks y herramientas; ningún hallazgo ni sugerencia asume Next.js | ☐ |

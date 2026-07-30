@@ -37,7 +37,7 @@ const COMMANDS = {
   },
   review: {
     description:
-      "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones y seguridad, con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp.",
+      "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones, seguridad y usabilidad/accesibilidad (taxonomía ISO 25010), con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp.",
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
     // OpenCode: ejecuta /review bajo el agente primario read-only `revisor` (su
     // `permission` BLOQUEA edición y todo bash salvo git/graphify de lectura). Es el
@@ -79,7 +79,7 @@ const COMMANDS = {
 const AGENTS = {
   "revisor-bugs-seguridad": {
     description:
-      "Subagente de /review (solo-lectura) para las dimensiones de BUGS y SEGURIDAD. Despáchalo en paralelo desde /review para auditar errores lógicos, edge cases y SSR/hidratación, y la seguridad con el marco OWASP Top 10 adaptado a Next.js (control de acceso, inyección, exposición de datos al cliente, mala configuración, dependencias vulnerables). Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
+      "Subagente de /review (solo-lectura) para las dimensiones de BUGS y SEGURIDAD. Despáchalo en paralelo desde /review para auditar errores lógicos, edge cases y fallos propios del paradigma del stack, y la seguridad con el marco OWASP Top 10 adaptado al stack detectado (control de acceso, inyección, exposición de datos al cliente, gestión de sesión/autenticación, mala configuración, dependencias vulnerables). Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
     model: "opus",
     tools: ["Read", "Grep", "Glob"],
   },
@@ -95,6 +95,12 @@ const AGENTS = {
     model: "haiku",
     tools: ["Read", "Grep", "Glob"],
   },
+  "revisor-usabilidad-accesibilidad": {
+    description:
+      "Subagente de /review (solo-lectura) para la dimensión de USABILIDAD Y ACCESIBILIDAD (característica «capacidad de interacción» de ISO 25010). Despáchalo en paralelo desde /review SOLO si el diff toca UI: verifica lo revisable en código (títulos/estados, lenguaje del usuario, validación de formularios, mensajes de error útiles, alt/labels/semántica/teclado según WCAG); lo estético/visual lo marca como evaluación manual. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
+    model: "sonnet",
+    tools: ["Read", "Grep", "Glob"],
+  },
   "verificador-hallazgos": {
     description:
       "Verificador adversarial independiente de /review (solo-lectura). Despáchalo UNA vez tras recoger los hallazgos de los agentes por dimensión: intenta REFUTAR cada hallazgo contra el código y devuelve un veredicto (confirmado/refutado/dudoso) por hallazgo. Filtra falsos positivos antes del informe; no emite el veredicto final.",
@@ -103,7 +109,7 @@ const AGENTS = {
   },
   "explorador-repo": {
     description:
-      "Explorador de repositorio read-only para la Fase 3 de /plan. Despáchalo para mapear estructura del proyecto Next.js, convenciones vigentes, ficheros candidatos y señales de riesgo, y devolver un mapa estructurado (TOON). No propone el plan ni escribe ficheros: el planificador razona el enfoque a partir de su mapa.",
+      "Explorador de repositorio read-only para la Fase 3 de /plan. Despáchalo para mapear la estructura y el stack del proyecto (manifiesto, framework, paradigma), convenciones vigentes, ficheros candidatos y señales de riesgo, y devolver un mapa estructurado (TOON). No propone el plan ni escribe ficheros: el planificador razona el enfoque a partir de su mapa.",
     model: "sonnet",
     tools: ["Read", "Grep", "Glob"],
   },
@@ -168,7 +174,15 @@ const GUIDES = {
   },
   "niveles-y-tipos-de-prueba": {
     description:
-      "Criterio para elegir a qué NIVEL probar cada criterio (unidad, componente, integración, E2E/aceptación — la pirámide de pruebas) y con qué herramienta por defecto en Next.js (Jest/Vitest, Testing Library, Playwright), y qué TIPOS no-funcionales (rendimiento, seguridad/OWASP, API/contrato, accesibilidad) marcar en la estrategia sin integrar su maquinaria en el plugin. Úsala al definir la estrategia de tests en /plan y al elegir el nivel y el runner de un test en /implement. Prioriza el nivel más bajo que verifique el comportamiento; no persigue cobertura por cobertura. Basada en ISTQB, Testing Library, Playwright y Jest.",
+      "Criterio para elegir a qué NIVEL probar cada criterio (unidad, componente, integración, E2E/aceptación — la pirámide de pruebas) y con qué herramienta por defecto según el stack del repo (p. ej. Jest/Vitest, Testing Library, Playwright en JS/TS; pytest en Python), y qué TIPOS no-funcionales (rendimiento, seguridad/OWASP, API/contrato, usabilidad/accesibilidad — mapeados a características ISO 25010) marcar en la estrategia sin integrar su maquinaria en el plugin. Úsala al definir la estrategia de tests en /plan y al elegir el nivel y el runner de un test en /implement. Prioriza el nivel más bajo que verifique el comportamiento; no persigue cobertura por cobertura. Basada en ISTQB, Testing Library, Playwright y Jest.",
+  },
+  "calidad-producto": {
+    description:
+      "Modelo de calidad de producto ISO/IEC 25010 (edición 2023, familia SQuaRE/ISO 25000): las 9 características (adecuación funcional, eficiencia de desempeño, compatibilidad, capacidad de interacción, fiabilidad, seguridad, mantenibilidad, flexibilidad, protección frente a riesgos) con sus subcaracterísticas, el mapeo a las dimensiones de /review y su uso como taxonomía. Úsala al definir los requisitos no funcionales del enfoque técnico en /plan (marcar SOLO las características que la tarea activa, cada una con criterio verificable), al etiquetar hallazgos de /review con su característica, y siempre que necesites clasificar un requisito o hallazgo de calidad con vocabulario estándar. No es una checklist a rellenar: sin fuerza real, no se marca.",
+  },
+  "usabilidad-accesibilidad": {
+    description:
+      "Checklist de usabilidad y accesibilidad VERIFICABLE EN CÓDIGO (heurísticas de Nielsen + WCAG 2.2, característica «capacidad de interacción» de ISO 25010): títulos y estados visibles, lenguaje del usuario y nomenclatura consistente, confirmación en acciones destructivas, validación cliente+servidor, mensajes de error útiles, alt/labels/jerarquía de encabezados/semántica interactiva/teclado/foco. Úsala en la dimensión 6 de /review cuando el diff toque UI, al redactar criterios de aceptación de interfaz en /plan y al escribir tests de componente en /implement. Separa lo revisable en código de lo que exige evaluación manual/E2E (contraste, estética, jerarquía visual), que se nombra sin intentarse.",
   },
   "arquitectura": {
     description:

@@ -1,6 +1,6 @@
 ---
 name: niveles-y-tipos-de-prueba
-description: Criterio para elegir a qué NIVEL probar cada criterio (unidad, componente, integración, E2E/aceptación — la pirámide de pruebas) y con qué herramienta por defecto en Next.js (Jest/Vitest, Testing Library, Playwright), y qué TIPOS no-funcionales (rendimiento, seguridad/OWASP, API/contrato, accesibilidad) marcar en la estrategia sin integrar su maquinaria en el plugin. Úsala al definir la estrategia de tests en /plan y al elegir el nivel y el runner de un test en /implement. Prioriza el nivel más bajo que verifique el comportamiento; no persigue cobertura por cobertura. Basada en ISTQB, Testing Library, Playwright y Jest.
+description: Criterio para elegir a qué NIVEL probar cada criterio (unidad, componente, integración, E2E/aceptación — la pirámide de pruebas) y con qué herramienta por defecto según el stack del repo (p. ej. Jest/Vitest, Testing Library, Playwright en JS/TS; pytest en Python), y qué TIPOS no-funcionales (rendimiento, seguridad/OWASP, API/contrato, usabilidad/accesibilidad — mapeados a características ISO 25010) marcar en la estrategia sin integrar su maquinaria en el plugin. Úsala al definir la estrategia de tests en /plan y al elegir el nivel y el runner de un test en /implement. Prioriza el nivel más bajo que verifique el comportamiento; no persigue cobertura por cobertura. Basada en ISTQB, Testing Library, Playwright y Jest.
 user-invocable: false
 ---
 # Niveles y tipos de prueba (elegir dónde y con qué probar)
@@ -17,12 +17,12 @@ cobertura**.
 
 ## Niveles: elige el más bajo que verifique de verdad el criterio
 
-| Nivel | Qué verifica | Cuándo elegirlo | Herramienta por defecto en Next.js |
+| Nivel | Qué verifica | Cuándo elegirlo | Herramienta por defecto (elige la del stack; ejemplos) |
 |---|---|---|---|
-| **Unidad** | Lógica pura: funciones, utilidades, hooks sin DOM ni red | Una regla de negocio, un cálculo, una validación aislada | Jest o Vitest (el que use el repo) |
-| **Componente** | Un componente desde la óptica del usuario: render, interacción, estado visible | Comportamiento de UI que no cruza módulos | React Testing Library + `user-event` sobre Jest/Vitest |
-| **Integración** | Varios módulos juntos: route handler + BD, server action + validación | El fallo solo aparece al combinar piezas | El runner del repo con entorno/mocks; o test de API |
-| **E2E / sistema** | Un flujo de usuario completo en navegador real | Recorrido multi-página, autenticación, flujos críticos | Playwright (auto-wait, locators por rol, cross-browser). Selenium solo si el repo ya lo usa |
+| **Unidad** | Lógica pura: funciones, utilidades, hooks sin DOM ni red | Una regla de negocio, un cálculo, una validación aislada | El runner del repo (p. ej. Jest/Vitest en JS/TS, pytest en Python, go test en Go) |
+| **Componente** | Un componente desde la óptica del usuario: render, interacción, estado visible | Comportamiento de UI que no cruza módulos | La librería de testing de componentes del framework (p. ej. Testing Library + `user-event` sobre Jest/Vitest) |
+| **Integración** | Varios módulos juntos: endpoint + BD, handler + validación | El fallo solo aparece al combinar piezas | El runner del repo con entorno/mocks; o test de API |
+| **E2E / sistema** | Un flujo de usuario completo en navegador/cliente real | Recorrido multi-página, autenticación, flujos críticos | Playwright si es web (auto-wait, locators por rol, cross-browser). Selenium u otro solo si el repo ya lo usa |
 | **Aceptación** | Los CA de la spec de punta a punta | Confirmar el contrato con el usuario | Suele solaparse con E2E; reutiliza sus casos |
 
 **Cómo elegir:** sube al nivel más bajo que verifique el comportamiento real del CA. Una regla
@@ -33,15 +33,19 @@ que la unidad ya cubre (lento y frágil), ni bajes a unidad lo que solo se rompe
 
 Los CA cubren lo **funcional** (la mayoría del trabajo). Los tipos **no-funcionales** el plugin
 los **marca** en la estrategia para que `/plan` decida y el repo objetivo elija herramienta —no
-los ejecuta ni empaqueta su maquinaria (sería sobre-ingeniería):
+los ejecuta ni empaqueta su maquinaria (sería sobre-ingeniería). Cada tipo corresponde a una
+característica de calidad de ISO 25010 (`calidad-producto` (`${CLAUDE_PLUGIN_ROOT}/skills/calidad-producto/SKILL.md`)); usa esa taxonomía al
+marcarlos:
 
-- **Rendimiento / carga:** si un CA tiene umbral (tiempo de respuesta, throughput), márcalo;
-  la herramienta es del repo (p. ej. JMeter, k6).
-- **Seguridad:** marco OWASP Top 10; lo cubre `/review` (dimensión de seguridad).
-- **API / contrato:** si el cambio toca endpoints, prueba el contrato (Postman/Newman, o tests
-  de integración del propio runner).
-- **Accesibilidad:** en UI, los locators por rol/etiqueta (Testing Library, Playwright) ya
-  empujan a ello; añade axe si aplica.
+- **Rendimiento / carga** (→ eficiencia de desempeño): si un CA tiene umbral (tiempo de
+  respuesta, throughput), márcalo; la herramienta es del repo (p. ej. JMeter, k6).
+- **Seguridad** (→ seguridad): marco OWASP Top 10; lo cubre `/review` (dimensión de seguridad).
+- **API / contrato** (→ compatibilidad): si el cambio toca endpoints, prueba el contrato
+  (Postman/Newman, o tests de integración del propio runner).
+- **Usabilidad / accesibilidad** (→ capacidad de interacción): en UI, los locators por
+  rol/etiqueta (Testing Library, Playwright) ya empujan a ello; lo revisable en código lo
+  define `usabilidad-accesibilidad` (`${CLAUDE_PLUGIN_ROOT}/skills/usabilidad-accesibilidad/SKILL.md`) (dimensión 6 de `/review`); añade axe u otra
+  auditoría del repo si aplica.
 - **Regresión:** la suite existente debe seguir verde (ya lo garantiza el ciclo TDD).
 
 ## Cómo aplicarla
@@ -62,8 +66,8 @@ los ejecuta ni empaqueta su maquinaria (sería sobre-ingeniería):
   imposible; los defectos se agrupan). Cubre comportamiento y riesgo.
 - **Integrar la maquinaria no-funcional en el plugin** — rendimiento, carga o escaneo activo de
   seguridad son herramientas del repo objetivo; aquí solo se **nombran** en la estrategia.
-- **Ignorar el runner existente** — respeta el del repo; propón Playwright/Jest solo cuando no
-  haya ninguno para ese nivel.
+- **Ignorar el runner existente** — respeta el del repo; propón el default de la tabla acorde
+  al stack solo cuando no haya ninguno para ese nivel.
 
 ## Autocrítica antes de cerrar
 
