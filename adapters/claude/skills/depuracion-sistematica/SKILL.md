@@ -36,6 +36,11 @@ Cada fase se completa antes de pasar a la siguiente.
    evidencia, no arreglar.
 5. **Traza el dato hacia atrás.** ¿Dónde se origina el valor incorrecto? ¿Quién llamó con ese
    valor? Sigue subiendo hasta el origen. Se arregla en el origen, no donde explota.
+6. **Pide al usuario los datos que solo él tiene.** Si la evidencia vive en un sistema que el
+   usuario conoce y tú no —un MCP que él configuró, un servicio externo, su entorno, el
+   dominio del negocio—, pídele el dato concreto que te falta (un ID real, el valor esperado,
+   una captura, qué configuró) en vez de suponerlo. Pedir un dato real ES investigar; un dato
+   verificado del usuario vale más que una suposición plausible tuya.
 
 ### Fase 2 — Análisis de patrón
 
@@ -59,9 +64,11 @@ Cada fase se completa antes de pasar a la siguiente.
 ### Fase 4 — Implementación
 
 1. **Test que reproduce el fallo, primero.** Es el paso RED del ciclo TDD: debe fallar por la
-   razón correcta antes de tocar el código.
-2. **Un solo arreglo**, sobre la causa raíz identificada. Sin mejoras «ya que estoy», sin
-   refactor de propina.
+   razón correcta antes de tocar el código. Si ya tienes un test rojo que reproduce exactamente
+   este fallo (p. ej. el del ciclo TDD en curso), este paso está hecho: no escribas otro.
+2. **Un solo arreglo**, sobre la causa raíz identificada. Sin mejoras «ya que estoy» ni
+   arreglos de otras cosas que viste por el camino: anótalas. Las mejoras de diseño no se
+   pierden — van al paso de refactor del ciclo, con la suite en verde.
 3. **Verifica con evidencia**: el test pasa, la suite sigue verde, el síntoma original ha
    desaparecido. Ejecutar el comando y leer la salida — no suponerla.
 
@@ -98,6 +105,7 @@ Escúchalas como una parada de emergencia; todas significan «vuelve a la fase 1
 | «Cambio varias cosas a la vez, gano tiempo» | No podrás aislar qué funcionó, y sembrarás bugs nuevos. |
 | «La referencia es larga, adapto la idea» | Entenderla a medias garantiza el bug. Léela entera. |
 | «Ya veo el problema, lo arreglo» | Ver el síntoma no es entender la causa. |
+| «Supongo este valor para no molestar al usuario con preguntas» | Suponer es adivinar con permiso. Pedir el dato real (fase 1, paso 6) es investigación. |
 | «Un intento más y sale» (tras 2 fallidos) | Tres fallos = problema de arquitectura. Cuestiona el diseño, no lances otro arreglo. |
 
 ## Cuando la investigación concluye «no hay causa raíz»

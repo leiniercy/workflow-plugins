@@ -12,10 +12,13 @@ Versionado [SemVer](https://semver.org/lang/es/).
   instrumentación por frontera en sistemas multi-componente, trazado del dato hacia atrás hasta
   su origen, la **regla de los tres arreglos fallidos** (tres fallos no son una hipótesis
   equivocada sino un diseño equivocado: parar y consultar) y una tabla de **señales del usuario**
-  de que se está adivinando en vez de investigar. Cableada en el paso 2 del ciclo TDD de
-  `/implement` (ante un fallo inesperado) y en el modo CORRECCIÓN. Cubre el mayor hueco de
-  contenido que tenía el plugin: hasta ahora la corrección saltaba directa a «test que reproduce
-  → arregla» sin exigir entender la causa.
+  de que se está adivinando en vez de investigar. Añade sobre la fuente la **petición de datos
+  al usuario como paso de investigación** (fase 1.6): si la evidencia vive en un sistema que
+  solo el usuario conoce (un MCP suyo, un servicio externo, el dominio del negocio), pedir el
+  dato real es investigar; suponerlo es adivinar. Cableada en los pasos 2 y 3 del ciclo TDD de
+  `/implement` (ante un fallo inesperado o una regresión) y en el modo CORRECCIÓN. Cubre el
+  mayor hueco de contenido que tenía el plugin: hasta ahora la corrección saltaba directa a
+  «test que reproduce → arregla» sin exigir entender la causa.
 
 ### Corregido
 

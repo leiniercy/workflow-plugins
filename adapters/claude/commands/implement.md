@@ -48,10 +48,12 @@ criterio de aceptación pendiente, en orden:
    dependencias. Ejecuta y confirma que falla por la razón correcta.
 2. **Implementación mínima** que hace pasar el test, respetando las convenciones del repo
    detectadas en /plan. Si al ejecutar te topas con un fallo que no esperabas —el test falla
-   por una razón distinta a la prevista, algo que funcionaba se rompe, la salida no cuadra—
+   por una razón distinta a la prevista, la salida no cuadra, un error que no reconoces—
    NO improvises cambios a ver cuál cuela: aplica `depuracion-sistematica` (`${CLAUDE_PLUGIN_ROOT}/skills/depuracion-sistematica/SKILL.md`) (causa raíz
    antes de arreglar, una hipótesis cada vez; a los tres arreglos fallidos, para y consulta).
-3. **Verificación**: suite de tests completa + lint + type-check si existen.
+3. **Verificación**: suite de tests completa + lint + type-check si existen. Si la suite
+   destapa una regresión (algo que funcionaba se rompe), vuelve al paso 2 con la misma
+   disciplina: `depuracion-sistematica` (`${CLAUDE_PLUGIN_ROOT}/skills/depuracion-sistematica/SKILL.md`), no toques cosas a ver si vuelve el verde.
 4. **Refactor (con la suite en verde)**: mejora el diseño del código recién escrito SIN
    cambiar su comportamiento, siguiendo la guía `codigo-limpio` (`${CLAUDE_PLUGIN_ROOT}/skills/codigo-limpio/SKILL.md`). Pasos pequeños,
    re-ejecutando la suite tras cada uno (debe seguir verde) y sin añadir funcionalidad:

@@ -79,6 +79,7 @@ clave: superpowers es **ambiental** (las skills se disparan solas), nosotros som
 | Prosa neutral de plataforma + mapa de tools por harness | Una sola carpeta de skills, sin generar copias | Alternativa a nuestro `sync.mjs` (genera N copias). Nuestra vía evita prosa abstracta; el drift se neutraliza con el CI check | ⛔ (decisión consciente: preferimos generar) |
 | Rama `dev` para PRs + `scripts/bump-version.sh` + `.version-bump.json` | Contribuciones contra `dev`; bump de versión sincronizado en todos los manifiestos | `scripts/bump-version.mjs` sincroniza `plugin.json` + `marketplace.json` + `CHANGELOG` (la rama `dev` y el `.version-bump.json` no se adoptan: trabajamos por ramas `feat/*` y la versión vive en `plugin.json`) | 🟡 `fd69db1` (bump sí; rama `dev` no) |
 | Tests de comportamiento de skills (¿de verdad se activan?) | Prompts que verifican que una skill se dispara y se sigue | Eval híbrido: `check-behavior.mjs` (determinista, en CI) asevera los contratos de los prompts + checklist manual `docs/eval-comportamiento.md` para lo no determinista | ✅ `858c065` |
+| `systematic-debugging` (causa raíz antes de arreglar) | Skill de disciplina de depuración: 4 fases, regla de los 3 arreglos fallidos, señales del usuario de que el agente adivina | Guía `depuracion-sistematica` cableada en `/implement` (fallo inesperado en el ciclo TDD + modo CORRECCIÓN); añade petición de datos al usuario como paso de investigación (fase 1.6) | ✅ rama `feat/guia-depuracion-sistematica` |
 | Subagent-driven development (subagente por tarea, revisión en 2 etapas) | Despacha un subagente fresco por tarea con revisión spec→calidad | Posible para planes grandes en `/implement`; hoy trabajamos en el agente principal | 🔜 (evaluar; puede chocar con "empezar pequeño") |
 
 ---
@@ -350,8 +351,9 @@ testing basado en riesgo §6/[2] y perfiles de stack §7 — la guía `arquitect
 | Guía `usabilidad-accesibilidad` + dimensión 6 de `/review` (`revisor-usabilidad-accesibilidad`, sonnet, gate «solo si toca UI») | Nielsen / WCAG 2.2 / checklist UCI (§8) | rama `feat/iso25010-usabilidad` |
 | Checks de sesión/auth destilados y modernizados en `revisor-bugs-seguridad` (A01/A05/A07) | Checklist de seguridad UCI (§8) / OWASP | rama `feat/iso25010-usabilidad` |
 | Core agnóstico de stack: detección de stack + ejemplos ilustrativos (primer paso de «perfiles de stack» §7) | Visión larga §7 | rama `feat/iso25010-usabilidad` |
+| Guía `depuracion-sistematica` (4 fases + regla de los tres arreglos fallidos + señales del usuario + petición de datos al usuario como evidencia) en `/implement` | superpowers (`systematic-debugging`) | rama `feat/guia-depuracion-sistematica` |
 
 ---
 
-_Última actualización: 2026-07-30. Mantén este documento al día cuando adoptes un patrón o
+_Última actualización: 2026-07-31. Mantén este documento al día cuando adoptes un patrón o
 analices un repo nuevo._

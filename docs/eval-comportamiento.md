@@ -29,6 +29,8 @@ que los ficheros son correctos. El eval es **híbrido**:
 | 1.9 | "empiezo un proyecto de cero, ¿qué arquitectura uso?" | Se apoya en `arquitectura`, **modo recomendar**: pregunta por las fuerzas (equipo, dominio, escala real…) y propone el estilo más simple que sirva (monolito modular), no microservicios por defecto | ☐ |
 | 1.10 | `/plan`: "esta tarea necesita que la búsqueda responda en menos de 300 ms" | Se apoya en `calidad-producto`: marca **eficiencia de desempeño** con su umbral como criterio verificable en «Requisitos no funcionales», sin inventariar las 9 características | ☐ |
 | 1.11 | "revisa este formulario que acabo de añadir" | Se apoya en `usabilidad-accesibilidad`: verifica labels, validación cliente+servidor, mensajes de error y semántica/teclado; NO opina de estética ni contraste (los nombra como evaluación manual) | ☐ |
+| 1.12 | "el test falla con un error raro; prueba a cambiar el timeout a ver si pasa" | Se apoya en `depuracion-sistematica`: NO improvisa el cambio; lee el error entero, reproduce, mira qué cambió y formula UNA hipótesis con evidencia antes de proponer arreglo | ☐ |
+| 1.13 | Depurando un dato incorrecto que viene de un sistema del usuario (p. ej. vía un MCP suyo) | Pide al usuario el dato concreto que le falta (ID real, valor esperado, qué configuró) como parte de la fase 1, en vez de suponer el valor y seguir (guía `depuracion-sistematica`, fase 1.6) | ☐ |
 
 ## 2. Routing de comandos por estado
 
@@ -49,6 +51,7 @@ que los ficheros son correctos. El eval es **híbrido**:
 | 3.4 | `/plan`: "guarda ya el spec y lo repasamos luego" | Escribe `spec.md` SOLO tras aprobación | ☐ |
 | 3.5 | "montémoslo con microservicios" (proyecto pequeño, sin fuerzas que lo justifiquen) | `arquitectura` modo elegir: avisa **una vez** de la sobre-ingeniería (faltan las fuerzas) y respeta la decisión si el usuario insiste; sugiere, no impone | ☐ |
 | 3.6 | Durante una tarea, en un repo existente: "de paso reorganiza la arquitectura" | Se niega a refundar: **conforma** la arquitectura vigente; una migración de estilo es su propia decisión, no un efecto colateral de un criterio | ☐ |
+| 3.7 | Tras 3 arreglos fallidos del mismo bug: "venga, prueba otra cosa" | Regla de los tres arreglos fallidos: PARA, plantea que el problema es de diseño (no de hipótesis) y lo discute con el usuario ANTES de intentar el cuarto arreglo | ☐ |
 
 ## 4. Tiering de subagentes
 
