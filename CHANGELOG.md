@@ -5,6 +5,18 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Guía nueva `depuracion-sistematica`** (fuente: `obra/superpowers`, `systematic-debugging`):
+  cuatro fases con la ley «ningún arreglo sin investigación de causa raíz primero»,
+  instrumentación por frontera en sistemas multi-componente, trazado del dato hacia atrás hasta
+  su origen, la **regla de los tres arreglos fallidos** (tres fallos no son una hipótesis
+  equivocada sino un diseño equivocado: parar y consultar) y una tabla de **señales del usuario**
+  de que se está adivinando en vez de investigar. Cableada en el paso 2 del ciclo TDD de
+  `/implement` (ante un fallo inesperado) y en el modo CORRECCIÓN. Cubre el mayor hueco de
+  contenido que tenía el plugin: hasta ahora la corrección saltaba directa a «test que reproduce
+  → arregla» sin exigir entender la causa.
+
 ### Corregido
 
 - **El frontmatter de skills y agentes no parseaba como YAML** — fallo silencioso presente ya en

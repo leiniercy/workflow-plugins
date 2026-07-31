@@ -188,6 +188,10 @@ const GUIDES = {
     description:
       "Guía crítica-first para decidir y respetar la ARQUITECTURA del sistema, un piso por encima de los patrones GoF: catálogo de estilos (monolito en capas, monolito modular, hexagonal/puertos, event-driven, service-based, microservicios) con la fuerza que justifica cada uno y su coste, DDD transversal (estratégico/táctico, solo en el core), criterios de decisión y el default conservador (monolito modular). Úsala en el «Enfoque técnico» de /plan al elegir el estilo de arranque de un repo nuevo o conformar el de uno existente, y en /review para comprobar que un cambio respeta la arquitectura, las capas y el bounded context vigentes. Dos modos: recomendar (pregunta las fuerzas y propone el estilo más simple que sirva) o elegir (presenta el catálogo y valida la elección del usuario). La arquitectura es respuesta a fuerzas reales, no elección por prestigio. Basada en Fowler, Richards & Ford y DDD (Khononov).",
   },
+  "depuracion-sistematica": {
+    description:
+      "Úsala ante cualquier bug, test que falla o comportamiento inesperado, ANTES de proponer un arreglo — incluido el modo corrección de /implement. Síntomas de que la necesitas: «pruebo a cambiar esto a ver qué pasa», llevas dos o más arreglos fallidos, cada arreglo destapa un problema nuevo, o no sabes explicar por qué falla.",
+  },
 };
 
 // ---------------------------------------------------------------------------

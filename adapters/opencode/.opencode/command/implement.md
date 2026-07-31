@@ -46,7 +46,10 @@ criterio de aceptación pendiente, en orden:
    el repo; si no hay ninguno, propón uno acorde al stack y espera aprobación antes de añadir
    dependencias. Ejecuta y confirma que falla por la razón correcta.
 2. **Implementación mínima** que hace pasar el test, respetando las convenciones del repo
-   detectadas en /plan.
+   detectadas en /plan. Si al ejecutar te topas con un fallo que no esperabas —el test falla
+   por una razón distinta a la prevista, algo que funcionaba se rompe, la salida no cuadra—
+   NO improvises cambios a ver cuál cuela: aplica `depuracion-sistematica` (skill de OpenCode, auto-activable) (causa raíz
+   antes de arreglar, una hipótesis cada vez; a los tres arreglos fallidos, para y consulta).
 3. **Verificación**: suite de tests completa + lint + type-check si existen.
 4. **Refactor (con la suite en verde)**: mejora el diseño del código recién escrito SIN
    cambiar su comportamiento, siguiendo la guía `codigo-limpio` (skill de OpenCode, auto-activable). Pasos pequeños,
@@ -69,9 +72,12 @@ que compone con el ciclo TDD; degrada sin problema si no está instalada. En cua
 si el criterio toca UI, incorpora lo verificable de `usabilidad-accesibilidad` (skill de OpenCode, auto-activable)
 (etiquetas, validación, estados, semántica/teclado) desde el primer test.
 
-En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo (test
-que reproduce el problema → corrección → verificación → refactor con la suite en verde →
-registro con fase "implement" y nota "corrección de hallazgo de review" → gate de commit).
+En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo. Si el
+hallazgo es un bug, **entiéndelo con `depuracion-sistematica` (skill de OpenCode, auto-activable) antes de arreglarlo**:
+un arreglo sobre el síntoma deja el defecto vivo y añade código que lo esconde. Después, el
+ciclo de siempre (test que reproduce el problema → corrección → verificación → refactor con la
+suite en verde → registro con fase "implement" y nota "corrección de hallazgo de review" →
+gate de commit).
 
 Si durante la implementación descubres que el enfoque de spec.md es inviable: DETENTE,
 explica el problema, y propón actualizar spec.md (sección "Decisiones tomadas") antes de
@@ -118,3 +124,4 @@ saltarte el contrato.
 | "Funciona, el test pasa, ya está" | El ciclo es red-green-**refactor**: con la suite en verde, limpia los olores que introdujiste antes de registrar (Fase 3, paso 4; guía código-limpio). |
 | "Testeo el estado interno o el método privado para que sea más fácil verificar" | Testea el **comportamiento observable**, no la implementación: un test acoplado al detalle se rompe al refactorizar aunque el comportamiento siga bien (principio de Testing Library; Fase 3, paso 1). |
 | "Meto una abstracción/patrón por si acaso o por si escala" | Un patrón se justifica solo si su problema ya existe; anticiparlo es sobre-ingeniería (guía patrones-diseño). |
+| "Falla algo raro; pruebo a cambiar esto a ver si se arregla" | Causa raíz antes que arreglo. Una hipótesis cada vez; a los tres intentos fallidos, para y cuestiona el diseño (guía depuración-sistemática). |
