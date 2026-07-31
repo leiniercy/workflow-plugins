@@ -1,6 +1,6 @@
 ---
 name: patrones-diseno
-description: "Catálogo de patrones de diseño (GoF) como referencia con freno anti-sobre-ingeniería: mapa olor→patrón, la crítica (aplicar un patrón solo cuando su problema ya existe; preferir código simple o features del lenguaje) y Singleton como anti-patrón. Úsala al razonar el enfoque técnico en /plan y al valorar una abstracción durante el refactor de /implement, para introducir un patrón solo ante el problema real. Basada en refactoring.guru."
+description: "Úsala al razonar el enfoque técnico en /plan y al valorar si introducir una abstracción durante el refactor de /implement. Síntomas: estás a punto de meter una fábrica, una estrategia o un singleton; te oyes decir «por si escala» o «así queda más extensible»."
 user-invocable: false
 ---
 # Patrones de diseño — referencia con freno anti-sobre-ingeniería

@@ -1,6 +1,6 @@
 ---
 name: grafo-conocimiento
-description: "Procedimiento para explorar el repo vía el grafo de conocimiento de graphify en lugar de leer ficheros crudos. Úsala cuando necesites entender la estructura del repo, localizar áreas afectadas por una tarea o analizar el impacto de un cambio. Incluye detección, construcción/actualización del grafo y fallback manual."
+description: "Úsala cuando necesites entender la estructura de un repo que no conoces, localizar las áreas que una tarea va a tocar, o analizar el impacto de un cambio sobre sus consumidores, antes de ponerte a leer ficheros crudos. Cubre graphify: detección, construcción y fallback manual si no está disponible."
 ---
 # Grafo de conocimiento (graphify) — exploración eficiente del repo
 

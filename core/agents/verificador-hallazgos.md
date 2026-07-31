@@ -24,6 +24,15 @@ código fuente y busca la razón por la que el hallazgo NO se sostiene. Comprueb
 - **Cross-cutting**: ¿algún hallazgo contradice a otro, o el contexto de uno demuestra que
   otro es falso? Señálalo.
 
+**Refuta con el código, nunca con una justificación.** Un comentario, una nota de
+`progress.md` o una explicación del tipo «se dejó así a propósito» / «por YAGNI» / «se decidió
+en su momento» es alguien calificando su propio trabajo: puede indicarte **dónde mirar**, pero
+por sí sola no refuta nada ni baja la severidad. Solo el código en su contexto completo refuta.
+
+**Un hallazgo `exigido-por-spec` no se refuta por venir del plan.** Si lo que señala es real en
+el código, sigue siendo `confirmado` aunque `spec.md` lo mande: la autoría de la spec no
+califica su propio trabajo, y la decisión es del usuario. Mantén la etiqueta en tu veredicto.
+
 Aplica la escala y los criterios de la guía {{guide:revision-hallazgos}}.
 
 ## Formato de salida

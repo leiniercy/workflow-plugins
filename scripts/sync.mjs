@@ -89,10 +89,14 @@ const AGENTS = {
     model: "sonnet",
     tools: ["Read", "Grep", "Glob"],
   },
+  // sonnet, no haiku: juzgar convenciones y olores exige LEER ficheros vecinos para deducir
+  // el patrón vigente — es trabajo multi-turno, no transcripción. El modelo más barato gasta
+  // 2-3× turnos en ese tipo de trabajo y acaba costando más (medición de superpowers/SDD,
+  // «el número de turnos pesa más que el precio por token»; §2 de docs/referencias.md).
   "revisor-convenciones": {
     description:
-      "Subagente de /review (solo-lectura) para la dimensión de CONVENCIONES del repo. Despáchalo en paralelo desde /review para detectar desviaciones de patrones ya establecidos (estructura, naming, estado, fetching). Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
-    model: "haiku",
+      "Subagente de /review (solo-lectura) para la dimensión de CONVENCIONES y DEUDA TÉCNICA del repo. Despáchalo en paralelo desde /review para detectar desviaciones de patrones y fronteras ya establecidos (estructura, naming, estado, fetching, capas) y olores de código que el diff introduzca. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
+    model: "sonnet",
     tools: ["Read", "Grep", "Glob"],
   },
   "revisor-usabilidad-accesibilidad": {
@@ -135,58 +139,65 @@ const MCP_SERVERS = {
 // Metadatos por guía. En Claude generan skills con `user-invocable: false`: eso SOLO las
 // oculta del menú `/` (no son comandos accionables), pero siguen siendo AUTO-ACTIVABLES por
 // el modelo a partir de su `description` — no ponemos `disable-model-invocation`. Por eso el
-// `description` se redacta como disparador ambiental ("Úsala cuando…"): es lo que decide
-// cuándo se carga la guía sin que un comando la referencie. (revision-hallazgos se mantiene
-// con disparador acotado a /review a propósito: es una subrutina interna, no conocimiento
-// ambiental.)
+// `description` = CUÁNDO usar la guía, NUNCA qué contiene. Es el disparador ambiental que
+// decide si la guía se carga sin que un comando la referencie — y, si resume el contenido,
+// el agente sigue el resumen y NO abre la guía (hallazgo medido de superpowers/writing-skills,
+// §2 de docs/referencias.md). Por eso: abrir con "Úsala cuando/al/en…", nombrar SÍNTOMAS
+// buscables, y ≤ 500 caracteres (aseverado en check-behavior.mjs).
+// (revision-hallazgos se mantiene con disparador acotado a /review a propósito: es una
+// subrutina interna, no conocimiento ambiental.)
 const GUIDES = {
   "estados-tareas": {
     description:
-      "Catálogo de estados de ClickUp del flujo y su mapeo a comandos del plugin. Úsala cuando necesites interpretar el estado de una tarea, decidir qué comando sugerir al usuario, o validar una transición de estado antes de proponerla.",
+      "Úsala cuando necesites interpretar en qué punto del ciclo está una tarea de ClickUp, decidir qué comando del flujo sugerir al usuario, o validar una transición de estado antes de proponerla.",
   },
   "registro-progreso": {
     description:
-      "Procedimiento exacto para crear y actualizar tasks/<taskId>/progress.md. Úsala SIEMPRE que vayas a registrar avance de una tarea, crear su fichero de estado inicial o actualizar su estado actual. Garantiza que cualquier agente en sesión limpia recupere el contexto.",
+      "Úsala SIEMPRE que vayas a registrar el avance de una tarea, crear su fichero de estado inicial o actualizar su estado actual — al cerrar cualquier fase del flujo (plan, implement, corrección, review). Es lo que permite que un agente en sesión limpia recupere el contexto.",
   },
   "grafo-conocimiento": {
     description:
-      "Procedimiento para explorar el repo vía el grafo de conocimiento de graphify en lugar de leer ficheros crudos. Úsala cuando necesites entender la estructura del repo, localizar áreas afectadas por una tarea o analizar el impacto de un cambio. Incluye detección, construcción/actualización del grafo y fallback manual.",
+      "Úsala cuando necesites entender la estructura de un repo que no conoces, localizar las áreas que una tarea va a tocar, o analizar el impacto de un cambio sobre sus consumidores, antes de ponerte a leer ficheros crudos. Cubre graphify: detección, construcción y fallback manual si no está disponible.",
   },
   "formato-toon": {
     description:
-      "Convención de salida en formato TOON (Token-Oriented Object Notation) para datos estructurados. Úsala siempre que vayas a devolver listas largas de datos uniformes, múltiples rutas del grafo de graphify, esquemas de base de datos o salidas estructurales complejas — en lugar de JSON o YAML — para minimizar el consumo de tokens.",
+      "Úsala siempre que vayas a devolver listas largas de datos uniformes, varias rutas del grafo, esquemas de base de datos o cualquier salida estructural repetitiva, en lugar de JSON o YAML. Síntoma: la salida tendría las mismas claves repetidas en cada elemento y gastaría tokens de más.",
   },
   "revision-hallazgos": {
     description:
-      "Disciplina para validar y puntuar un hallazgo de revisión antes de reportarlo: auto-refutación contra el código, escala de confianza 0-100 con umbral ≥ 75, lista de qué NO reportar y clasificación por severidad. Úsala en /review y en los subagentes revisores para subir la señal y bajar los falsos positivos.",
+      "Úsala en /review y en los subagentes revisores, antes de reportar cualquier hallazgo. Síntomas de que la necesitas: dudas de si algo es un defecto real o un nitpick, si ya lo pillaría el linter, si es preexistente, o si merece bloquear una PR.",
   },
   "historias-usuario": {
     description:
-      "Plantilla y procedimiento para redactar requisitos como Historias de Usuario en spec.md: historia (rol + valor), contexto de proceso de negocio, comportamientos válidos/no válidos, criterios de aceptación en Given/When/Then, diseño de casos de prueba derivado con técnicas de caja negra (partición de equivalencia, valores límite, tabla de decisión, transición de estados, pruebas por pares) y tabla de trazabilidad Proceso→RF→HU→CA→EC. Úsala al definir los criterios de aceptación durante /plan, al diseñar los casos de prueba de una HU, y siempre que redactes o revises una HU, su plan de pruebas o su vínculo con el proceso de negocio. Mantiene una sola fuente de verdad del comportamiento y deja los datos de gestión (programador, iteración, tiempos, riesgo) en ClickUp.",
+      "Úsala al definir los criterios de aceptación de una tarea en /plan, al diseñar sus casos de prueba, y siempre que redactes o revises una historia de usuario o su trazabilidad con el proceso de negocio. Síntomas: criterios vagos o no verificables, casos de prueba elegidos a ojo, un requisito sin rol ni valor claros.",
   },
   "codigo-limpio": {
     description:
-      "Principios de código limpio, catálogo de olores de código (code smells) y disciplina de refactorización segura: pasos pequeños, tests verdes antes y después, sin mezclar con funcionalidad nueva. Úsala en el paso de refactor del ciclo TDD de /implement (tras poner un test en verde, antes de registrar el criterio) y en /review para nombrar deuda técnica y olores concretos como hallazgos. Basada en refactoring.guru.",
+      "Úsala en el paso de refactor del ciclo TDD de /implement (con la suite en verde, antes de cerrar el criterio) y al juzgar deuda técnica en /review. Síntomas: método o clase que ha crecido, código duplicado, condicional anidada, nombres que no dicen lo que hacen, números mágicos.",
   },
   "patrones-diseno": {
     description:
-      "Catálogo de patrones de diseño (GoF) como referencia con freno anti-sobre-ingeniería: mapa olor→patrón, la crítica (aplicar un patrón solo cuando su problema ya existe; preferir código simple o features del lenguaje) y Singleton como anti-patrón. Úsala al razonar el enfoque técnico en /plan y al valorar una abstracción durante el refactor de /implement, para introducir un patrón solo ante el problema real. Basada en refactoring.guru.",
+      "Úsala al razonar el enfoque técnico en /plan y al valorar si introducir una abstracción durante el refactor de /implement. Síntomas: estás a punto de meter una fábrica, una estrategia o un singleton; te oyes decir «por si escala» o «así queda más extensible».",
   },
   "niveles-y-tipos-de-prueba": {
     description:
-      "Criterio para elegir a qué NIVEL probar cada criterio (unidad, componente, integración, E2E/aceptación — la pirámide de pruebas) y con qué herramienta por defecto según el stack del repo (p. ej. Jest/Vitest, Testing Library, Playwright en JS/TS; pytest en Python), y qué TIPOS no-funcionales (rendimiento, seguridad/OWASP, API/contrato, usabilidad/accesibilidad — mapeados a características ISO 25010) marcar en la estrategia sin integrar su maquinaria en el plugin. Úsala al definir la estrategia de tests en /plan y al elegir el nivel y el runner de un test en /implement. Prioriza el nivel más bajo que verifique el comportamiento; no persigue cobertura por cobertura. Basada en ISTQB, Testing Library, Playwright y Jest.",
+      "Úsala al definir la estrategia de pruebas de una tarea en /plan y al elegir a qué nivel y con qué runner escribir cada test en /implement. Síntomas: no sabes si esto es unidad, componente, integración o E2E; el test necesita levantar medio sistema; sospechas que un test pasa sin verificar nada real.",
   },
   "calidad-producto": {
     description:
-      "Modelo de calidad de producto ISO/IEC 25010 (edición 2023, familia SQuaRE/ISO 25000): las 9 características (adecuación funcional, eficiencia de desempeño, compatibilidad, capacidad de interacción, fiabilidad, seguridad, mantenibilidad, flexibilidad, protección frente a riesgos) con sus subcaracterísticas, el mapeo a las dimensiones de /review y su uso como taxonomía. Úsala al definir los requisitos no funcionales del enfoque técnico en /plan (marcar SOLO las características que la tarea activa, cada una con criterio verificable), al etiquetar hallazgos de /review con su característica, y siempre que necesites clasificar un requisito o hallazgo de calidad con vocabulario estándar. No es una checklist a rellenar: sin fuerza real, no se marca.",
+      "Úsala al fijar los requisitos no funcionales de una tarea en /plan y al etiquetar un hallazgo de /review con vocabulario estándar. Síntomas: un requisito de «rendimiento», «seguridad» o «usabilidad» sin criterio medible, o un hallazgo que no sabes en qué dimensión de calidad cae. Taxonomía ISO/IEC 25010.",
   },
   "usabilidad-accesibilidad": {
     description:
-      "Checklist de usabilidad y accesibilidad VERIFICABLE EN CÓDIGO (heurísticas de Nielsen + WCAG 2.2, característica «capacidad de interacción» de ISO 25010): títulos y estados visibles, lenguaje del usuario y nomenclatura consistente, confirmación en acciones destructivas, validación cliente+servidor, mensajes de error útiles, alt/labels/jerarquía de encabezados/semántica interactiva/teclado/foco. Úsala en la dimensión 6 de /review cuando el diff toque UI, al redactar criterios de aceptación de interfaz en /plan y al escribir tests de componente en /implement. Separa lo revisable en código de lo que exige evaluación manual/E2E (contraste, estética, jerarquía visual), que se nombra sin intentarse.",
+      "Úsala cuando el trabajo toque interfaz: al redactar criterios de aceptación de UI en /plan, al escribir tests de componente en /implement y en la dimensión de usabilidad de /review. Síntomas: formularios sin validación o sin mensajes útiles, imágenes sin alt, controles no alcanzables por teclado. Nielsen + WCAG 2.2.",
   },
   "arquitectura": {
     description:
-      "Guía crítica-first para decidir y respetar la ARQUITECTURA del sistema, un piso por encima de los patrones GoF: catálogo de estilos (monolito en capas, monolito modular, hexagonal/puertos, event-driven, service-based, microservicios) con la fuerza que justifica cada uno y su coste, DDD transversal (estratégico/táctico, solo en el core), criterios de decisión y el default conservador (monolito modular). Úsala en el «Enfoque técnico» de /plan al elegir el estilo de arranque de un repo nuevo o conformar el de uno existente, y en /review para comprobar que un cambio respeta la arquitectura, las capas y el bounded context vigentes. Dos modos: recomendar (pregunta las fuerzas y propone el estilo más simple que sirva) o elegir (presenta el catálogo y valida la elección del usuario). La arquitectura es respuesta a fuerzas reales, no elección por prestigio. Basada en Fowler, Richards & Ford y DDD (Khononov).",
+      "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas y el bounded context vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, o la tentación de partir en servicios «por si escala».",
+  },
+  "depuracion-sistematica": {
+    description:
+      "Úsala ante cualquier bug, test que falla o comportamiento inesperado, ANTES de proponer un arreglo — incluido el modo corrección de /implement. Síntomas de que la necesitas: «pruebo a cambiar esto a ver qué pasa», llevas dos o más arreglos fallidos, cada arreglo destapa un problema nuevo, o no sabes explicar por qué falla.",
   },
   "recepcion-de-revision": {
     description:
@@ -205,7 +216,7 @@ const GUIDES = {
  * frontmatter entero**. Cuando eso pasa, el harness carga la skill con metadatos
  * VACÍOS: se pierden `name`, `description` y `user-invocable` en silencio, así que
  * la guía deja de auto-activarse y nadie se entera. Nuestras descripciones llevan
- * «: » de forma natural, así que van siempre entrecomilladas.
+ * «: » de forma natural («Síntomas: …»), así que van siempre entrecomilladas.
  * Verificado con `claude plugin validate --strict`.
  */
 function yamlString(value) {

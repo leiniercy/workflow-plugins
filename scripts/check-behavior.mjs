@@ -59,7 +59,9 @@ for (const cmd of ["start", "plan", "implement", "review"]) {
 const AGENTS = {
   "revisor-bugs-seguridad": "opus",
   "revisor-spec-tests": "sonnet",
-  "revisor-convenciones": "haiku",
+  // sonnet a propósito (no haiku): deducir el patrón vigente exige leer ficheros vecinos —
+  // trabajo multi-turno, donde el tier más barato gasta más turnos de los que ahorra.
+  "revisor-convenciones": "sonnet",
   "revisor-usabilidad-accesibilidad": "sonnet",
   "verificador-hallazgos": "opus",
   "explorador-repo": "sonnet",
@@ -76,7 +78,15 @@ for (const [name, model] of Object.entries(AGENTS)) {
 }
 
 // --- guías: auto-activables (user-invocable:false, sin disable-model-invocation, con description) ---
-const GUIDES = ["estados-tareas", "registro-progreso", "grafo-conocimiento", "formato-toon", "revision-hallazgos", "historias-usuario", "codigo-limpio", "patrones-diseno", "niveles-y-tipos-de-prueba", "arquitectura", "calidad-producto", "usabilidad-accesibilidad", "recepcion-de-revision"];
+//
+// La `description` es el DISPARADOR: si resume el contenido de la guía, el agente sigue el
+// resumen y no llega a abrirla (hallazgo medido de superpowers/writing-skills, §2 de
+// docs/referencias.md). Por eso se asevera su forma, no solo su presencia:
+//   - ≤ 500 caracteres (además, el frontmatter completo tiene un techo duro de 1024)
+//   - contiene "Úsala", que es como se redacta un disparador ("Úsala cuando/al/en…")
+const DESC_MAX = 500;
+const FRONTMATTER_MAX = 1024;
+const GUIDES = ["estados-tareas", "registro-progreso", "grafo-conocimiento", "formato-toon", "revision-hallazgos", "historias-usuario", "codigo-limpio", "patrones-diseno", "niveles-y-tipos-de-prueba", "arquitectura", "calidad-producto", "usabilidad-accesibilidad", "depuracion-sistematica", "recepcion-de-revision"];
 for (const g of GUIDES) {
   const body = read(join(CLAUDE, "skills", g, "SKILL.md"));
   assert(body !== null, `skill ${g} existe`);
@@ -84,14 +94,17 @@ for (const g of GUIDES) {
   const fm = frontmatter(body);
   assert(field(fm, "user-invocable") === "false", `${g} es user-invocable:false (fuera del menú /)`);
   assert(!/disable-model-invocation/.test(fm), `${g} NO desactiva la auto-activación`);
-  const desc = field(fm, "description");
-  assert(!!desc, `${g} tiene description (disparador de auto-activación)`);
-  // Sin comillas, una `description` con «: » dentro rompe el parseo del frontmatter
-  // ENTERO y el harness carga la skill con metadatos vacíos (sin name, sin
-  // description): la guía deja de auto-activarse y nada lo indica. Lo verifica de
-  // forma autoritativa `claude plugin validate --strict` (workflow manifest-check).
-  assert(!!desc && /^".*"$/.test(desc),
-    `${g} description ENTRECOMILLADA (un escalar YAML plano con «: » invalida el frontmatter entero)`);
+  const rawDesc = field(fm, "description");
+  assert(!!rawDesc, `${g} tiene description (disparador de auto-activación)`);
+  assert(!!rawDesc && /^".*"$/.test(rawDesc),
+    `${g} description ENTRECOMILLADA — un escalar YAML plano con «: » rompe el parseo del frontmatter ENTERO y el harness carga la skill sin metadatos (sin name, sin description: deja de auto-activarse en silencio)`);
+  const desc = (rawDesc || "").replace(/^"|"$/g, "");
+  assert(desc.length <= DESC_MAX,
+    `${g} description ≤ ${DESC_MAX} chars (disparador, no resumen) — actual: ${desc.length}`);
+  assert(/Úsala/.test(desc),
+    `${g} description redactada como disparador ("Úsala cuando/al/en…")`);
+  assert(fm.length <= FRONTMATTER_MAX,
+    `${g} frontmatter ≤ ${FRONTMATTER_MAX} chars (techo del formato) — actual: ${fm.length}`);
 }
 
 // --- estados-tareas mapea los 4 estados del flujo ---

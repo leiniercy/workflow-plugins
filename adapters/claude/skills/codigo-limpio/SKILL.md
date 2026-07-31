@@ -1,6 +1,6 @@
 ---
 name: codigo-limpio
-description: "Principios de código limpio, catálogo de olores de código (code smells) y disciplina de refactorización segura: pasos pequeños, tests verdes antes y después, sin mezclar con funcionalidad nueva. Úsala en el paso de refactor del ciclo TDD de /implement (tras poner un test en verde, antes de registrar el criterio) y en /review para nombrar deuda técnica y olores concretos como hallazgos. Basada en refactoring.guru."
+description: "Úsala en el paso de refactor del ciclo TDD de /implement (con la suite en verde, antes de cerrar el criterio) y al juzgar deuda técnica en /review. Síntomas: método o clase que ha crecido, código duplicado, condicional anidada, nombres que no dicen lo que hacen, números mágicos."
 user-invocable: false
 ---
 # Código limpio y refactorización segura
@@ -105,6 +105,33 @@ Cinco familias:
 | Envidia de características | Un método usa más los datos de otro objeto que los suyos | Mover método |
 | Cadenas de mensajes | `a.b().c().d()` | Ocultar delegado |
 | Intermediario | Clase que solo delega en otra | Eliminar intermediario; Alinear clase |
+
+## Cascadas de simplificación (el refactor de 10x, no de 10%)
+
+El catálogo de arriba se aplica olor a olor. A veces eso deja pasar algo mayor: **una sola
+idea que hace innecesarios varios componentes a la vez**. La pregunta que la destapa es «¿y si
+todos estos casos fueran el mismo por debajo?».
+
+| Síntoma | Cascada probable |
+|---|---|
+| El mismo concepto implementado de 5 formas | Abstrae el patrón común |
+| Lista de casos especiales que no para de crecer | Encuentra el caso general |
+| Reglas con excepciones encadenadas | Encuentra la regla que no tiene excepciones |
+| Configuración que crece sin fin | Encuentra el valor por defecto que sirve al 95 % |
+
+Ejemplo: manejadores separados para datos por lotes, en tiempo real, de fichero y de red →
+«todas las entradas son flujos, solo cambia el origen» → un procesador de flujos y varias
+fuentes; **cuatro implementaciones eliminadas**.
+
+Proceso: lista las variantes → busca la esencia común → extrae la abstracción → comprueba que
+**todos** los casos encajan sin forzar → mide la cascada en cuántas cosas puedes **borrar**.
+
+**El límite, y es el que importa:** una cascada es legítima porque la duplicación **ya existe**
+y la abstracción la **elimina**. Se mide en código borrado. Si estás creando una abstracción
+para casos que aún no existen, eso no es una cascada: es _Generalidad especulativa_, y la
+respuesta está en `patrones-diseno` (`${CLAUDE_PLUGIN_ROOT}/skills/patrones-diseno/SKILL.md`) — el patrón se introduce ante el problema real, no
+antes. Ante la duda: ¿cuántas líneas desaparecen? Si la respuesta es «ninguna, pero quedará más
+extensible», no es una cascada.
 
 ## Anti-patrones (nómbralos para no caer en ellos)
 

@@ -5,8 +5,44 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+Rama **transversal**: contiene todo el trabajo de esta tanda EXCEPTO las cuatro guías nuevas,
+que viajan en sus propias ramas (`feat/guia-depuracion-sistematica`,
+`feat/guia-recepcion-de-revision`, `feat/guia-espacio-de-trabajo-aislado`,
+`feat/guia-qa-exploratoria`) para poder revisarse y mergearse por separado. Las cinco vías son
+disjuntas y salen de `fix/frontmatter-yaml`.
+
+Seis análisis externos catalogados en `docs/referencias.md`: re-análisis a fondo de
+**superpowers v6.2.0** (§2, ampliada con §2.A–§2.D), **mattpocock/skills** (§9, la familia
+`grill` y la arquitectura de una librería de skills), **obra/superpowers-skills** (§10, skills de
+pensamiento), el **ecosistema de agregadores** skillsmp/mcpmarket (§11, sin cambios de código), **worktrees** (§12) y **QA exploratoria** (§13).
+
+### Corregido
+
+- **El frontmatter de las skills y agentes no parseaba como YAML** — fallo silencioso presente
+  ya en la **v0.6.0 publicada** (10 ficheros afectados; verificado extrayendo el HEAD commiteado
+  y validándolo aparte). `sync.mjs` emitía `description:` como escalar YAML **plano**, y un
+  escalar plano no puede contener «: », que nuestras descripciones llevan de forma natural
+  («GoF: catálogo de estilos…»). Consecuencia, en palabras del validador oficial: *«at runtime
+  this skill loads with empty metadata (all frontmatter fields silently dropped)»* — se perdían
+  `name`, `description` y `user-invocable`, así que **las guías dejaban de auto-activarse sin
+  que nada lo indicara**. Arreglado con un helper `yamlString()` que entrecomilla y escapa todo
+  escalar de `description` y `argument-hint` (7 puntos de emisión + el agente primario de
+  OpenCode). Detectado al adoptar `claude plugin validate --strict` de mattpocock/skills (§9.C).
+
 ### Añadido
 
+- **Guía nueva `depuracion-sistematica`** (fuente: `obra/superpowers`, `systematic-debugging`):
+  cuatro fases con la ley «ningún arreglo sin investigación de causa raíz primero»,
+  instrumentación por frontera en sistemas multi-componente, trazado del dato hacia atrás hasta
+  su origen, la **regla de los tres arreglos fallidos** (tres fallos no son una hipótesis
+  equivocada sino un diseño equivocado: parar y consultar) y una tabla de **señales del usuario**
+  de que se está adivinando en vez de investigar. Añade sobre la fuente la **petición de datos
+  al usuario como paso de investigación** (fase 1.6): si la evidencia vive en un sistema que
+  solo el usuario conoce (un MCP suyo, un servicio externo, el dominio del negocio), pedir el
+  dato real es investigar; suponerlo es adivinar. Cableada en los pasos 2 y 3 del ciclo TDD de
+  `/implement` (ante un fallo inesperado o una regresión) y en el modo CORRECCIÓN. Cubre el
+  mayor hueco de contenido que tenía el plugin: hasta ahora la corrección saltaba directa a
+  «test que reproduce → arregla» sin exigir entender la causa.
 - **Guía nueva `recepcion-de-revision`** (fuente: `obra/superpowers`, `receiving-code-review` +
   el bucle de corrección de `subagent-driven-development`): el lado **receptor** de la revisión,
   que faltaba frente al emisor (`/review`). Prohíbe el acuerdo performativo («tienes toda la
@@ -16,28 +52,76 @@ Versionado [SemVer](https://semver.org/lang/es/).
   llama, la respuesta es eliminarlo, no construirlo bien— y cierra el bucle con **tope de 3
   rondas**, re-verificación acotada al cambio hecho y **adjudicación por escrito**: ningún
   hallazgo desaparece en silencio. Cableada en el modo CORRECCIÓN de `/implement`.
+- **Sección «Tests honestos»** en `niveles-y-tipos-de-prueba` (fuente: `writing-good-tests`;
+  §2.C): «cada test nombra la rotura que atrapa» y «cada test ejercita lo real» — aserciones
+  espejo, detectores de cambios, probar la frontera propia y no el framework, mockear al nivel
+  correcto, mocks parciales que fallan en silencio, y la **comprobación de mutación** antes de
+  cerrar. Cableada en la dimensión de tests de `revisor-spec-tests`.
+- **Deduplicación por causa, no por síntoma** en `revision-hallazgos` (fuente:
+  `openclaw/auto-qa`; §13): deduplicábamos por `fichero:línea`, así que un mismo defecto que
+  aflora en cuatro sitios contaba como cuatro hallazgos. Ahora se agrupan bajo la causa común
+  enumerando dónde se manifiesta — contar síntomas provoca que se parchee cada aparición y la
+  causa siga viva.
+- **Tres reglas de independencia del revisor** en `revision-hallazgos` (fuente: SDD; §2.B):
+  (1) lo que cuentan `progress.md` y las justificaciones de diseño son **afirmaciones, no
+  hechos** — una justificación nunca baja por sí sola la severidad; (2) etiqueta
+  **`exigido-por-spec`** para hallazgos que la propia spec manda (se reportan y **decide el
+  usuario**: la autoría de la spec no califica su propio trabajo); (3) veredicto **⚠️ «no
+  verificable desde el diff»** para requisitos que viven en código no tocado — el revisor lo
+  declara en vez de rastrear el repo, y `/review` los resuelve todos en la Fase 4.1.
+- **Gate de verificación con evidencia** en `/implement` (fuente:
+  `verification-before-completion`; §2.C): paso 0 de la Fase 4 — ejecutar la suite, lint y
+  type-check **ahora** (no vale una ejecución anterior de la sesión) y repasar `spec.md`
+  criterio a criterio antes de afirmar que la tarea está lista.
+- **2-3 enfoques con recomendación** y **auto-revisión de la spec** en `/plan` (fuente:
+  `brainstorming`; §2.C), y bloque **«Restricciones globales»** en `spec.md` (fuente:
+  `writing-plans`): las condiciones con valor exacto que vinculan a todos los criterios, juntas
+  y explícitas, porque `/implement` trabaja criterio a criterio y una restricción escondida en
+  la prosa de uno no alcanza a los demás.
+- **Disciplina de entrevista en la Fase 4 de `/plan`** (fuente: familia `grill` de
+  mattpocock/skills; §9.A): una pregunta cada vez —un bloque de preguntas desconcierta y cada
+  respuesta cambia cuáles son las siguientes—, **cada pregunta con la respuesta recomendada**
+  (el usuario reacciona a una propuesta, no a un hueco en blanco), en **orden de dependencia**,
+  y sobre todo la regla **hechos-vs-decisiones**: los hechos que se pueden averiguar explorando
+  el repo (framework, versión, runner existente, nombre de un campo) **los busca el agente**;
+  solo se preguntan las decisiones, que son del usuario.
+- **Sección «Cascadas de simplificación» en `codigo-limpio`** (fuente:
+  `obra/superpowers-skills`; §10): el refactor de 10x que se le escapa al recorrido olor a olor
+  — buscar el principio unificador que hace innecesarios varios componentes a la vez, medido en
+  **cuánto código puedes borrar**. Con su límite explícito, que es lo que la hace compatible con
+  el filtro anti-sobre-ingeniería: es legítima porque la duplicación **ya existe** y la
+  abstracción la **elimina**; si no borra código es _Generalidad especulativa_ y manda
+  `patrones-diseno`.
+- **Tensiones abiertas en «Decisiones tomadas» de `/plan`** (fuente:
+  `preserving-productive-tensions`; §10): cuando ambas opciones son válidas y la mejor depende
+  del contexto de despliegue, la disyuntiva se **registra como tensión abierta** en vez de
+  forzar un ganador para dejar la sección limpia. Se fuerza solo si es una puerta de un solo
+  sentido o si mantener ambas cuesta más que elegir.
+- **CI nuevo `manifest-check.yml`** (fuente: mattpocock/skills; §9.B): ejecuta
+  `claude plugin validate --strict` sobre el plugin y sobre el marketplace en cada push y PR.
+  Teníamos tres capas de CI (drift, versión, comportamiento) y ninguna comprobaba que el
+  artefacto publicado fuese **cargable**. `check-behavior.mjs` asevera además que la
+  `description` va entrecomillada. Añadida también la `description` del marketplace, que
+  `--strict` reclamaba.
 
-### Corregido
+### Cambiado
 
-- **El frontmatter de skills y agentes no parseaba como YAML** — fallo silencioso presente ya en
-  la **v0.6.0 publicada** (10 ficheros afectados; verificado extrayendo el HEAD commiteado y
-  validándolo aparte). `sync.mjs` emitía `description:` como escalar YAML **plano**, y un escalar
-  plano no puede contener «: », que nuestras descripciones llevan de forma natural («GoF:
-  catálogo de estilos…»). Consecuencia, en palabras del validador oficial: *«at runtime this
-  skill loads with empty metadata (all frontmatter fields silently dropped)»* — se perdían
-  `name`, `description` y `user-invocable`, así que **las guías dejaban de auto-activarse sin que
-  nada lo indicara**. Arreglado con un helper `yamlString()` que entrecomilla y escapa todo
-  escalar de `description` y `argument-hint` (7 puntos de emisión + el agente primario de
-  OpenCode).
-
-### Añadido
-
-- **CI nuevo `manifest-check.yml`**: ejecuta `claude plugin validate --strict` sobre el plugin y
-  sobre el marketplace en cada push y PR. Teníamos tres capas de CI (drift, versión,
-  comportamiento) y ninguna comprobaba que el artefacto publicado fuese **cargable**; es la única
-  que detecta un frontmatter inválido. `check-behavior.mjs` asevera además que la `description`
-  va entrecomillada. Añadida también la `description` del marketplace, que `--strict` reclamaba.
-  Convención tomada de `mattpocock/skills`.
+- **Las `description` de las guías reescritas como disparador puro** (fuente:
+  `writing-skills`; §2.A). Hallazgo medido de superpowers: si la `description` **resume el
+  contenido**, el agente sigue el resumen y **no llega a abrir la guía**. Las nuestras lo hacían
+  de forma sistemática (hasta 925 caracteres enumerando catálogos enteros; `arquitectura` al
+  94 % del techo de 1024 del frontmatter). Ahora abren con «Úsala cuando/al/en…» y nombran
+  **síntomas buscables**, sin resumir el contenido: 203–360 caracteres. (Las guías nuevas de esta tanda viajan en sus propias ramas y ya nacen con ese formato.)
+- **`revisor-convenciones` pasa de haiku a sonnet** (fuente: SDD, «el número de turnos pesa más
+  que el precio por token»; §2.B): deducir el patrón vigente exige leer ficheros vecinos —es
+  trabajo multi-turno, no transcripción— y el tier más barato gasta más turnos de los que
+  ahorra. `/review` incorpora además la regla de **indicar siempre el modelo al despachar** (si
+  se omite, se hereda el de la sesión y el tiering se anula en silencio) y la prohibición de
+  **pre-juzgar por el revisor** (nada de «no marques X» en el prompt de despacho; la rúbrica
+  general vive en `revision-hallazgos` y la aplica el propio revisor).
+- **`check-behavior.mjs` asevera ahora la forma de las `description`**, no solo su presencia:
+  ≤ 500 caracteres, redactadas como disparador («Úsala») y frontmatter dentro del techo de
+  1024. Es lo que impide que la regla se degrade con el tiempo. 129 aserciones (antes 92).
 
 ## [0.6.0] - 2026-07-30
 

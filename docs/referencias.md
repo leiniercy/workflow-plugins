@@ -59,14 +59,28 @@ pero con un motor pesado. Tomamos los patrones, no la maquinaria.
 
 ## 2. superpowers — `obra/superpowers`
 
+> **Re-analizado a fondo en v6.2.0** (2026-07-31). La primera pasada (tabla «primera pasada»
+> abajo) cubrió la infraestructura; esta segunda leyó las 16 skills, las 8 plantillas de prompt
+> y los scripts. La mitad del valor estaba en material no leído entonces —sobre todo
+> `writing-skills` y el `subagent-driven-development` ya maduro—, así que las secciones §2.A–§2.D
+> son nuevas.
+
 **Qué es:** metodología de desarrollo completa para agentes, sobre skills componibles que se
-**auto-activan** (v6.x, MIT). ~10 harnesses. Flujo `brainstorming → worktrees → writing-plans
-→ subagent-driven-development → TDD → code-review → finishing`, casi idéntico a nuestro
-`/start → /plan → /implement → /review`.
+**auto-activan** (v6.2.0, MIT, Jesse Vincent / Prime Radiant). 11 harnesses; distribuido
+también por el **marketplace oficial de Anthropic**. Flujo `brainstorming → worktrees →
+writing-plans → subagent-driven-development → TDD → code-review → finishing`, casi idéntico a
+nuestro `/start → /plan → /implement → /review`.
 
 **Relación con nosotros:** es la versión madura de lo que construimos. Diferencia filosófica
 clave: superpowers es **ambiental** (las skills se disparan solas), nosotros somos **explícitos**
 (slash commands). Nuestra oportunidad: "ambiental con gates humanos".
+
+**Corrección a la primera pasada:** la fila «tono coercitivo → ⛔ incompatible» era correcta como
+decisión pero incompleta como diagnóstico. `writing-skills` documenta con evidencia **cuándo el
+tono duro funciona y cuándo es contraproducente** (§2.A, A3): la regla no es «nunca prohibir»,
+es «prohibición para fallos de disciplina, receta positiva para fallos de forma».
+
+### 2.0 — Primera pasada (infraestructura)
 
 | Patrón | Qué es | Aplicación a nuestro plugin | Estado |
 |---|---|---|---|
@@ -79,7 +93,91 @@ clave: superpowers es **ambiental** (las skills se disparan solas), nosotros som
 | Prosa neutral de plataforma + mapa de tools por harness | Una sola carpeta de skills, sin generar copias | Alternativa a nuestro `sync.mjs` (genera N copias). Nuestra vía evita prosa abstracta; el drift se neutraliza con el CI check | ⛔ (decisión consciente: preferimos generar) |
 | Rama `dev` para PRs + `scripts/bump-version.sh` + `.version-bump.json` | Contribuciones contra `dev`; bump de versión sincronizado en todos los manifiestos | `scripts/bump-version.mjs` sincroniza `plugin.json` + `marketplace.json` + `CHANGELOG` (la rama `dev` y el `.version-bump.json` no se adoptan: trabajamos por ramas `feat/*` y la versión vive en `plugin.json`) | 🟡 `fd69db1` (bump sí; rama `dev` no) |
 | Tests de comportamiento de skills (¿de verdad se activan?) | Prompts que verifican que una skill se dispara y se sigue | Eval híbrido: `check-behavior.mjs` (determinista, en CI) asevera los contratos de los prompts + checklist manual `docs/eval-comportamiento.md` para lo no determinista | ✅ `858c065` |
-| Subagent-driven development (subagente por tarea, revisión en 2 etapas) | Despacha un subagente fresco por tarea con revisión spec→calidad | Posible para planes grandes en `/implement`; hoy trabajamos en el agente principal | 🔜 (evaluar; puede chocar con "empezar pequeño") |
+| Subagent-driven development (subagente por tarea, revisión en 2 etapas) | Despacha un subagente fresco por tarea con revisión spec→calidad | La **maquinaria** (worktree + subagente por tarea) sigue chocando con «empezar pequeño», pero su **disciplina** sí se adopta: ver §2.B | 🟡 (disciplina sí, maquinaria no) |
+
+### 2.A — `writing-skills`: la meta-skill
+
+Es el material más directamente aplicable a nosotros: cómo se escribe y se valida una skill.
+Su tesis: **escribir skills ES TDD aplicado a documentación de proceso** — el escenario de
+presión es el test, la skill es el código, y sin ver fallar al agente *sin* la skill no sabes
+si la skill enseña lo correcto.
+
+| Patrón | Qué dice | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **`description` = cuándo usar, NUNCA qué hace** | Si la descripción resume el flujo de la skill, **el agente sigue la descripción y no abre la skill**. Evidencia suya: una descripción que decía «code review between tasks» hizo que el agente hiciera **una** revisión aunque el diagrama pedía **dos**. Objetivo: ≤ 500 chars, solo condiciones de disparo y síntomas buscables | **Nos aplicaba de lleno** (medido: descripciones de hasta 925 chars que enumeraban el contenido entero). Las 14 reescritas como disparadores puros («Úsala cuando…» + síntomas); `check-behavior.mjs` asevera ahora ≤ 500 chars, presencia de «Úsala» y el techo de 1024 del frontmatter | ✅ rama `feat/superpowers-v6-2` |
+| **Match the Form to the Failure** | Tabla fallo→forma: **disciplina** (sabe la regla y la salta) → prohibición + tabla de racionalizaciones + banderas rojas · **forma equivocada de la salida** → **receta positiva** («la salida ES X, Y, Z en este orden») · **omite un elemento** → **slot REQUIRED estructural** · comportamiento condicional → condicional sobre un predicado observable | Reencuadra nuestras «banderas rojas» (`8c198fb`), que aplicamos por igual a los 4 workflows. Criterio adoptado al redactar lo nuevo de esta iteración: las banderas rojas nuevas atacan disciplina; lo que da forma a una salida (informe de `/review`, secciones de `spec.md`) se redactó como receta | ✅ rama `feat/superpowers-v6-2` (criterio) · 🔜 (auditar las banderas rojas existentes) |
+| **Las prohibiciones se vuelven en contra en fallos de forma** | En pruebas A/B de wording, el brazo con prohibición produjo **más** contenido no deseado que el control **sin guía ninguna**. «Una receta no deja nada que negociar» | El dato más contraintuitivo del repo: explica por qué «no hagas X» falla bajo un incentivo competidor. Es el fundamento de la fila anterior | 📖 (fundamento) |
+| **Nada de cláusulas de matiz** | «No hagas X salvo que importe» reabre la negociación: añadir **una** cláusula degradó una receta ganadora de consistente a ruidosa. Y **las exenciones no acotan**: «esto no aplica a bloques de código» igual suprime los bloques de código | Auditable en nuestras guías, densas en «salvo que» / «si procede» | 🔜 |
+| **Micro-test de wording antes del escenario completo** | 1 muestra fresca por llamada · **siempre un control sin guía** (si el control no falla, no escribas la guía) · **5+ reps** · leer a mano cada match (los ecos de plantilla se cuelan) · **la varianza es una métrica**: 5 lecturas distintas = el wording no ata | Capa barata que le falta a `docs/eval-comportamiento.md`, entre el check determinista y la checklist manual | 🔜 |
+| Ley de hierro: ninguna skill sin test que falle primero | RED = correr el escenario **sin** la skill y anotar las racionalizaciones **verbatim**; GREEN = skill mínima que ataca justo esas; REFACTOR = cerrar los huecos nuevos. Aplica también a las **ediciones** | Invierte nuestro orden (escribimos y evaluamos después). Adoptable de forma parcial y barata: al menos anotar el fallo base antes de redactar | 🔜 |
+| Cada tipo de skill se testea distinto | Disciplina → presión combinada · Técnica → aplicación + huecos · Patrón → reconocimiento + contraejemplos · Referencia → recuperación + cobertura | Formaliza nuestra división «procedurales vs. referencia» (`73679a3`) | 🟡 |
+| Presupuesto de tokens (<150 bootstrap / <200 muy cargadas / <500 resto) verificado con `wc -w` | Toda skill frecuente compite por contexto | Nuestras guías son de 2-10 KB; algunas son referencia densa a propósito. Aplicado al **frontmatter** (que sí se carga siempre), no al cuerpo | 🟡 (deliberado) |
+| Sin enlaces `@` en skills | `@ruta` fuerza la carga inmediata y quema contexto antes de necesitarlo | ✅ **Verificado:** nuestro `{{guide:x}}` expande a referencia textual, no fuerza carga. Cumplíamos sin saberlo | ✅ (validado) |
+| Nombres verbo-primero, en gerundio | `condition-based-waiting` > `async-test-helpers` | ⛔ **Decisión consciente:** nuestras guías son sustantivas (`codigo-limpio`, `arquitectura`) porque la mayoría son catálogos de referencia, no procedimientos | ⛔ |
+| Diagramas solo para decisiones no obvias | Nunca para referencia (→ tablas), código (→ bloques) ni pasos lineales (→ listas) | Cumplido por omisión: apenas usamos diagramas | ✅ (validado) |
+| `persuasion-principles.md` | Base investigadora (Cialdini 2021; Meincke et al. 2025) de por qué autoridad/compromiso/escasez funcionan en un prompt | Fuente al mantener las guías de disciplina | 📖 referencia |
+
+### 2.B — `subagent-driven-development`: la disciplina, no la maquinaria
+
+28 KB de skill. Lo valioso no es el flujo (parecido al nuestro) sino la **ingeniería de coste y
+de recuperación** que han destilado de sesiones reales, con las cifras del fallo que la motivó.
+
+| Patrón | Qué dice | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Ledger anti-compactación** | «La memoria de conversación no sobrevive a la compactación. Controladores que perdieron el sitio han **re-despachado secuencias enteras de tareas ya completas — el fallo más caro observado**». Tras compactar, **fía del fichero y de `git log`, no de tu recuerdo** | **Convergencia**: nuestro `progress.md` resuelve el mismo problema y ya es la fuente de continuidad. Confirma el diseño | ✅ (validado, `7ebd0ae`) |
+| **Los artefactos van por fichero, nunca por el contexto** | «Todo lo que pegas en un prompt y todo lo que un subagente imprime **queda residente en tu contexto el resto de la sesión y se relee en cada turno**». 3 scripts: dir de trabajo por plan, extracción de la tarea a fichero, y **paquete de revisión** (commits + stat + `git diff -U10`) a fichero: al revisor se le pasa **la ruta**, no el diff. Dato real: un dispatch llegó a 42k chars, 99% historial pegado | Nuestro `/review` pasa hoy el diff **dentro** del prompt a 4 subagentes. Cambio de alto valor pero que toca el contrato de los 4 agentes y su fallback en OpenCode (sin Bash no pueden generar el fichero): merece su propia iteración | 🔜 (prioridad alta) |
+| **Tope de rondas + disyuntor + adjudicación escrita** | Máx. 5 rondas de corrección por tarea; al tope se **adjudica** cada hallazgo abierto: aparcar con veredicto escrito, o **PARAR** si es portante. «Adjudicar antes del tope es pre-juzgar con otro nombre». **Los descartes silenciosos están prohibidos** | Adoptado en la guía nueva `recepcion-de-revision` y en el modo CORRECCIÓN de `/implement`, con **tope de 3** (no 5): sin escalado de modelo en el agente principal, 3 es el mismo umbral que la regla de los tres arreglos de la depuración sistemática, y por la misma razón | ✅ rama `feat/superpowers-v6-2` |
+| **Re-verificación acotada** | Tras el fix se revisa **solo el diff del fix**, veredictando cada hallazgo `corregido`/`no corregido`. Lo nuevo fuera de alcance se anota; **nunca alarga la ronda**. Los Minor no entran al bucle: se difieren y se triagean antes del merge | En `recepcion-de-revision` y en el modo CORRECCIÓN | ✅ rama `feat/superpowers-v6-2` |
+| **No pre-juzgues por el revisor** | Lint sobre tu propio prompt de despacho: si contiene «no marques X», «no lo trates como defecto», «como mucho Minor», «el plan lo eligió» → **para: estás ahorrándote una ronda a costa de la señal** | Adoptado en la Fase 3 de `/review` y en `revision-hallazgos`, **con el matiz que lo hace compatible** con nuestra lista «qué NO reportar»: lo prohibido es el pre-juicio *ad-hoc del orquestador sobre este caso*; una **rúbrica general** que el revisor aplica a todo es legítima | ✅ rama `feat/superpowers-v6-2` |
+| **«No te fíes del report»** | Lo que el implementador cuenta son **afirmaciones sin verificar**. Y las justificaciones de diseño («lo dejé por YAGNI», «lo mantuve simple a propósito») son **el autor calificando su propio trabajo**: una justificación **nunca baja por sí sola la severidad** | Adoptado en `revision-hallazgos` (regla 1 de independencia), en `revisor-spec-tests` y en `verificador-hallazgos`, aplicado a lo que afirma `progress.md` | ✅ rama `feat/superpowers-v6-2` |
+| **Hallazgo `plan-mandated`** | Si el plan **exige** algo que la rúbrica considera defecto, **sigue siendo un hallazgo**: se reporta etiquetado, y **decide el humano**. «La autoría del plan no califica su propio trabajo» | Adoptado como **`exigido-por-spec`**: apartado propio en el informe de `/review`, con el texto de spec que lo obliga; ni se corrige ni se silencia. Cierra un hueco real — hasta ahora un criterio mal planteado no tenía ruta de escape | ✅ rama `feat/superpowers-v6-2` |
+| **Veredicto ⚠️ «no verificable desde el diff»** | Tercera categoría junto a ✅/❌ para requisitos que viven en código no tocado o cruzan tareas. El revisor **no amplía su búsqueda**: lo declara, y lo resuelve quien orquesta, que sí tiene el contexto | Adoptado en la dimensión 1 de `/review`, en `revisor-spec-tests` y en `revision-hallazgos`, con la obligación de resolverlos **todos** en la Fase 4.1 | ✅ rama `feat/superpowers-v6-2` |
+| **Tiering, refinado** | (a) «Especifica SIEMPRE el modelo: omitirlo hereda el de la sesión —normalmente el más caro— y anula esta sección en silencio». (b) **«El número de turnos pesa más que el precio por token»**: los modelos baratos gastan 2-3× turnos en trabajo multi-paso y salen más caros → **mid-tier como suelo** para revisores; el tier más barato solo para transcripción | Ambas adoptadas: regla explícita de indicar modelo en la Fase 3 de `/review`, y **`revisor-convenciones` sube de haiku a sonnet** (deducir el patrón vigente exige leer ficheros vecinos: es multi-turno, no transcripción) | ✅ rama `feat/superpowers-v6-2` |
+| Disciplina de alcance del revisor | Leer el fichero de diff una vez; «las líneas de contexto del diff SON los ficheros cambiados»; no rastrear el repo; salir del diff solo por un **riesgo concreto que puedas nombrar**, un check por riesgo | ⛔ **Filosofía opuesta, decisión consciente:** nuestro `/review` lee los ficheros afectados completos porque optimiza exhaustividad sobre coste, y porque nuestros revisores no tienen Bash. El ⚠️ de arriba nos da lo mejor de su regla (no rastrear el repo entero) sin renunciar a leer el fichero tocado | ⛔ (consciente) |
+| Contrato de forma del informe | «Tu mensaje final ES el informe: empieza por el veredicto. Cada línea es un veredicto, un hallazgo con fichero:línea, o un check que ejecutaste — sin preámbulo, sin narrar el proceso, sin resumen de cierre» | Ejemplo canónico de «receta positiva» (§2.A/A3). Nuestros agentes ya tienen «Formato de salida», menos tajante | 🔜 (menor) |
+| Escaneo previo de conflictos, en lote | Antes de empezar, buscar tareas que se contradigan o exijan lo que la rúbrica llama defecto → **una sola pregunta agrupada**, no una interrupción por hallazgo | Encaja con la auto-revisión de spec adoptada en `/plan` (§2.C), que lo hace en el momento de redactar en vez de al empezar a implementar | 🟡 |
+| Una sola oleada de fixes | Ante N hallazgos, un solo agente con la lista completa: «cada fixer reconstruye contexto y re-ejecuta suites; la oleada final de una sesión real costó más que todas sus tareas juntas» | No nos aplica hoy (corregimos en el agente principal), pero es la razón por la que no conviene despachar un subagente por hallazgo si algún día lo hacemos | 📖 |
+| Ejecución continua sin checkpoints | «No pares a consultar entre tareas; 'should I continue?' malgasta su tiempo» | ⛔ **Choca de frente con «gates humanos para todo lo visible»**. Sus gates están en diseño y en cierre; los nuestros, además, en cada acción visible. Diferencia filosófica real, no un descuido suyo ni nuestro | ⛔ |
+
+### 2.C — Skills que no teníamos
+
+| Skill suya | Contenido clave | Qué hicimos | Estado |
+|---|---|---|---|
+| **`systematic-debugging`** | 4 fases; ley de hierro «ningún arreglo sin causa raíz»; **regla de los 3 arreglos fallidos → cuestiona la arquitectura** (no es una hipótesis fallida, es un diseño equivocado); instrumentar **cada frontera** de componente antes de proponer nada; y una tabla única de **señales del usuario de que lo estás haciendo mal** («¿eso no está pasando?» = asumiste sin verificar; «deja de adivinar»; «¿estamos atascados?») | **Guía nueva `depuracion-sistematica`**, cableada en el paso 2 del ciclo TDD de `/implement` (fallo inesperado) y en el modo CORRECCIÓN; añade sobre la fuente la **petición de datos al usuario como paso de investigación** (fase 1.6). Era nuestro mayor hueco: el modo corrección saltaba directo a «test que reproduce → arregla» sin exigir entender la causa | ✅ rama `feat/guia-depuracion-sistematica` |
+| **`receiving-code-review`** | Cómo **recibir** feedback: prohibido el acuerdo performativo («tienes toda la razón», cualquier agradecimiento); verificar contra el código antes de implementar; **filtro YAGNI sobre la sugerencia del revisor** (grep: ¿se usa siquiera?); **aclarar TODOS los ítems dudosos antes de implementar NINGUNO**; cuándo y cómo rebatir | **Guía nueva `recepcion-de-revision`** (rama `feat/guia-recepcion-de-revision`), que además absorbe el tope/disyuntor de §2.B. Teníamos el lado emisor (`/review`) y nada del receptor —que es exactamente el modo CORRECCIÓN de `/implement`— | ✅ rama `feat/superpowers-v6-2` |
+| **`verification-before-completion`** | Ley: «sin evidencia fresca no hay afirmación de completitud». Gate: identificar el comando → ejecutarlo entero → leer salida y código de salida → verificar → **solo entonces** afirmar. Tabla claim/requiere/no-basta, con la fila clave: **«el agente completó» requiere el diff de VCS, no su informe de éxito** | Absorbido como **disciplina**, no como guía nueva (evitar inflar el catálogo): paso 3 de la Fase 3 y **paso 0 de la Fase 4** de `/implement` (ejecutar la suite AHORA, no vale una ejecución anterior de la sesión), más banderas rojas. Es un fallo de **disciplina**, así que la forma correcta es prohibición + banderas (§2.A/A3) | ✅ rama `feat/superpowers-v6-2` |
+| **`writing-good-tests`** | «Cada test nombra la rotura que atrapa» + «cada test ejercita lo real». **Comprobación de mutación**; aserciones espejo; **detectores de cambios**; «prueba tu frontera, no el framework»; **los mocks parciales fallan en silencio**; «las clases de producción solo llevan métodos de producción» | Absorbido como sección **«Tests honestos»** de `niveles-y-tipos-de-prueba` (que cubría *dónde* probar y no *si el test puede fallar*), + anti-patrones nuevos, + cableado en la dimensión de tests de `revisor-spec-tests` | ✅ rama `feat/superpowers-v6-2` |
+| **`brainstorming`** | Hard gate antes de implementar; una pregunta por mensaje; **2-3 enfoques con trade-offs, empezando por el recomendado**; diseño por secciones con aprobación tras cada una; check de descomposición si son varios subsistemas; **auto-revisión de la spec** (marcadores, contradicciones, alcance, **ambigüedad**: ¿se lee de dos formas? elige una) | Adoptado lo que le faltaba a `/plan`: **2-3 enfoques con recomendación** (Fase 4) y **auto-revisión de la spec** (Fase 5, paso 0), con consistencia de nombres incluida. La aprobación sección a sección no: nuestro gate único sobre la spec completa ya cumple la función sin multiplicar interrupciones | 🟡 (enfoques y auto-revisión ✅; secciones ⛔) |
+| **`writing-plans`** | Audiencia: «un junior entusiasta con mal gusto, sin juicio, sin contexto y con aversión a testear». **Bloque `Global Constraints`** con valores exactos que **vinculan implícitamente a toda tarea**. `Interfaces: Consumes/Produces` por tarea. «No Placeholders» como **fallos de plan**. Auto-revisión con **consistencia de tipos entre tareas** | Adoptado el bloque como **«Restricciones globales»** en `spec.md` (`/plan` Fase 4): es exactamente el hueco que teníamos, porque `/implement` trabaja criterio a criterio y una restricción escondida en la prosa de un criterio no alcanza a los demás. `Consumes/Produces` no aplica (no troceamos en tareas para subagentes) | 🟡 |
+| **`finishing-a-development-branch`** | Menú de 3 opciones **literal**; **descartar solo si el usuario escribe la palabra `discard`**; limpieza **por procedencia** (solo worktrees bajo `.worktrees/`); confirmar la rama base; «corre la suite sobre el árbol que vas a integrar» | Nuestra Fase 4 de `/implement` es solo push+PR. El menú completo (merge local / PR / dejar) y la limpieza de worktree son una iteración aparte | 🔜 |
+| `dispatching-parallel-agents` | Mayormente nuestro. Añade: «varias llamadas en una respuesta = paralelo; una por respuesta = secuencial», y verificar después («los agentes cometen errores sistemáticos») | Nuestro `/review` ya despacha en paralelo | 🟡 |
+
+### 2.D — Infraestructura
+
+| Patrón | Detalle | Aplicación | Estado |
+|---|---|---|---|
+| `<SUBAGENT-STOP>` en el bootstrap | Primera línea de la skill que inyecta el hook: «si te despacharon como subagente para una tarea concreta, ignora esta skill» | Protege a un subagente de heredar instrucciones de sesión que le harían abandonar su tarea. **Nuestro riesgo es menor por diseño**: nuestro hook inyecta *estado de la tarea*, no doctrina de flujo, y el `matcher` de `SessionStart` es `startup\|clear\|compact` —eventos de sesión, no de despacho—. Aun así **no está comprobado empíricamente** que el hook no alcance a nuestros revisores: una guarda de una línea sería barata si la comprobación resulta negativa | 🔜 (comprobar en la checklist manual de `docs/eval-comportamiento.md`) |
+| Hook multi-harness por variable de entorno | Emite `additional_context` (Cursor) / `hookSpecificOutput.additionalContext` (Claude) / `additionalContext` (Copilot) detectando por env var, porque **«Claude Code lee AMBOS sin deduplicar»** → hay que emitir solo uno | Confirma nuestra fila ✅ de la primera pasada y aporta el porqué; relevante si algún día enviamos hooks a OpenCode | ✅ (validado) |
+| El bootstrap inyecta la skill **entera** | No un puntero: el texto completo de su skill de entrada | ⛔ Nuestro hook inyecta **estado de la tarea**, no doctrina; la doctrina vive en los comandos. Coherente con «explícito, no ambiental» | ⛔ (consciente) |
+| Prioridad de skills explícita | Skills de **proceso** primero (fijan el enfoque), luego las de implementación. Y: instrucciones de usuario > skills > comportamiento por defecto | Barato de añadir si algún día hay colisión entre guías | 🔜 (menor) |
+| `.version-bump.json` declarativo | Lista fichero + campo a sincronizar (incluido el path JSON `plugins.0.version`) + `audit.exclude` | Nuestro `bump-version.mjs` lo hace imperativo y ya cubre los 3 manifiestos; la config declarativa sería más limpia, no más correcta | 🔜 (menor) |
+| **Corpus de prompts adversariales** | `tests/explicit-skill-requests/prompts/`: `skip-formalities`, `i-know-what-sdd-means`, `claude-suggested-it`, `after-planning-flow`… + variantes en modelo pequeño y multi-turno | Espejo barato para `docs/eval-comportamiento.md`: convertir nuestra checklist manual en prompts guardados y reutilizables | 🔜 |
+| `printf` en vez de heredoc en hooks bash | Cuelgue de heredoc en bash 5.3+ (su issue #571) | 📖 mina de portabilidad; nuestros hooks son `node` y no la pisan | 📖 |
+| Telemetría (logo remoto con la versión) | Opt-out por env var; honra `DISABLE_TELEMETRY` | ⛔ Anti-objetivo nuestro, aunque la suya sea transparente y mínima | ⛔ |
+| Visual companion (servidor HTTP zero-dep, WebSocket, endurecimiento de auth) | ~90 KB de skill + servidor + tests para mostrar mockups en el navegador durante el brainstorming | ⛔ Sobre-ingeniería: nuestro anti-objetivo literal | ⛔ |
+| Infra de porting a 11 harnesses | `docs/porting-to-a-new-harness.md` (50 KB) + `sync-to-codex-plugin.sh` (15 KB) + manifiestos por harness | ⛔ Targeteamos 2 adaptadores; nuestro `sync.mjs` los cubre | ⛔ |
+
+**Adoptado en esta iteración (rama `feat/superpowers-v6-2`):** las 14 `description` reescritas
+como disparadores puros + su aseveración en CI · guía nueva `depuracion-sistematica` · guía
+nueva `recepcion-de-revision` (con tope de 3 rondas, disyuntor y adjudicación escrita) ·
+sección «Tests honestos» en `niveles-y-tipos-de-prueba` · tres reglas de independencia del
+revisor en `revision-hallazgos` (afirmaciones ≠ hechos · `exigido-por-spec` · ⚠️ no verificable)
+· gate de verificación con evidencia en `/implement` · 2-3 enfoques, «Restricciones globales» y
+auto-revisión de spec en `/plan` · `revisor-convenciones` de haiku a sonnet.
+
+**Pendiente prioritario (🔜):** paquete de revisión por fichero en `/review` (§2.B) — el mayor
+ahorro de contexto disponible, pero toca el contrato de los 4 agentes y su degradación en
+OpenCode.
 
 ---
 
@@ -282,6 +380,219 @@ evaluación formal — burocracia de laboratorio, no de plugin); "protección fr
 
 ---
 
+## 9. mattpocock/skills — la familia `grill` y la arquitectura de una librería de skills
+
+**Qué es:** la librería de skills personal de Matt Pocock («Skills for Real Engineers.
+Straight from my .agents directory», MIT), publicada como plugin en el marketplace oficial de
+Claude Code y también instalable con `npx skills add`. 22 skills promocionadas, organizadas en
+*buckets* con un ciclo de vida explícito. La entrada que motivó el análisis, `grill-me`, vive en
+`skills/productivity/grill-me` (la URL `/tree/main/grill-me` da 404: no está en la raíz).
+
+**Relación con nosotros:** es el contraste más útil de todo este documento, por dos motivos.
+
+1. **Es una crítica directa a nuestra categoría.** Su README lo dice sin rodeos: *«GSD, BMAD y
+   Spec-Kit intentan ayudar apropiándose del proceso. Al hacerlo, te quitan el control y hacen
+   que los bugs del proceso sean difíciles de resolver. Estas skills son pequeñas, fáciles de
+   adaptar y componibles»*. Nosotros **sí** nos apropiamos del proceso (4 comandos, un ciclo
+   fijo). No es un patrón a copiar sino un espejo: nuestra respuesta a esa crítica es que el
+   proceso está *anclado a ClickUp y a `spec.md`*, que es justo lo que un equipo necesita
+   compartir; pero conviene tenerla escrita, porque el coste que él señala (bugs del proceso
+   difíciles de resolver) es real y lo pagamos cada vez que un comando se comporta mal.
+2. **Es una librería de skills, como nosotros.** Superpowers (§2) es una metodología; esto es
+   una *biblioteca* con convenciones de mantenimiento. Ahí es donde más nos aporta.
+
+### 9.A — La familia `grill`: la técnica de entrevista
+
+Cuatro artefactos para una sola técnica, y la separación entre ellos es el patrón.
+
+| Patrón | Qué dice | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Una pregunta cada vez, y esperar** | *«Hacer varias preguntas a la vez es desconcertante»*. La entrevista converge porque cada respuesta reordena las siguientes | Nuestro `/plan` dice «itera con el usuario hasta que apruebe», sin decir **cómo**. Adoptado como disciplina de diálogo en la Fase 4 | ✅ rama `feat/superpowers-v6-2` |
+| **Cada pregunta lleva la respuesta que TÚ recomiendas** | *«reaccionas a una propuesta, no te quedas mirando un prompt en blanco»* | Adoptado. Encaja con los «2-3 enfoques con recomendación» que ya añadimos: mismo principio, aplicado pregunta a pregunta | ✅ rama `feat/superpowers-v6-2` |
+| **Hechos vs decisiones** | *«Si un HECHO se puede encontrar explorando el entorno, búscalo en vez de preguntármelo. Las DECISIONES, en cambio, son mías»*. Regla nítida y muy barata de aplicar | La adopción más valiosa de este repo. Nos faltaba: `/plan` explora y luego propone, pero nada impedía preguntar al usuario algo que estaba en el `package.json` | ✅ rama `feat/superpowers-v6-2` |
+| **Árbol de decisiones en orden de dependencia** | Una decisión padre se resuelve antes que las que cuelgan de ella; el objetivo no es acordar rápido sino **hacer explícita toda decisión implícita** | Adoptado en la Fase 4 de `/plan` | ✅ rama `feat/superpowers-v6-2` |
+| **No actuar hasta que el usuario confirme el entendimiento compartido** | Gate explícito al final de la entrevista | Ya lo teníamos (gate de aprobación antes de escribir `spec.md`). Convergencia | ✅ (validado) |
+| **Primitiva + envoltorios** | `grilling` es la **primitiva** model-invoked que contiene la técnica (fuente única). `grill-me` y `grill-with-docs` son envoltorios user-invoked cuyo cuerpo ENTERO es una línea: «Run a `/grilling` session». Cero duplicación | **Convergencia con nuestra arquitectura**: nuestras guías son las primitivas y los workflows las invocan vía `{{guide:x}}`. Valida el diseño de `core/` | ✅ (validado) |
+| **Hermanos stateless / stateful** | La misma entrevista en dos versiones: `grill-me` no escribe nada; `grill-with-docs` deja ADRs y glosario. La diferencia entre skills es **dónde van las respuestas**, no la técnica | Interesante como eje de diseño. En nuestro flujo el equivalente ya existe (`/plan` escribe `spec.md`) | 📖 |
+| **`batch-grill-me`: el algoritmo de la frontera** (in-progress) | La **frontera** es el conjunto de decisiones cuyos prerequisitos ya están resueltos: se pregunta la frontera entera en una ronda numerada y se recalcula. Y: *«encontrar hechos es tu trabajo, nunca el del usuario: despacha un subagente. No te bloquees — una exploración en marcha es un prerequisito sin resolver, así que solo esperan las preguntas que dependen de ella»* | Elegante, y en tensión directa con «una pregunta cada vez». Él mantiene ambas y la segunda está en `in-progress/` — o sea, sin resolver | 📖 (tensión no resuelta ni por él) |
+| **ADRs con moderación** | Se ofrecen *solo* si la decisión es difícil de revertir, sorprendente sin contexto, y fruto de un trade-off real. *«La mayoría de sesiones producen un glosario más afilado y pocos o ningún ADR, y esa es la forma buscada»* | Misma disciplina anti-inventario que nuestro «sin fuerza real, no se marca» de `calidad-producto`. Convergencia | ✅ (validado) |
+| **Glosario `CONTEXT.md`** | Vocabulario puro (sin implementación, sin spec), escrito **en el momento en que cada término se resuelve**, no al final. Con lista `_Avoid_:` de sinónimos rechazados y sección de «ambigüedades señaladas» con su resolución | Lenguaje ubicuo de DDD hecho operativo. Roza nuestra `historias-usuario` pero no lo cubre. Candidato real, no trivial | 🔜 |
+
+### 9.B — Arquitectura de la librería
+
+| Patrón | Qué dice | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **`claude plugin validate . --strict`** | Validación oficial de manifiestos **y frontmatter** con la CLI de Claude Code, en CI | 🔴 **Nos destapó un fallo grave y silencioso** — ver 9.C. Adoptado como workflow `manifest-check.yml` | ✅ rama `feat/superpowers-v6-2` |
+| **El eje user-invoked vs model-invoked, documentado** | User-invoked: `disable-model-invocation: true` + `policy.allow_implicit_invocation: false`, y la `description` es **para humanos** (fuera las frases-disparador). Model-invoked: `description` **para el modelo**, con disparadores ricos. Test: *«¿podría el modelo alcanzar esto por su cuenta con provecho?»* — y *«la reutilización es la razón para extraer una skill, no el test»* | **Valida y afina lo que hicimos en §2.A**: nuestras 14 guías son model-invoked, así que su `description` debe ser disparador (correcto); nuestros 4 comandos son user-invoked, así que la suya debe ser resumen humano (también correcto). Los dos registros distintos ahora tienen nombre y motivo | ✅ (validado) |
+| **`SKILL.md` es el prompt; `docs/<skill>.md` es la documentación** | Separación dura: el `SKILL.md` de `grill-me` son **147 bytes**; su página de docs, 3 KB de prosa para humanos, publicada en aihero.dev. *«La página no es la skill ni una copia del SKILL.md»* | ⛔ **No aplicable tal cual**: sus páginas son superficie de producto (web pública) y las nuestras no existirían. Pero el principio —*no metas en el prompt prosa que solo sirve para que un humano decida*— sí es auditable en nuestras guías más largas | 🔜 (auditar) |
+| **Buckets con ciclo de vida** | `engineering/` y `productivity/` = **promocionados** (obligatorio: entrada en README y en `plugin.json`); `misc/`, `personal/`, `in-progress/`, `deprecated/` = no se publican. Un borrador vive en `in-progress/` (ahí está `batch-grill-me`) y lo retirado en `deprecated/` | No tenemos dónde poner un borrador ni una guía retirada: las 14 se publican todas. Con 14 el coste de la maquinaria de buckets no compensa, pero **`in-progress/` sí** tendría valor | 🔜 (solo `in-progress/`) |
+| **Dependencias por invocación en prosa, no por ruta** | *«Run the `/grilling` skill»*, nunca `../otra-skill/FICHERO.md`. El material compartido vive dentro de la skill que lo posee | Nuestro `{{guide:x}}` genera exactamente eso (nombre + ruta como referencia textual, sin forzar carga). Convergencia con §2.A/A7 | ✅ (validado) |
+| **Invariante del router** | `ask-matt` mapea todas las skills alcanzables, con la regla escrita: *«una skill nueva que nunca menciona, o una obsoleta a la que sigue enrutando, es un router que miente»* | Con 4 comandos no necesitamos router; el hook `SessionStart` ya sugiere el próximo paso. Nos quedamos con **la forma de la regla**: atar el mantenimiento de un artefacto a un invariante enunciado | 📖 |
+| **`AGENTS.md` == `CLAUDE.md`, byte a byte** | Mismo contenido, dos nombres, para dos harnesses | Nosotros generamos por adaptador con `sync.mjs`; su solución es más barata pero solo funciona si el contenido es idéntico | ⛔ (nuestro caso difiere por adaptador) |
+| **`agents/openai.yaml` como sidecar** | Metadatos por harness junto a la skill, como **datos** (nombre para el selector, política de invocación), no como copia generada de la skill | Alternativa ligera a generar N copias. Nuestro `sync.mjs` genera copias porque el **cuerpo** cambia (rutas de referencia), no solo los metadatos | ⛔ (consciente) |
+| **Dos filosofías de instalación, enunciadas** | Plugin = paquete gestionado de solo lectura al que te *suscribes*; `npx skills add` = copia ficheros editables que pasan a ser tuyos. *«Elige una — instalar ambas te deja cada skill por duplicado»* | Nosotros solo ofrecemos la primera en Claude y solo la segunda en OpenCode (copiar `.opencode/`). Nombrar el trade-off en el README aclararía la diferencia | 🔜 (menor) |
+| **Changesets** (`.changeset/*.md`: bump semver + motivo legible) | El *por qué* del cambio se escribe en el momento de hacerlo, no al publicar | Nuestro `bump-version.mjs` + CHANGELOG cubren la función. Su ventaja es el motivo escrito en caliente | ⛔ (cubierto) |
+| **`scripts/link-skills.sh`** | Symlinks de cada skill a `~/.claude/skills` y `~/.agents/skills` para desarrollar: un `git pull` actualiza lo instalado | Cómodo para iterar sin reinstalar el plugin. Aplicable a nuestro desarrollo local | 🔜 (menor) |
+
+### 9.C — El fallo que destapó `claude plugin validate --strict`
+
+Adoptar su convención de validación tuvo un retorno inmediato: **el frontmatter de nuestras
+skills no parseaba como YAML**, y el error es del tipo peor —silencioso—.
+
+La causa: `sync.mjs` emitía `description: <texto>` como **escalar YAML plano**, y un escalar
+plano no puede contener «: ». Nuestras descripciones lo llevan de forma natural («GoF: catálogo
+de estilos…», y tras la reescritura de §2.A, «Síntomas: …»). El validador lo explica sin
+ambigüedad: *«At runtime this skill loads with empty metadata (all frontmatter fields silently
+dropped)»* — se pierden `name`, `description` y `user-invocable`, de modo que **la guía deja de
+auto-activarse y nada lo indica**.
+
+Alcance real, medido: **10 ficheros rotos en la v0.6.0 ya publicada** (verificado extrayendo el
+HEAD commiteado y validándolo aparte) y 15 en la rama de trabajo. Es decir: **es un fallo
+preexistente, no introducido por la iteración de §2** — aunque esa iteración lo empeoró al
+añadir «Síntomas: » a descripciones que antes se libraban. La ironía es que el trabajo de §2.A
+consistió precisamente en afinar unas descripciones que el harness estaba descartando enteras.
+
+**Arreglo:** helper `yamlString()` en `sync.mjs` que entrecomilla y escapa todo escalar de
+`description` y `argument-hint` (7 puntos de emisión + el agente primario de OpenCode). Blindado
+por partida doble: `check-behavior.mjs` asevera que la `description` va entrecomillada, y el
+workflow nuevo `manifest-check.yml` ejecuta `claude plugin validate --strict` sobre el plugin y
+sobre el marketplace en cada push y PR.
+
+**Lección de método:** teníamos tres capas de CI (drift, versión, comportamiento) y ninguna
+comprobaba que el artefacto fuese **cargable**. Cuando existe un validador oficial del formato
+que publicas, ejecutarlo en CI no es opcional.
+
+**Adoptado en esta iteración:** `claude plugin validate --strict` en CI (`manifest-check.yml`) ·
+arreglo del frontmatter no parseable + aserción que lo blinda · disciplina de entrevista en la
+Fase 4 de `/plan` (una pregunta cada vez, con respuesta recomendada, en orden de dependencia) ·
+**regla hechos-vs-decisiones** · `description` del marketplace.
+**Pendiente (🔜):** glosario `CONTEXT.md` de lenguaje ubicuo · bucket `in-progress/` · auditar
+prosa de guía que solo sirve a humanos · `link-skills` para desarrollo local.
+**Descartado (⛔):** buckets completos y router (no compensan con 4 comandos + 14 guías) ·
+`AGENTS.md` idéntico y sidecar `openai.yaml` (nuestros adaptadores difieren en el cuerpo, no
+solo en metadatos) · changesets (cubierto por `bump-version.mjs` + CHANGELOG).
+
+---
+
+## 10. obra/superpowers-skills — skills de *pensamiento* (la familia `problem-solving`)
+
+**Qué es:** el repo hermano de superpowers (§2), con las skills que **no** entran en el plugin:
+`problem-solving/` (simplification-cascades, collision-zone-thinking, inversion-exercise,
+meta-pattern-recognition, scale-game, when-stuck), `architecture/preserving-productive-tensions`
+y `research/tracing-knowledge-lineages`. Llegamos aquí siguiendo `simplification-cascades`: el
+enlace de partida (mcpmarket) devolvía 429 de forma persistente, así que fuimos a la fuente
+canónica en vez de citar un agregador.
+
+**Relación con nosotros:** es una **categoría que no tenemos**. Nuestras 14 guías son de proceso
+(cómo trabajar) o de referencia (qué es qué); estas son **técnicas de pensamiento** — qué hacer
+con la cabeza cuando estás atascado. Y vienen con un despachador por síntoma (`when-stuck`), que
+es la pieza estructuralmente interesante.
+
+| Patrón | Qué dice | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Cascada de simplificación** | «A veces una idea elimina 10 cosas». Busca el principio unificador que hace innecesarios varios componentes: *«todas las entradas son flujos, solo cambia el origen»* → 4 implementaciones eliminadas. Se mide en **cuántas cosas puedes borrar** | Adoptada como sección de `codigo-limpio`: nuestro refactor va olor a olor y se le escapa el refactor de 10x. **Con su límite explícito**, que es lo que la hace compatible con nuestro filtro: una cascada es legítima porque la duplicación **ya existe** y la abstracción la **elimina**; si no borra código, es _Generalidad especulativa_ y manda `patrones-diseno` | ✅ rama `feat/superpowers-v6-2` |
+| **Preservar tensiones productivas** | Algunas disyuntivas no son problemas a resolver sino **información a conservar**: cuando ambas opciones optimizan prioridades legítimas distintas y la mejor depende del contexto de despliegue, forzar una elección destruye flexibilidad. Se fuerza solo si es puerta de un solo sentido o si mantener ambas cuesta más | Adoptada en «Decisiones tomadas» de `/plan`: hasta ahora esa sección solo admitía decisiones cerradas y alternativas descartadas, lo que empuja a inventar un ganador para dejarla limpia | ✅ rama `feat/superpowers-v6-2` |
+| **`when-stuck`: despachador por síntoma** | Un índice que mapea *tipo de atasco* → técnica («complejidad en espiral» → cascadas; «forzado por supuestos» → inversión; «código roto» → depuración sistemática) | Patrón de routing atractivo, pero sin las 5 técnicas a las que despachar no tiene a dónde enrutar. Nuestras `description` ya llevan «Síntomas:», que cumple la misma función de forma distribuida | 📖 (revisable si algún día crecen las guías de técnica) |
+| **Juego de escalas** | Probar a 1000× más y 1000× menos para exponer lo que a escala normal está oculto (volumen, velocidad, usuarios, duración, tasa de fallo) | Encaja con los NFR de `calidad-producto` (derivar umbrales de eficiencia en vez de inventarlos) y con el diseño de valores límite de `historias-usuario` | 🔜 |
+| **Inversión, colisión de dominios, meta-patrones** | Invertir supuestos («¿y si lo contrario fuera cierto?»), forzar metáforas entre dominios lejanos, y buscar el patrón que aparece en 3+ dominios | Técnicas de creatividad genéricas, no atadas a nuestro flujo. Añadirlas serían 3 guías nuevas de ideación: choca con «empezar pequeño» y con el ADN anti-especulativo del plugin | ⛔ (fuera de alcance) |
+| **Divergencia de convenciones en el mismo autor** | Este repo usa `name: Simplification Cascades` (mayúsculas y espacios), un campo no estándar `when_to_use:` y `version:`; el plugin `superpowers` usa `name: writing-skills` + `description: Use when…`. Dos convenciones distintas del mismo autor | **Verificado, y corrige una hipótesis nuestra:** montamos un plugin de prueba con esa skill tal cual y `claude plugin validate --strict` **la acepta** — el validador NO exige la convención de `name` que la propia guía `writing-skills` dicta (solo letras, números y guiones), ni rechaza campos extra. Conclusión operativa: el validador cubre validez YAML y metadatos del manifiesto; **las convenciones las tiene que aseverar nuestro `check-behavior.mjs`**, no él | ✅ (validado) |
+
+**Nota metodológica:** el control negativo de esa comprobación reprodujo, sobre un fichero de
+terceros, exactamente el fallo de §9.C — al meterle un «: » sin comillas en la `description`,
+el validador devuelve el mismo *«loads with empty metadata»*. Confirma el diagnóstico de forma
+independiente de nuestro código.
+
+---
+
+## 11. skillsmp.com y mcpmarket.com — el ecosistema de agregadores
+
+**Qué son:** directorios que **indexan ficheros `SKILL.md` de GitHub** y los presentan como un
+marketplace navegable. skillsmp.com dice agregar «2.000.000+ skills open source» para Claude
+Code, Codex CLI y ChatGPT, con API REST gratuita (50 peticiones/día anónimas), servidor MCP y
+OpenAPI. mcpmarket.com hace lo propio con una ficha por skill.
+
+**Relación con nosotros:** no aportan patrones de prompt — aportan una respuesta a *«¿se nos
+encontraría ahí?»*. Los sondeamos con su propia API en vez de fiarnos del marketing.
+
+| Hallazgo (medido con su API) | Qué implica |
+|---|---|
+| **No estamos indexados.** `q=custom-ia-plugin` → 0 resultados, `totalIsExact: true` | Publicar en el marketplace de Claude Code no implica aparecer en estos agregadores; indexan repos de GitHub por su cuenta |
+| **El filtro de idioma no funciona.** `contentLanguage=es` devuelve skills con `lang: en` y `lang: ja` | Nuestro plugin está **íntegramente en español**. Aunque estuviéramos indexados, el eje por el que se nos podría encontrar está roto |
+| **Ordena por estrellas del REPO, no por relevancia de la skill.** `q=clickup` devuelve arriba `handsontable/pr-creation` (que solo menciona ClickUp de pasada, ★22k) por encima de `civitai/clickup` (★7k), que es la skill de ClickUp | Una skill específica en un repo pequeño queda enterrada bajo cualquier skill de un mega-repo. Como canal de descubrimiento para un plugin de nicho, es malo |
+| **Coincidencia difusa muy laxa y resultados duplicados.** `q=biomas` → «clinical-decision-support», «metabolomics»; `q=leiniercy` → una skill alemana sobre *leniency*; `civitai/clickup` aparece dos veces en la misma página | La precisión es baja; el `total` viene con `totalIsExact: false` y devuelve 5 para casi cualquier consulta, así que el «2M+» no es verificable por la API |
+| **mcpmarket.com: 429 persistente** | No se pudo leer la ficha. Para estudiar una skill, ir **a la fuente** (el repo) y no al agregador: es más fiable y más completo |
+
+**Conclusión (⛔ sin cambios de código):** los agregadores son un canal de **distribución**, no
+una fuente de patrones, y hoy es un canal pobre para nosotros. La decisión de fondo —el plugin
+está en español, lo que es coherente con su equipo y con ClickUp en español, pero lo hace
+invisible en un ecosistema que indexa y ordena en inglés— es una decisión de producto, no
+técnica: queda **anotada, no resuelta**. Si algún día se buscara alcance, la palanca no es
+traducir las guías (romperíamos el registro que ya funciona) sino publicar un README y unos
+metadatos en inglés apuntando al repo.
+
+---
+
+## 12. Espacios de trabajo aislados (worktrees) — `obra/superpowers` · `Significant-Gravitas/AutoGPT`
+
+**Qué es:** dos tratamientos del mismo problema, encontrados buscando «git worktree» en el
+agregador de §11 y leídos en su fuente. `obra/superpowers`
+(`using-git-worktrees`) es la versión **defensiva**: detección, precedencias y trampas.
+`Significant-Gravitas/AutoGPT` (`.claude/skills/worktree` y `setup-repo`) es la versión
+**operativa** de un repo grande real: aprovisionar el espacio para que el proyecto arranque.
+
+**Relación con nosotros:** hueco real. Nuestro `/start` crea una rama y nada más, así que
+empezar una tarea obliga al usuario a abandonar lo que tenga abierto. El plugin hermano de RSD
+ya tiene un `worktree-create`, señal de que la necesidad existe en el equipo.
+
+| Patrón | Qué dice | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Detectar el aislamiento previo, con guarda de submódulo** | `GIT_DIR != GIT_COMMON` significa «worktree enlazado»… **o submódulo**: la comprobación no los distingue, y hay que descartar el segundo con `git rev-parse --show-superproject-working-tree`. Si ya estás aislado, **no crees otro** | Adoptado como paso 0 de la guía nueva. Es la trampa de corrección del patrón: sin la guarda, cualquier lógica de worktree se equivoca dentro de un submódulo | ✅ rama `feat/superpowers-v6-2` |
+| **La herramienta nativa del entorno gana a `git worktree add`** | «Es el error nº 1: crea estado fantasma que el harness no ve ni sabe gestionar». Claude Code tiene la suya | Adoptado, con la degradación explícita al fallback de git | ✅ rama `feat/superpowers-v6-2` |
+| **Verificar que el directorio está ignorado ANTES de crear** | `git check-ignore`; si no lo está, se añade al `.gitignore` y se commitea. Un directorio de worktrees sin ignorar mete el árbol entero del segundo checkout en el repo | Adoptado como verificación obligatoria | ✅ rama `feat/superpowers-v6-2` |
+| **Aprovisionar el espacio** (AutoGPT) | Un worktree trae solo lo versionado: hay que copiar `.env` y variantes (con `.env.default` de respaldo), instalar dependencias y ejecutar el paso de generación. Y **liberar/cambiar puertos**, porque chocan con el checkout principal | Adoptado, generalizado por manifiesto en vez de fijado a su stack. Nuestro caso añade `.mcp.json` | ✅ rama `feat/superpowers-v6-2` |
+| **Idempotencia explícita** (AutoGPT) | Cada paso comprueba si la rama o el directorio ya existen y **se lo salta informando**, en vez de fallar | Adoptado: encaja con nuestra Fase 3 de `/start` («detección de trabajo previo, no recrear») | ✅ rama `feat/superpowers-v6-2` |
+| **Línea base en verde antes de tocar nada** | Ejecutar la suite al crear el espacio: si arranca en rojo, cualquier fallo posterior es ambiguo | Adoptado, con el gate humano («repórtalo y pregunta si continuar») | ✅ rama `feat/superpowers-v6-2` |
+| **Limpieza por procedencia** | Retirar solo lo creado por uno mismo y bajo `.worktrees/`; el resto es del entorno del usuario | Adoptado. Cierra parte del 🔜 de `finishing-a-development-branch` (§2.C) | ✅ rama `feat/superpowers-v6-2` |
+| **Piscina pre-aprovisionada** (AutoGPT `setup-repo`) | Crear de golpe N ramas numeradas `branch1..branchN` **más un worktree `reviews` dedicado** a revisar PRs sin abandonar lo que implementas | ⛔ Su modelo asume trabajo paralelo masivo con flota de agentes. El nuestro es una tarea de ClickUp cada vez. **El worktree `reviews`** sí es una idea que encaja con nuestro `/review` de solo lectura | ⛔ (piscina) · 🔜 (worktree de revisión) |
+
+### 13. QA exploratoria — `NousResearch/hermes-agent` (`dogfood`) · `openclaw` (`auto-qa`)
+
+**Qué es:** `dogfood` es una skill de **QA exploratoria de aplicaciones web**: recorrer el
+producto real con automatización de navegador, capturar evidencia y emitir un informe
+clasificado. `auto-qa` es una campaña de QA autónoma a gran escala (diez «carriles» de subsistema
+en paralelo, objetivo de 100 arreglos de causa raíz verificados y fusionados) — enorme y muy
+atada a su repo, pero con principios transferibles.
+
+**Relación con nosotros:** el hueco más claro de nuestras guías de prueba. `historias-usuario`
+diseña casos a partir del criterio y `niveles-y-tipos-de-prueba` decide dónde automatizarlos:
+ambas cubren **lo que se anticipó**. No teníamos nada para **lo que solo aparece ejecutando el
+producto** — y, en concreto, `/review` declaraba «evaluación manual» lo estético/visual **sin
+decir cómo se hace**, que es una forma elegante de no hacerlo nunca.
+
+| Patrón | Qué dice | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Las cinco fases** (`dogfood`) | planificar el recorrido → explorar → recoger evidencia → clasificar y deduplicar → informar | Esqueleto de la guía nueva `qa-exploratoria` | ✅ rama `feat/superpowers-v6-2` |
+| **La consola es la mina de oro** | Revisarla tras **cada** navegación y **cada** interacción significativa: «los errores silenciosos de JavaScript están entre los hallazgos de más valor» | Adoptado literalmente: es lo que no se ve mirando la pantalla | ✅ rama `feat/superpowers-v6-2` |
+| **Evidencia en el momento** | Por hallazgo: URL, pasos de reproducción, esperado vs real, errores de consola y captura | Adoptado, con la regla que lo cierra: **un hallazgo sin pasos de reproducción no es un hallazgo, es una impresión** | ✅ rama `feat/superpowers-v6-2` |
+| **Taxonomía de severidad** | Crítico/Alto/Medio/Bajo con ejemplos concretos de web (pantalla en blanco, botón que no hace nada, imágenes rotas, erratas) | Adoptada **mapeada a la escala que ya teníamos** en `revision-hallazgos` y etiquetada con ISO 25010, en vez de introducir una escala paralela | ✅ rama `feat/superpowers-v6-2` |
+| **Deduplicar por invariante roto, no por síntoma** (`auto-qa`) | «Cuenta invariantes rotos, no PRs, síntomas ni parches»: un defecto que aflora en cuatro sitios es **uno** | Adoptado en `qa-exploratoria` **y elevado a `revision-hallazgos`** (paso 4), donde deduplicábamos por `fichero:línea`. Contar síntomas hace que se parchee cada aparición y la causa siga viva | ✅ rama `feat/superpowers-v6-2` |
+| **Declarar lo NO probado** | El informe incluye qué se probó, qué no y qué quedó bloqueado | Adoptado: «un informe que calla su alcance se lee como completo». Es el mismo principio que el «sin descartes silenciosos» de §2.B | ✅ rama `feat/superpowers-v6-2` |
+| **Estados que nadie mira** | Vacío, error, 404, sin permisos; y entradas hostiles: textos larguísimos, caracteres especiales, doble clic rápido, recargar a mitad de flujo | Adoptado; complementa las técnicas de caja negra de `historias-usuario`, que cubren el dominio del dato pero no el estado de la pantalla | ✅ rama `feat/superpowers-v6-2` |
+| **«Un test que pasa es evidencia solo para su head exacto»** (`auto-qa`) | La prueba vale para el commit en que se ejecutó, no para la rama | Refuerza el gate de verificación de §2.C («ejecuta la suite AHORA»). El matiz del commit queda anotado | 🟡 |
+| **No revelar el diagnóstico propuesto al verificador independiente** (`auto-qa`) | Quien verifica no debe recibir la hipótesis de quien encontró el fallo | Nuestro `verificador-hallazgos` necesita el hallazgo para poder refutarlo, así que no aplica igual; el matiz útil —pasarle la **observación**, no el razonamiento sobre la causa— es menor | 📖 |
+| **Campaña autónoma de 10 carriles y 100 arreglos** (`auto-qa`) | Flota de trabajadores, ledger numerado, fusión autónoma condicionada | ⛔ Otra liga y otro modelo: fusión autónoma choca de frente con nuestros gates humanos, y la maquinaria de flota con «empezar pequeño» | ⛔ |
+
+**Adoptado en esta iteración:** guía `espacio-de-trabajo-aislado` (rama
+`feat/guia-espacio-de-trabajo-aislado`: opción de worktree en `/start`, degradando a rama normal)
+· guía `qa-exploratoria` (rama `feat/guia-qa-exploratoria`: cableada en `/implement` antes de la
+PR y en la dimensión 6 de `/review` como destino de lo que no se juzga desde el diff) ·
+deduplicación por causa en `revision-hallazgos` (esta rama transversal).
+**Pendiente (🔜):** worktree dedicado a revisión (§12).
+**Descartado (⛔):** piscina de N worktrees pre-aprovisionados y campaña autónoma con fusión sin
+gate humano.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -313,10 +624,46 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
    Anthropic (no se puede empaquetar); integrado por **recomendación** (README + nota en
    `/implement`), el usuario lo instala aparte. → §4.
 
-**Backlog consumido (#1–#7).** Nuevas mejoras salen de analizar repos nuevos (añade una sección
-`## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba (p. ej.
-`license` en skills §4, auto-crítica explícita en `/plan` §4, progressive disclosure §1,
-testing basado en riesgo §6/[2] y perfiles de stack §7 — la guía `arquitectura` §7 ya está ✅).
+8. ✅ **Re-análisis a fondo de superpowers v6.2.0** — rama `feat/superpowers-v6-2`: la primera
+   pasada solo había cubierto la infraestructura. Esta segunda añade §2.A–§2.D y adopta la
+   forma de las `description` (disparador, no resumen — con el hallazgo medido de que un
+   resumen hace que el agente NO abra la guía), dos guías nuevas (`depuracion-sistematica`,
+   `recepcion-de-revision`), la sección «Tests honestos», las tres reglas de independencia del
+   revisor y el gate de verificación con evidencia. → §2.
+
+9. ✅ **`claude plugin validate --strict` en CI + arreglo del frontmatter no parseable** — rama
+   `feat/superpowers-v6-2`: la convención de validación de mattpocock/skills destapó que el
+   frontmatter de nuestras skills **no parseaba como YAML** desde antes de la v0.6.0 publicada
+   (descripciones sin entrecomillar con «: » dentro), de modo que el harness las cargaba **sin
+   metadatos** y dejaban de auto-activarse en silencio. → §9.C.
+10. ✅ **Disciplina de entrevista en `/plan`** — rama `feat/superpowers-v6-2`: una pregunta cada
+    vez con respuesta recomendada, en orden de dependencia, y la regla **hechos-vs-decisiones**
+    (los hechos los busca el agente; las decisiones son del usuario). → §9.A.
+
+11. ✅ **Skills de pensamiento y ecosistema de agregadores** — rama `feat/superpowers-v6-2`:
+    cascadas de simplificación en `codigo-limpio` y tensiones abiertas en `/plan` (§10); y la
+    constatación medida de que los agregadores (§11) son canal de distribución, no fuente de
+    patrones — sin cambios de código.
+
+12. ✅ **Worktrees y QA exploratoria** — rama `feat/superpowers-v6-2`: dos guías nuevas que
+    cierran los dos huecos que quedaban en los extremos del flujo (aislar el espacio al empezar,
+    y probar el producto real antes de la PR). → §12, §13.
+
+**Backlog consumido (#1–#12).** Nuevas mejoras salen de analizar repos nuevos (añade una sección
+`## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba. Los de mayor
+valor pendientes hoy: **paquete de revisión por fichero** en `/review` (§2.B — mayor ahorro de
+contexto disponible), glosario `CONTEXT.md` de lenguaje ubicuo (§9.A), micro-test de wording
+(§2.A), corpus de prompts adversariales (§2.D), bucket `in-progress/` (§9.B), menú de cierre de
+rama (§2.C), worktree dedicado a revisión (§12), juego de escalas para derivar NFR (§10), `license` en skills §4, progressive
+disclosure §1, testing basado en riesgo §6/[2] y perfiles de stack §7.
+
+### Nota de método
+
+Una lección de §2 aplica a este documento: **una fuente ya catalogada puede merecer una segunda
+pasada**. La primera lectura de un repo grande tiende a quedarse en la infraestructura (lo que se
+ve desde fuera: manifiestos, hooks, scripts) y a dejar sin leer lo que más valor tiene para
+nosotros, que son sus **prompts**. Al re-analizar, conserva la tabla original con sus commits y
+añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del valor.
 
 ## Registro de lo ya adoptado
 
@@ -350,8 +697,24 @@ testing basado en riesgo §6/[2] y perfiles de stack §7 — la guía `arquitect
 | Guía `usabilidad-accesibilidad` + dimensión 6 de `/review` (`revisor-usabilidad-accesibilidad`, sonnet, gate «solo si toca UI») | Nielsen / WCAG 2.2 / checklist UCI (§8) | rama `feat/iso25010-usabilidad` |
 | Checks de sesión/auth destilados y modernizados en `revisor-bugs-seguridad` (A01/A05/A07) | Checklist de seguridad UCI (§8) / OWASP | rama `feat/iso25010-usabilidad` |
 | Core agnóstico de stack: detección de stack + ejemplos ilustrativos (primer paso de «perfiles de stack» §7) | Visión larga §7 | rama `feat/iso25010-usabilidad` |
+| Las 14 `description` de guía reescritas como disparador puro (≤ 500 chars, «Úsala cuando…» + síntomas) + aseveradas en CI | superpowers `writing-skills` (§2.A) | rama `feat/superpowers-v6-2` |
+| Guía `depuracion-sistematica` (4 fases + regla de los tres arreglos fallidos + señales del usuario + petición de datos al usuario como evidencia, fase 1.6) en `/implement` | superpowers `systematic-debugging` (§2.C) | rama `feat/guia-depuracion-sistematica` |
+| Guía `recepcion-de-revision` (verificar antes de aplicar, tope de 3 rondas, adjudicación escrita) en el modo CORRECCIÓN | superpowers `receiving-code-review` + SDD (§2.B, §2.C) | rama `feat/guia-recepcion-de-revision` |
+| Sección «Tests honestos» en `niveles-y-tipos-de-prueba` (nombra la rotura, esperado a mano, comprobación de mutación) | superpowers `writing-good-tests` (§2.C) | rama `feat/superpowers-v6-2` |
+| Tres reglas de independencia del revisor en `revision-hallazgos`: afirmaciones ≠ hechos · `exigido-por-spec` · ⚠️ no verificable desde el diff | superpowers SDD (§2.B) | rama `feat/superpowers-v6-2` |
+| Gate de verificación con evidencia («si no lo has ejecutado, no puedes decir que pasa») en `/implement` | superpowers `verification-before-completion` (§2.C) | rama `feat/superpowers-v6-2` |
+| 2-3 enfoques con recomendación, «Restricciones globales» y auto-revisión de spec en `/plan` | superpowers `brainstorming` + `writing-plans` (§2.C) | rama `feat/superpowers-v6-2` |
+| `revisor-convenciones` de haiku a sonnet + regla de indicar siempre el modelo al despachar | superpowers SDD, «los turnos pesan más que el precio por token» (§2.B) | rama `feat/superpowers-v6-2` |
+| **Arreglo del frontmatter no parseable** (`yamlString()` en `sync.mjs`) + aserción de `description` entrecomillada — corregía un fallo silencioso presente ya en la v0.6.0 publicada | mattpocock/skills, vía `claude plugin validate --strict` (§9.C) | rama `feat/superpowers-v6-2` |
+| CI nuevo `manifest-check.yml` (`claude plugin validate --strict` sobre plugin y marketplace) + `description` del marketplace | mattpocock/skills (§9.B) | rama `feat/superpowers-v6-2` |
+| Disciplina de entrevista en `/plan`: una pregunta cada vez con respuesta recomendada, en orden de dependencia, y **hechos-vs-decisiones** | mattpocock/skills, familia `grill` (§9.A) | rama `feat/superpowers-v6-2` |
+| Sección «Cascadas de simplificación» en `codigo-limpio` (el refactor de 10x, con el límite de que debe **borrar** código) | obra/superpowers-skills (§10) | rama `feat/superpowers-v6-2` |
+| **Tensiones abiertas** en «Decisiones tomadas» de `/plan`: no forzar un ganador cuando ambas opciones son válidas según contexto | obra/superpowers-skills, `preserving-productive-tensions` (§10) | rama `feat/superpowers-v6-2` |
+| Guía `espacio-de-trabajo-aislado` (worktrees) + opción en `/start`, degradando a rama normal | obra/superpowers · AutoGPT (§12) | rama `feat/guia-espacio-de-trabajo-aislado` |
+| Guía `qa-exploratoria` (5 fases, consola, evidencia, taxonomía) en `/implement` y `/review` | NousResearch `dogfood` · openclaw `auto-qa` (§13) | rama `feat/guia-qa-exploratoria` |
+| Deduplicación **por causa, no por síntoma** en `revision-hallazgos` | openclaw `auto-qa` (§13) | rama `feat/superpowers-v6-2` |
 
 ---
 
-_Última actualización: 2026-07-30. Mantén este documento al día cuando adoptes un patrón o
+_Última actualización: 2026-07-31. Mantén este documento al día cuando adoptes un patrón o
 analices un repo nuevo._

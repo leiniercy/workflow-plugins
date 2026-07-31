@@ -48,6 +48,13 @@ confirman siempre en el código.
 
 ## Fase 4 — Propuesta de especificación (gate de aprobación)
 
+**Antes de redactar el enfoque, pon 2-3 enfoques sobre la mesa.** Salvo que la tarea sea
+trivial (un solo camino razonable, y lo dices en una línea), presenta las alternativas reales
+que salen de lo explorado en la Fase 3, cada una con su coste y su renuncia. **Empieza por la
+que recomiendas y explica por qué.** Es barato ahora y carísimo después: el enfoque que no se
+comparó es el que se descubre equivocado a mitad de `/implement`. Las descartadas se registran
+luego en «Decisiones tomadas» con su motivo — así la siguiente sesión no vuelve a proponerlas.
+
 Redacta la especificación completa y PRESÉNTALA en el chat antes de escribirla a disco.
 Estructura cada requisito como una Historia de Usuario siguiendo la guía
 {{guide:historias-usuario}}: historia (rol + valor), contexto de proceso de negocio,
@@ -73,15 +80,61 @@ casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos d
   como filtro ({{guide:calidad-producto}}) y marca SOLO las que la tarea activa de verdad,
   cada una con criterio verificable y su nivel/herramienta de prueba. Si ninguna aplica más
   allá de lo funcional, dilo en una línea — sin inventario ni relleno.
+- **Restricciones globales**: las condiciones que vinculan a TODOS los criterios, con su
+  **valor exacto**, una por línea — versiones mínimas, límites de dependencias, reglas de
+  nombrado o de copy, requisitos de plataforma, formatos de dato. Van juntas y explícitas
+  porque `/implement` trabaja criterio a criterio y `/review` juzga dimensión a dimensión: una
+  restricción que solo aparece en la prosa de un criterio no se aplica a los demás. Si no hay
+  ninguna, dilo en una línea.
 - **Áreas afectadas** (si usaste el grafo, indica qué señaló y qué verificaste),
   **Dependencias** (marcando bloqueantes), **Riesgos**.
 
-Itera con el usuario hasta que apruebe. SOLO entonces escribe `spec.md`.
+### Cómo dialogar mientras iteras
+
+Iterar no es soltar un cuestionario y esperar. La especificación se afila con una **entrevista**
+que recorre el árbol de decisiones de la tarea hasta que tú y el usuario entendéis lo mismo:
+
+- **Los HECHOS los buscas tú; las DECISIONES son suyas.** Si algo se puede averiguar explorando
+  el entorno —qué framework usa el repo, cómo se llama ese campo, si ya existe un runner de
+  tests, qué hace ese módulo— **búscalo, no lo preguntes**. Preguntar un hecho que tenías a un
+  comando de distancia gasta el tiempo del usuario y erosiona su confianza en el resto de
+  preguntas. Reserva las preguntas para lo que solo él puede decidir.
+- **Una pregunta cada vez, y espera la respuesta.** Soltar un bloque de preguntas es
+  desconcertante y además destruye la estructura: cada respuesta cambia cuáles son las
+  siguientes preguntas relevantes.
+- **Cada pregunta lleva tu respuesta recomendada**, con su motivo en una línea. Así el usuario
+  reacciona a una propuesta en vez de mirar un hueco en blanco — es más rápido y saca mejores
+  decisiones.
+- **En orden de dependencia**: resuelve la decisión de la que cuelgan otras antes que las que
+  dependen de ella. Si una respuesta puede invalidar tu siguiente pregunta, esa pregunta va
+  después.
+- **El objetivo no es acordar rápido**, sino que no quede ninguna decisión implícita dada por
+  supuesta en silencio.
+
+Itera así hasta que el usuario apruebe. SOLO entonces escribe `spec.md`.
 
 ## Fase 5 — Persistencia
 
+0. **Auto-revisión de la spec (antes de escribirla).** Relee lo aprobado con ojos frescos y
+   corrige en el sitio lo que encuentres — sin volver a preguntar, salvo que cambie el alcance:
+   - **Marcadores sin resolver:** ¿queda algún `TBD`, `pendiente de definir`, sección vacía, o
+     un criterio genérico del tipo «manejar los errores adecuadamente»? Concrétalo o elimínalo.
+   - **Coherencia interna:** ¿alguna sección contradice a otra? ¿el enfoque técnico encaja con
+     todos los criterios y con las restricciones globales?
+   - **Ambigüedad:** ¿algún criterio se puede leer de dos formas distintas? Si sí, elige una y
+     hazla explícita — la ambigüedad se resuelve ahora o se resuelve mal en `/implement`.
+   - **Alcance:** ¿esto es una tarea o son varias? Si son varias, dilo y propón trocearla.
+   - **Consistencia de nombres:** los ficheros, funciones y campos que nombras en un criterio,
+     ¿se llaman igual en los demás y en el enfoque técnico?
 1. Escribe `spec.md` aprobado. En "Decisiones tomadas", registra las decisiones de diseño
-   discutidas y las alternativas descartadas con su porqué.
+   discutidas y las alternativas descartadas con su porqué. **Si una disyuntiva no se resolvió
+   porque las dos opciones son válidas según el contexto** (coste vs latencia, simplicidad vs
+   funcionalidad — y la elección depende del despliegue, no de superioridad técnica), no fuerces
+   un ganador para dejar la sección limpia: regístrala como **tensión abierta**, con lo que
+   optimiza cada lado y qué la resolvería. Forzar una decisión que aún no toca destruye
+   flexibilidad y esconde el contexto que la haría obvia más adelante. Fuérzala solo si es una
+   puerta de un solo sentido (condiciona la arquitectura) o si mantener ambas cuesta más que
+   elegir.
 2. Añade entrada a `progress.md` siguiendo la guía {{guide:registro-progreso}}: fase "plan",
    resultado "especificación aprobada", notas con lo esencial.
 3. NO cambies el estado de ClickUp: esa transición no pertenece a este comando.
@@ -107,3 +160,8 @@ saltarte el contrato.
 | "Pongo criterios genéricos para avanzar" | Cada criterio debe ser verificable con un test o una acción concreta; es la sección que usará /implement. |
 | "Diseño con patrones/abstracciones por si escala" | Un patrón se justifica solo ante el problema real (un olor ya presente); si no existe, código simple (guía patrones-diseño). |
 | "De paso reorganizo la arquitectura del repo" | La arquitectura de un repo existente se conforma, no se refunda en una tarea; una migración de estilo es su propia decisión (guía arquitectura). |
+| "Tengo claro el enfoque, propongo directamente ese" | Salvo tarea trivial, pon 2-3 alternativas con su coste y su renuncia, empezando por la que recomiendas (Fase 4). El enfoque no comparado es el que se cae a mitad de /implement. |
+| "Dejo un 'pendiente de concretar' y ya se verá al implementar" | Un marcador sin resolver es un defecto de la spec: se concreta ahora o se resuelve mal después (Fase 5, paso 0). |
+| "Este criterio se entiende, aunque admita dos lecturas" | Si admite dos lecturas, elige una y hazla explícita: /implement solo verá el texto (Fase 5, paso 0). |
+| "Le paso al usuario una lista con todas mis dudas de golpe" | Una pregunta cada vez, con tu respuesta recomendada y en orden de dependencia: un bloque de preguntas desconcierta y cada respuesta cambia las siguientes (Fase 4). |
+| "Le pregunto qué framework/versión/runner usan, así me lo confirma" | Eso es un HECHO: búscalo en el repo. Solo se preguntan las DECISIONES, que son suyas (Fase 4). |
