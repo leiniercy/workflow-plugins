@@ -203,6 +203,10 @@ const GUIDES = {
     description:
       "Úsala al recibir hallazgos de una revisión —informe de /review, comentarios de un humano en la PR, avisos de CI— antes de tocar código. Síntomas: te oyes decir «tienes toda la razón», vas a implementar sin comprobarlo contra el repo, o hay puntos que no entiendes y piensas empezar por los que sí.",
   },
+  "qa-exploratoria": {
+    description:
+      "Úsala tras implementar criterios que tocan interfaz y antes de pedir revisión humana, o cuando el cambio afecte a un flujo de usuario completo. Síntomas: los tests pasan pero nadie ha abierto la aplicación; hay que evaluar estética, contraste o jerarquía visual, que no se verifican desde un diff.",
+  },
 };
 
 // ---------------------------------------------------------------------------

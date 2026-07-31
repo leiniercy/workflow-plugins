@@ -52,6 +52,19 @@ pensamiento), el **ecosistema de agregadores** skillsmp/mcpmarket (§11, sin cam
   llama, la respuesta es eliminarlo, no construirlo bien— y cierra el bucle con **tope de 3
   rondas**, re-verificación acotada al cambio hecho y **adjudicación por escrito**: ningún
   hallazgo desaparece en silencio. Cableada en el modo CORRECCIÓN de `/implement`.
+- **Guía nueva `qa-exploratoria`** (fuentes: `NousResearch/hermes-agent` `dogfood` y
+  `openclaw/auto-qa`): cubre lo que solo aparece **ejecutando el producto**, frente a
+  `historias-usuario` (diseña casos desde el criterio) y `niveles-y-tipos-de-prueba` (decide
+  dónde automatizarlos), que cubren lo anticipado. Cinco fases —planificar el recorrido,
+  explorar, recoger evidencia, clasificar, informar—, con la consola revisada tras **cada**
+  navegación e interacción (los errores silenciosos de JavaScript son los hallazgos de más valor
+  y los únicos que no se ven mirando), evidencia en el momento con pasos de reproducción («un
+  hallazgo sin pasos no es un hallazgo, es una impresión»), deduplicación **por invariante roto,
+  no por síntoma**, estados que nadie mira (vacío, error, sin permisos) y declaración explícita
+  de **lo no probado**. Severidad mapeada a la escala que ya existe en `revision-hallazgos`, sin
+  introducir una paralela. Cableada en `/implement` antes de abrir la PR y en la dimensión 6 de
+  `/review`, que hasta ahora declaraba lo estético «evaluación manual» sin decir cómo se hace.
+  Degrada a pasada manual si no hay automatización de navegador.
 - **Sección «Tests honestos»** en `niveles-y-tipos-de-prueba` (fuente: `writing-good-tests`;
   §2.C): «cada test nombra la rotura que atrapa» y «cada test ejercita lo real» — aserciones
   espejo, detectores de cambios, probar la frontera propia y no el framework, mockear al nivel

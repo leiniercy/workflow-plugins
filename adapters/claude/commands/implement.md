@@ -113,18 +113,25 @@ Cuando todos los criterios estén completados y la suite en verde:
    existen, y lee la salida. Después repasa `spec.md` criterio a criterio contra el código y
    confirma que cada checkbox marcado tiene su test. Solo con esa evidencia delante puedes
    decir que la tarea está lista; si algo falla o falta, dilo con la salida y detén la fase.
-1. Presenta un resumen de todos los cambios (`git diff develop --stat` + descripción).
-2. Propón el push de la rama. Ejecuta SOLO tras aprobación.
-3. Propón la PR contra `develop` con: título `[<taskId>] <título de la tarea>`, cuerpo con
+1. **Si la tarea toca interfaz o un flujo de usuario completo**, la suite en verde no basta:
+   los tests cubren lo que anticipaste al escribirlos. Propón una pasada de
+   `qa-exploratoria` (`${CLAUDE_PLUGIN_ROOT}/skills/qa-exploratoria/SKILL.md`) sobre la aplicación real antes de abrir la PR — recorrido de los
+   flujos afectados, revisión de la consola en cada pantalla y estados que nadie mira (vacío,
+   error, sin permisos). Es también la vía para lo que `/review` no puede juzgar desde el diff
+   (estética, contraste, jerarquía visual). Si el usuario prefiere saltarla, respétalo y déjalo
+   anotado en `progress.md`.
+2. Presenta un resumen de todos los cambios (`git diff develop --stat` + descripción).
+3. Propón el push de la rama. Ejecuta SOLO tras aprobación.
+4. Propón la PR contra `develop` con: título `[<taskId>] <título de la tarea>`, cuerpo con
    enlace a la tarea de ClickUp, resumen de cambios y checklist de criterios de spec.md.
    Usa `gh pr create` si la CLI está disponible; si no, da las instrucciones manuales.
    Ejecuta SOLO tras aprobación.
-4. **Transición de estado (responsabilidad exclusiva de /implement):** tras crear la PR,
+5. **Transición de estado (responsabilidad exclusiva de /implement):** tras crear la PR,
    propón mover la tarea de ClickUp a "review" y ejecuta solo si el usuario aprueba. Si el
    MCP de ClickUp no está disponible, indica hacerlo a mano y continúa sin bloquear.
    En modo CORRECCIÓN con la PR ya creada, esta fase se reduce a push (con gate) y a un
    comentario opcional en la PR; la tarea ya está en "review", no la muevas de nuevo.
-5. Registra en `progress.md`: fase "implement", resultado "PR creada" (o "correcciones
+6. Registra en `progress.md`: fase "implement", resultado "PR creada" (o "correcciones
    pusheadas"), enlace a la PR.
 
 ## Fase 5 — Cierre
