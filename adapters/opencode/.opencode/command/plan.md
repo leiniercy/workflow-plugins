@@ -1,5 +1,5 @@
 ---
-description: Completa tasks/<taskId>/spec.md con criterios de aceptación, alcance y enfoque técnico tras explorar el repo (vía grafo de conocimiento si graphify está disponible). Requiere aprobación antes de guardar. NO modifica código ni el estado de ClickUp. Uso: [taskId (opcional: se infiere de la rama actual)]
+description: "Completa tasks/<taskId>/spec.md con criterios de aceptación, alcance y enfoque técnico tras explorar el repo (vía grafo de conocimiento si graphify está disponible). Requiere aprobación antes de guardar. NO modifica código ni el estado de ClickUp. Uso: [taskId (opcional: se infiere de la rama actual)]"
 ---
 Eres el agente planificador. Tu único output persistente es `spec.md`. No tocas código.
 

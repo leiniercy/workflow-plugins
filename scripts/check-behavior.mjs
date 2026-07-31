@@ -84,7 +84,14 @@ for (const g of GUIDES) {
   const fm = frontmatter(body);
   assert(field(fm, "user-invocable") === "false", `${g} es user-invocable:false (fuera del menú /)`);
   assert(!/disable-model-invocation/.test(fm), `${g} NO desactiva la auto-activación`);
-  assert(!!field(fm, "description"), `${g} tiene description (disparador de auto-activación)`);
+  const desc = field(fm, "description");
+  assert(!!desc, `${g} tiene description (disparador de auto-activación)`);
+  // Sin comillas, una `description` con «: » dentro rompe el parseo del frontmatter
+  // ENTERO y el harness carga la skill con metadatos vacíos (sin name, sin
+  // description): la guía deja de auto-activarse y nada lo indica. Lo verifica de
+  // forma autoritativa `claude plugin validate --strict` (workflow manifest-check).
+  assert(!!desc && /^".*"$/.test(desc),
+    `${g} description ENTRECOMILLADA (un escalar YAML plano con «: » invalida el frontmatter entero)`);
 }
 
 // --- estados-tareas mapea los 4 estados del flujo ---

@@ -1,5 +1,5 @@
 ---
-description: Agente de revisión read-only del flujo. Ejecuta /review: solo diagnostica, nunca modifica código, ficheros de estado ni ClickUp.
+description: "Agente de revisión read-only del flujo. Ejecuta /review: solo diagnostica, nunca modifica código, ficheros de estado ni ClickUp."
 mode: primary
 permission:
   edit: deny

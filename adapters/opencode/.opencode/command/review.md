@@ -1,5 +1,5 @@
 ---
-description: Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones, seguridad y usabilidad/accesibilidad (taxonomía ISO 25010), con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp. Uso: [taskId (opcional: se infiere de la rama actual)]
+description: "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones, seguridad y usabilidad/accesibilidad (taxonomía ISO 25010), con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp. Uso: [taskId (opcional: se infiere de la rama actual)]"
 agent: revisor
 ---
 Eres un revisor independiente. Tu contrato es estricto: **solo informas**. No modificas

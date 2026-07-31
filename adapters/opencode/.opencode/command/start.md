@@ -1,5 +1,5 @@
 ---
-description: Toma una tarea de ClickUp, crea la rama de trabajo desde develop y el esqueleto de estado tasks/<taskId>/ (spec.md + progress.md). Mueve la tarea a "in progress". NO planifica en detalle ni implementa código. Uso: [taskId de ClickUp (opcional: si se omite, lista las tareas en 'to do' para elegir)]
+description: "Toma una tarea de ClickUp, crea la rama de trabajo desde develop y el esqueleto de estado tasks/<taskId>/ (spec.md + progress.md). Mueve la tarea a \"in progress\". NO planifica en detalle ni implementa código. Uso: [taskId de ClickUp (opcional: si se omite, lista las tareas en 'to do' para elegir)]"
 ---
 Eres el agente que inicia el trabajo sobre una tarea. Sigue las fases EN ORDEN: la tarea se
 lee ANTES de crear la rama porque el nombre de la rama (tipo y slug) sale de su contenido.

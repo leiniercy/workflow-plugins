@@ -5,6 +5,28 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Corregido
+
+- **El frontmatter de skills y agentes no parseaba como YAML** — fallo silencioso presente ya en
+  la **v0.6.0 publicada** (10 ficheros afectados; verificado extrayendo el HEAD commiteado y
+  validándolo aparte). `sync.mjs` emitía `description:` como escalar YAML **plano**, y un escalar
+  plano no puede contener «: », que nuestras descripciones llevan de forma natural («GoF:
+  catálogo de estilos…»). Consecuencia, en palabras del validador oficial: *«at runtime this
+  skill loads with empty metadata (all frontmatter fields silently dropped)»* — se perdían
+  `name`, `description` y `user-invocable`, así que **las guías dejaban de auto-activarse sin que
+  nada lo indicara**. Arreglado con un helper `yamlString()` que entrecomilla y escapa todo
+  escalar de `description` y `argument-hint` (7 puntos de emisión + el agente primario de
+  OpenCode).
+
+### Añadido
+
+- **CI nuevo `manifest-check.yml`**: ejecuta `claude plugin validate --strict` sobre el plugin y
+  sobre el marketplace en cada push y PR. Teníamos tres capas de CI (drift, versión,
+  comportamiento) y ninguna comprobaba que el artefacto publicado fuese **cargable**; es la única
+  que detecta un frontmatter inválido. `check-behavior.mjs` asevera además que la `description`
+  va entrecomillada. Añadida también la `description` del marketplace, que `--strict` reclamaba.
+  Convención tomada de `mattpocock/skills`.
+
 ## [0.6.0] - 2026-07-30
 
 ### Añadido

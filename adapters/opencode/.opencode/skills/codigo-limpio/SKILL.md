@@ -1,6 +1,6 @@
 ---
 name: codigo-limpio
-description: Principios de código limpio, catálogo de olores de código (code smells) y disciplina de refactorización segura: pasos pequeños, tests verdes antes y después, sin mezclar con funcionalidad nueva. Úsala en el paso de refactor del ciclo TDD de /implement (tras poner un test en verde, antes de registrar el criterio) y en /review para nombrar deuda técnica y olores concretos como hallazgos. Basada en refactoring.guru.
+description: "Principios de código limpio, catálogo de olores de código (code smells) y disciplina de refactorización segura: pasos pequeños, tests verdes antes y después, sin mezclar con funcionalidad nueva. Úsala en el paso de refactor del ciclo TDD de /implement (tras poner un test en verde, antes de registrar el criterio) y en /review para nombrar deuda técnica y olores concretos como hallazgos. Basada en refactoring.guru."
 ---
 # Código limpio y refactorización segura
 

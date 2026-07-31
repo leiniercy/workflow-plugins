@@ -1,5 +1,5 @@
 ---
-description: Subagente de /review (solo-lectura) para las dimensiones de BUGS y SEGURIDAD. Despáchalo en paralelo desde /review para auditar errores lógicos, edge cases y fallos propios del paradigma del stack, y la seguridad con el marco OWASP Top 10 adaptado al stack detectado (control de acceso, inyección, exposición de datos al cliente, gestión de sesión/autenticación, mala configuración, dependencias vulnerables). Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.
+description: "Subagente de /review (solo-lectura) para las dimensiones de BUGS y SEGURIDAD. Despáchalo en paralelo desde /review para auditar errores lógicos, edge cases y fallos propios del paradigma del stack, y la seguridad con el marco OWASP Top 10 adaptado al stack detectado (control de acceso, inyección, exposición de datos al cliente, gestión de sesión/autenticación, mala configuración, dependencias vulnerables). Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global."
 mode: subagent
 permission:
   edit: deny

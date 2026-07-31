@@ -1,6 +1,6 @@
 ---
 name: revisor-convenciones
-description: Subagente de /review (solo-lectura) para la dimensión de CONVENCIONES del repo. Despáchalo en paralelo desde /review para detectar desviaciones de patrones ya establecidos (estructura, naming, estado, fetching). Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.
+description: "Subagente de /review (solo-lectura) para la dimensión de CONVENCIONES del repo. Despáchalo en paralelo desde /review para detectar desviaciones de patrones ya establecidos (estructura, naming, estado, fetching). Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global."
 tools: Read, Grep, Glob
 model: haiku
 ---

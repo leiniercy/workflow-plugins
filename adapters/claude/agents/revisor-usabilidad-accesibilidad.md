@@ -1,6 +1,6 @@
 ---
 name: revisor-usabilidad-accesibilidad
-description: Subagente de /review (solo-lectura) para la dimensión de USABILIDAD Y ACCESIBILIDAD (característica «capacidad de interacción» de ISO 25010). Despáchalo en paralelo desde /review SOLO si el diff toca UI: verifica lo revisable en código (títulos/estados, lenguaje del usuario, validación de formularios, mensajes de error útiles, alt/labels/semántica/teclado según WCAG); lo estético/visual lo marca como evaluación manual. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.
+description: "Subagente de /review (solo-lectura) para la dimensión de USABILIDAD Y ACCESIBILIDAD (característica «capacidad de interacción» de ISO 25010). Despáchalo en paralelo desde /review SOLO si el diff toca UI: verifica lo revisable en código (títulos/estados, lenguaje del usuario, validación de formularios, mensajes de error útiles, alt/labels/semántica/teclado según WCAG); lo estético/visual lo marca como evaluación manual. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global."
 tools: Read, Grep, Glob
 model: sonnet
 ---

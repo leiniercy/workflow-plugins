@@ -191,6 +191,24 @@ const GUIDES = {
 };
 
 // ---------------------------------------------------------------------------
+// Emisión segura de escalares YAML
+// ---------------------------------------------------------------------------
+/**
+ * Devuelve `value` como escalar YAML entrecomillado.
+ *
+ * Imprescindible para `description`: un escalar PLANO (sin comillas) no puede
+ * contener «: » — YAML lo lee como un mapa anidado y **falla el parseo del
+ * frontmatter entero**. Cuando eso pasa, el harness carga la skill con metadatos
+ * VACÍOS: se pierden `name`, `description` y `user-invocable` en silencio, así que
+ * la guía deja de auto-activarse y nadie se entera. Nuestras descripciones llevan
+ * «: » de forma natural, así que van siempre entrecomilladas.
+ * Verificado con `claude plugin validate --strict`.
+ */
+function yamlString(value) {
+  return '"' + String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"';
+}
+
+// ---------------------------------------------------------------------------
 // Resolución de referencias {{guide:x}} por adaptador
 // ---------------------------------------------------------------------------
 const ADAPTERS = {
@@ -203,8 +221,8 @@ const ADAPTERS = {
     commandFrontmatter: (meta) => {
       const lines = [
         "---",
-        "description: " + meta.description,
-        'argument-hint: "' + meta.argumentHint + '"',
+        "description: " + yamlString(meta.description),
+        "argument-hint: " + yamlString(meta.argumentHint),
       ];
       // allowed-tools es frontmatter propio de Claude Code; solo se emite si el
       // comando lo declara (p. ej. /review, que es solo-lectura).
@@ -218,7 +236,7 @@ const ADAPTERS = {
       [
         "---",
         "name: " + name,
-        "description: " + meta.description,
+        "description: " + yamlString(meta.description),
         "user-invocable: false",
         "---",
         "",
@@ -229,7 +247,7 @@ const ADAPTERS = {
       [
         "---",
         "name: " + name,
-        "description: " + meta.description,
+        "description: " + yamlString(meta.description),
         "tools: " + meta.tools.join(", "),
         "model: " + meta.model,
         "---",
@@ -252,7 +270,7 @@ const ADAPTERS = {
     commandFrontmatter: (meta) => {
       const lines = [
         "---",
-        "description: " + meta.description + " Uso: " + meta.argumentHint,
+        "description: " + yamlString(meta.description + " Uso: " + meta.argumentHint),
       ];
       // Comandos read-only (p. ej. /review) se ejecutan bajo un agente primario
       // cuyo `permission` bloquea de verdad la escritura (ver agente `revisor`).
@@ -266,7 +284,7 @@ const ADAPTERS = {
       [
         "---",
         "name: " + name,
-        "description: " + meta.description,
+        "description: " + yamlString(meta.description),
         "---",
         "",
       ].join("\n"),
@@ -278,7 +296,7 @@ const ADAPTERS = {
     agentFrontmatter: (name, meta) =>
       [
         "---",
-        "description: " + meta.description,
+        "description: " + yamlString(meta.description),
         "mode: subagent",
         "permission:",
         "  edit: deny",
@@ -358,7 +376,10 @@ written++;
 const opencodeRevisor =
   [
     "---",
-    "description: Agente de revisión read-only del flujo. Ejecuta /review: solo diagnostica, nunca modifica código, ficheros de estado ni ClickUp.",
+    "description: " +
+      yamlString(
+        "Agente de revisión read-only del flujo. Ejecuta /review: solo diagnostica, nunca modifica código, ficheros de estado ni ClickUp."
+      ),
     "mode: primary",
     "permission:",
     "  edit: deny",

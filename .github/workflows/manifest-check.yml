@@ -1,0 +1,46 @@
+name: Manifiestos válidos (claude plugin validate)
+
+# Validación OFICIAL de los manifiestos y del frontmatter, con la propia CLI de
+# Claude Code. Es la única que detecta que el frontmatter de una skill NO PARSEA
+# como YAML — un fallo silencioso y caro: el harness carga la skill con metadatos
+# vacíos (sin `name`, sin `description`), así que deja de auto-activarse y nada lo
+# indica. Nos pasó con las descripciones sin entrecomillar que contenían «: ».
+#
+# --strict trata los avisos como errores (campos no reconocidos, metadatos que
+# faltan). Convención tomada de mattpocock/skills (§9 de docs/referencias.md).
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "adapters/claude/**"
+      - ".claude-plugin/**"
+      - "scripts/sync.mjs"
+      - ".github/workflows/manifest-check.yml"
+  pull_request:
+    paths:
+      - "adapters/claude/**"
+      - ".claude-plugin/**"
+      - "scripts/sync.mjs"
+      - ".github/workflows/manifest-check.yml"
+
+jobs:
+  manifest-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validar el manifiesto del plugin y el frontmatter de skills/agentes
+        run: claude plugin validate adapters/claude --strict
+
+      - name: Validar el manifiesto del marketplace
+        run: claude plugin validate . --strict

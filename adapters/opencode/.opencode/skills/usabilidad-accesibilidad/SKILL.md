@@ -1,6 +1,6 @@
 ---
 name: usabilidad-accesibilidad
-description: Checklist de usabilidad y accesibilidad VERIFICABLE EN CÓDIGO (heurísticas de Nielsen + WCAG 2.2, característica «capacidad de interacción» de ISO 25010): títulos y estados visibles, lenguaje del usuario y nomenclatura consistente, confirmación en acciones destructivas, validación cliente+servidor, mensajes de error útiles, alt/labels/jerarquía de encabezados/semántica interactiva/teclado/foco. Úsala en la dimensión 6 de /review cuando el diff toque UI, al redactar criterios de aceptación de interfaz en /plan y al escribir tests de componente en /implement. Separa lo revisable en código de lo que exige evaluación manual/E2E (contraste, estética, jerarquía visual), que se nombra sin intentarse.
+description: "Checklist de usabilidad y accesibilidad VERIFICABLE EN CÓDIGO (heurísticas de Nielsen + WCAG 2.2, característica «capacidad de interacción» de ISO 25010): títulos y estados visibles, lenguaje del usuario y nomenclatura consistente, confirmación en acciones destructivas, validación cliente+servidor, mensajes de error útiles, alt/labels/jerarquía de encabezados/semántica interactiva/teclado/foco. Úsala en la dimensión 6 de /review cuando el diff toque UI, al redactar criterios de aceptación de interfaz en /plan y al escribir tests de componente en /implement. Separa lo revisable en código de lo que exige evaluación manual/E2E (contraste, estética, jerarquía visual), que se nombra sin intentarse."
 ---
 # Usabilidad y accesibilidad (revisable en código)
 
