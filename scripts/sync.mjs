@@ -207,6 +207,10 @@ const GUIDES = {
     description:
       "Úsala tras implementar criterios que tocan interfaz y antes de pedir revisión humana, o cuando el cambio afecte a un flujo de usuario completo. Síntomas: los tests pasan pero nadie ha abierto la aplicación; hay que evaluar estética, contraste o jerarquía visual, que no se verifican desde un diff.",
   },
+  "espacio-de-trabajo-aislado": {
+    description:
+      "Úsala al empezar una tarea que conviene aislar del trabajo en curso, o antes de crear un worktree de git. Síntomas: el usuario tiene cambios abiertos en otra rama, quieres revisar una PR sin abandonar lo que implementas, o vas a escribir `git worktree add` sin haber comprobado si ya estás dentro de un worktree.",
+  },
 };
 
 // ---------------------------------------------------------------------------

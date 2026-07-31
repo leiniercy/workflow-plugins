@@ -65,6 +65,16 @@ pensamiento), el **ecosistema de agregadores** skillsmp/mcpmarket (§11, sin cam
   introducir una paralela. Cableada en `/implement` antes de abrir la PR y en la dimensión 6 de
   `/review`, que hasta ahora declaraba lo estético «evaluación manual» sin decir cómo se hace.
   Degrada a pasada manual si no hay automatización de navegador.
+- **Guía nueva `espacio-de-trabajo-aislado`** (fuente: `obra/superpowers` `using-git-worktrees` +
+  `Significant-Gravitas/AutoGPT`): worktrees de git como **opción** en `/start`, degradando
+  siempre a rama normal. Detección previa del aislamiento **con guarda de submódulo**
+  (`GIT_DIR != GIT_COMMON` también es cierto dentro de un submódulo: sin esa guarda, la lógica
+  se equivoca), preferencia por la herramienta nativa del entorno sobre `git worktree add` (que
+  deja estado que el harness no sabe limpiar), **verificación de que el directorio está ignorado
+  antes de crearlo** (si no, se commitea el árbol entero del segundo checkout), aprovisionamiento
+  del espacio (config no versionada —`.env`, `.mcp.json`—, dependencias, puertos que chocan con
+  el checkout principal), línea base de tests en verde y limpieza solo de lo creado por uno
+  mismo.
 - **Sección «Tests honestos»** en `niveles-y-tipos-de-prueba` (fuente: `writing-good-tests`;
   §2.C): «cada test nombra la rotura que atrapa» y «cada test ejercita lo real» — aserciones
   espejo, detectores de cambios, probar la frontera propia y no el framework, mockear al nivel
