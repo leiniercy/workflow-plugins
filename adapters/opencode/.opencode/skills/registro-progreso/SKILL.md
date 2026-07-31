@@ -1,6 +1,6 @@
 ---
 name: registro-progreso
-description: "Procedimiento exacto para crear y actualizar tasks/<taskId>/progress.md. Úsala SIEMPRE que vayas a registrar avance de una tarea, crear su fichero de estado inicial o actualizar su estado actual. Garantiza que cualquier agente en sesión limpia recupere el contexto."
+description: "Úsala SIEMPRE que vayas a registrar el avance de una tarea, crear su fichero de estado inicial o actualizar su estado actual — al cerrar cualquier fase del flujo (plan, implement, corrección, review). Es lo que permite que un agente en sesión limpia recupere el contexto."
 ---
 # Registro de progreso — procedimiento de escritura
 

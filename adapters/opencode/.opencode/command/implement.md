@@ -21,11 +21,12 @@ Eres el agente implementador. Tu contrato: trabajar contra `spec.md`, dejar rast
    - Si en el contexto de la conversación hay un informe reciente de /review con hallazgos
      Críticos/Altos/Medios pendientes, o la última entrada de progress.md registra
      hallazgos de revisión sin resolver: modo CORRECCIÓN — trabaja sobre esos hallazgos,
-     no sobre criterios nuevos. **Si los hallazgos vienen del informe en conversación y aún
-     NO constan en progress.md** (porque /review es solo-lectura y no escribe ficheros),
-     regístralos primero como una entrada de fase "review" siguiendo la guía
-     `registro-progreso` (skill de OpenCode, auto-activable) (nota: "hallazgos de revisión pendientes") para que la
-     corrección sea recuperable en una sesión limpia futura; luego trabájalos.
+     no sobre criterios nuevos. **Si los hallazgos vienen
+     del informe en conversación y aún NO constan en progress.md** (porque /review es
+     solo-lectura y no escribe ficheros), regístralos primero como una entrada de fase
+     "review" siguiendo la guía `registro-progreso` (skill de OpenCode, auto-activable) (nota: "hallazgos de revisión
+     pendientes") para que la corrección sea recuperable en una sesión limpia futura; luego
+     trabájalos.
    - Si no hay entradas de fase "implement" en progress.md: modo TRABAJO NUEVO — empieza
      por el primer criterio de aceptación.
    - Si hay entradas "implement" con criterios parciales: modo CONTINUACIÓN — retoma desde
@@ -47,7 +48,10 @@ criterio de aceptación pendiente, en orden:
    dependencias. Ejecuta y confirma que falla por la razón correcta.
 2. **Implementación mínima** que hace pasar el test, respetando las convenciones del repo
    detectadas en /plan.
-3. **Verificación**: suite de tests completa + lint + type-check si existen.
+3. **Verificación con evidencia**: ejecuta la suite completa + lint + type-check si existen,
+   **lee la salida y el código de salida**, y solo entonces afirma el resultado. No basta con
+   que «debería pasar»: si no has ejecutado el comando en este momento, no puedes decir que
+   pasa. Si algo falla, el estado real es «falla», y se dice con la salida delante.
 4. **Refactor (con la suite en verde)**: mejora el diseño del código recién escrito SIN
    cambiar su comportamiento, siguiendo la guía `codigo-limpio` (skill de OpenCode, auto-activable). Pasos pequeños,
    re-ejecutando la suite tras cada uno (debe seguir verde) y sin añadir funcionalidad:
@@ -70,8 +74,9 @@ si el criterio toca UI, incorpora lo verificable de `usabilidad-accesibilidad` (
 (etiquetas, validación, estados, semántica/teclado) desde el primer test.
 
 En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo (test
-que reproduce el problema → corrección → verificación → refactor con la suite en verde →
-registro con fase "implement" y nota "corrección de hallazgo de review" → gate de commit).
+que reproduce el problema → corrección → verificación con evidencia → refactor con la suite en
+verde → registro con fase "implement" y nota "corrección de hallazgo de review" → gate de
+commit).
 
 Si durante la implementación descubres que el enfoque de spec.md es inviable: DETENTE,
 explica el problema, y propón actualizar spec.md (sección "Decisiones tomadas") antes de
@@ -81,6 +86,11 @@ desviarte. No improvises silenciosamente fuera del plan.
 
 Cuando todos los criterios estén completados y la suite en verde:
 
+0. **Gate de verificación (antes de cualquier afirmación de «listo»).** Ejecuta la suite
+   completa AHORA —no vale una ejecución anterior de la sesión— junto con lint y type-check si
+   existen, y lee la salida. Después repasa `spec.md` criterio a criterio contra el código y
+   confirma que cada checkbox marcado tiene su test. Solo con esa evidencia delante puedes
+   decir que la tarea está lista; si algo falla o falta, dilo con la salida y detén la fase.
 1. Presenta un resumen de todos los cambios (`git diff develop --stat` + descripción).
 2. Propón el push de la rama. Ejecuta SOLO tras aprobación.
 3. Propón la PR contra `develop` con: título `[<taskId>] <título de la tarea>`, cuerpo con
@@ -118,3 +128,6 @@ saltarte el contrato.
 | "Funciona, el test pasa, ya está" | El ciclo es red-green-**refactor**: con la suite en verde, limpia los olores que introdujiste antes de registrar (Fase 3, paso 4; guía código-limpio). |
 | "Testeo el estado interno o el método privado para que sea más fácil verificar" | Testea el **comportamiento observable**, no la implementación: un test acoplado al detalle se rompe al refactorizar aunque el comportamiento siga bien (principio de Testing Library; Fase 3, paso 1). |
 | "Meto una abstracción/patrón por si acaso o por si escala" | Un patrón se justifica solo si su problema ya existe; anticiparlo es sobre-ingeniería (guía patrones-diseño). |
+| "Con esto debería pasar ya" / "seguro que está bien" | Sin haber ejecutado el comando y leído su salida, no puedes afirmar que pasa. Evidencia antes que afirmación (Fase 3, paso 3 y Fase 4, paso 0). |
+| "El test verifica que el mock se llamó, con eso vale" | Una aserción sobre el mock pasa porque el mock existe. Asevera el comportamiento real (guía niveles-y-tipos-de-prueba, «tests honestos»). |
+| "Lo pide la spec, así que ese hallazgo no cuenta" | La autoría de la spec no califica su propio trabajo. Presenta el hallazgo junto al texto de spec y decide el usuario. |

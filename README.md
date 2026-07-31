@@ -26,7 +26,7 @@ custom-ia-plugin/
 │           ├── command/       (generado por sync.mjs — no editar a mano)
 │           └── guides/        (generado por sync.mjs — no editar a mano)
 ├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a adapters/claude)
-├── .github/workflows/         review.yml (CI de PRs) · sync-check · version-check · behavior-check
+├── .github/workflows/         review.yml (CI de PRs) · sync-check · version-check · behavior-check · manifest-check
 └── examples/                  plantillas para repos consumidores
 ```
 

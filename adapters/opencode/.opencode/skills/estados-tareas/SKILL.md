@@ -1,6 +1,6 @@
 ---
 name: estados-tareas
-description: "Catálogo de estados de ClickUp del flujo y su mapeo a comandos del plugin. Úsala cuando necesites interpretar el estado de una tarea, decidir qué comando sugerir al usuario, o validar una transición de estado antes de proponerla."
+description: "Úsala cuando necesites interpretar en qué punto del ciclo está una tarea de ClickUp, decidir qué comando del flujo sugerir al usuario, o validar una transición de estado antes de proponerla."
 ---
 # Estados de tareas (ClickUp) — fuente de verdad compartida
 

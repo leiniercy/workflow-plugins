@@ -1,6 +1,6 @@
 ---
 name: revision-hallazgos
-description: "Disciplina para validar y puntuar un hallazgo de revisión antes de reportarlo: auto-refutación contra el código, escala de confianza 0-100 con umbral ≥ 75, lista de qué NO reportar y clasificación por severidad. Úsala en /review y en los subagentes revisores para subir la señal y bajar los falsos positivos."
+description: "Úsala en /review y en los subagentes revisores, antes de reportar cualquier hallazgo. Síntomas de que la necesitas: dudas de si algo es un defecto real o un nitpick, si ya lo pillaría el linter, si es preexistente, o si merece bloquear una PR."
 user-invocable: false
 ---
 # Validación y puntuación de hallazgos de revisión
@@ -32,6 +32,56 @@ dejarlo pasar, no confirmarlo por inercia. Un falso positivo cuesta más que un 
 3. **Severidad** del que pasa el umbral: **Crítico** (rompe funcionalidad, seguridad
    comprometida o criterio fallido), **Alto** (bug probable o desviación significativa de spec),
    **Medio** (deuda técnica, test ausente, convención rota), **Bajo** (estilo, nits).
+4. **Deduplica por causa, no por síntoma.** Un mismo defecto puede aflorar en varios ficheros,
+   pantallas o dimensiones: es **un** hallazgo con varias manifestaciones, no varios hallazgos.
+   Agrúpalos bajo la causa común y enumera dónde se manifiesta. Contar síntomas infla el informe
+   y provoca lo peor: que se parchee cada aparición y la causa siga viva.
+
+## Tres reglas de independencia del revisor
+
+Un revisor que hereda las conclusiones de otro no revisa: las repite. Estas tres reglas
+mantienen la revisión independiente de quien escribió el código y de quien escribió el plan.
+
+### 1. Lo que se te cuenta son afirmaciones, no hechos
+
+Las notas de `progress.md`, el resumen del implementador y los comentarios del código son
+**afirmaciones sin verificar**. Contrástalas con el código.
+
+Y las justificaciones de diseño son afirmaciones también: «lo dejé así por YAGNI», «lo mantuve
+simple a propósito», «se decidió en su momento» es el autor calificando su propio trabajo. Una
+justificación puede llevarte a mirar dónde no habías mirado, pero **nunca baja por sí sola la
+severidad de un hallazgo**. Si el código no lo sostiene, el hallazgo sigue en pie.
+
+### 2. Un hallazgo que la spec exige SIGUE siendo un hallazgo
+
+Si detectas como defecto algo que `spec.md` **manda** hacer (un test que no asevera nada,
+duplicación exigida por el enfoque aprobado, un criterio que fuerza una mala decisión), no lo
+descartes por venir del plan: **la autoría de la spec no califica su propio trabajo**.
+
+Repórtalo con la etiqueta **`exigido-por-spec`**, junto al texto de la spec con el que choca.
+No lo corriges y no lo silencias: **decide el usuario** cuál manda.
+
+### 3. Lo que no puedas verificar, decláralo — no amplíes la búsqueda
+
+Algunos requisitos no se pueden juzgar desde el diff: viven en código que la rama no tocó, o
+se reparten entre varios criterios. Ante uno de esos, **no te pongas a rastrear el repo**:
+márcalo como **⚠️ no verificable desde el diff**, di exactamente qué habría que comprobar, y
+sigue con el resto.
+
+No bloquea la revisión, pero **tampoco se pierde**: quien orquesta tiene el contexto completo
+de la tarea y resuelve cada ⚠️ antes de cerrar. Si al resolverlo confirma que es un hueco real,
+entra como hallazgo normal.
+
+## Qué NO hace quien orquesta la revisión
+
+Si estás despachando revisores en vez de revisando, hay una tentación que arruina la revisión:
+**pre-juzgar por ellos**. Si el prompt que estás escribiendo contiene «no marques X», «no lo
+trates como defecto», «como mucho Bajo» o «esto ya se decidió así» — **para**: estás ahorrándote
+una ronda a costa de la señal.
+
+Deja que el revisor levante el hallazgo y resuélvelo después. (No confundir con la lista de
+abajo: eso es una **rúbrica general** que el revisor aplica a todo, no una instrucción para
+tapar un caso concreto que te incomoda.)
 
 ## Anti-patrones (qué NO reportar, aunque parezca defecto)
 

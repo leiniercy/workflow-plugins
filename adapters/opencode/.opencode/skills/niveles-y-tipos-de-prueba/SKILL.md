@@ -1,6 +1,6 @@
 ---
 name: niveles-y-tipos-de-prueba
-description: "Criterio para elegir a qué NIVEL probar cada criterio (unidad, componente, integración, E2E/aceptación — la pirámide de pruebas) y con qué herramienta por defecto según el stack del repo (p. ej. Jest/Vitest, Testing Library, Playwright en JS/TS; pytest en Python), y qué TIPOS no-funcionales (rendimiento, seguridad/OWASP, API/contrato, usabilidad/accesibilidad — mapeados a características ISO 25010) marcar en la estrategia sin integrar su maquinaria en el plugin. Úsala al definir la estrategia de tests en /plan y al elegir el nivel y el runner de un test en /implement. Prioriza el nivel más bajo que verifique el comportamiento; no persigue cobertura por cobertura. Basada en ISTQB, Testing Library, Playwright y Jest."
+description: "Úsala al definir la estrategia de pruebas de una tarea en /plan y al elegir a qué nivel y con qué runner escribir cada test en /implement. Síntomas: no sabes si esto es unidad, componente, integración o E2E; el test necesita levantar medio sistema; sospechas que un test pasa sin verificar nada real."
 ---
 # Niveles y tipos de prueba (elegir dónde y con qué probar)
 
@@ -47,6 +47,58 @@ marcarlos:
   auditoría del repo si aplica.
 - **Regresión:** la suite existente debe seguir verde (ya lo garantiza el ciclo TDD).
 
+## Tests honestos: que el test pueda fallar de verdad
+
+Elegir bien el nivel no sirve de nada si el test no puede detectar una rotura. Dos principios
+gobiernan esto: **cada test nombra la rotura que atrapa** y **cada test ejercita lo real**.
+
+**Antes de escribir el cuerpo del test, responde: ¿qué cambio en el código de producción haría
+fallar este test, y ese cambio sería un bug o una decisión?**
+
+- Si no sabes nombrar ninguno → el test no verifica nada; rediséñalo sobre un comportamiento
+  observable.
+- Si solo fallaría ante una **decisión** intencionada (el valor de una constante, la redacción
+  exacta de un mensaje, una estructura privada) → es un *detector de cambios*: salta al
+  rediseñar y duerme ante los bugs. Prueba el comportamiento que depende de la decisión, no la
+  decisión (no `MAX_REINTENTOS === 5`, sino «la quinta llamada reintenta y la sexta no ocurre»).
+
+**Deriva el valor esperado a mano.** Un esperado calculado con el mismo código que estás
+probando pasa siempre, haga lo que haga ese código:
+
+```js
+// ✗ Aserción espejo: los dos lados salen del mismo constructor — siempre verde
+const esperado = construirQuery({ tag: "urgente" });
+expect(construirQuery({ tag: "urgente" })).toBe(esperado);
+
+// ✓ Literal derivado a mano
+expect(construirQuery({ tag: "urgente" })).toBe('tag:"urgente"');
+```
+
+**Prueba tu frontera, no el framework.** El contrato que hace tu código (la ruta que registras,
+la query que emites, la respuesta que produces) es tuyo; que el router invoque un handler
+registrado es el test de sus mantenedores.
+
+**Dobles y mocks:**
+
+- **Un mock no merece aserciones.** Una aserción sobre el mock pasa porque el mock existe y
+  falla si lo quitas: no dice nada del componente. Si lo que compruebas es el mock, quítalo o
+  borra la aserción.
+- **Mockea al nivel correcto.** Aprende los efectos colaterales del método real antes de
+  sustituirlo: mockea la operación lenta o externa y **deja real lo que el test necesita**. Un
+  mock demasiado alto se traga el efecto que el test iba a comprobar.
+- **Espeja la estructura real completa.** Un mock parcial falla en silencio: el test pasa y la
+  integración se rompe cuando alguien lee el campo que omitiste.
+- **Si el montaje del mock supera al test**, cambia a un test de integración con componentes
+  reales.
+- **Los métodos que solo usan los tests** viven en utilidades de test, nunca como método de la
+  clase de producción.
+
+**Comprobación de mutación, antes de cerrar.** Muta mentalmente el código de producción; al
+menos un test debe caer con cada mutación realista: constante o argumento equivocado, rama
+equivocada, efecto colateral que falta, retorno vacío o por defecto, validación ausente para
+cero / vacío / no autorizado. Una mutación que nadie detecta marca ese comportamiento como
+desprotegido — o el test como tautológico.
+
 ## Cómo aplicarla
 
 - **En `/plan` (estrategia de tests):** por cada HU, indica el nivel de sus EC y marca los tipos
@@ -67,10 +119,17 @@ marcarlos:
   seguridad son herramientas del repo objetivo; aquí solo se **nombran** en la estrategia.
 - **Ignorar el runner existente** — respeta el del repo; propón el default de la tabla acorde
   al stack solo cuando no haya ninguno para ese nivel.
+- **Aserción sobre el mock** — comprobar que el doble existe (`getByTestId('sidebar-mock')`)
+  en vez del comportamiento real. Pasa siempre que el mock esté; no prueba nada.
+- **Detector de cambios** — un test que solo puede fallar ante una decisión intencionada.
+  Molesta en cada rediseño y no atrapa ningún bug.
+- **Test contra el texto fuente** — asegurar que un script o un documento «contiene esta
+  línea» solo demuestra que la fuente es la fuente. Ejecútalo y asevera su efecto.
 
 ## Autocrítica antes de cerrar
 
 Antes de fijar la estrategia (`/plan`) o de escribir el test (`/implement`), pregúntate:
-**¿estoy probando en el nivel más bajo que sirve? ¿marqué los tipos no-funcionales que el CA
-exige? ¿reutilizo el runner del repo? ¿evité integrar maquinaria que es del proyecto, no del
-plugin?** Si algo falla, corrígelo antes de seguir.
+**¿estoy probando en el nivel más bajo que sirve? ¿sé nombrar qué rotura atraparía este test?
+¿el valor esperado está derivado a mano? ¿marqué los tipos no-funcionales que el CA exige?
+¿reutilizo el runner del repo? ¿evité integrar maquinaria que es del proyecto, no del plugin?**
+Si algo falla, corrígelo antes de seguir.
