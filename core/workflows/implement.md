@@ -18,7 +18,9 @@ Eres el agente implementador. Tu contrato: trabajar contra `spec.md`, dejar rast
    - Si en el contexto de la conversación hay un informe reciente de /review con hallazgos
      Críticos/Altos/Medios pendientes, o la última entrada de progress.md registra
      hallazgos de revisión sin resolver: modo CORRECCIÓN — trabaja sobre esos hallazgos,
-     no sobre criterios nuevos. **Si los hallazgos vienen del informe en conversación y aún
+     no sobre criterios nuevos, siguiendo la guía {{guide:recepcion-de-revision}} (verificar
+     cada hallazgo contra el código antes de aplicarlo, aclarar TODO lo dudoso antes de
+     corregir NADA, tope de 3 rondas y adjudicación por escrito). **Si los hallazgos vienen del informe en conversación y aún
      NO constan en progress.md** (porque /review es solo-lectura y no escribe ficheros),
      regístralos primero como una entrada de fase "review" siguiendo la guía
      {{guide:registro-progreso}} (nota: "hallazgos de revisión pendientes") para que la
@@ -66,9 +68,22 @@ que compone con el ciclo TDD; degrada sin problema si no está instalada. En cua
 si el criterio toca UI, incorpora lo verificable de {{guide:usabilidad-accesibilidad}}
 (etiquetas, validación, estados, semántica/teclado) desde el primer test.
 
-En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo (test
-que reproduce el problema → corrección → verificación → refactor con la suite en verde →
-registro con fase "implement" y nota "corrección de hallazgo de review" → gate de commit).
+En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo, con la
+disciplina de {{guide:recepcion-de-revision}} por delante:
+
+1. **Antes de tocar nada:** lee la lista completa de hallazgos, verifica cada uno contra el
+   código en su contexto real (¿es cierto aquí?, ¿es preexistente?, ¿hay una decisión
+   registrada que lo explique?) y **pregunta por TODOS los que no entiendas antes de corregir
+   ninguno**. Si un hallazgo choca con lo que exige `spec.md`, no lo apliques ni lo descartes:
+   presenta el hallazgo junto al texto de la spec y que decida el usuario.
+2. **Por cada hallazgo confirmado:** test que reproduce el problema → corrección → verificación
+   → refactor con la suite en verde → registro (fase "implement", nota "corrección de hallazgo
+   de review") → gate de commit.
+3. **Cada hallazgo se cierra con un resultado escrito en `progress.md`:** corregido, refutado
+   con motivo, o diferido con motivo. Ninguno desaparece en silencio.
+4. **Tope de 3 rondas** de corrección + re-verificación por hallazgo. Al llegar al tope,
+   adjudícalo según la guía: aparcar con motivo, o **parar y escalar al usuario** si el
+   hallazgo es portante o revela un defecto de la spec.
 
 Si durante la implementación descubres que el enfoque de spec.md es inviable: DETENTE,
 explica el problema, y propón actualizar spec.md (sección "Decisiones tomadas") antes de
@@ -115,3 +130,6 @@ saltarte el contrato.
 | "Funciona, el test pasa, ya está" | El ciclo es red-green-**refactor**: con la suite en verde, limpia los olores que introdujiste antes de registrar (Fase 3, paso 4; guía código-limpio). |
 | "Testeo el estado interno o el método privado para que sea más fácil verificar" | Testea el **comportamiento observable**, no la implementación: un test acoplado al detalle se rompe al refactorizar aunque el comportamiento siga bien (principio de Testing Library; Fase 3, paso 1). |
 | "Meto una abstracción/patrón por si acaso o por si escala" | Un patrón se justifica solo si su problema ya existe; anticiparlo es sobre-ingeniería (guía patrones-diseño). |
+| "El revisor tiene razón, lo aplico ya" | Un hallazgo es una hipótesis: verifícalo contra el código antes de tocar nada, y aclara TODO lo dudoso antes de corregir NADA (guía recepción-de-revisión). |
+| "Este hallazgo no tiene sentido, lo dejo pasar" | Refutarlo está bien; que desaparezca sin rastro no. Cada hallazgo se cierra por escrito en progress.md: corregido, refutado o diferido, con motivo. |
+| "Lo pide la spec, así que ese hallazgo no cuenta" | La autoría de la spec no califica su propio trabajo. Presenta el hallazgo junto al texto de spec y decide el usuario. |

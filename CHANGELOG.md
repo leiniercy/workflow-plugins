@@ -5,6 +5,18 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Guía nueva `recepcion-de-revision`** (fuente: `obra/superpowers`, `receiving-code-review` +
+  el bucle de corrección de `subagent-driven-development`): el lado **receptor** de la revisión,
+  que faltaba frente al emisor (`/review`). Prohíbe el acuerdo performativo («tienes toda la
+  razón», cualquier agradecimiento), exige **verificar cada hallazgo contra el código antes de
+  aplicarlo** y **aclarar todo lo dudoso antes de corregir nada** (entender a medias produce la
+  corrección equivocada), añade el filtro YAGNI sobre la sugerencia del revisor —si nada lo
+  llama, la respuesta es eliminarlo, no construirlo bien— y cierra el bucle con **tope de 3
+  rondas**, re-verificación acotada al cambio hecho y **adjudicación por escrito**: ningún
+  hallazgo desaparece en silencio. Cableada en el modo CORRECCIÓN de `/implement`.
+
 ### Corregido
 
 - **El frontmatter de skills y agentes no parseaba como YAML** — fallo silencioso presente ya en
