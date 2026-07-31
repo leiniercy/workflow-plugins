@@ -5,6 +5,19 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Guía nueva `espacio-de-trabajo-aislado`** (fuente: `obra/superpowers` `using-git-worktrees` +
+  `Significant-Gravitas/AutoGPT`): worktrees de git como **opción** en `/start`, degradando
+  siempre a rama normal. Detección previa del aislamiento **con guarda de submódulo**
+  (`GIT_DIR != GIT_COMMON` también es cierto dentro de un submódulo: sin esa guarda, la lógica
+  se equivoca), preferencia por la herramienta nativa del entorno sobre `git worktree add` (que
+  deja estado que el harness no sabe limpiar), **verificación de que el directorio está ignorado
+  antes de crearlo** (si no, se commitea el árbol entero del segundo checkout), aprovisionamiento
+  del espacio (config no versionada —`.env`, `.mcp.json`—, dependencias, puertos que chocan con
+  el checkout principal), línea base de tests en verde y limpieza solo de lo creado por uno
+  mismo.
+
 ### Corregido
 
 - **El frontmatter de skills y agentes no parseaba como YAML** — fallo silencioso presente ya en

@@ -188,6 +188,10 @@ const GUIDES = {
     description:
       "Guía crítica-first para decidir y respetar la ARQUITECTURA del sistema, un piso por encima de los patrones GoF: catálogo de estilos (monolito en capas, monolito modular, hexagonal/puertos, event-driven, service-based, microservicios) con la fuerza que justifica cada uno y su coste, DDD transversal (estratégico/táctico, solo en el core), criterios de decisión y el default conservador (monolito modular). Úsala en el «Enfoque técnico» de /plan al elegir el estilo de arranque de un repo nuevo o conformar el de uno existente, y en /review para comprobar que un cambio respeta la arquitectura, las capas y el bounded context vigentes. Dos modos: recomendar (pregunta las fuerzas y propone el estilo más simple que sirva) o elegir (presenta el catálogo y valida la elección del usuario). La arquitectura es respuesta a fuerzas reales, no elección por prestigio. Basada en Fowler, Richards & Ford y DDD (Khononov).",
   },
+  "espacio-de-trabajo-aislado": {
+    description:
+      "Úsala al empezar una tarea que conviene aislar del trabajo en curso, o antes de crear un worktree de git. Síntomas: el usuario tiene cambios abiertos en otra rama, quieres revisar una PR sin abandonar lo que implementas, o vas a escribir `git worktree add` sin haber comprobado si ya estás dentro de un worktree.",
+  },
 };
 
 // ---------------------------------------------------------------------------

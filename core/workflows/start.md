@@ -36,11 +36,22 @@ A partir del contenido de la tarea, propón:
 - **Slug**: 2-4 palabras en kebab-case derivadas del título.
 - **Nombre de rama**: `<tipo>/<taskId>_<slug>` (ej. `feat/86abc123_login-page`).
 
+**Dónde trabajar (pregúntalo con la propuesta):** por defecto, rama en el propio repo. Ofrece
+como alternativa un **espacio de trabajo aislado** (worktree) — útil si el usuario tiene trabajo
+abierto en otra rama o quiere poder alternar sin hacer stash. Si lo acepta, sigue
+{{guide:espacio-de-trabajo-aislado}}: comprueba primero si ya estás aislado (ojo al submódulo),
+prefiere la herramienta nativa del entorno a `git worktree add`, y verifica que el directorio
+esté ignorado antes de crear nada. Si no lo acepta, o si algo falla, trabaja en el repo con una
+rama normal: la alternativa nunca bloquea.
+
 Presenta la propuesta y ESPERA aprobación explícita del usuario antes de crear nada.
 
 ## Fase 5 — Creación (tras aprobación)
 
-1. Crea la rama desde `develop` actualizado y haz checkout.
+1. Crea la rama desde `develop` actualizado y haz checkout. Si el usuario eligió espacio
+   aislado, créalo según {{guide:espacio-de-trabajo-aislado}} (incluida la copia de la
+   configuración no versionada —`.env`, `.mcp.json`— y la línea base de tests en verde) y
+   continúa el resto de las fases dentro de él.
 2. Crea `tasks/<taskId>/spec.md` con el esqueleto (las secciones se completan en /plan):
    Propósito (resumen de 1-2 frases desde ClickUp), Contexto, Criterios de aceptación
    (checklist vacía), Alcance, Fuera de alcance, Enfoque técnico, Áreas afectadas,
@@ -74,3 +85,4 @@ saltarte un gate.
 | "Ya hay carpeta o rama para esta tarea, las rehago" | Nunca recrees trabajo previo: informa de lo encontrado y ofrece retomar (Fase 3). |
 | "Muevo la tarea a 'in progress' de una vez" | Toda transición de estado pasa por aprobación explícita; es responsabilidad exclusiva de /start (Fase 5). |
 | "El working tree tiene cambios pero puedo seguir" | Detente: working tree limpio es pre-requisito (Fase 1). |
+| "Creo el worktree con `git worktree add` directamente" | Comprueba antes si ya estás aislado (y que no sea un submódulo), usa la herramienta nativa del entorno si la hay, y verifica que el directorio esté ignorado (guía espacio-de-trabajo-aislado). |
