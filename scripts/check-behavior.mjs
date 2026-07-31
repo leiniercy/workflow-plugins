@@ -86,7 +86,7 @@ for (const [name, model] of Object.entries(AGENTS)) {
 //   - contiene "Úsala", que es como se redacta un disparador ("Úsala cuando/al/en…")
 const DESC_MAX = 500;
 const FRONTMATTER_MAX = 1024;
-const GUIDES = ["estados-tareas", "registro-progreso", "grafo-conocimiento", "formato-toon", "revision-hallazgos", "historias-usuario", "codigo-limpio", "patrones-diseno", "niveles-y-tipos-de-prueba", "arquitectura", "calidad-producto", "usabilidad-accesibilidad"];
+const GUIDES = ["estados-tareas", "registro-progreso", "grafo-conocimiento", "formato-toon", "revision-hallazgos", "historias-usuario", "codigo-limpio", "patrones-diseno", "niveles-y-tipos-de-prueba", "arquitectura", "calidad-producto", "usabilidad-accesibilidad", "depuracion-sistematica"];
 for (const g of GUIDES) {
   const body = read(join(CLAUDE, "skills", g, "SKILL.md"));
   assert(body !== null, `skill ${g} existe`);

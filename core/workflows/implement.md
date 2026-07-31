@@ -44,11 +44,16 @@ criterio de aceptación pendiente, en orden:
    el repo; si no hay ninguno, propón uno acorde al stack y espera aprobación antes de añadir
    dependencias. Ejecuta y confirma que falla por la razón correcta.
 2. **Implementación mínima** que hace pasar el test, respetando las convenciones del repo
-   detectadas en /plan.
+   detectadas en /plan. Si al ejecutar te topas con un fallo que no esperabas —el test falla
+   por una razón distinta a la prevista, la salida no cuadra, un error que no reconoces—
+   NO improvises cambios a ver cuál cuela: aplica {{guide:depuracion-sistematica}} (causa raíz
+   antes de arreglar, una hipótesis cada vez; a los tres arreglos fallidos, para y consulta).
 3. **Verificación con evidencia**: ejecuta la suite completa + lint + type-check si existen,
    **lee la salida y el código de salida**, y solo entonces afirma el resultado. No basta con
    que «debería pasar»: si no has ejecutado el comando en este momento, no puedes decir que
-   pasa. Si algo falla, el estado real es «falla», y se dice con la salida delante.
+   pasa. Si algo falla, el estado real es «falla», y se dice con la salida delante. Si la
+   suite destapa una regresión (algo que funcionaba se rompe), vuelve al paso 2 con la misma
+   disciplina: {{guide:depuracion-sistematica}}, no toques cosas a ver si vuelve el verde.
 4. **Refactor (con la suite en verde)**: mejora el diseño del código recién escrito SIN
    cambiar su comportamiento, siguiendo la guía {{guide:codigo-limpio}}. Pasos pequeños,
    re-ejecutando la suite tras cada uno (debe seguir verde) y sin añadir funcionalidad:
@@ -70,10 +75,12 @@ que compone con el ciclo TDD; degrada sin problema si no está instalada. En cua
 si el criterio toca UI, incorpora lo verificable de {{guide:usabilidad-accesibilidad}}
 (etiquetas, validación, estados, semántica/teclado) desde el primer test.
 
-En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo (test
-que reproduce el problema → corrección → verificación con evidencia → refactor con la suite en
-verde → registro con fase "implement" y nota "corrección de hallazgo de review" → gate de
-commit).
+En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo. Si el
+hallazgo es un bug, **entiéndelo con {{guide:depuracion-sistematica}} antes de arreglarlo**:
+un arreglo sobre el síntoma deja el defecto vivo y añade código que lo esconde. Después, el
+ciclo de siempre (test que reproduce el problema → corrección → verificación con evidencia →
+refactor con la suite en verde → registro con fase "implement" y nota "corrección de hallazgo
+de review" → gate de commit).
 
 Si durante la implementación descubres que el enfoque de spec.md es inviable: DETENTE,
 explica el problema, y propón actualizar spec.md (sección "Decisiones tomadas") antes de
@@ -128,3 +135,4 @@ saltarte el contrato.
 | "Con esto debería pasar ya" / "seguro que está bien" | Sin haber ejecutado el comando y leído su salida, no puedes afirmar que pasa. Evidencia antes que afirmación (Fase 3, paso 3 y Fase 4, paso 0). |
 | "El test verifica que el mock se llamó, con eso vale" | Una aserción sobre el mock pasa porque el mock existe. Asevera el comportamiento real (guía niveles-y-tipos-de-prueba, «tests honestos»). |
 | "Lo pide la spec, así que ese hallazgo no cuenta" | La autoría de la spec no califica su propio trabajo. Presenta el hallazgo junto al texto de spec y decide el usuario. |
+| "Falla algo raro; pruebo a cambiar esto a ver si se arregla" | Causa raíz antes que arreglo. Una hipótesis cada vez; a los tres intentos fallidos, para y cuestiona el diseño (guía depuración-sistemática). |

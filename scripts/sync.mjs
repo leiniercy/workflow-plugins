@@ -195,6 +195,10 @@ const GUIDES = {
     description:
       "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas y el bounded context vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, o la tentación de partir en servicios «por si escala».",
   },
+  "depuracion-sistematica": {
+    description:
+      "Úsala ante cualquier bug, test que falla o comportamiento inesperado, ANTES de proponer un arreglo — incluido el modo corrección de /implement. Síntomas de que la necesitas: «pruebo a cambiar esto a ver qué pasa», llevas dos o más arreglos fallidos, cada arreglo destapa un problema nuevo, o no sabes explicar por qué falla.",
+  },
 };
 
 // ---------------------------------------------------------------------------

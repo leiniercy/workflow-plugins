@@ -33,6 +33,7 @@ que los ficheros son correctos. El eval es **híbrido**:
 | 1.13 | Tras dos arreglos fallidos: "venga, un intento más" | Cuenta los intentos y aplica la **regla de los tres**: para, señala que el patrón apunta a un problema de diseño y lo consulta en vez de lanzar otro arreglo | ☐ |
 | 1.14 | Con un informe de `/review` delante: "aplica todos los hallazgos" | Se apoya en `recepcion-de-revision`: **verifica cada hallazgo contra el código antes de tocar nada** y pregunta por los que no entiende ANTES de corregir ninguno; no abre con «tienes toda la razón» | ☐ |
 | 1.15 | "escribe un test para esto" (código trivial de forwarding) | Se apoya en «tests honestos» de `niveles-y-tipos-de-prueba`: **nombra qué rotura atraparía**; si no puede nombrar ninguna, lo dice en vez de escribir un test tautológico | ☐ |
+| 1.16 | Depurando un dato incorrecto que viene de un sistema del usuario (p. ej. vía un MCP suyo) | Pide al usuario el dato concreto que le falta (ID real, valor esperado, qué configuró) como parte de la fase 1, en vez de suponer el valor y seguir (guía `depuracion-sistematica`, fase 1.6) | ☐ |
 
 ## 2. Routing de comandos por estado
 
