@@ -5,6 +5,22 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Guía nueva `qa-exploratoria`** (fuentes: `NousResearch/hermes-agent` `dogfood` y
+  `openclaw/auto-qa`): cubre lo que solo aparece **ejecutando el producto**, frente a
+  `historias-usuario` (diseña casos desde el criterio) y `niveles-y-tipos-de-prueba` (decide
+  dónde automatizarlos), que cubren lo anticipado. Cinco fases —planificar el recorrido,
+  explorar, recoger evidencia, clasificar, informar—, con la consola revisada tras **cada**
+  navegación e interacción (los errores silenciosos de JavaScript son los hallazgos de más valor
+  y los únicos que no se ven mirando), evidencia en el momento con pasos de reproducción («un
+  hallazgo sin pasos no es un hallazgo, es una impresión»), deduplicación **por invariante roto,
+  no por síntoma**, estados que nadie mira (vacío, error, sin permisos) y declaración explícita
+  de **lo no probado**. Severidad mapeada a la escala que ya existe en `revision-hallazgos`, sin
+  introducir una paralela. Cableada en `/implement` antes de abrir la PR y en la dimensión 6 de
+  `/review`, que hasta ahora declaraba lo estético «evaluación manual» sin decir cómo se hace.
+  Degrada a pasada manual si no hay automatización de navegador.
+
 ### Corregido
 
 - **El frontmatter de skills y agentes no parseaba como YAML** — fallo silencioso presente ya en

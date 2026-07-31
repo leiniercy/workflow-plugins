@@ -78,6 +78,13 @@ desviarte. No improvises silenciosamente fuera del plan.
 
 Cuando todos los criterios estén completados y la suite en verde:
 
+0. **Si la tarea toca interfaz o un flujo de usuario completo**, la suite en verde no basta:
+   los tests cubren lo que anticipaste al escribirlos. Propón una pasada de
+   {{guide:qa-exploratoria}} sobre la aplicación real antes de abrir la PR — recorrido de los
+   flujos afectados, revisión de la consola en cada pantalla y estados que nadie mira (vacío,
+   error, sin permisos). Es también la vía para lo que `/review` no puede juzgar desde el diff
+   (estética, contraste, jerarquía visual). Si el usuario prefiere saltarla, respétalo y déjalo
+   anotado en `progress.md`.
 1. Presenta un resumen de todos los cambios (`git diff develop --stat` + descripción).
 2. Propón el push de la rama. Ejecuta SOLO tras aprobación.
 3. Propón la PR contra `develop` con: título `[<taskId>] <título de la tarea>`, cuerpo con

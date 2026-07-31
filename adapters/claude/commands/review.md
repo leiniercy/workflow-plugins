@@ -65,8 +65,10 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
    formularios, textos de interfaz); si no, decláralo no aplicable en una línea. Aplica la
    guía `usabilidad-accesibilidad` (`${CLAUDE_PLUGIN_ROOT}/skills/usabilidad-accesibilidad/SKILL.md`): solo lo verificable en código (títulos/estados,
    lenguaje del usuario, validación cliente+servidor, mensajes de error útiles, alt/labels/
-   semántica/teclado), solo lo que el diff introduce o empeora; lo estético/visual se nombra
-   como evaluación manual, no se reporta.
+   semántica/teclado), solo lo que el diff introduce o empeora. Lo estético/visual (contraste,
+   jerarquía, maquetación real) NO se juzga desde el diff: nómbralo como pendiente de
+   `qa-exploratoria` (`${CLAUDE_PLUGIN_ROOT}/skills/qa-exploratoria/SKILL.md`) —recorrer la aplicación, con evidencia— en vez de opinar o de
+   callarlo.
 
 ### Cómo ejecutar el análisis — subagentes con tiering, o en línea
 
