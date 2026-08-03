@@ -493,7 +493,7 @@ es la pieza estructuralmente interesante.
 | **Cascada de simplificación** | «A veces una idea elimina 10 cosas». Busca el principio unificador que hace innecesarios varios componentes: *«todas las entradas son flujos, solo cambia el origen»* → 4 implementaciones eliminadas. Se mide en **cuántas cosas puedes borrar** | Adoptada como sección de `codigo-limpio`: nuestro refactor va olor a olor y se le escapa el refactor de 10x. **Con su límite explícito**, que es lo que la hace compatible con nuestro filtro: una cascada es legítima porque la duplicación **ya existe** y la abstracción la **elimina**; si no borra código, es _Generalidad especulativa_ y manda `patrones-diseno` | ✅ rama `feat/superpowers-v6-2` |
 | **Preservar tensiones productivas** | Algunas disyuntivas no son problemas a resolver sino **información a conservar**: cuando ambas opciones optimizan prioridades legítimas distintas y la mejor depende del contexto de despliegue, forzar una elección destruye flexibilidad. Se fuerza solo si es puerta de un solo sentido o si mantener ambas cuesta más | Adoptada en «Decisiones tomadas» de `/plan`: hasta ahora esa sección solo admitía decisiones cerradas y alternativas descartadas, lo que empuja a inventar un ganador para dejarla limpia | ✅ rama `feat/superpowers-v6-2` |
 | **`when-stuck`: despachador por síntoma** | Un índice que mapea *tipo de atasco* → técnica («complejidad en espiral» → cascadas; «forzado por supuestos» → inversión; «código roto» → depuración sistemática) | Patrón de routing atractivo, pero sin las 5 técnicas a las que despachar no tiene a dónde enrutar. Nuestras `description` ya llevan «Síntomas:», que cumple la misma función de forma distribuida | 📖 (revisable si algún día crecen las guías de técnica) |
-| **Juego de escalas** | Probar a 1000× más y 1000× menos para exponer lo que a escala normal está oculto (volumen, velocidad, usuarios, duración, tasa de fallo) | Encaja con los NFR de `calidad-producto` (derivar umbrales de eficiencia en vez de inventarlos) y con el diseño de valores límite de `historias-usuario` | 🔜 |
+| **Juego de escalas** | Probar a 1000× más y 1000× menos para exponer lo que a escala normal está oculto (volumen, velocidad, usuarios, duración, tasa de fallo) | Adoptado en la guía `rendimiento` (§14) como la forma de **derivar** el volumen de un criterio en vez de inventarlo: el salto de escala expone el listado sin paginar y la consulta sin índice. Sigue siendo aplicable a los valores límite de `historias-usuario` | ✅ rama `feat/frontera-publica-e-irreversibles` |
 | **Inversión, colisión de dominios, meta-patrones** | Invertir supuestos («¿y si lo contrario fuera cierto?»), forzar metáforas entre dominios lejanos, y buscar el patrón que aparece en 3+ dominios | Técnicas de creatividad genéricas, no atadas a nuestro flujo. Añadirlas serían 3 guías nuevas de ideación: choca con «empezar pequeño» y con el ADN anti-especulativo del plugin | ⛔ (fuera de alcance) |
 | **Divergencia de convenciones en el mismo autor** | Este repo usa `name: Simplification Cascades` (mayúsculas y espacios), un campo no estándar `when_to_use:` y `version:`; el plugin `superpowers` usa `name: writing-skills` + `description: Use when…`. Dos convenciones distintas del mismo autor | **Verificado, y corrige una hipótesis nuestra:** montamos un plugin de prueba con esa skill tal cual y `claude plugin validate --strict` **la acepta** — el validador NO exige la convención de `name` que la propia guía `writing-skills` dicta (solo letras, números y guiones), ni rechaza campos extra. Conclusión operativa: el validador cubre validez YAML y metadatos del manifiesto; **las convenciones las tiene que aseverar nuestro `check-behavior.mjs`**, no él | ✅ (validado) |
 
@@ -593,6 +593,56 @@ gate humano.
 
 ---
 
+## 14. Frontera pública y cambios irreversibles — schema.org · Google Search Central · Fowler (ParallelChange, TolerantReader) · Sadalage & Ambler · OWASP A09
+
+**Qué es:** no es un repo, sino el cuerpo de práctica que cubre **lo que una tarea rompe sin
+que ningún criterio de aceptación lo mencione**. Son cuatro frentes con la misma firma —nadie
+los pide, todos se descubren tarde— y una fuente canónica cada uno: indexación y datos
+estructurados (schema.org, directrices públicas de los buscadores), evolución de contratos
+publicados (Fowler: *ParallelChange* / expandir-contraer, *TolerantReader*), refactorización de
+bases de datos con datos vivos (Sadalage & Ambler, *Refactoring Databases: Evolutionary Database
+Design*) y registro sin filtraciones (OWASP A09, ya citado en §6).
+
+**Relación con nosotros:** cierra el hueco autodeclarado de §8 —«eficiencia de desempeño» era
+la única característica de ISO 25010 que la tabla de `calidad-producto` nombraba sin guía
+detrás— y añade el que faltaba en el otro extremo: **el flujo no tenía nada sobre migraciones**,
+que son el único cambio que un `git revert` no deshace. El filtro es el de siempre: se adopta
+el criterio, nunca la maquinaria (no generamos configuración de observabilidad, ni planes de
+recuperación, ni estimaciones de coste de infraestructura — son artefactos de otro oficio, y
+producirlos sin datos reales da un documento plausible y falso).
+
+| Patrón | Qué aporta | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Rendimiento con dos filos** | «Medir antes de optimizar» **y** «hay defectos que se ven en el código y no necesitan medición»: el N+1 no es lento, es incorrecto por diseño | Guía nueva `rendimiento`, con la frontera explícita entre ambos: lista cerrada de lo reportable desde el diff, y todo lo demás exige medición. Cableada en la dim. 4 de `/review` y en `revisor-convenciones` | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| **Criterio de rendimiento con cuatro piezas** | qué se mide · con qué volumen · en qué entorno · cuál es el límite. Sin las cuatro no se puede verificar ni fallar | En `/plan`, cuando se activa la característica de eficiencia. **Cierra el 🔜 del juego de escalas (§10)**: el «1000× más / 1000× menos» es justo cómo se deriva el volumen en vez de inventarlo | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| **Expandir y contraer** (ParallelChange) | Durante el despliegue conviven el código viejo y el esquema nuevo: primero se añade sin romper, retirar lo viejo es un cambio posterior | Regla 6 de la guía nueva `migraciones-de-datos`. Es el fallo que produce una caída **durante** el propio despliegue, invisible en local | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| **Refactorización de BD con datos vivos** | Reverso obligatorio, columna obligatoria en tres pasos, renombrar ≠ borrar+crear, probar sobre datos con forma y volumen realistas | Las diez reglas duras de `migraciones-de-datos`, cableadas como gate propio en `/implement` y como check de severidad **Alta** en la dim. 2 de `/review` (el impacto no es un fallo: es pérdida de datos) | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| **SEO técnico como código** | Metadatos por ruta, canónica, datos estructurados, indexabilidad, redirección al mover una URL publicada — todo verificable leyendo el diff en cualquier framework con metadatos declarativos | **Corrige un descarte nuestro:** lo habíamos agrupado con la operación («es del repo objetivo»), como JMeter en §6. No lo es: es código, y se revisa igual que la accesibilidad. Absorbido como sección de `usabilidad-accesibilidad` —no guía nueva— para no inflar el catálogo ni añadir un agente | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| **i18n verificable** | Un literal en duro en un repo traducido es un hallazgo objetivo, no una preferencia | Sección de `usabilidad-accesibilidad`, con el gate «solo si el repo YA la tiene» (proponer internacionalizar de paso es cambiar el alcance) | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| **Contrato de API como frontera publicada** | Validación por esquema en el borde, códigos de estado que distingan, forma del error consistente, paginación, y cambios aditivos vs rotura | Sección de `arquitectura` —es una frontera arquitectónica más—, con la regla que evita el doble reporte: autorización y exposición de datos siguen siendo de la dim. 5 | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| **El log es otro almacén** (OWASP A09, leído del revés) | No solo «faltan logs de seguridad»: **registrar lo que no se debe** es hallazgo por sí solo, y un log suele tener menos control de acceso y más retención que la BD | Convertido de advertencia a check accionable en `revisor-bugs-seguridad` | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| **Gate determinista para lo irreversible** | Los gates humanos viven en la prosa: gobiernan al agente cuando razona, no cuando se salta el paso | Hook nuevo `PreToolUse` (`destructive-guard.js`): `ask` por defecto —devolver la decisión al usuario ES el gate—, `deny` solo donde no hay uso legítimo iniciado por un agente. Documentado como **red para accidentes, no sandbox** | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| **Contexto permanente del repo consumidor** | Stack, comandos exactos, convenciones, reglas de negocio y ficheros intocables, cargados en cada sesión | `examples/CLAUDE.md.example`: teníamos `AGENTS.md.example` (que describe **el flujo**) y nada que describiera **el repo**. Alimenta las «convenciones detectadas» de `/plan` y la lista de rutas protegidas del hook | ✅ rama `feat/frontera-publica-e-irreversibles` |
+| Observabilidad, recuperación ante desastres, coste de infraestructura, pipelines de datos, respuesta a incidencias | Prácticas legítimas, con sus propios artefactos | ⛔ **Fuera de la altitud del plugin**, por el mismo criterio que §6 aplicó a JMeter/Newman: nombrarlas es barato, generarlas sin datos reales produce documentos plausibles y falsos. Su sitio es una tarea propia, no una de ClickUp sobre una funcionalidad | ⛔ |
+
+**Adoptado en esta iteración:** guía `rendimiento` · guía `migraciones-de-datos` · SEO técnico e
+i18n en `usabilidad-accesibilidad` (dim. 6 pasa a «usabilidad, accesibilidad y SEO», sin agente
+ni dimensión nuevos) · contrato de API en `arquitectura` (dim. 4) · A09 leído del revés en
+`revisor-bugs-seguridad` · hook `PreToolUse` de acciones irreversibles ·
+`examples/CLAUDE.md.example` · deltas de `/implement` (división de commits y aviso de rotura;
+build, variables de entorno y migraciones en el gate de verificación).
+**Descartado por el filtro (⛔):** generar configuración de observabilidad, planes de
+recuperación, estimaciones de coste o código de pipelines.
+
+**Nota de método (segunda lección del documento).** §2 enseñó que una fuente ya catalogada
+merece a veces una segunda pasada. Esta añade la inversa: **un descarte también.** «SEO es del
+repo objetivo» era correcto para el análisis de posicionamiento y falso para los metadatos de
+ruta, que son código como cualquier otro. Al descartar por categoría conviene comprobar si la
+categoría es homogénea — aquí no lo era, y el error sobrevivió hasta que alguien lo puso en
+duda.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -649,12 +699,17 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
     cierran los dos huecos que quedaban en los extremos del flujo (aislar el espacio al empezar,
     y probar el producto real antes de la PR). → §12, §13.
 
-**Backlog consumido (#1–#12).** Nuevas mejoras salen de analizar repos nuevos (añade una sección
+13. ✅ **Frontera pública y cambios irreversibles** — rama `feat/frontera-publica-e-irreversibles`:
+    dos guías nuevas (`rendimiento`, `migraciones-de-datos`), SEO técnico e i18n absorbidos en
+    `usabilidad-accesibilidad`, contrato de API en `arquitectura`, el primer hook `PreToolUse`
+    del plugin y la plantilla `CLAUDE.md.example` para el repo consumidor. → §14.
+
+**Backlog consumido (#1–#13).** Nuevas mejoras salen de analizar repos nuevos (añade una sección
 `## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba. Los de mayor
 valor pendientes hoy: **paquete de revisión por fichero** en `/review` (§2.B — mayor ahorro de
 contexto disponible), glosario `CONTEXT.md` de lenguaje ubicuo (§9.A), micro-test de wording
 (§2.A), corpus de prompts adversariales (§2.D), bucket `in-progress/` (§9.B), menú de cierre de
-rama (§2.C), worktree dedicado a revisión (§12), juego de escalas para derivar NFR (§10), `license` en skills §4, progressive
+rama (§2.C), worktree dedicado a revisión (§12), `license` en skills §4, progressive
 disclosure §1, testing basado en riesgo §6/[2] y perfiles de stack §7.
 
 ### Nota de método
@@ -713,8 +768,15 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | Guía `espacio-de-trabajo-aislado` (worktrees) + opción en `/start`, degradando a rama normal | obra/superpowers · AutoGPT (§12) | rama `feat/guia-espacio-de-trabajo-aislado` |
 | Guía `qa-exploratoria` (5 fases, consola, evidencia, taxonomía) en `/implement` y `/review` | NousResearch `dogfood` · openclaw `auto-qa` (§13) | rama `feat/guia-qa-exploratoria` |
 | Deduplicación **por causa, no por síntoma** en `revision-hallazgos` | openclaw `auto-qa` (§13) | rama `feat/superpowers-v6-2` |
+| Guía `rendimiento` (dos filos: medir antes de optimizar + lista cerrada de lo evidente en código) en `/plan` y dim. 4 de `/review` | ISO 25010 · juego de escalas (§10, §14) | rama `feat/frontera-publica-e-irreversibles` |
+| Guía `migraciones-de-datos` (10 reglas duras + expandir/contraer) con gate propio en `/implement` y severidad Alta en dim. 2 de `/review` | Fowler *ParallelChange* · Sadalage & Ambler (§14) | rama `feat/frontera-publica-e-irreversibles` |
+| SEO técnico e i18n en `usabilidad-accesibilidad`; dim. 6 pasa a «usabilidad, accesibilidad y SEO» (sin agente ni dimensión nuevos) | schema.org · directrices de indexación (§14) | rama `feat/frontera-publica-e-irreversibles` |
+| Contrato de API como frontera publicada en `arquitectura` (dim. 4), sin pisar la dim. 5 | Fowler *TolerantReader* / *ParallelChange* (§14) | rama `feat/frontera-publica-e-irreversibles` |
+| A09 leído del revés en `revisor-bugs-seguridad`: registrar lo que no se debe es hallazgo propio | OWASP A09 (§14) | rama `feat/frontera-publica-e-irreversibles` |
+| Hook `PreToolUse` `destructive-guard.js` (ask por defecto, deny solo sin uso legítimo) — primer gate determinista del plugin | §14 | rama `feat/frontera-publica-e-irreversibles` |
+| `examples/CLAUDE.md.example` (contexto permanente del repo consumidor) + recetas opcionales en `repo-settings.json` | §14 | rama `feat/frontera-publica-e-irreversibles` |
 
 ---
 
-_Última actualización: 2026-07-31. Mantén este documento al día cuando adoptes un patrón o
+_Última actualización: 2026-08-03. Mantén este documento al día cuando adoptes un patrón o
 analices un repo nuevo._

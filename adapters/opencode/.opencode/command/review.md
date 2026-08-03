@@ -1,5 +1,5 @@
 ---
-description: "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones, seguridad y usabilidad/accesibilidad (taxonomía ISO 25010), con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp. Uso: [taskId (opcional: se infiere de la rama actual)]"
+description: "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones, seguridad y usabilidad/accesibilidad/SEO (taxonomía ISO 25010), con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp. Uso: [taskId (opcional: se infiere de la rama actual)]"
 agent: revisor
 ---
 Eres un revisor independiente. Tu contrato es estricto: **solo informas**. No modificas
@@ -47,31 +47,46 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
 2. **Bugs**: errores lógicos, edge cases sin manejar, condiciones de carrera, manejo de
    errores ausente y los fallos propios del paradigma del stack (p. ej. hidratación/SSR en
    frameworks web con render en servidor, ciclo de vida/async en otros). Incluye roturas en
-   consumidores detectados vía grafo (Fase 2.4) y confirmados en código.
+   consumidores detectados vía grafo (Fase 2.4) y confirmados en código. **Si el diff trae
+   migraciones o transformaciones de datos**, recórrelas contra las reglas de
+   `migraciones-de-datos` (skill de OpenCode, auto-activable): falta de reverso, operación destructiva sin registro,
+   columna obligatoria sobre tabla con filas, borrado o actualización sin condición, o retirada
+   de lo viejo en la misma migración que añade lo nuevo (rompe el despliegue en curso). Ahí la
+   severidad es **Alta**: el impacto no es un fallo, es pérdida de datos.
 3. **Tests**: cobertura de los criterios, calidad de las aserciones, casos límite ausentes,
    tests que pasan por razones incorrectas.
 4. **Convenciones y deuda técnica**: coherencia con los patrones del repo (estructura,
    naming, estilos, manejo de estado, fetching de datos), la **conformidad con la arquitectura
-   vigente** (fronteras de módulo, capas, bounded context; según `arquitectura` (skill de OpenCode, auto-activable)) y
+   vigente** (fronteras de módulo, capas, bounded context y los **contratos de API** que el
+   repo ya publica —validación en la frontera, códigos de estado, forma del error, paginación,
+   cambios aditivos vs rotura—; según `arquitectura` (skill de OpenCode, auto-activable)) y
    **olores de código** que el diff introduzca o empeore — método/clase desmesurados,
    duplicación, condicionales por tipo, obsesión por primitivos, acoplamiento (envidia de
    características, cadenas de mensajes) — según la guía `codigo-limpio` (skill de OpenCode, auto-activable). Repórtalos
    como deuda técnica (severidad normalmente Media) solo si superan el umbral de
    `revision-hallazgos` (skill de OpenCode, auto-activable) y no son preexistentes, nitpicks ni trabajo del linter.
+   Incluye aquí el **coste de ejecución evidente en el código** según `rendimiento` (skill de OpenCode, auto-activable)
+   —consulta dentro de un bucle, listado sin paginar sobre una tabla que crece, llamadas
+   independientes en serie, filtrado en memoria de lo que haría el motor de datos—: son
+   defectos de diseño que empeoran con el volumen, no opiniones sobre velocidad. Lo que exija
+   medición (cachés, estructuras de datos, micro-optimizaciones) **no es un hallazgo**.
 5. **Seguridad**: recorre el diff con el **OWASP Top 10** como checklist, adaptado al stack
    detectado — control de acceso (endpoints/handlers sin authz, IDOR), exposición de datos al
    cliente (variables públicas del framework, filtraciones servidor→cliente), inyección
    (SQL/NoSQL, XSS, SSRF), gestión de sesión y autenticación, secretos hardcodeados, mala
    configuración y dependencias vulnerables. El agente `revisor-bugs-seguridad` lo detalla por
    categoría; en línea, recórrelo igual.
-6. **Usabilidad y accesibilidad**: SOLO si el diff toca UI (componentes, vistas, plantillas,
-   formularios, textos de interfaz); si no, decláralo no aplicable en una línea. Aplica la
-   guía `usabilidad-accesibilidad` (skill de OpenCode, auto-activable): solo lo verificable en código (títulos/estados,
-   lenguaje del usuario, validación cliente+servidor, mensajes de error útiles, alt/labels/
-   semántica/teclado), solo lo que el diff introduce o empeora. Lo estético/visual (contraste,
-   jerarquía, maquetación real) NO se juzga desde el diff: nómbralo como pendiente de
-   `qa-exploratoria` (skill de OpenCode, auto-activable) —recorrer la aplicación, con evidencia— en vez de opinar o de
-   callarlo.
+6. **Usabilidad, accesibilidad y SEO**: SOLO si el diff toca UI (componentes, vistas,
+   plantillas, formularios, textos de interfaz) **o rutas públicas** (metadatos de ruta, mapa
+   del sitio, reglas de rastreo, redirecciones); si no toca ninguna, decláralo no aplicable en
+   una línea. Aplica la guía `usabilidad-accesibilidad` (skill de OpenCode, auto-activable): solo lo verificable en código
+   (títulos/estados, lenguaje del usuario, validación cliente+servidor, mensajes de error
+   útiles, alt/labels/semántica/teclado; literales en duro si el repo tiene i18n; metadatos
+   propios de la ruta, canónica, marcado estructurado y redirección al mover una URL ya
+   publicada), solo lo que el diff introduce o empeora. Lo estético/visual (contraste,
+   jerarquía, maquetación real) y lo que exige rastreo o datos reales de buscador NO se juzga
+   desde el diff: nómbralo como pendiente de `qa-exploratoria` (skill de OpenCode, auto-activable) —recorrer la aplicación,
+   con evidencia— en vez de opinar o de callarlo.
 
 ### Cómo ejecutar el análisis — subagentes con tiering, o en línea
 
@@ -85,9 +100,9 @@ el modelo de cada uno (tiering por coste/complejidad, patrón del plugin oficial
 - `revisor-bugs-seguridad` (opus) → dimensiones 2 (bugs) y 5 (seguridad).
 - `revisor-spec-tests` (sonnet) → dimensiones 1 (cumplimiento de spec) y 3 (tests).
 - `revisor-convenciones` (sonnet) → dimensión 4 (convenciones y deuda técnica).
-- `revisor-usabilidad-accesibilidad` (sonnet) → dimensión 6 (usabilidad/accesibilidad).
-  **Despáchalo SOLO si el diff toca UI**; si no, registra la dimensión como no aplicable
-  sin gastar el agente.
+- `revisor-usabilidad-accesibilidad` (sonnet) → dimensión 6 (usabilidad, accesibilidad y SEO).
+  **Despáchalo SOLO si el diff toca UI o rutas públicas**; si no toca ninguna, registra la
+  dimensión como no aplicable sin gastar el agente.
 
 **Especifica SIEMPRE el modelo al despachar.** Omitirlo hereda el modelo de la sesión —a
 menudo el más caro— y anula el tiering en silencio. Y el criterio del tier no es solo el

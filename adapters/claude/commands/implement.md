@@ -66,13 +66,30 @@ criterio de aceptación pendiente, en orden:
    busca los olores que acabas de introducir (método largo, duplicación, condicional
    anidada, nombres pobres, números mágicos) y aplícales su refactorización. Si valoras
    introducir una abstracción o patrón, consulta `patrones-diseno` (`${CLAUDE_PLUGIN_ROOT}/skills/patrones-diseno/SKILL.md`) y hazlo SOLO si
-   el problema ya existe, nunca "por si acaso". Si no hay nada que limpiar, dilo y sigue.
+   el problema ya existe, nunca "por si acaso". **Este paso es de diseño, no de velocidad:**
+   no metas aquí optimizaciones que no has medido (`rendimiento` (`${CLAUDE_PLUGIN_ROOT}/skills/rendimiento/SKILL.md`)). Lo que sí toca es
+   comprobar que no acabas de introducir un defecto de los que se ven en el código —una
+   consulta dentro de un bucle, un listado sin paginar, llamadas en serie que podrían ir a la
+   vez—: son evitables mientras escribes y carísimos después. Si no hay nada que limpiar, dilo
+   y sigue.
 5. **Registro**: añade entrada a `progress.md` (guía `registro-progreso` (`${CLAUDE_PLUGIN_ROOT}/skills/registro-progreso/SKILL.md`)): fase
    "implement", criterio completado, resultado, notas. Marca el checkbox del criterio en
    spec.md.
 6. **Commit (gate):** propón el commit con mensaje convencional
    (`feat(<taskId>): <criterio>` o el tipo que corresponda) y ejecútalo SOLO si el usuario
-   aprueba. Puede preferir agrupar varios criterios: respétalo.
+   aprueba. Puede preferir agrupar varios criterios: respétalo. Dos reglas sobre el mensaje:
+   si los cambios abarcan **módulos distintos que se entienden por separado**, propón dividirlo
+   en varios commits (un commit que mezcla tres asuntos no se puede revertir ni leer después);
+   y si el cambio **rompe algo que otros consumen** —contrato de API, firma pública, formato de
+   dato—, dilo explícitamente en el pie del mensaje, no solo en el cuerpo.
+
+**Esquema y datos (gate propio):** si el criterio exige cambiar el esquema o transformar datos
+existentes, aplica `migraciones-de-datos` (`${CLAUDE_PLUGIN_ROOT}/skills/migraciones-de-datos/SKILL.md`) antes de escribir nada. La migración se
+escribe con su reverso, se aplica **y se revierte** en local sobre datos con forma realista, y
+solo entonces cuenta como verificada. **Toda operación destructiva o irreversible —borrar tabla
+o columna, vaciar, borrado masivo— y cualquier ejecución contra un entorno que no sea el tuyo
+necesitan aprobación explícita del usuario**, presentada aparte y con lo que se pierde. Es el
+único cambio del flujo que un revert no deshace.
 
 **UI web (opcional):** si el criterio implica interfaz web y tienes instalada la skill
 `frontend-design` (add-on oficial de Anthropic, ver README), aprovéchala en el paso 2 para
@@ -110,7 +127,17 @@ Cuando todos los criterios estén completados y la suite en verde:
 
 0. **Gate de verificación (antes de cualquier afirmación de «listo»).** Ejecuta la suite
    completa AHORA —no vale una ejecución anterior de la sesión— junto con lint y type-check si
-   existen, y lee la salida. Después repasa `spec.md` criterio a criterio contra el código y
+   existen, y lee la salida. Añade tres comprobaciones que la suite no cubre y que se descubren
+   siempre en el peor momento:
+   - **Build de producción**, si el repo lo tiene: hay errores que solo aparecen al compilar
+     para producción y no en desarrollo ni en los tests.
+   - **Variables de entorno**: si el cambio introduce o renombra alguna, ¿está reflejada en el
+     fichero de ejemplo del repo? Una variable que solo existe en tu máquina es un despliegue
+     roto para el resto.
+   - **Migraciones**: si las hay, ¿están aplicadas y probadas también en reverso
+     (`migraciones-de-datos` (`${CLAUDE_PLUGIN_ROOT}/skills/migraciones-de-datos/SKILL.md`))?
+
+   Después repasa `spec.md` criterio a criterio contra el código y
    confirma que cada checkbox marcado tiene su test. Solo con esa evidencia delante puedes
    decir que la tarea está lista; si algo falla o falta, dilo con la salida y detén la fase.
 1. **Si la tarea toca interfaz o un flujo de usuario completo**, la suite en verde no basta:
@@ -163,3 +190,7 @@ saltarte el contrato.
 | "El revisor tiene razón, lo aplico ya" | Un hallazgo es una hipótesis: verifícalo contra el código antes de tocar nada, y aclara TODO lo dudoso antes de corregir NADA (guía recepción-de-revisión). |
 | "Este hallazgo no tiene sentido, lo dejo pasar" | Refutarlo está bien; que desaparezca sin rastro no. Cada hallazgo se cierra por escrito en progress.md: corregido, refutado o diferido, con motivo. |
 | "Lo pide la spec, así que ese hallazgo no cuenta" | La autoría de la spec no califica su propio trabajo. Presenta el hallazgo junto al texto de spec y decide el usuario. |
+| "El reverso de la migración lo escribo si hace falta" | Hace falta justo cuando no hay tiempo de escribirlo. Va con la ida, y se prueba revirtiendo (guía migraciones-de-datos). |
+| "Es un DROP/DELETE pequeño, lo ejecuto y sigo" | Un revert no devuelve los datos. Toda operación destructiva o irreversible se presenta aparte y solo se ejecuta con aprobación explícita. |
+| "La migración funciona, la he probado en local con la tabla vacía" | Todas las migraciones funcionan sin datos: el riesgo vive en los existentes (nulos, duplicados, valores fuera del nuevo dominio). |
+| "De paso lo optimizo, que así va más rápido" | El refactor del TDD es de diseño, no de velocidad. Sin medición, el código simple gana (guía rendimiento). |

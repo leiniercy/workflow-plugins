@@ -37,7 +37,7 @@ const COMMANDS = {
   },
   review: {
     description:
-      "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones, seguridad y usabilidad/accesibilidad (taxonomía ISO 25010), con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp.",
+      "Diagnóstico de los cambios de la rama frente a spec.md - cumplimiento de criterios, bugs, tests, convenciones, seguridad y usabilidad/accesibilidad/SEO (taxonomía ISO 25010), con análisis de impacto vía grafo de conocimiento si existe. SOLO informa - nunca modifica código, ficheros de estado ni ClickUp.",
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
     // OpenCode: ejecuta /review bajo el agente primario read-only `revisor` (su
     // `permission` BLOQUEA edición y todo bash salvo git/graphify de lectura). Es el
@@ -101,7 +101,7 @@ const AGENTS = {
   },
   "revisor-usabilidad-accesibilidad": {
     description:
-      "Subagente de /review (solo-lectura) para la dimensión de USABILIDAD Y ACCESIBILIDAD (característica «capacidad de interacción» de ISO 25010). Despáchalo en paralelo desde /review SOLO si el diff toca UI: verifica lo revisable en código (títulos/estados, lenguaje del usuario, validación de formularios, mensajes de error útiles, alt/labels/semántica/teclado según WCAG); lo estético/visual lo marca como evaluación manual. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
+      "Subagente de /review (solo-lectura) para la dimensión de USABILIDAD, ACCESIBILIDAD y SEO TÉCNICO (la primera es la característica «capacidad de interacción» de ISO 25010). Despáchalo en paralelo desde /review SOLO si el diff toca UI o rutas públicas: verifica lo revisable en código (títulos/estados, lenguaje del usuario, validación de formularios, mensajes de error útiles, alt/labels/semántica/teclado según WCAG; literales en duro si el repo ya tiene i18n; metadatos propios de ruta, canónica y redirección al mover una URL publicada); lo estético/visual y lo que exige rastreo real lo marca como evaluación manual. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
     model: "sonnet",
     tools: ["Read", "Grep", "Glob"],
   },
@@ -187,13 +187,21 @@ const GUIDES = {
     description:
       "Úsala al fijar los requisitos no funcionales de una tarea en /plan y al etiquetar un hallazgo de /review con vocabulario estándar. Síntomas: un requisito de «rendimiento», «seguridad» o «usabilidad» sin criterio medible, o un hallazgo que no sabes en qué dimensión de calidad cae. Taxonomía ISO/IEC 25010.",
   },
+  "rendimiento": {
+    description:
+      "Úsala al fijar un requisito de rendimiento en /plan y al juzgar el coste de ejecución de un cambio en /implement y /review. Síntomas: una consulta dentro de un bucle, una lista sin paginar sobre una tabla que crece, llamadas en serie que podrían ir a la vez, «con los datos de ahora va bien», o te oyes optimizar algo que no has medido.",
+  },
   "usabilidad-accesibilidad": {
     description:
-      "Úsala cuando el trabajo toque interfaz: al redactar criterios de aceptación de UI en /plan, al escribir tests de componente en /implement y en la dimensión de usabilidad de /review. Síntomas: formularios sin validación o sin mensajes útiles, imágenes sin alt, controles no alcanzables por teclado. Nielsen + WCAG 2.2.",
+      "Úsala cuando el trabajo toque interfaz o una ruta pública: criterios de aceptación de UI en /plan, tests de componente en /implement y la dimensión 6 de /review. Síntomas: formularios sin validación o sin mensajes útiles, imágenes sin alt, controles no alcanzables por teclado, texto en duro en un repo traducido, una ruta nueva sin metadatos propios, o una URL publicada que se mueve sin redirección. Nielsen + WCAG 2.2 + SEO técnico.",
   },
   "arquitectura": {
     description:
-      "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas y el bounded context vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, o la tentación de partir en servicios «por si escala».",
+      "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas, el bounded context y los contratos de API vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, vas a crear o cambiar un endpoint, o la tentación de partir en servicios «por si escala».",
+  },
+  "migraciones-de-datos": {
+    description:
+      "Úsala en cuanto una tarea toque el esquema o los datos que ya existen: columnas, tablas, índices, renombrados o rellenos masivos. Síntomas: vas a escribir una migración sin su reverso, un borrado o una actualización sin condición, una columna obligatoria sobre una tabla con filas, o vas a editar una migración ya aplicada. El código se revierte; los datos no.",
   },
   "depuracion-sistematica": {
     description:

@@ -1,6 +1,6 @@
 ---
 name: arquitectura
-description: "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas y el bounded context vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, o la tentación de partir en servicios «por si escala»."
+description: "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas, el bounded context y los contratos de API vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, vas a crear o cambiar un endpoint, o la tentación de partir en servicios «por si escala»."
 user-invocable: false
 ---
 # Arquitectura: elegir y respetar la forma del sistema
@@ -77,10 +77,46 @@ Pregunta lo justo para elegir; con señales débiles, tira al default. Las fuerz
 un módulo por su costura), no reescribas de cero. Este default cubre la inmensa mayoría de los casos,
 Next.js o NestJS por igual.
 
+## Contrato de API: la frontera que otros consumen
+
+Un endpoint es una **frontera arquitectónica publicada**: en cuanto alguien lo llama, cambiarlo
+cuesta coordinación ajena. Por eso el contrato se decide al planificar, no se descubre al
+integrar. Esto no es un catálogo de estilos de API —el repo ya tendrá el suyo, REST o el que
+sea— sino los criterios que hacen que la frontera sea estable y coherente con las demás:
+
+- **Coherencia con el repo antes que con el libro.** El primer trabajo es leer los endpoints
+  vecinos y seguir su forma (nomenclatura, envoltorio de respuesta, forma del error,
+  versionado). Una API mitad de un estilo y mitad de otro es peor que cualquiera de los dos.
+- **Validación de la entrada en la frontera, por esquema.** Todo lo que llega de fuera se
+  valida en el borde con el validador que use el repo, y el resto del código trabaja ya con el
+  tipo garantizado. Validar «por dentro», a trozos, es como se cuelan los datos imposibles.
+- **Códigos de estado que digan la verdad.** Éxito sin cuerpo, creación, error de validación y
+  error del servidor no son lo mismo; devolver siempre 200 con un campo `ok` obliga a cada
+  consumidor a inventarse su propio protocolo.
+- **Forma del error consistente y sin filtraciones.** El mismo formato en todos los endpoints,
+  con un mensaje accionable, y nunca la traza ni el detalle interno del motor de datos (eso
+  cruza con seguridad: lo reporta la dimensión 5, no esta).
+- **Toda colección se pagina.** Un endpoint que hoy devuelve la tabla entera es un contrato que
+  no se puede cambiar mañana sin romper a quien lo consume; y es además el caso de
+  `rendimiento` (`${CLAUDE_PLUGIN_ROOT}/skills/rendimiento/SKILL.md`) más frecuente.
+- **Cambiar un contrato publicado es aditivo o es versionado.** Añadir campos opcionales no
+  rompe; quitar, renombrar o endurecer sí. Si hay que romper, el plan es el mismo que el de
+  `migraciones-de-datos` (`${CLAUDE_PLUGIN_ROOT}/skills/migraciones-de-datos/SKILL.md`): convivencia primero, retirada después.
+- **Idempotencia donde el cliente puede reintentar.** Si una llamada se puede repetir por un
+  reintento o un doble clic, el efecto de repetirla debe estar decidido, no descubierto.
+
+En `/plan` esto entra en el enfoque técnico cuando la tarea crea o modifica un endpoint; en
+`/review` se juzga en la dimensión 4 (es conformidad con la frontera vigente), dejando la
+autorización y la exposición de datos a la dimensión 5 para no reportar dos veces lo mismo.
+
 ## Anti-patrones (nómbralos para no caer en ellos)
 
 - **Microservicios prematuros → monolito distribuido** — toda la complejidad de lo distribuido y
   ninguna de sus ventajas. Necesitas varias fuerzas juntas **y** madurez operacional.
+- **Endpoint con estilo propio** — inventar una convención distinta a la de sus vecinos porque
+  «esta es mejor». La coherencia de la frontera vale más que la preferencia.
+- **Romper un contrato publicado en silencio** — quitar o renombrar un campo sin convivencia ni
+  versión: el fallo aparece en el consumidor, lejos de quien lo causó.
 - **Arquitectura resume-driven / «porque mola»** — elegir por prestigio o novedad, no por una fuerza.
 - **Hexagonal/puertos por todo con un solo adaptador** — generalidad especulativa a nivel de
   arquitectura: el mismo olor que `patrones-diseno` (`${CLAUDE_PLUGIN_ROOT}/skills/patrones-diseno/SKILL.md`) frena a nivel de clase.

@@ -80,10 +80,20 @@ casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos d
   Si el enfoque sugiere una abstracción o un patrón de diseño, apóyate en la guía
   `patrones-diseno` (`${CLAUDE_PLUGIN_ROOT}/skills/patrones-diseno/SKILL.md`): propón el patrón solo ante el problema real (un olor ya presente),
   no de forma especulativa — coherente con «empezar pequeño».
+  **Si la tarea crea o modifica un endpoint**, su contrato entra aquí (validación en la
+  frontera, códigos de estado, forma del error, paginación, y si el cambio rompe algo ya
+  publicado): es una frontera que otros consumen, y se decide al planificar, no al integrar.
+  **Si la tarea toca el esquema o transforma datos que ya existen**, eso no es un detalle de
+  implementación: decide aquí, con `migraciones-de-datos` (`${CLAUDE_PLUGIN_ROOT}/skills/migraciones-de-datos/SKILL.md`), el cambio de esquema, cómo
+  se rellenan los datos existentes, si es reversible y en qué orden va respecto al despliegue.
+  Lo que implique pérdida de datos se registra en «Decisiones tomadas» y lo aprueba el usuario.
 - **Requisitos no funcionales**: recorre UNA vez las características de calidad de ISO 25010
   como filtro (`calidad-producto` (`${CLAUDE_PLUGIN_ROOT}/skills/calidad-producto/SKILL.md`)) y marca SOLO las que la tarea activa de verdad,
   cada una con criterio verificable y su nivel/herramienta de prueba. Si ninguna aplica más
-  allá de lo funcional, dilo en una línea — sin inventario ni relleno.
+  allá de lo funcional, dilo en una línea — sin inventario ni relleno. Si la que se activa es
+  **eficiencia de desempeño**, el criterio lleva las cuatro piezas de `rendimiento` (`${CLAUDE_PLUGIN_ROOT}/skills/rendimiento/SKILL.md`)
+  (qué se mide, con qué volumen, en qué entorno y cuál es el límite): sin las cuatro no se
+  puede verificar en `/review` ni escribir un test que lo defienda.
 - **Restricciones globales**: las condiciones que vinculan a TODOS los criterios, con su
   **valor exacto**, una por línea — versiones mínimas, límites de dependencias, reglas de
   nombrado o de copy, requisitos de plataforma, formatos de dato. Van juntas y explícitas
@@ -169,3 +179,4 @@ saltarte el contrato.
 | "Este criterio se entiende, aunque admita dos lecturas" | Si admite dos lecturas, elige una y hazla explícita: /implement solo verá el texto (Fase 5, paso 0). |
 | "Le paso al usuario una lista con todas mis dudas de golpe" | Una pregunta cada vez, con tu respuesta recomendada y en orden de dependencia: un bloque de preguntas desconcierta y cada respuesta cambia las siguientes (Fase 4). |
 | "Le pregunto qué framework/versión/runner usan, así me lo confirma" | Eso es un HECHO: búscalo en el repo. Solo se preguntan las DECISIONES, que son suyas (Fase 4). |
+| "La tarea crea una ruta pública / añade texto, pero no menciona SEO ni traducciones" | Si el repo ya tiene i18n o la ruta es indexable, eso son criterios verificables de la spec, no detalles a improvisar en /implement (guía usabilidad-accesibilidad). |
