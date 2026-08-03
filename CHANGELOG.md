@@ -5,16 +5,24 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
-Rama **transversal**: contiene todo el trabajo de esta tanda EXCEPTO las cuatro guías nuevas,
-que viajan en sus propias ramas (`feat/guia-depuracion-sistematica`,
-`feat/guia-recepcion-de-revision`, `feat/guia-espacio-de-trabajo-aislado`,
-`feat/guia-qa-exploratoria`) para poder revisarse y mergearse por separado. Las cinco vías son
-disjuntas y salen de `fix/frontmatter-yaml`.
+## [0.11.0] - 2026-08-03
 
-Seis análisis externos catalogados en `docs/referencias.md`: re-análisis a fondo de
+Versión de consolidación: **el catálogo de guías pasa de 12 a 18**, llega el primer hook
+determinista del plugin y se corrige un fallo silencioso de frontmatter que arrastraba la 0.6.0
+ya publicada.
+
+> **Sobre el salto 0.6.0 → 0.11.0.** Los tags `v0.7.0`, `v0.8.0`, `v0.9.0` y `v.0.10.0` se
+> publicaron con los manifiestos todavía en 0.6.0, así que esta entrada **reconcilia la versión
+> declarada con la ya etiquetada** en vez de reutilizar números ocupados. `check-version.mjs`
+> compara `plugin.json` ↔ `marketplace.json` ↔ CHANGELOG, pero **no** contra los tags de git:
+> ese es el hueco que permitió la deriva.
+
+Siete análisis externos catalogados en `docs/referencias.md`: re-análisis a fondo de
 **superpowers v6.2.0** (§2, ampliada con §2.A–§2.D), **mattpocock/skills** (§9, la familia
 `grill` y la arquitectura de una librería de skills), **obra/superpowers-skills** (§10, skills de
-pensamiento), el **ecosistema de agregadores** skillsmp/mcpmarket (§11, sin cambios de código), **worktrees** (§12) y **QA exploratoria** (§13).
+pensamiento), el **ecosistema de agregadores** skillsmp/mcpmarket (§11, sin cambios de código),
+**worktrees** (§12), **QA exploratoria** (§13) y **frontera pública y cambios irreversibles**
+(§14: rendimiento, migraciones, SEO/i18n y contrato de API).
 
 ### Corregido
 
