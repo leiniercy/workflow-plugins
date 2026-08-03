@@ -31,6 +31,14 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
    errores ausente y los fallos propios del paradigma del stack (p. ej. hidratación/SSR en
    frameworks web con render en servidor; concurrencia/async en backends). Incluye roturas en
    consumidores señalados por el grafo y confirmados leyendo el código.
+   **Si el diff trae migraciones o transformaciones de datos**, recórrelas contra
+   `migraciones-de-datos` (skill de OpenCode, auto-activable): migración sin su reverso; operación destructiva (borrar
+   tabla o columna, vaciar, borrado masivo) sin registro de aprobación; borrado o actualización
+   sin condición; columna obligatoria nueva sobre una tabla con filas, sin relleno previo;
+   renombrado hecho como borrar+crear; retirada de lo viejo en la misma migración que añade lo
+   nuevo (rompe el código de la versión anterior durante el despliegue); migración ya aplicada
+   que se edita en vez de corregirse con otra. Severidad **Alta**: el impacto no es un fallo,
+   es pérdida de datos.
 2. **Seguridad**: recorre el diff con el **OWASP Top 10 (2021)** como checklist, quedándote
    solo con lo que el cambio realmente introduce, traducido al stack detectado:
    - **A01 Control de acceso roto**: endpoints, handlers, acciones de servidor o vistas que no
@@ -65,8 +73,11 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
      reutilización de contraseñas donde la política exige historial.
    - **A08 Fallos de integridad de software y datos**: deserialización insegura, datos sin
      firmar/validar en cookies o JWT, dependencia de fuentes no verificadas.
-   - **A09 Fallos de registro/monitorización**: eventos de seguridad relevantes sin log —con
-     cuidado de NO loguear secretos ni PII.
+   - **A09 Fallos de registro/monitorización**: eventos de seguridad relevantes sin log; y el
+     fallo inverso, que es hallazgo por sí solo: **datos que no deberían registrarse y acaban
+     en el log** —contraseñas, tokens, cabeceras de autorización, cuerpos de petición o
+     respuesta completos, o datos personales identificables—. Un log es otro almacén, casi
+     siempre con menos control de acceso y más retención que la propia base de datos.
    - **A10 SSRF**: peticiones del servidor a URLs controladas por el usuario sin lista
      blanca.
    No todo aplica a cada cambio: valida cada sospecha leyendo el fichero completo (no solo el

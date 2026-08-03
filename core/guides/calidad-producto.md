@@ -12,7 +12,7 @@ exige, nunca por inventario.
 | Característica | Subcaracterísticas (resumen) | Dónde la cubre el plugin |
 |---|---|---|
 | **Adecuación funcional** | Completitud, corrección, pertinencia | Dim. 1 de `/review` (cumplimiento de spec); CA de {{guide:historias-usuario}} |
-| **Eficiencia de desempeño** | Comportamiento temporal, uso de recursos, capacidad | Tipo no-funcional a **marcar** en `/plan` ({{guide:niveles-y-tipos-de-prueba}}); en `/review`, solo lo evidente en código (p. ej. N+1, trabajo pesado en el hilo/render principal) |
+| **Eficiencia de desempeño** | Comportamiento temporal, uso de recursos, capacidad | Guía {{guide:rendimiento}}: criterio con las cuatro piezas (qué/cuánto/dónde/límite) en `/plan`; en `/review`, solo lo evidente en código (p. ej. N+1, listado sin paginar, trabajo pesado en el hilo principal) |
 | **Compatibilidad** | Coexistencia, interoperabilidad | Contratos de API (tipo no-funcional API/contrato) |
 | **Capacidad de interacción** (antes Usabilidad) | Reconocibilidad, aprendizaje, operabilidad, protección ante errores de usuario, estética, **accesibilidad** | Dim. 6 de `/review` y guía {{guide:usabilidad-accesibilidad}} |
 | **Fiabilidad** | Madurez, disponibilidad, tolerancia a fallos, recuperabilidad | Dim. 2 de `/review` (bugs, edge cases, manejo de errores) |

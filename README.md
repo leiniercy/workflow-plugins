@@ -10,7 +10,7 @@ revisión independiente y continuidad entre sesiones vía `progress.md`.
 custom-ia-plugin/
 ├── core/                      ← ÚNICA fuente de verdad (editar SOLO aquí)
 │   ├── workflows/             start.md · plan.md · implement.md · review.md
-│   ├── guides/                estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · usabilidad-accesibilidad · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
+│   ├── guides/                estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo
 ├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior
 ├── adapters/
@@ -20,7 +20,7 @@ custom-ia-plugin/
 │   │   ├── commands/          (generado por sync.mjs — no editar a mano)
 │   │   ├── skills/            (generado por sync.mjs — no editar a mano)
 │   │   ├── agents/            (generado por sync.mjs — subagentes read-only de /review y /plan)
-│   │   └── hooks/             SessionStart (contexto de tarea) + Stop (notificación sonora)
+│   │   └── hooks/             SessionStart (contexto de tarea) · Stop (notificación sonora) · PreToolUse (gate de acciones irreversibles)
 │   └── opencode/
 │       └── .opencode/         carpeta lista para copiar al repo consumidor
 │           ├── command/       (generado por sync.mjs — no editar a mano)
@@ -58,6 +58,25 @@ El paso a `complete` es siempre humano. Principios transversales: gates de aprob
 todo lo visible (commits, push, PR, estados), `$ARGUMENTS` con fallback por inferencia de
 rama, detección de modo por contexto, degradación elegante si falta ClickUp o graphify, y
 historial inmutable en `progress.md`.
+
+### El gate de lo irreversible (hook `PreToolUse`)
+
+Los gates de arriba viven en la prosa de los comandos: gobiernan al agente cuando razona, no
+cuando se salta el paso. Para el puñado de acciones que un `git revert` **no deshace**, el
+plugin añade un hook determinista (`hooks/destructive-guard.js`) que devuelve la decisión al
+usuario antes de ejecutarlas:
+
+| Acción | Decisión |
+|---|---|
+| Push forzado a `main`/`master`/`develop` · `DROP DATABASE` · `rm -rf` sobre `/`, `~` o un comodín | **deny** (que lo ejecute el usuario) |
+| Push forzado a otra rama · `reset --hard` · `clean -f` · borrado forzado de rama · `rm -rf` acotado | **ask** |
+| `DROP TABLE` · `TRUNCATE` · `DELETE`/`UPDATE` sin `WHERE` · reinicio de migraciones | **ask** |
+| Escribir sobre `.env*` (no plantillas) o editar una migración ya existente | **ask** |
+
+Es una **red para accidentes, no un sandbox**: un agente decidido puede reformular el comando.
+El bloqueo duro de solo-lectura sigue siendo el campo `tools` de los agentes revisores.
+Se ajusta por entorno: `CUSTOM_IA_PROTECTED_PATHS` añade rutas propias del repo y
+`CUSTOM_IA_GUARD=off` lo desactiva (ver `examples/repo-settings.json`).
 
 ## Add-on recomendado: diseño de UI (`frontend-design`)
 
@@ -109,7 +128,12 @@ está, el flujo degrada sin problema.
    Claude Code expande `${CLICKUP_API_KEY}` y `${CLICKUP_TEAM_ID}` al cargar el `.mcp.json`.
    _(Alternativa por repo: copia `examples/mcp.json.example` como `.mcp.json` con los
    valores literales y añádelo al `.gitignore` — útil si prefieres credenciales por proyecto.)_
-4. Abre Claude Code en el repo: aceptará el marketplace `biomas` y cargará el plugin.
+4. **Define el contexto del repo (recomendado).** Copia `examples/CLAUDE.md.example` como
+   `CLAUDE.md` en la raíz y rellena los marcadores: stack, comandos exactos, convenciones,
+   reglas de negocio y ficheros que no se tocan. Claude Code lo carga en cada sesión, y es de
+   donde `/plan` e `/implement` sacan las convenciones que deben respetar. Sin él, el agente
+   las deduce leyendo código — funciona, pero acierta menos y gasta más.
+5. Abre Claude Code en el repo: aceptará el marketplace `biomas` y cargará el plugin.
    Comprueba con `/help` que aparecen `/start`, `/plan`, `/implement`, `/review`.
    Al abrir una sesión sobre una rama de tarea (`<tipo>/<taskId>_<slug>`), el hook
    `SessionStart` inyecta automáticamente el "Estado actual" de `progress.md` y los

@@ -31,6 +31,75 @@ pensamiento), el **ecosistema de agregadores** skillsmp/mcpmarket (§11, sin cam
 
 ### Añadido
 
+- **Guía nueva `rendimiento`** (§14 de `docs/referencias.md`): cierra el hueco autodeclarado de
+  ISO 25010 — «eficiencia de desempeño» era la única característica que `calidad-producto`
+  nombraba sin guía detrás. Sostiene **dos filos a la vez**: no optimizar lo que no se ha medido
+  (una optimización sin medición es complejidad gratis, la misma disciplina que
+  `patrones-diseno` aplica a las abstracciones) **y** reportar los defectos que sí se ven en el
+  diff, porque no son «lento» sino errores de diseño conocidos que empeoran con el volumen
+  (consulta dentro de un bucle, trabajo cuadrático, llamadas independientes en serie, listado
+  sin paginar, filtrado en memoria de lo que haría el motor de datos). Añade el **criterio de
+  cuatro piezas** —qué se mide, con qué volumen, en qué entorno, cuál es el límite— y el **juego
+  de escalas** (1000× más / 1000× menos) para *derivar* el volumen en vez de inventarlo, lo que
+  cierra un 🔜 pendiente de §10. Cableada en «Requisitos no funcionales» de `/plan`, en el paso
+  de refactor de `/implement` (que es de diseño, no de velocidad) y en la dimensión 4 de
+  `/review` vía `revisor-convenciones`.
+
+- **Guía nueva `migraciones-de-datos`** (fuentes: Fowler *ParallelChange*; Sadalage & Ambler,
+  *Refactoring Databases*): el flujo no tenía **nada** sobre el único cambio que un `git revert`
+  no deshace. Diez reglas duras —reverso obligatorio escrito a la vez que la ida, ninguna
+  operación destructiva sin aprobación explícita, nunca un borrado o actualización sin
+  condición, columna obligatoria nueva en tres pasos, renombrar no es borrar+crear,
+  **compatibilidad hacia atrás durante el despliegue** (expandir/contraer: mientras despliegas,
+  el código anterior sigue vivo contra el esquema nuevo), claves foráneas con comportamiento
+  explícito al borrar, índices con nombre y sin bloquear, una migración aplicada se corrige con
+  otra nueva, y se prueba **aplicando y revirtiendo** sobre datos con forma y volumen
+  realistas—. Cableada como decisión de diseño en `/plan`, **gate propio** en `/implement`
+  (aprobación explícita para lo destructivo o irreversible y para cualquier entorno ajeno) y
+  check de severidad **Alta** en la dimensión 2 de `/review`: el impacto no es un fallo, es
+  pérdida de datos.
+
+- **Hook `PreToolUse` `destructive-guard.js`** — el primer gate **determinista** del plugin.
+  Los gates de aprobación viven en la prosa de los comandos: gobiernan al agente cuando razona,
+  no cuando se salta el paso. Este hook devuelve la decisión al usuario antes de ejecutar lo
+  irreversible: `ask` por defecto (push forzado, `reset --hard`, `clean -f`, borrado forzado de
+  rama, `rm -rf` acotado, `DROP TABLE`/`TRUNCATE`, `DELETE`/`UPDATE` sin `WHERE`, reinicio de
+  migraciones, escritura sobre `.env*` y edición de una migración ya existente) y `deny` solo
+  donde no hay uso legítimo iniciado por un agente (push forzado a `main`/`master`/`develop`,
+  `DROP DATABASE`, `rm -rf` sobre `/`, `~` o un comodín sin acotar). Se ajusta por entorno con
+  `CUSTOM_IA_PROTECTED_PATHS` y `CUSTOM_IA_GUARD=off`. Documentado con su límite: es una **red
+  para accidentes, no un sandbox** —un agente decidido puede reformular el comando—; el bloqueo
+  duro de solo-lectura sigue siendo el campo `tools` de los agentes revisores.
+
+- **`examples/CLAUDE.md.example`** — plantilla de contexto permanente para el repo consumidor.
+  Teníamos `AGENTS.md.example`, que describe **el flujo**, y nada que describiera **el repo**:
+  stack, comandos exactos, convenciones que no detecta el linter, patrones del proyecto, reglas
+  de negocio, ficheros intocables y una lista explícita de «qué NO hacer». Alimenta las
+  «convenciones del repo detectadas» de `/plan` y la lista de rutas protegidas del hook nuevo.
+  `examples/repo-settings.json` incorpora el bloque `env` para configurarlo y **recetas
+  comentadas** (formateo post-edición, aviso remoto al terminar) que el plugin deliberadamente
+  no empaqueta: dependen del stack de cada equipo.
+
+- **SEO técnico e internacionalización en `usabilidad-accesibilidad`** — absorbidos como
+  secciones de la guía existente, no como guías nuevas, para no inflar el catálogo ni añadir un
+  agente. **Corrige un descarte previo:** habíamos agrupado el SEO con la operación («es del
+  repo objetivo»), y es falso para lo que vive en el código — metadatos propios de cada ruta,
+  canónica, marcado estructurado válido *solo si el contenido es de ese tipo*, indexabilidad
+  generada desde las rutas reales, y **redirección permanente al mover una URL ya publicada**
+  (severidad Alta: rompe enlaces externos). En i18n, con el gate «solo si el repo YA la tiene»:
+  un literal en duro en un repo traducido es un hallazgo objetivo, pero proponer internacionalizar
+  de paso es cambiar el alcance. La dimensión 6 de `/review` pasa a **«Usabilidad, accesibilidad
+  y SEO»** y su gate se amplía a «UI **o rutas públicas**», con la regla que evita el ruido:
+  encabezados, `alt` e idioma sirven a los dos frentes y se reportan **una** vez.
+
+- **Contrato de API en `arquitectura`** — un endpoint es una frontera arquitectónica publicada,
+  así que su contrato se decide al planificar y no se descubre al integrar: coherencia con los
+  endpoints vecinos antes que con el libro, validación de la entrada por esquema **en la
+  frontera**, códigos de estado que distingan los casos, forma del error consistente y sin
+  filtraciones, paginación en toda colección, cambios aditivos o versionados, e idempotencia
+  donde el cliente puede reintentar. Se juzga en la dimensión 4, dejando autorización y
+  exposición de datos a la 5 para no reportar dos veces lo mismo.
+
 - **Guía nueva `depuracion-sistematica`** (fuente: `obra/superpowers`, `systematic-debugging`):
   cuatro fases con la ley «ningún arreglo sin investigación de causa raíz primero»,
   instrumentación por frontera en sistemas multi-componente, trazado del dato hacia atrás hasta
@@ -128,6 +197,24 @@ pensamiento), el **ecosistema de agregadores** skillsmp/mcpmarket (§11, sin cam
   `--strict` reclamaba.
 
 ### Cambiado
+
+- **Gate de verificación de `/implement` (Fase 4) ampliado con lo que la suite no cubre**:
+  build de producción si el repo lo tiene (hay errores que solo aparecen al compilar para
+  producción), deriva entre las variables de entorno nuevas y el fichero de ejemplo del repo
+  (una variable que solo existe en tu máquina es un despliegue roto para el resto) y migraciones
+  aplicadas **y probadas en reverso**.
+
+- **Disciplina de commit en `/implement` (Fase 3, paso 6)**: si los cambios abarcan módulos
+  distintos que se entienden por separado, se propone dividirlos —un commit que mezcla tres
+  asuntos no se puede revertir ni leer después—; y si el cambio rompe algo que otros consumen
+  (contrato de API, firma pública, formato de dato), se dice explícitamente en el pie del
+  mensaje, no solo en el cuerpo.
+
+- **OWASP A09 leído del revés en `revisor-bugs-seguridad`**: de una advertencia («con cuidado de
+  no loguear secretos ni PII») a un **hallazgo propio** — registrar contraseñas, tokens,
+  cabeceras de autorización, cuerpos completos de petición/respuesta o datos personales es un
+  defecto en sí mismo, porque un log es otro almacén, casi siempre con menos control de acceso y
+  más retención que la propia base de datos.
 
 - **Las `description` de las guías reescritas como disparador puro** (fuente:
   `writing-skills`; §2.A). Hallazgo medido de superpowers: si la `description` **resume el

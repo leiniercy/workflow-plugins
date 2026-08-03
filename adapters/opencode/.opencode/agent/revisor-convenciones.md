@@ -31,11 +31,24 @@ convención: dedúcela del código existente).
   context) según `arquitectura` (skill de OpenCode, auto-activable). Un hallazgo válido es una desviación de un patrón o de
   una frontera YA establecidos en el repo (p. ej. lógica de dominio metida en la capa de UI, o un
   módulo que salta la frontera de otro), no una preferencia tuya. Marca la violación como deuda
-  técnica; NO propongas refundar la arquitectura.
+  técnica; NO propongas refundar la arquitectura. **Si el diff crea o modifica un endpoint**,
+  incluye su contrato: coherencia con los endpoints vecinos, validación de la entrada por esquema
+  en la frontera, códigos de estado que distingan los casos, forma del error consistente,
+  paginación en colecciones, y si el cambio **rompe** un contrato ya publicado (campo quitado,
+  renombrado o endurecido) en vez de ser aditivo. La autorización y la exposición de datos son
+  de la dimensión de seguridad, no tuyas: no las reportes por duplicado.
 - **(b) Olores de código:** los que el diff **introduzca o empeore**, según la guía
   `codigo-limpio` (skill de OpenCode, auto-activable) — método/clase desmesurados, duplicación, condicional por tipo,
   obsesión por primitivos, envidia de características, cadenas de mensajes. Repórtalos como
   deuda técnica (severidad normalmente Media), con la refactorización que los curaría.
+- **(c) Coste de ejecución evidente en el código**, según `rendimiento` (skill de OpenCode, auto-activable): consulta
+  dentro de un bucle, trabajo cuadrático sobre una colección que crece, llamadas independientes
+  resueltas en serie, consulta sin límite ni paginación sobre una tabla que crece, filtrado u
+  ordenación en memoria de lo que haría el motor de datos, traer campos que nadie usa, o
+  recálculo en cada pasada del ciclo de render. **Son defectos de diseño que empeoran con el
+  volumen, no opiniones sobre velocidad.** Lo que exigiría medición para saber si importa
+  —cachés, cambios de estructura de datos, micro-optimizaciones— NO es un hallazgo tuyo; y si
+  el dominio acota el volumen de verdad (lista de países, roles del sistema), tampoco lo es.
 
 En ambos frentes: nada **preexistente** que la rama no introdujo, ni sobre-ingeniería sugerida
 como «mejora» (una abstracción de más también es deuda). No propongas patrones de diseño salvo
