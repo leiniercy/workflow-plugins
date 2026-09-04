@@ -5,6 +5,69 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.12.0] - 2026-09-04
+
+El catálogo de guías pasa de 18 a 19 con `evidencia-y-preguntas`, la primera guía **transversal**
+del plugin. Y se cierra el **segundo movimiento** de tres reglas que solo tenían el primero
+—sabíamos decir «no metas una caché a la ligera» pero no «qué revisar cuando alguien la mete»;
+«toda colección se pagina» pero no «con qué estrategia»; «que haya índice» pero no «del tipo que
+sirve»— a partir del análisis de ByteByteGo (§15 de `docs/referencias.md`).
+
+### Añadido
+
+- **Guía `evidencia-y-preguntas`** — principio transversal: todo dato escrito es hecho
+  comprobado, asunción declarada o dato del usuario, y lo que no cae en las tres no se escribe.
+  Trae el **test de los tres escalones** para decidir entre verificar, asumir declarándolo y
+  preguntar, con el desempate («si la respuesta fuera la otra, ¿cambiaría lo que voy a
+  construir?»), y ataca también el fallo contrario: no se pregunta lo que está en el repo.
+  Enganchada en las banderas rojas de los cuatro workflows.
+- **`rendimiento`: sección «Cuando el cambio SÍ mete una caché»** — la guía frenaba la caché
+  como primera respuesta, pero no decía qué revisar cuando el diff sí la introduce. Cubre
+  estampida, penetración, invalidación ausente, caché tratada como fuente de verdad y clave que
+  no distingue lo que la respuesta distingue.
+- **`rendimiento`: sección «Perseguir una ruta lenta»** — orden red → código → datos → terceros
+  → entorno, midiendo antes de bajar de escalón; enganchada con `depuracion-sistematica`.
+- **`rendimiento`: latencia vs. throughput** con la ley de Little dentro del criterio de
+  rendimiento, más el aviso sobre la fórmula invertida que circula en material divulgativo.
+- **`rendimiento`: paginación por desplazamiento** como defecto visible en código cuando la
+  colección crece sin techo (el coste crece con la profundidad de la página, no con su tamaño).
+- **`arquitectura`: idempotencia por método HTTP** (RFC 9110) y clave de idempotencia para
+  `POST`/`PATCH`, donde antes había una sola línea.
+- **`revisor-bugs-seguridad`: XSS basado en DOM** en A03 — recorrido origen→sumidero en el
+  código de cliente, con la razón de por qué ninguna defensa de servidor lo detecta.
+- **`revisor-bugs-seguridad`: respuesta autenticada declarada cacheable en caché compartida** en
+  A02 (`private` / `no-store`, RFC 9111), con la regla que evita el falso positivo inverso.
+- **`arquitectura`: sección «Dos patrones que se pagan caro»** — event sourcing y CQRS,
+  redactados **por su coste** y fuera del catálogo de estilos (no lo son, igual que DDD).
+  Recoge que **no se implican**, que el disparador más frecuente de event sourcing —querer
+  auditoría— es justo su «cuándo NO», y el límite de CQRS al bounded context. El PDF los
+  describe en neutro; todo el freno viene de contrastar con Fowler, la fuente que la guía ya
+  citaba.
+- **§15 de `docs/referencias.md`** — ByteByteGo *Big Archive: System Design 2025*, con lo
+  adoptado, lo descartado y **los cuatro errores detectados en la fuente**, para que no se
+  reimporten.
+
+### Cambiado
+
+- **`arquitectura`: la forma de paginar pasa a ser parte del contrato de API** — elegir entre
+  desplazamiento y cursor se decide al planificar, porque cambiarlo después rompe a todos los
+  consumidores de golpe.
+- **`rendimiento`: «índice ausente» pasa a «ausente o de un tipo que no sirve para esa
+  consulta»** — un índice hash solo resuelve igualdad, así que se comprueba la correspondencia
+  con la forma de la consulta, no solo la presencia.
+
+### Corregido
+
+- **`check-behavior.mjs` no cubría las guías recién añadidas** — su lista `GUIDES` se mantenía a
+  mano, así que una guía nueva se generaba y **se enviaba sin que ninguna aserción la
+  comprobara**. Se detectó porque el contador de aserciones seguía en 177 después de añadir una
+  guía. Arreglado derivando la lista del **disco** (`core/guides/*.md`) — no de `sync.mjs`: la
+  cabecera del script declara que re-declara sus expectativas a propósito, y derivarlas del
+  registro lo volvería tautológico (borrar una guía de `sync.mjs` haría que el check la siguiera
+  y diera verde). El disco es una fuente independiente del registro, así que ahora una guía
+  presente en `core/guides/` y ausente del registro **hace fallar el check** — verificado
+  creando una guía huérfana y comprobando que salta. 186 aserciones.
+
 ## [0.11.0] - 2026-08-03
 
 Versión de consolidación: **el catálogo de guías pasa de 12 a 18**, llega el primer hook
