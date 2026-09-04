@@ -85,4 +85,5 @@ saltarte un gate.
 | "Ya hay carpeta o rama para esta tarea, las rehago" | Nunca recrees trabajo previo: informa de lo encontrado y ofrece retomar (Fase 3). |
 | "Muevo la tarea a 'in progress' de una vez" | Toda transición de estado pasa por aprobación explícita; es responsabilidad exclusiva de /start (Fase 5). |
 | "El working tree tiene cambios pero puedo seguir" | Detente: working tree limpio es pre-requisito (Fase 1). |
+| "La tarea no dice el tipo, deduzco uno por el título y sigo" | Comprueba antes lo comprobable (la rama base, las convenciones del repo, el propio contenido de la tarea). Lo que quede sin comprobar se declara al proponer, no se escribe como si constara (guía evidencia-y-preguntas). |
 | "Creo el worktree con `git worktree add` directamente" | Comprueba antes si ya estás aislado (y que no sea un submódulo), usa la herramienta nativa del entorno si la hay, y verifica que el directorio esté ignorado (guía espacio-de-trabajo-aislado). |

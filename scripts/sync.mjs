@@ -163,6 +163,10 @@ const GUIDES = {
     description:
       "Úsala siempre que vayas a devolver listas largas de datos uniformes, varias rutas del grafo, esquemas de base de datos o cualquier salida estructural repetitiva, en lugar de JSON o YAML. Síntoma: la salida tendría las mismas claves repetidas en cada elemento y gastaría tokens de más.",
   },
+  "evidencia-y-preguntas": {
+    description:
+      "Úsala siempre que vayas a escribir un dato que no has comprobado —en spec.md, en progress.md o en un informe— y para decidir si un hueco se verifica, se asume declarándolo, o se pregunta al usuario. Síntomas: te oyes decir «seguro que usan X», «debería funcionar» o «ya se corregirá»; vas a preguntar algo que está en el repo; das por bueno lo que afirma progress.md o un subagente sin abrir el código.",
+  },
   "revision-hallazgos": {
     description:
       "Úsala en /review y en los subagentes revisores, antes de reportar cualquier hallazgo. Síntomas de que la necesitas: dudas de si algo es un defecto real o un nitpick, si ya lo pillaría el linter, si es preexistente, o si merece bloquear una PR.",

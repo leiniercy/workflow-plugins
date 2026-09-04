@@ -207,5 +207,6 @@ de solo-lectura.
 | "Le digo al revisor que no marque X, que ya sé que es falso positivo" | Eso es pre-juzgar para ahorrarte una ronda. Deja que lo levante y resuélvelo en la Fase 4 (Fase 3). |
 | "Despacho el subagente sin indicar modelo, ya cogerá uno" | Omitir el modelo hereda el de la sesión y anula el tiering en silencio: especifícalo siempre (Fase 3). |
 | "Progress.md dice que se decidió así, lo doy por bueno" | Las notas son afirmaciones, no hechos, y una justificación no baja la severidad de lo que el código sostiene (Fase 4.1). |
+| "El grep coincide, con eso ya puedo reportarlo" | Una coincidencia señala dónde mirar: es una hipótesis. Abre el fichero completo y confírmala antes de que entre en el informe (guía evidencia-y-preguntas). |
 | "Este criterio no se ve en el diff, lo doy por cumplido (o por incumplido)" | Ni una cosa ni otra: se marca ⚠️ no verificable y lo resuelves tú con spec.md delante (Fases 3.1 y 4.1). |
 | "La spec pide esto, así que no lo reporto" | La autoría de la spec no califica su propio trabajo: repórtalo como `exigido-por-spec` y que decida el usuario (Fase 4.1). |

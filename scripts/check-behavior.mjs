@@ -13,7 +13,7 @@
  * La mitad NO determinista (¿se auto-activa la guía?, ¿elige el comando correcto?)
  * vive en docs/eval-comportamiento.md y se ejecuta a mano antes de publicar.
  */
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -86,7 +86,16 @@ for (const [name, model] of Object.entries(AGENTS)) {
 //   - contiene "Úsala", que es como se redacta un disparador ("Úsala cuando/al/en…")
 const DESC_MAX = 500;
 const FRONTMATTER_MAX = 1024;
-const GUIDES = ["estados-tareas", "registro-progreso", "grafo-conocimiento", "formato-toon", "revision-hallazgos", "historias-usuario", "codigo-limpio", "patrones-diseno", "niveles-y-tipos-de-prueba", "arquitectura", "calidad-producto", "rendimiento", "usabilidad-accesibilidad", "migraciones-de-datos", "depuracion-sistematica", "recepcion-de-revision", "qa-exploratoria", "espacio-de-trabajo-aislado"];
+// La lista NO se importa de sync.mjs —este test re-declara a propósito (ver cabecera): si la
+// importara, borrar una guía del registro de sync.mjs haría que el check la siguiera y diera
+// verde—. Pero tampoco se mantiene a mano, que es como se coló la deriva: se deriva del DISCO,
+// que es una fuente independiente del registro. Así, una guía añadida a core/guides/ y olvidada
+// en GUIDES de sync.mjs no genera skill y salta aquí, en vez de enviarse sin comprobar.
+const GUIDES = readdirSync(join(ROOT, "core/guides"))
+  .filter((f) => f.endsWith(".md"))
+  .map((f) => f.replace(/\.md$/, ""))
+  .sort();
+assert(GUIDES.length > 0, "core/guides/ contiene guías (la derivación del disco funciona)");
 for (const g of GUIDES) {
   const body = read(join(CLAUDE, "skills", g, "SKILL.md"));
   assert(body !== null, `skill ${g} existe`);

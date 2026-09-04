@@ -54,6 +54,48 @@ DDD no compite con los estilos de arriba: es **cómo modelas el dominio dentro d
 - **Crítica:** el DDD táctico completo se justifica **solo en el subdominio *core*** con complejidad
   real; en CRUDs y subdominios genéricos es sobrecarga (un modelo simple basta).
 
+## Dos patrones que se pagan caro (event sourcing y CQRS)
+
+Tampoco son estilos: son decisiones sobre **cómo se guarda y cómo se lee** el estado. Se
+nombran tan juntos que se adoptan juntos por inercia, y conviene saber que **no se implican**:
+cada uno va por su lado, y la respuesta correcta suele ser ninguno de los dos. Van redactados
+por su coste a propósito, porque el error que se comete con ellos nunca es «no los usé».
+
+**Event sourcing** — en vez de guardar el estado, se guarda la secuencia de hechos que llevó
+hasta él, en un registro que solo crece; el estado se reconstruye reproduciéndolos.
+
+- *La fuerza que lo justifica:* que **la historia sea el producto**, no un extra — auditoría que
+  hay que poder reconstruir, preguntas sobre cómo estaban las cosas en una fecha dada, un
+  dominio donde el hecho **es** la verdad del negocio (un libro contable).
+- *El «cuándo NO» más frecuente:* querer saber quién tocó qué. Eso es una tabla de auditoría al
+  lado de un CRUD normal, y da casi todo el valor por una fracción del coste.
+- *Lo que cuesta:* reconstruir es lento y acaba obligando a instantáneas. Los efectos hacia
+  fuera son el problema difícil — reproducir eventos que mandaban correos o cobraban los vuelve
+  a mandar y a cobrar, salvo que cada integración sepa distinguir reproducción de ejecución
+  real. Y el formato del evento es **para siempre**: uno escrito hace tres años tiene que
+  seguir leyéndose hoy, así que no se migra como se migra una tabla y
+  {{guide:migraciones-de-datos}} deja de aplicar tal cual. Fowler lo cierra sin ambigüedad:
+  *«don't go down this path unless you really need to»*.
+- *Y una tensión que hay que ver antes, no después:* un registro que solo crece y el derecho de
+  supresión de datos personales tiran en direcciones contrarias. Tiene solución, pero se diseña
+  al principio o no se diseña.
+
+**CQRS** — separar el modelo con el que se escribe del modelo con el que se lee, normalmente en
+almacenes distintos que se sincronizan con retraso.
+
+- *La fuerza que lo justifica:* que los dos modelos **de verdad diverjan** (la forma buena para
+  escribir es mala para leer), o que lectura y escritura necesiten escalarse por separado — y
+  que el dominio tolere leer datos con retraso.
+- *El «cuándo NO»:* separar la clase que consulta de la que escribe **dentro de un módulo** es
+  buena organización del código, no CQRS. CQRS empieza cuando hay **dos almacenes**. Y si entra,
+  entra en un bounded context concreto: *«CQRS should only be used on specific portions of a
+  system (a BoundedContext in DDD lingo) and not the system as a whole»* (Fowler), que además
+  avisa de que aplicarlo donde el dominio no lo pide *«will add complexity, thus reducing
+  productivity and increasing risk»*.
+- *Lo que cuesta:* dos modelos que mantener sincronizados, el doble de trabajo en cada cambio, y
+  la consistencia eventual asomando en la interfaz («lo he guardado y no aparece»), que es un
+  problema de producto, no de infraestructura.
+
 ## Criterios de decisión (las preguntas del modo recomendar)
 
 Pregunta lo justo para elegir; con señales débiles, tira al default. Las fuerzas que mueven la aguja:
@@ -91,14 +133,24 @@ sea— sino los criterios que hacen que la frontera sea estable y coherente con 
 - **Forma del error consistente y sin filtraciones.** El mismo formato en todos los endpoints,
   con un mensaje accionable, y nunca la traza ni el detalle interno del motor de datos (eso
   cruza con seguridad: lo reporta la dimensión 5, no esta).
-- **Toda colección se pagina.** Un endpoint que hoy devuelve la tabla entera es un contrato que
-  no se puede cambiar mañana sin romper a quien lo consume; y es además el caso de
-  {{guide:rendimiento}} más frecuente.
+- **Toda colección se pagina, y la forma de paginar es parte del contrato.** Un endpoint que
+  hoy devuelve la tabla entera es un contrato que no se puede cambiar mañana sin romper a quien
+  lo consume; y es además el caso de {{guide:rendimiento}} más frecuente. Elegir entre página
+  por desplazamiento y página por cursor tampoco es un detalle de implementación: la primera
+  deja saltar a una página cualquiera y se degrada con la profundidad; la segunda no salta pero
+  aguanta. Cambiar de una a otra más tarde rompe a todos los clientes a la vez, así que se
+  decide al planificar.
 - **Cambiar un contrato publicado es aditivo o es versionado.** Añadir campos opcionales no
   rompe; quitar, renombrar o endurecer sí. Si hay que romper, el plan es el mismo que el de
   {{guide:migraciones-de-datos}}: convivencia primero, retirada después.
 - **Idempotencia donde el cliente puede reintentar.** Si una llamada se puede repetir por un
-  reintento o un doble clic, el efecto de repetirla debe estar decidido, no descubierto.
+  reintento o un doble clic, el efecto de repetirla debe estar decidido, no descubierto. El
+  método ya dice la mitad: `GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS` y `TRACE` son idempotentes
+  por definición (RFC 9110), y ahí el trabajo es **no romperlo** — un `PUT` que acumula en vez
+  de fijar el estado ha dejado de serlo, y el consumidor sigue asumiendo que puede reintentar—.
+  `POST` y `PATCH` no lo son: si el cliente puede reintentarlos, la deduplicación se decide de
+  forma explícita, y lo habitual es una clave de idempotencia que el cliente envía y el
+  servidor recuerda para devolver la respuesta original en vez de ejecutar dos veces.
 
 En `/plan` esto entra en el enfoque técnico cuando la tarea crea o modifica un endpoint; en
 `/review` se juzga en la dimensión 4 (es conformidad con la frontera vigente), dejando la
@@ -112,11 +164,21 @@ autorización y la exposición de datos a la dimensión 5 para no reportar dos v
   «esta es mejor». La coherencia de la frontera vale más que la preferencia.
 - **Romper un contrato publicado en silencio** — quitar o renombrar un campo sin convivencia ni
   versión: el fallo aparece en el consumidor, lejos de quien lo causó.
+- **Cambiar la estrategia de paginación de un endpoint vivo** — pasar de desplazamiento a
+  cursor (o al revés) rompe a todos sus consumidores de golpe. Es el caso anterior disfrazado
+  de mejora de rendimiento, y se planifica igual: convivencia primero, retirada después.
 - **Arquitectura resume-driven / «porque mola»** — elegir por prestigio o novedad, no por una fuerza.
 - **Hexagonal/puertos por todo con un solo adaptador** — generalidad especulativa a nivel de
   arquitectura: el mismo olor que {{guide:patrones-diseno}} frena a nivel de clase.
 - **Event-driven sin asincronía real** — consistencia eventual y trazabilidad difícil a cambio de nada.
 - **DDD táctico en CRUDs** — agregados y objetos-valor donde un modelo simple bastaba.
+- **Event sourcing para tener auditoría** — el caso que más veces lo dispara y el que menos lo
+  justifica: una tabla de auditoría junto al CRUD da casi todo el valor sin heredar los efectos
+  hacia fuera ni un formato de evento que ya no se puede migrar.
+- **CQRS en el sistema entero** — es un patrón de un bounded context concreto; subido a nivel
+  global multiplica el coste sin la fuerza que lo pedía.
+- **Adoptar CQRS y event sourcing juntos «porque van juntos»** — son independientes. Juntarlos
+  sin que dos fuerzas distintas lo pidan es pagar dos veces por una decisión que no se tomó.
 - **Refundar la arquitectura de un repo existente en una tarea** — conforma, no reinventes; una
   migración de estilo es su propia decisión, no un efecto colateral de un criterio de aceptación.
 

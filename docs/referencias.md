@@ -643,6 +643,60 @@ duda.
 
 ---
 
+## 15. ByteByteGo — *Big Archive: System Design 2025* (archivo del boletín)
+
+**Qué es:** una recopilación de ~200 posts del boletín de ByteByteGo, 442 páginas en PDF. Cubre
+system design, redes, bases de datos, diseño de API, seguridad, agentes de IA, código limpio y
+pruebas. Es material **divulgativo**: cada entrada es un diagrama con un pie de media página.
+
+**Relación con nosotros:** es la primera fuente del catálogo que no es ni un repo ni un cuerpo
+de práctica revisado. Eso cambia cómo se usa: sirve de **mapa de temas** para detectar huecos en
+nuestras guías, no de cita. Todo lo importado se contrastó antes con la fuente primaria del tema
+(RFC, documentación del motor, OWASP) — y ese contraste encontró cuatro errores en el propio
+archivo, que van anotados abajo para que nadie los reimporte.
+
+**Cómo se filtró:** fuera ~90 % por dominio ajeno al plugin (cloud, Kubernetes, redes, internals
+de LLM, hojas de ruta de aprendizaje) o por chocar con la regla de «nombrar, no integrar» de
+`niveles-y-tipos-de-prueba` (catálogos de herramientas). Lo que queda son huecos reales en tres
+ficheros de `core/`.
+
+| Patrón | Qué aporta | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Modos de fallo de una caché** (estampida, penetración, caída) | Los fallos de una caché no son «lento»: son errores de diseño con nombre propio, visibles leyendo el código | `rendimiento` decía que la caché no es la primera respuesta, pero **nada sobre qué revisar cuando el diff sí mete una**. Sección nueva «Cuando el cambio SÍ mete una caché», con la nomenclatura reconocible (*cache stampede / thundering herd / dogpile*), no la del PDF | ✅ |
+| **El tipo de índice debe corresponder a la consulta** | Un índice hash solo resuelve igualdad; el árbol equilibrado cubre rango y orden | La viñeta de `rendimiento` decía «índice ausente»; pasa a «ausente o de un tipo que no sirve». Verificado en la documentación de PostgreSQL: *«can only handle simple equality comparisons»* | ✅ |
+| **Paginación por desplazamiento vs cursor** | `OFFSET` profundo recorre y descarta todo lo anterior: el coste crece con la profundidad de la página, no con su tamaño | Doble destino: en `rendimiento` como defecto visible en código; en `arquitectura` como **decisión de contrato**, porque cambiarla después rompe a todos los consumidores a la vez | ✅ |
+| **Latencia ≠ throughput; los ata la concurrencia** | Un criterio de tiempo sin concurrencia no acota nada | Sección en «Cómo se escribe un criterio de rendimiento», con la ley de Little **corregida** (ver errores) | ✅ |
+| **Orden para perseguir una ruta lenta** | red → código → datos → terceros → entorno, midiendo antes de bajar de escalón | Sección nueva en `rendimiento`, enganchada a `depuracion-sistematica`. Ataca el error de empezar a tocar por donde uno sospecha | ✅ |
+| **Idempotencia por método HTTP** | Cuáles lo son por definición y qué hacer con los que no | La viñeta de `arquitectura` era una línea. Ampliada con la lista del RFC 9110 y la clave de idempotencia para `POST`/`PATCH` | ✅ |
+| **Taxonomía de XSS: reflejado, almacenado y basado en DOM** | El basado en DOM puede no llegar nunca al servidor | `revisor-bugs-seguridad` (A03) solo nombraba los sumideros de HTML. Añadido el recorrido origen→sumidero en cliente y su razón: lo que va tras `#` no se envía al servidor (OWASP) | ✅ |
+| **Dónde se cachean los datos** (navegador, CDN, proxy, servicio, BD) | Una respuesta autenticada puede quedarse en una caché compartida y servirse a otro | Añadido a A02 del revisor con la directiva correcta (`private` / `no-store`, RFC 9111) y con la regla que evita el falso positivo inverso | ✅ |
+| Pirámide de pruebas · principios de código limpio · SOLID · patrones GoF · monolito modular · DDD | — | Ya cubiertos, y con más profundidad, en §5, §6 y §7 | ⛔ (redundante) |
+| CQRS y Event Sourcing | Separar lectura de escritura; el registro de eventos como fuente de verdad | Adoptados en `arquitectura` **redactados por su coste**, en sección aparte del catálogo (no son estilos, igual que DDD). Aquí se ve para qué sirve y para qué no una fuente divulgativa: el PDF los describe en neutro, y todo el freno vino de contrastar con Fowler —que es la fuente que la guía ya citaba—: *«be very cautious about using CQRS»*, *«only … a BoundedContext … not the system as a whole»*, *«don't go down this path unless you really need to»*. Añadido además lo que el PDF **no** dice: que no se implican, y que el disparador más frecuente de event sourcing (querer auditoría) es justo su «cuándo NO» | ✅ |
+| Estrategias de despliegue (blue-green, canary, A/B) · CI/CD · Docker · Kubernetes · AWS | — | Fuera de alcance: el plugin no despliega | ⛔ |
+| Catálogos de herramientas (30 APIs gratuitas, 12 servidores MCP, 30 apps de IA, stacks de RAG) | — | Contenido perecedero y ajeno a la decisión que toma el plugin | ⛔ |
+
+### Errores detectados en la fuente (no importar)
+
+Se dejan por escrito porque el archivo circula mucho y la tentación de citarlo es real:
+
+| Afirmación del PDF | Lo correcto | Contrastado con |
+|---|---|---|
+| `QPS = Concurrency × Average Response Time` | **Invertida.** Ley de Little: `concurrencia = throughput × tiempo de respuesta`, luego `QPS = concurrencia / RT`. Tal como está, afirma que responder más lento produce más throughput | Ley de Little (formulación estándar `L = λW`) |
+| «MySQL: TCP Port 3360» | 3306 | Registro de nombres de servicio y puertos de IANA |
+| «IMAP: Uses TCP Port 139» | 143. El 139 es NetBIOS, que además ya figura en la línea anterior de la misma lista | Registro de nombres de servicio y puertos de IANA |
+| «Supervised Learning: learns useful representations without labeled data» | Es la definición del aprendizaje **no** supervisado; el supervisado se entrena con datos etiquetados | Documentación de Google Cloud e IBM sobre supervisado vs. no supervisado |
+
+**La lección de proceso, más allá del contenido:** una fuente divulgativa vale como **detector de
+huecos** y no vale como cita. El filtro que funcionó fue mecánico —ninguna afirmación entra en
+una guía sin contrastarse antes con su fuente primaria— y conviene aplicarlo por defecto a
+cualquier material de este tipo que se analice en el futuro. Nótese además dónde estaban los
+huecos: los tres los teníamos en el **segundo movimiento** de una regla que ya existía. Sabíamos
+decir «no metas una caché a la ligera» pero no «qué revisar cuando alguien la mete»; «toda
+colección se pagina» pero no «con qué estrategia»; «que haya índice» pero no «del tipo que
+sirve». Es un sitio donde merece la pena mirar al auditar el resto de guías.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -775,8 +829,19 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | A09 leído del revés en `revisor-bugs-seguridad`: registrar lo que no se debe es hallazgo propio | OWASP A09 (§14) | rama `feat/frontera-publica-e-irreversibles` |
 | Hook `PreToolUse` `destructive-guard.js` (ask por defecto, deny solo sin uso legítimo) — primer gate determinista del plugin | §14 | rama `feat/frontera-publica-e-irreversibles` |
 | `examples/CLAUDE.md.example` (contexto permanente del repo consumidor) + recetas opcionales en `repo-settings.json` | §14 | rama `feat/frontera-publica-e-irreversibles` |
+| Sección «Cuando el cambio SÍ mete una caché» en `rendimiento` (estampida, penetración, invalidación, clave que no distingue) | ByteByteGo §15, contrastado | rama `feat/bytebytego-cache-indices-contrato` |
+| «Índice ausente» pasa a «ausente o de un tipo que no sirve para esa consulta» en `rendimiento` | ByteByteGo §15 · docs de PostgreSQL | rama `feat/bytebytego-cache-indices-contrato` |
+| Paginación por desplazamiento como defecto en `rendimiento` **y** como decisión de contrato en `arquitectura` | ByteByteGo §15 | rama `feat/bytebytego-cache-indices-contrato` |
+| Latencia vs. throughput con la ley de Little en el criterio de rendimiento, y aviso sobre la fórmula invertida que circula | ByteByteGo §15 (corrigiendo la fuente) | rama `feat/bytebytego-cache-indices-contrato` |
+| Sección «Perseguir una ruta lenta» (red → código → datos → terceros → entorno) en `rendimiento` | ByteByteGo §15 | rama `feat/bytebytego-cache-indices-contrato` |
+| Idempotencia por método HTTP + clave de idempotencia en el contrato de API de `arquitectura` | ByteByteGo §15 · RFC 9110 | rama `feat/bytebytego-cache-indices-contrato` |
+| XSS basado en DOM (recorrido origen→sumidero en cliente) en A03 de `revisor-bugs-seguridad` | ByteByteGo §15 · OWASP | rama `feat/bytebytego-cache-indices-contrato` |
+| Respuesta autenticada cacheable en caché compartida en A02 de `revisor-bugs-seguridad` | ByteByteGo §15 · RFC 9111 | rama `feat/bytebytego-cache-indices-contrato` |
+| Sección «Dos patrones que se pagan caro» (event sourcing y CQRS, redactados por su coste) en `arquitectura` | ByteByteGo §15, encuadrado con Fowler (§7) | rama `feat/bytebytego-cache-indices-contrato` |
+| Guía transversal `evidencia-y-preguntas` (procedencia del dato + test de los tres escalones) enganchada en los 4 workflows | Petición del usuario; formaliza lo que estaba repartido en `revision-hallazgos`, `/plan` e `/implement` | rama `feat/bytebytego-cache-indices-contrato` |
+| `check-behavior.mjs` deriva la lista de guías del **disco** (no de `sync.mjs`, que la volvería tautológica) — cierra la deriva que dejaba sin comprobar toda guía nueva | Defecto detectado durante esta iteración | rama `feat/bytebytego-cache-indices-contrato` |
 
 ---
 
-_Última actualización: 2026-08-03. Mantén este documento al día cuando adoptes un patrón o
+_Última actualización: 2026-09-04. Mantén este documento al día cuando adoptes un patrón o
 analices un repo nuevo._

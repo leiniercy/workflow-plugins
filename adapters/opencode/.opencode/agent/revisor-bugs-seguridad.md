@@ -52,10 +52,24 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
      sensibles o claves que llegan al cliente por el mecanismo de exposición del framework
      (p. ej. `NEXT_PUBLIC_` en Next.js, `VITE_` en Vite), por props/estado serializado
      servidor→cliente o por respuestas de API sobredimensionadas; tokens en `localStorage`;
-     cifrado/hashing débil; transporte sin TLS forzado.
+     cifrado/hashing débil; transporte sin TLS forzado. **Y la respuesta autenticada declarada
+     cacheable en una caché compartida**: si un endpoint que devuelve datos de una persona sale
+     con `Cache-Control: public` (o con la directiva de caché del CDN puesta a mano), el proxy
+     o el CDN la almacena y puede servírsela a quien pida después esa misma URL. Lo que
+     corresponde es `private`, que prohíbe a la caché compartida almacenarla, o `no-store` si
+     el dato no debe quedar guardado en ningún sitio (RFC 9111). El fallo hermano es la **clave
+     de caché que no distingue lo que la respuesta distingue** (usuario, rol, tenant, idioma):
+     mismo efecto, datos de uno servidos a otro. La versión de esto que solo cuesta rendimiento
+     —no cachear lo que sí se podía cachear— **no es hallazgo tuyo**: es `rendimiento` (skill de OpenCode, auto-activable).
    - **A03 Inyección**: SQL/NoSQL sin parametrizar, HTML inyectado con datos del usuario (XSS
      — p. ej. `dangerouslySetInnerHTML`, `v-html`, `innerHTML`), comandos o rutas construidos
-     con input, `eval` sobre entrada.
+     con input, `eval` sobre entrada. **Busca además el XSS que nunca pasa por el servidor**
+     (basado en DOM): código de cliente que lee de `location.hash`, `location.search`,
+     `document.referrer`, `postMessage` o `localStorage` y lleva ese valor hasta un sumidero
+     que ejecuta (`innerHTML`, `eval`, `document.write`, `setTimeout` con cadena, un `href`
+     `javascript:`). Lo que va en la URL después de `#` **no se envía al servidor**, así que
+     ninguna validación, saneado ni cabecera del lado servidor lo detecta: se revisa leyendo el
+     código de cliente y siguiendo el dato desde su origen hasta el sumidero.
    - **A04 Diseño inseguro**: falta de rate limiting donde importa, lógica de negocio saltable,
      confiar solo en la validación de cliente sin revalidar en servidor.
    - **A05 Mala configuración**: CORS permisivo, cabeceras de seguridad ausentes, modo debug o

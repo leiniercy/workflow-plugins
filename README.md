@@ -10,7 +10,7 @@ revisión independiente y continuidad entre sesiones vía `progress.md`.
 custom-ia-plugin/
 ├── core/                      ← ÚNICA fuente de verdad (editar SOLO aquí)
 │   ├── workflows/             start.md · plan.md · implement.md · review.md
-│   ├── guides/                estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
+│   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo
 ├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior
 ├── adapters/
@@ -54,10 +54,12 @@ frontmatter propio de cada una. Los ficheros generados se sobrescriben: no los e
 | `/implement [taskId]` | TDD criterio a criterio contra spec.md; commits/push/PR solo con aprobación | `in progress → review` al crear la PR (con aprobación) |
 | `/review [taskId]` | Diagnóstico en 6 dimensiones frente a spec.md (taxonomía ISO 25010; usabilidad/accesibilidad solo si el diff toca UI); **solo informa** | ninguna |
 
-El paso a `complete` es siempre humano. Principios transversales: gates de aprobación para
-todo lo visible (commits, push, PR, estados), `$ARGUMENTS` con fallback por inferencia de
-rama, detección de modo por contexto, degradación elegante si falta ClickUp o graphify, y
-historial inmutable en `progress.md`.
+El paso a `complete` es siempre humano. Principios transversales: **nada se afirma sin
+comprobarlo** —todo dato escrito es hecho verificado, asunción declarada o dato del usuario, y
+un hueco que cambiaría el trabajo se pregunta en vez de suponerse (guía
+`evidencia-y-preguntas`)—, gates de aprobación para todo lo visible (commits, push, PR,
+estados), `$ARGUMENTS` con fallback por inferencia de rama, detección de modo por contexto,
+degradación elegante si falta ClickUp o graphify, e historial inmutable en `progress.md`.
 
 ### El gate de lo irreversible (hook `PreToolUse`)
 
