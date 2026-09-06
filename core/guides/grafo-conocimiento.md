@@ -27,6 +27,35 @@ NUNCA como requisito bloqueante.
    - **Entender un módulo/concepto:** `graphify explain "<Nodo>"`.
    - **Impacto / qué conecta A con B:** `graphify path "<NodoA>" "<NodoB>"`.
 
+## Índice antes que detalle
+
+La regla que más tokens ahorra de toda la exploración, y la que más se salta: **nunca traigas el
+detalle de un conjunto que todavía no has filtrado.** Se trabaja en tres capas, y solo se baja
+de capa con lo que sobrevive a la anterior:
+
+| Capa | Qué traes | Coste |
+|---|---|---|
+| **1. Índice** | Identificadores y una línea por elemento: nodos y su tipo, ids y títulos de tareas, rutas de ficheros | Barato |
+| **2. Filtro** | Nada. Se descarta con lo que ya tienes | Cero |
+| **3. Detalle** | El contenido completo, **solo de los supervivientes** | Caro |
+
+- **En el grafo:** `graphify query` devuelve candidatos; filtra por lo que la tarea toca y solo
+  entonces `graphify explain` de los que queden. No expliques todo lo que devolvió la consulta.
+- **En ClickUp:** primero la búsqueda o el filtro, que devuelve ids y títulos; después la tarea
+  completa —con su descripción y sus comentarios— **solo de la que vas a trabajar**. Traer el
+  detalle de una lista entera para elegir una es el caso más caro y el más común.
+- **En ficheros:** `glob`/`grep` acotan; `Read` confirma. Es la misma distinción entre buscar y
+  leer de {{guide:evidencia-y-preguntas}}, vista por el lado del coste: buscar es la capa 1,
+  leer es la capa 3, y entre las dos falta el filtro que casi nadie hace explícito.
+
+**Por qué importa más de lo que parece:** este gasto no lo paga el repositorio, lo paga la
+ventana de contexto de quien está trabajando — y no se nota hasta que se agota a mitad de una
+tarea. Un conjunto de treinta elementos del que solo interesan dos cuesta quince veces más si se
+trae entero.
+
+**Cuándo NO aplica:** si el conjunto ya es pequeño y acotado, las tres capas son ceremonia. La
+regla es para conjuntos que crecen o cuyo tamaño no controlas.
+
 **Formato de salida:** para listas largas y uniformes del grafo (nodos con metadatos, rutas,
 áreas afectadas, aristas) usa formato TOON siguiendo la guía {{guide:formato-toon}} en lugar de
 JSON/YAML. Para resúmenes o conclusiones, prosa normal.
@@ -44,6 +73,17 @@ JSON/YAML. Para resúmenes o conclusiones, prosa normal.
 - **Bloquear sin graphify** — si no está, se explora a mano; nada se detiene por su ausencia.
 - **Versionar el artefacto** — `graphify-out/` es local generado: recomienda mantenerlo en el
   `.gitignore` del repo consumidor.
+- **Traer el detalle para decidir qué te interesa** — pedir el contenido completo de una lista y
+  filtrarlo después de tenerlo delante. El filtro va **antes** de bajar a la capa 3, no después:
+  al revés ya has pagado.
+- **Explicar todo lo que devolvió la consulta** — `explain` de cada nodo que salió en `query`,
+  en vez de los dos que la tarea toca.
+
+## Autocrítica antes de pedir el detalle
+
+Antes de bajar a la capa 3, pregúntate: **¿he filtrado ya, o voy a traerlo todo para decidir
+después? ¿de estos elementos, cuántos necesito de verdad?** Si la respuesta al segundo es «unos
+pocos», trae esos.
 
 ## Autocrítica antes de apoyarte en el grafo
 

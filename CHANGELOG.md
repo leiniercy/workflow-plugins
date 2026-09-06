@@ -7,6 +7,14 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **`grafo-conocimiento`: sección «Índice antes que detalle»** — el patrón de *progressive
+  disclosure* que el backlog tenía en 🟡 desde §1, generalizado a las tres fuentes de volumen:
+  el grafo (`query` acota, `explain` solo de los supervivientes), ClickUp (buscar devuelve ids y
+  títulos; la tarea completa solo de la que se va a trabajar) y los ficheros (`grep` acota,
+  `Read` confirma). Con las tres capas —índice, filtro, detalle—, sus dos anti-patrones y su
+  «cuándo NO aplica». El argumento que lo justifica: ese gasto no lo paga el repositorio, lo
+  paga la ventana de contexto de quien trabaja, y no se nota hasta que se agota a mitad de tarea.
+
 - **Ocho casos en la checklist manual del eval** (§1, casos 1.24–1.31): las dos guías nuevas
   (`coste-y-estructuras`, `consultas-correctas`), el hallazgo de la clave foránea sin índice de
   `rendimiento` y las tres transferencias de método. Tapaba un hueco propio — ninguna de las dos

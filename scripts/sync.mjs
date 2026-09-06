@@ -157,7 +157,7 @@ const GUIDES = {
   },
   "grafo-conocimiento": {
     description:
-      "Úsala cuando necesites entender la estructura de un repo que no conoces, localizar las áreas que una tarea va a tocar, o analizar el impacto de un cambio sobre sus consumidores, antes de ponerte a leer ficheros crudos. Cubre graphify: detección, construcción y fallback manual si no está disponible.",
+      "Úsala cuando necesites entender la estructura de un repo que no conoces, localizar las áreas que una tarea va a tocar, o analizar el impacto de un cambio sobre sus consumidores, antes de ponerte a leer ficheros crudos. Síntoma extra: vas a pedir el contenido completo de una lista (nodos, tareas, ficheros) sin haberla filtrado antes.",
   },
   "formato-toon": {
     description:
