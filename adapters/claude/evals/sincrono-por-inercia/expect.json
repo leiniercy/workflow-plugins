@@ -1,0 +1,16 @@
+{
+  "guia": "arquitectura",
+  "mide": "Que plantee la pregunta sincrono contra por lotes en vez de asumir peticion-respuesta.",
+  "debe_incluir": [
+    [
+      "lote",
+      "batch",
+      "asincron",
+      "segundo plano",
+      "cola"
+    ]
+  ],
+  "linea_base_debe_fallar": true,
+  "calibrado": false,
+  "nota_calibracion": "Candidato SIN calibrar: nadie ha comprobado todavía que la línea base falle este caso. Córrelo con --baseline antes de fiarte de él; si sale SIN DELTA, rediseñalo o bórralo."
+}

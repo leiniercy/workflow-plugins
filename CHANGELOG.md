@@ -5,6 +5,43 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+Cierra el hueco que el eval determinista dejaba abierto: `check-behavior.mjs` asevera **la
+forma** del disparador de cada guía, no que dispare. Ahora hay un tercer nivel de eval que sí lo
+comprueba, con la regla que lo hace útil: **que una guía se active no demuestra que sirva**.
+
+### Añadido
+
+- **`scripts/check-activation.mjs`** — eval de activación semi-automático. Lanza sesiones reales
+  aisladas (`claude -p --plugin-dir`, que carga el plugin **solo para esa sesión** y no instala
+  nada) y comprueba en la traza `stream-json` qué guía se invocó y si la respuesta contiene lo
+  que la guía aporta. Con `--baseline` corre además el brazo **sin** plugin y marca como
+  **⚠ SIN DELTA** los casos que la línea base también acierta: son un bug **del caso**, no del
+  plugin — el mismo defecto que `niveles-y-tipos-de-prueba` llama *detector de cambios*.
+- **Siete casos candidatos** en `adapters/claude/evals/`, en el formato que espera
+  `claude plugin eval` (`prompt.md` + `graders/criteria.md`), más un `expect.json` legible por
+  el script. Cubren las dos guías nuevas, las tres transferencias de método y el hallazgo de la
+  clave foránea sin índice.
+- **`docs/eval-comportamiento.md` §0** — cómo se corre, qué consume (medido: 0,32–0,49 USD
+  equivalentes por sesión; con sesión OAuth eso no se factura, consume límite de uso) y por qué
+  no está en CI: allí haría falta una clave de API y sí se facturaría.
+
+### Cambiado
+
+- **`docs/eval-comportamiento.md`: corregida una imprecisión propia** — decía que
+  `check-behavior.mjs` asevera «auto-activación de guías». Asevera la **forma** del disparador;
+  que dispare exige un modelo y no lo comprobaba nadie.
+
+### Pendiente (declarado a propósito)
+
+- **Los siete casos van `"calibrado": false`.** Se eligieron por síntomas que parecen difíciles
+  para la línea base, pero **no se ha comprobado**: la calibración son dos sesiones por caso y se
+  detuvo para no gastar cuota fuera de la sesión de trabajo. Hasta correrlos con `--baseline`
+  son candidatos, no verificación.
+- **Lo que sí está medido:** `consultas-correctas` y `coste-y-estructuras` se activan solas ante
+  sus síntomas (verificado). Y un dato incómodo que quedó registrado: para el `LEFT JOIN` con la
+  condición en el `WHERE`, **la línea base acierta igual** — de ahí que ningún caso use ese
+  síntoma.
+
 ## [0.14.0] - 2026-09-06
 
 El catálogo pasa de 20 a 21 guías con `consultas-correctas`, a partir del estudio de tres

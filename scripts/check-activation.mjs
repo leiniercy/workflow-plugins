@@ -1,0 +1,246 @@
+#!/usr/bin/env node
+/**
+ * check-activation.mjs — mitad NO determinista del eval de comportamiento (#6).
+ *
+ * `check-behavior.mjs` asevera la FORMA del disparador de cada guía (description
+ * entrecomillada, ≤ 500 caracteres, redactada como «Úsala cuando…»). Lo que no puede
+ * comprobar es si esa description **dispara de verdad**: eso exige un modelo.
+ *
+ * Este script lo comprueba lanzando sesiones reales aisladas:
+ *
+ *     claude -p "<prompt>" --plugin-dir adapters/claude --allowedTools Skill
+ *
+ * `--plugin-dir` carga el plugin SOLO para esa sesión: no instala nada ni toca la
+ * configuración del usuario. `--allowedTools Skill` impide que la sesión de prueba
+ * actúe sobre el disco. De la traza `stream-json` se lee qué skill se invocó.
+ *
+ * ── Lo que hace distinto a un eval ingenuo ──────────────────────────────────────
+ *
+ * Que una guía se active NO demuestra que sirva. Si el modelo resuelve el caso igual
+ * de bien sin ella, el caso es tautológico: mide que el plugin existe, no que aporte.
+ * Es el mismo defecto que `niveles-y-tipos-de-prueba` llama «detector de cambios».
+ *
+ * Por eso cada caso declara `linea_base_debe_fallar` y `--baseline` corre el brazo sin
+ * plugin. Un caso cuya línea base también acierta se reporta como **SIN DELTA**, que es
+ * un fallo DEL CASO (hay que rediseñarlo), no del plugin. Es lo que `claude plugin eval`
+ * llama ablación «with-without»; se hace a mano porque ese comando está en early access.
+ *
+ * ── Lo que consume ─────────────────────────────────────────────────────────────
+ *
+ * Cada caso son una o dos sesiones reales. Medido: ~0,32–0,49 USD equivalentes por
+ * sesión (unos 60k tokens leídos de caché con el plugin cargado; más en el brazo sin
+ * plugin, que arrastra el entorno completo del usuario). Los siete casos con
+ * --baseline rondan los 5–6 USD equivalentes y varios minutos de reloj.
+ *
+ * En local, con sesión OAuth, eso NO es facturación: consume límite de uso. En CI sí
+ * lo sería, porque allí haría falta una clave de API y se factura por token — por eso,
+ * y por el tiempo, este script NO corre en CI. Se ejecuta a mano antes de publicar una
+ * versión, junto a la checklist manual de docs/eval-comportamiento.md.
+ *
+ * Uso:
+ *   node scripts/check-activation.mjs                  # solo activación
+ *   node scripts/check-activation.mjs --baseline       # + brazo sin plugin (recomendado)
+ *   node scripts/check-activation.mjs --case consultas # filtra por nombre
+ *   node scripts/check-activation.mjs --json out.json  # vuelca el resultado completo
+ */
+import { readFileSync, readdirSync, existsSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const PLUGIN_DIR = join(ROOT, "adapters/claude");
+const EVALS_DIR = join(PLUGIN_DIR, "evals");
+const PLUGIN_NAME = "custom-ia-plugin";
+const TIMEOUT_MS = 300_000;
+
+// ---------------------------------------------------------------------------
+// Argumentos
+// ---------------------------------------------------------------------------
+const argv = process.argv.slice(2);
+const flag = (name) => argv.includes(name);
+const value = (name) => {
+  const i = argv.indexOf(name);
+  return i >= 0 ? argv[i + 1] : null;
+};
+const withBaseline = flag("--baseline");
+const caseFilter = value("--case");
+const jsonOut = value("--json");
+
+// ---------------------------------------------------------------------------
+// Normalización para comparar texto (sin tildes, sin mayúsculas)
+// ---------------------------------------------------------------------------
+function norm(s) {
+  return (s || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
+
+// ---------------------------------------------------------------------------
+// Una ejecución: devuelve { skills, texto, error }
+// ---------------------------------------------------------------------------
+function run(prompt, { plugin }) {
+  const args = ["-p", prompt, "--allowedTools", "Skill", "--output-format", "stream-json", "--verbose"];
+  if (plugin) args.push("--plugin-dir", PLUGIN_DIR);
+
+  const r = spawnSync("claude", args, {
+    encoding: "utf8",
+    timeout: TIMEOUT_MS,
+    maxBuffer: 64 * 1024 * 1024,
+    cwd: ROOT,
+  });
+
+  if (r.error) return { skills: [], texto: "", error: r.error.code || String(r.error) };
+
+  const skills = [];
+  let texto = "";
+  for (const linea of (r.stdout || "").split("\n")) {
+    if (!linea.trim()) continue;
+    let d;
+    try {
+      d = JSON.parse(linea);
+    } catch {
+      continue;
+    }
+    if (d.type === "result") texto = d.result || "";
+    const bloques = d?.message?.content;
+    if (Array.isArray(bloques)) {
+      for (const b of bloques) {
+        if (b?.type === "tool_use" && b?.name === "Skill" && b?.input?.skill) skills.push(b.input.skill);
+      }
+    }
+  }
+  return { skills, texto, error: null };
+}
+
+// ---------------------------------------------------------------------------
+// Corrección del contenido de una respuesta contra el caso
+// ---------------------------------------------------------------------------
+// Cada entrada de `debe_incluir` es una frase obligatoria, o un ARRAY de alternativas
+// del que basta con que aparezca una. Sin eso el criterio se rompe ante cualquier
+// sinónimo y el caso empieza a fallar por redacción en vez de por comportamiento.
+function corrige(texto, caso) {
+  const t = norm(texto);
+  const cumple = (req) =>
+    Array.isArray(req) ? req.some((alt) => t.includes(norm(alt))) : t.includes(norm(req));
+
+  const faltan = (caso.debe_incluir || [])
+    .filter((req) => !cumple(req))
+    .map((req) => (Array.isArray(req) ? req.join(" | ") : req));
+  const sobran = (caso.no_debe_incluir || []).filter((frase) => t.includes(norm(frase)));
+  return { ok: faltan.length === 0 && sobran.length === 0, faltan, sobran };
+}
+
+// ---------------------------------------------------------------------------
+// Carga de casos
+// ---------------------------------------------------------------------------
+if (!existsSync(EVALS_DIR)) {
+  console.error(`✗ No existe ${EVALS_DIR}. No hay casos que ejecutar.`);
+  process.exit(1);
+}
+
+const casos = readdirSync(EVALS_DIR, { withFileTypes: true })
+  .filter((e) => e.isDirectory() && e.name !== "results")
+  .map((e) => e.name)
+  .filter((n) => !caseFilter || n.includes(caseFilter))
+  .sort()
+  .map((nombre) => {
+    const dir = join(EVALS_DIR, nombre);
+    const promptPath = join(dir, "prompt.md");
+    const expectPath = join(dir, "expect.json");
+    if (!existsSync(promptPath) || !existsSync(expectPath)) return null;
+    // El prompt es el fichero sin su cabecera de comentario (líneas que empiezan por «> »).
+    const prompt = readFileSync(promptPath, "utf8")
+      .split("\n")
+      .filter((l) => !l.startsWith(">"))
+      .join("\n")
+      .trim();
+    return { nombre, prompt, ...JSON.parse(readFileSync(expectPath, "utf8")) };
+  })
+  .filter(Boolean);
+
+if (!casos.length) {
+  console.error("✗ Ningún caso encontrado" + (caseFilter ? ` para «${caseFilter}»` : "") + ".");
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Freno de cuota — este script gasta de la MISMA bolsa que tu sesión de trabajo
+// ---------------------------------------------------------------------------
+// Cada caso lanza una sesión real (dos con --baseline), y ese gasto no aparece en
+// el contador de la conversación desde la que lo lanzas. Medido: 0,32–0,49 USD
+// equivalentes por sesión. Por eso no se ejecuta nada sin --yes: el fallo que
+// evita es lanzar la suite entera sin darse cuenta de lo que cuesta.
+const sesiones = casos.length * (withBaseline ? 2 : 1);
+const est = (sesiones * 0.4).toFixed(2);
+if (!flag("--yes")) {
+  console.log(`\nEsto lanzaría ${sesiones} sesión(es) de Claude reales.`);
+  console.log(`Coste estimado: ~${est} USD equivalentes (medido: 0,32–0,49 por sesión).`);
+  console.log("Con sesión OAuth no se factura, pero SÍ consume tu límite de uso —");
+  console.log("el mismo del que tira la sesión desde la que lanzas esto.\n");
+  console.log(`Casos: ${casos.map((c) => c.nombre).join(", ")}`);
+  console.log("\nAñade --yes para ejecutarlo de verdad.");
+  process.exit(0);
+}
+
+// ---------------------------------------------------------------------------
+// Ejecución
+// ---------------------------------------------------------------------------
+console.log(`Ejecutando ${casos.length} caso(s)${withBaseline ? " con brazo de línea base" : ""}…\n`);
+
+const resultados = [];
+for (const caso of casos) {
+  process.stdout.write(`  ${caso.nombre} … `);
+
+  const conPlugin = run(caso.prompt, { plugin: true });
+  const esperada = `${PLUGIN_NAME}:${caso.guia}`;
+  const activo = conPlugin.skills.includes(esperada);
+  const contenido = corrige(conPlugin.texto, caso);
+
+  let base = null;
+  let sinDelta = false;
+  if (withBaseline) {
+    const b = run(caso.prompt, { plugin: false });
+    const bc = corrige(b.texto, caso);
+    base = { skills: b.skills, ok: bc.ok, faltan: bc.faltan, error: b.error };
+    // El caso solo vale si la línea base falla lo que el caso mide.
+    if (caso.linea_base_debe_fallar !== false && bc.ok) sinDelta = true;
+  }
+
+  const ok = !conPlugin.error && activo && contenido.ok && !sinDelta;
+  resultados.push({ ...caso, activo, contenido, base, sinDelta, ok, error: conPlugin.error, texto: conPlugin.texto });
+
+  if (conPlugin.error) console.log(`✗ ERROR (${conPlugin.error})`);
+  else if (caso.calibrado === false && !withBaseline)
+    console.log(`${activo && contenido.ok ? "✓" : "✗"} (SIN CALIBRAR — córrelo con --baseline)`);
+  else if (!activo) console.log(`✗ no se activó (disparó: ${conPlugin.skills.join(", ") || "ninguna"})`);
+  else if (!contenido.ok) console.log(`✗ activó pero falta: ${contenido.faltan.join(" · ")}`);
+  else if (sinDelta) console.log("⚠ SIN DELTA — la línea base también acierta: rediseña el caso");
+  else console.log("✓");
+}
+
+// ---------------------------------------------------------------------------
+// Informe
+// ---------------------------------------------------------------------------
+const fallos = resultados.filter((r) => !r.ok);
+console.log("\n" + "─".repeat(78));
+for (const r of resultados) {
+  const estado = r.ok ? "✓" : r.sinDelta ? "⚠" : "✗";
+  const delta = r.base ? (r.base.ok ? " · línea base TAMBIÉN acierta" : " · línea base falla (hay delta)") : "";
+  console.log(`${estado}  ${r.nombre}  →  ${r.guia}${delta}`);
+}
+console.log("─".repeat(78));
+
+if (jsonOut) {
+  writeFileSync(jsonOut, JSON.stringify(resultados, null, 2) + "\n");
+  console.log(`Resultado completo en ${jsonOut}`);
+}
+
+if (fallos.length) {
+  console.error(`\n✗ ${fallos.length}/${resultados.length} caso(s) no pasaron.`);
+  console.error("  ✗ = la guía no se activó o no aportó lo que declara → bug de prompt.");
+  console.error("  ⚠ = el caso no discrimina → bug DEL CASO: elige uno que la línea base falle.");
+  process.exit(1);
+}
+console.log(`\n✓ ${resultados.length}/${resultados.length} caso(s) OK: la guía se activa y aporta sobre la línea base.`);

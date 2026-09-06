@@ -1,0 +1,23 @@
+{
+  "guia": "niveles-y-tipos-de-prueba",
+  "mide": "Que proponga el oraculo lento: conservar la version obviamente correcta y comparar ambas sobre entradas generadas.",
+  "debe_incluir": [
+    [
+      "oraculo",
+      "version lenta",
+      "version anterior",
+      "obviamente correcta",
+      "implementacion lenta",
+      "fuerza bruta"
+    ],
+    [
+      "generad",
+      "aleatori",
+      "propiedad",
+      "entradas pequenas"
+    ]
+  ],
+  "linea_base_debe_fallar": true,
+  "calibrado": false,
+  "nota_calibracion": "Candidato SIN calibrar: nadie ha comprobado todavía que la línea base falle este caso. Córrelo con --baseline antes de fiarte de él; si sale SIN DELTA, rediseñalo o bórralo."
+}

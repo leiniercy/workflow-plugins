@@ -4,17 +4,79 @@ Verifica que los prompts del plugin producen el **comportamiento** esperado del 
 que los ficheros son correctos. El eval es **híbrido**:
 
 - **Determinista** (automatizado, en CI): `node scripts/check-behavior.mjs` asevera los
-  contratos estructurales (read-only de `/review`, `tools`/modelo de cada agente,
-  auto-activación de guías, banderas rojas…). Corre en `behavior-check.yml`.
-- **Manual** (esta checklist): comportamiento no determinista que ningún check estático puede
-  garantizar. Ejecútala **antes de publicar una versión**, en una sesión limpia con el plugin
+  contratos estructurales (read-only de `/review`, `tools`/modelo de cada agente, **la forma**
+  del disparador de cada guía, banderas rojas…). Corre en `behavior-check.yml`. Ojo con lo que
+  *no* comprueba: asevera que la `description` está bien redactada, no que **dispare**.
+- **Semi-automático** (fuera de CI): `node scripts/check-activation.mjs --baseline` lanza
+  sesiones reales aisladas y comprueba que la guía se activa sola ante sus síntomas **y que
+  aporta algo sobre la línea base**. Cubre el hueco que deja el check determinista. Consume
+  sesiones reales y tarda, así que se ejecuta a mano antes de publicar. Ver §0.
+- **Manual** (esta checklist): el resto del comportamiento no determinista, que ningún script
+  puede juzgar. Ejecútala **antes de publicar una versión**, en una sesión limpia con el plugin
   instalado. Marca cada caso ✅/❌; un ❌ es un bug de prompt, no de código.
 
 > Cómo correrla: abre una sesión nueva por bloque (para no contaminar el contexto), lanza el
 > prompt tal cual y compara con "Esperado". No hace falta completar la acción: basta con
 > confirmar que el agente **decide** lo correcto.
 
-## 1. Auto-activación de guías
+## 0. Eval de activación automatizado (`check-activation.mjs`)
+
+Los casos viven en `adapters/claude/evals/<caso>/` con tres ficheros: `prompt.md` (el prompt tal
+cual), `expect.json` (qué guía debe activarse y qué debe aparecer en la respuesta) y
+`graders/criteria.md` (el criterio en lenguaje natural). El formato es el que espera
+`claude plugin eval`, que hoy está **en early access**; mientras tanto el script hace lo mismo a
+mano con `claude -p --plugin-dir`, que carga el plugin **solo para esa sesión** y no instala nada.
+
+```bash
+node scripts/check-activation.mjs --baseline                 # EN SECO: dice qué haría y cuánto cuesta
+node scripts/check-activation.mjs --baseline --yes           # lo ejecuta de verdad
+node scripts/check-activation.mjs --case fk --yes            # un solo caso
+node scripts/check-activation.mjs --baseline --yes --json r.json
+```
+
+**Sin `--yes` no lanza nada**: imprime cuántas sesiones abriría y el coste estimado, y sale. El
+freno está puesto a propósito, porque el gasto de este script **no aparece en el contador de la
+sesión desde la que lo lanzas** y es fácil arrancar la suite entera sin pensarlo.
+
+**La regla que hace útil a este eval, y que es fácil saltarse:** que una guía se active no
+demuestra que sirva. Si el modelo resuelve el caso igual de bien **sin** el plugin, el caso no
+mide el plugin: mide que el modelo sabe. Es el mismo defecto que `niveles-y-tipos-de-prueba`
+llama *detector de cambios*, y por eso `--baseline` corre el brazo sin plugin y marca esos casos
+como **⚠ SIN DELTA**.
+
+Un ⚠ es un **bug del caso, no del plugin**: hay que rediseñarlo eligiendo un síntoma que la línea
+base falle. Un ✗, en cambio, sí es un bug de prompt. Al añadir una guía nueva, escribe su caso
+**comprobando primero que la línea base lo falla** — si no, no lo añadas.
+
+**Qué consume, medido:** entre 0,32 y 0,49 USD equivalentes por sesión —unos 60 000 tokens
+leídos de caché con el plugin cargado, bastantes más en el brazo sin plugin, que arrastra el
+entorno completo de quien lo lanza— y del orden de un minuto de reloj cada una. Con `--baseline`
+son dos sesiones por caso.
+
+Con sesión OAuth eso **no se factura**: consume límite de uso. En CI sí se facturaría, porque
+allí haría falta una clave de API — y esa, más que el tiempo, es la razón de que este eval no
+esté en ningún workflow.
+
+### Estado de los casos: SIN CALIBRAR
+
+Los siete casos actuales llevan `"calibrado": false`. Se escribieron eligiendo síntomas que
+**parecen** difíciles para la línea base, pero **nadie lo ha comprobado todavía**: la calibración
+son dos sesiones por caso y se paró a propósito para no gastar cuota.
+
+Hasta que se corran con `--baseline`, son **candidatos, no verificación**. Lo que sí está medido:
+
+| Comprobación | Resultado |
+|---|---|
+| `consultas-correctas` se activa ante un `LEFT JOIN` con la condición en el `WHERE` | ✅ Verificado |
+| `coste-y-estructuras` se activa ante «cruzo dos listas que crecen» | ✅ Verificado |
+| Ese mismo caso del `LEFT JOIN`, **¿aporta sobre la línea base?** | ❌ **No.** El modelo lo diagnostica igual sin el plugin |
+
+Ese último resultado es el que da sentido a todo esto: por eso los siete casos apuntan a
+síntomas más duros —la multiplicación de filas, el `NOT IN` con nulos, la clave foránea sin
+índice— y no al `LEFT JOIN`, que ya sabemos que no discrimina. Cuando los calibres, marca
+`"calibrado": true` en los que sobrevivan y borra o rediseña los que salgan **⚠ SIN DELTA**.
+
+## 1. Auto-activación de guías (checklist manual)
 
 | # | Prompt | Esperado | OK |
 |---|---|---|----|

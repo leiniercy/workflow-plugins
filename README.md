@@ -12,11 +12,12 @@ custom-ia-plugin/
 │   ├── workflows/             start.md · plan.md · implement.md · review.md
 │   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo
-├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior
+├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (CI) · check-activation (eval de activación, manual)
 ├── adapters/
 │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
 │   │   ├── .claude-plugin/plugin.json
 │   │   ├── .mcp.json          (generado por sync.mjs — MCP de ClickUp por env vars)
+│   │   ├── evals/             casos del eval de activación (a mano, NO generado)
 │   │   ├── commands/          (generado por sync.mjs — no editar a mano)
 │   │   ├── skills/            (generado por sync.mjs — no editar a mano)
 │   │   ├── agents/            (generado por sync.mjs — subagentes read-only de /review y /plan)

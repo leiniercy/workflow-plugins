@@ -1,0 +1,18 @@
+{
+  "guia": "rendimiento",
+  "mide": "Que la guia avise de que FOREIGN KEY no crea indice sola, a diferencia de PRIMARY KEY y UNIQUE.",
+  "debe_incluir": [
+    [
+      "indice",
+      "index"
+    ],
+    [
+      "automatic",
+      "no lo crea",
+      "no crea"
+    ]
+  ],
+  "linea_base_debe_fallar": true,
+  "calibrado": false,
+  "nota_calibracion": "Candidato SIN calibrar: nadie ha comprobado todavía que la línea base falle este caso. Córrelo con --baseline antes de fiarte de él; si sale SIN DELTA, rediseñalo o bórralo."
+}
