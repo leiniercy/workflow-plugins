@@ -5,6 +5,37 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+El catálogo pasa de 20 a 21 guías con `consultas-correctas`, a partir del estudio de tres
+fuentes sobre SQL (§17 de `docs/referencias.md`). Cubre el hueco de la **corrección** de una
+consulta: defectos que no son lentos ni inseguros —son válidos, pasan los tests con datos de
+ejemplo y devuelven otro número—. Ninguna afirmación de semántica se importó de las fuentes: se
+contrastaron con la documentación de PostgreSQL y de MySQL, que es lo que la guía cita.
+
+### Añadido
+
+- **Guía `consultas-correctas`** — cinco secciones sobre lo que ninguna guía cubría: la lógica
+  de tres valores y el `NULL` que no es un valor (`WHERE` descarta lo desconocido igual que lo
+  falso); los joins por su modo de fallo (el `LEFT JOIN` que un `WHERE` sobre la tabla derecha
+  convierte en `INNER`, con la excepción deliberada del *anti-join*; la multiplicación de filas
+  de un uno-a-muchos que rompe los totales); las trampas de la agregación (`COUNT(*)` ≠
+  `COUNT(columna)`, `SUM` de cero filas es `NULL`, las agregaciones ignoran nulos, `GROUP BY`
+  con columnas sueltas y resultados no deterministas); la transacción como **frontera de la
+  operación de negocio** con nada irreversible dentro; y la lógica en la base de datos
+  —restricciones sí, triggers con listón alto— encuadrada con `arquitectura`.
+- **`consultas-correctas`: `NOT EXISTS` frente a `NOT IN`** — contra una subconsulta que admite
+  nulos, `NOT IN` devuelve nulo (no verdadero) y por tanto **cero filas, sin fallar**. Verificado
+  en la documentación de PostgreSQL.
+- **`consultas-correctas`: el nivel de aislamiento por defecto difiere entre motores** —
+  PostgreSQL `READ COMMITTED`, MySQL/InnoDB `REPEATABLE READ`. Si la lógica depende de que dos
+  lecturas coincidan, es un requisito y se escribe.
+- **`consultas-correctas`: cuatro casos de prueba que atrapan estos defectos** — la fila sin
+  relación, la columna nula, el conjunto vacío y el lado muchos con dos filas. Enganchado con
+  `niveles-y-tipos-de-prueba`.
+- **`rendimiento`: clave foránea sin índice** como defecto visible en código. `PRIMARY KEY` y
+  `UNIQUE` crean su índice solos; **`FOREIGN KEY` no** («the declaration of a foreign key
+  constraint does not automatically create an index on the referencing columns», PostgreSQL).
+  Corrige lo que las fuentes daban a entender.
+
 ## [0.13.0] - 2026-09-06
 
 El catálogo pasa de 19 a 20 guías con `coste-y-estructuras`, a partir del estudio de los 54

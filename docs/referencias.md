@@ -755,6 +755,79 @@ que las técnicas.
 
 ---
 
+## 17. Fuentes sobre SQL y bases de datos — UNAM/CUAED · OVHcloud · TuxCare
+
+**Qué son:** tres materiales sobre lenguaje SQL. La *Unidad de Apoyo para el Aprendizaje
+«Lenguaje SQL Avanzado»* de la CUAED-UNAM (material docente: DDL/DML/DCL, transacciones, tipos
+de join, subconsultas, operadores, `GROUP BY` y funciones de agregación, con tres
+autoevaluaciones interactivas), y dos artículos de **marketing de contenidos** —OVHcloud
+«¿Qué es SQL?» y TuxCare «Comprender su base de datos SQL»— que cubren fundamentos (historia,
+filas y columnas, claves primaria y foránea, tipos de datos, comparativa de motores) y terminan
+en un anuncio de producto: bases de datos administradas en el primer caso, soporte de ciclo de
+vida ampliado en el segundo.
+
+**Relación con nosotros:** el problema aquí no fue el dominio (§16) ni la fiabilidad (§15), sino
+el **nivel**. Es material introductorio, y las guías del plugin no son tutoriales: son
+decisiones. «`SELECT` recupera datos» en una guía de `core/` sería exactamente el inventario que
+las propias guías prohíben. Además, la mayor parte del temario ya estaba cubierta —índices en
+`rendimiento`, DDL y cambios de esquema en `migraciones-de-datos`, inyección en la dimensión de
+seguridad de `/review`, coste de consultas en `rendimiento` y `coste-y-estructuras`, y dónde vive
+la lógica en `arquitectura`—.
+
+**Lo que sí faltaba, y es lo único que se adoptó:** ninguna guía cubría la **corrección** de una
+consulta. Los defectos de esa clase no son lentos ni inseguros: son válidos, pasan los tests con
+datos de ejemplo y devuelven otro número. Nadie los ve al desplegar; se ven cuando alguien cuadra
+un informe a mano. De ahí sale `consultas-correctas`.
+
+**Cómo se filtró:** ninguna afirmación de semántica entró en la guía desde estas tres fuentes.
+Todas se contrastaron antes con la documentación de PostgreSQL y de MySQL, que es lo que la guía
+cita. Las fuentes sirvieron de **mapa de temas** —qué cubre un temario de SQL— y no de
+autoridad.
+
+| Patrón | Qué aporta | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Lógica de tres valores y `NULL`** | `WHERE` conserva solo lo verdadero, así que descarta por igual lo falso y lo desconocido | Sección 1 de `consultas-correctas`. Es la raíz del resto de la guía. Contrastado con la documentación de PostgreSQL: `NOT IN` contra una subconsulta con un solo nulo devuelve nulo —no verdadero— y por tanto **cero filas**, sin fallar. La regla operativa (`NOT EXISTS`, que nunca devuelve nulo) no está en ninguna de las tres fuentes | ✅ |
+| **Tipos de join** (cross, inner, left/right outer, full outer) | Qué filas sobreviven a cada combinación | Adoptado **por su modo de fallo**, no como catálogo: el `LEFT JOIN` con la condición de la tabla derecha en el `WHERE` se comporta como `INNER`, y el mecanismo es la sección 1. Con la excepción deliberada del *anti-join* (`IS NULL`), para que no se reporte como falso positivo | ✅ |
+| **Funciones de agregación** (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX`) | Qué calcula cada una | Adoptado por sus trampas, verificadas en la documentación: `COUNT(*)` ≠ `COUNT(columna)`; *«sum of no rows returns null, not zero as one might expect»*; las agregaciones ignoran los nulos, así que `AVG` no es el promedio tratándolos como cero. Más la multiplicación de filas de un join uno-a-muchos, que ninguna fuente menciona y es el defecto que más veces produce un total plausible y equivocado | ✅ |
+| **`GROUP BY`** | Agrupar filas en subconjuntos | Adoptado solo el borde peligroso: seleccionar una columna suelta que no está en el `GROUP BY`. MySQL 8 lo rechaza por defecto, pero con `ONLY_FULL_GROUP_BY` desactivado se acepta y el motor elige un valor cualquiera — *«the values chosen are nondeterministic»* (manual de MySQL). Un resultado no determinista es peor que un error | ✅ |
+| **Transacciones, `COMMIT` y `ROLLBACK`** | Nada se confirma hasta el `COMMIT`; `ROLLBACK` cancela | Adoptado y **reencuadrado como decisión de frontera**: la transacción envuelve la operación de negocio, no cada escritura; nada irreversible dentro (un correo no se revierte con `ROLLBACK`); leer-decidir-escribir no es atómico. Añadido lo que las fuentes no dicen: **el nivel de aislamiento por defecto no es el mismo en todos los motores** (PostgreSQL `READ COMMITTED`, MySQL/InnoDB `REPEATABLE READ`), así que un comportamiento asumido por costumbre puede no cumplirse | ✅ |
+| **Vistas** | `CREATE VIEW` crea una tabla virtual y no almacena datos físicamente | Adoptado en la sección 5 con su consecuencia: no abarata lo que era caro, y anidar vistas esconde el coste de la consulta que acaba ejecutándose. La vista materializada se remite a `rendimiento` porque su problema es de caché | ✅ |
+| **Triggers** | `CREATE TRIGGER` con nombre, momento, acción y tabla | Adoptado **como freno**: un trigger es lógica de negocio invisible que no aparece en el diff de la funcionalidad que lo dispara. Listón alto, y los usos que lo justifican son los que la aplicación no puede garantizar. Encuadrado con `arquitectura` | ✅ |
+| **DCL: `GRANT` y `REVOKE`** | Controlar el acceso y los privilegios | Adoptado en una línea: el usuario con el que se conecta la aplicación no necesita poder borrar tablas, y el privilegio mínimo reduce el daño de una inyección con éxito | ✅ |
+| **Índices asociados a `PRIMARY KEY` y `UNIQUE`** | Se crean por regla general | Fue el hilo que llevó al hallazgo que **contradice lo que la fuente da a entender**: `PRIMARY KEY` y `UNIQUE` crean índice solos, pero `FOREIGN KEY` **no** — *«the declaration of a foreign key constraint does not automatically create an index on the referencing columns»* (PostgreSQL). Añadido como viñeta nueva en `rendimiento`, que ya vigilaba la presencia y el tipo del índice pero no este caso | ✅ |
+| Sintaxis de `SELECT`/`INSERT`/`UPDATE`/`DELETE`, `CREATE`/`ALTER`/`DROP`, estructura `select-from-where` | — | Material de consulta. Un agente que escribe SQL ya lo sabe; escribirlo en una guía es inventario | ⛔ |
+| Tipos de datos, filas y columnas, clave primaria y foránea como conceptos | — | Ídem: fundamentos, no decisiones | ⛔ |
+| Historia de SQL (SEQUEL, System R, ANSI 1986 / ISO 1987, SQL:2011/2016/2019) | — | Contexto sin efecto en ninguna decisión del flujo | ⛔ |
+| Comparativa de motores (MySQL, MariaDB, PostgreSQL, SQL Server) y casos de uso por sector | — | El core es agnóstico de stack (§7): detecta el motor del repo en vez de recomendar uno | ⛔ |
+| Subconsultas con `IN`, `ALL`, `ANY`, `SOME`, `EXISTS` como catálogo | — | Solo entró lo que cambia una decisión: `NOT EXISTS` frente a `NOT IN` por los nulos. El resto es sintaxis | ⛔ |
+| Ventajas de SQL (portabilidad, facilidad de uso, seguridad integrada, «sin necesidad de demasiado código») | — | Es la sección de venta del artículo de OVHcloud, no conocimiento accionable | ⛔ |
+| Bases de datos administradas de OVHcloud · soporte de ciclo de vida ampliado de TuxCare | — | Anuncios de producto, que es donde termina cada uno de los dos artículos | ⛔ |
+
+### Errores detectados en las fuentes (no importar)
+
+| Afirmación de la fuente | Lo correcto | Contrastado con |
+|---|---|---|
+| UNAM: el epígrafe **«Data Manipulation Language (DML)» aparece dos veces**; el segundo describe DCL | El segundo es **DCL**, como dice su propio cuerpo de texto: «lenguaje de control de datos… `COMMIT`, `ROLLBACK`, `GRANT` y `REVOKE`» | Coherencia interna del propio documento |
+| UNAM: titula **«Subconsultas (self join)»** | Son dos cosas distintas. Un *self join* une una tabla consigo misma; una subconsulta es una consulta anidada en el predicado. La sección describe subconsultas, no self joins | Definiciones estándar; el propio contenido de la sección |
+| UNAM, autoevaluación 2: las **respuestas están cruzadas** — el enunciado que describe el producto cartesiano responde «Inner join» y el que describe el inner join responde «Cross join»; «no será confirmada hasta que usemos la sentencia @» responde «DDL» y «`CREATE`, `ALTER` y `DROP` son las tres sentencias básicas del sublenguaje @» responde «COMMIT» | Cross join ↔ inner join y COMMIT ↔ DDL, intercambiados en los cuatro casos | El propio texto de la unidad, que los define bien |
+| UNAM, autoevaluación 2: la **retroalimentación no corresponde al ejercicio** — habla de `COUNT`, `AVG`, `MIN` y `MAX` en un ejercicio sobre joins y transacciones | Copia-pega del ejercicio de funciones de agregación | Comparación entre los dos ficheros de reactivos |
+| UNAM, autoevaluación 2: «combinaciones cruzadas entre tablas, **autocombinaciones y combinaciones naturales**» | El cuerpo de la unidad enumera cruzadas, **internas y externas**. Autocombinación y combinación natural son otra cosa | Incoherencia con el texto principal |
+| TuxCare: «**CREAR**: Crea nuevas tablas» | `CREATE`. Es traducción automática del comando | Sintaxis SQL |
+| TuxCare: «en 1986, cuando ANSI **y la ISO** adoptaron formalmente SQL» | ANSI en 1986; **ISO en 1987**. La propia fuente hermana (OVHcloud) lo dice bien | OVHcloud, mismo dato; historia de la normalización |
+| OVHcloud: el epígrafe «**Múltiples vistas de los datos**» lleva debajo texto sobre escalado | Los contenidos de dos apartados están cruzados | Coherencia interna del artículo |
+
+**La lección de proceso:** el filtro que hizo falta aquí no fue el de §15 (contrastar una fuente
+divulgativa) ni el de §16 (transferir desde otro dominio), sino uno nuevo: **descartar por
+nivel**. Una fuente puede ser correcta, pertinente y del dominio exacto y aun así no dar
+material de guía, porque explica *qué es* algo en vez de *cuándo decidir* algo. La pregunta que
+ordenó el trabajo fue: «de todo este temario, ¿qué parte cambia una decisión que el flujo toma?»
+— y la respuesta fueron los **modos de fallo**, no los conceptos. Conviene aplicarla por defecto
+a cualquier material docente introductorio que se analice en el futuro. Nótese también que dos
+de las tres fuentes eran marketing de contenidos que termina en un anuncio: no las invalida como
+mapa de temas, pero explica por qué ninguna afirmación de semántica se importó de ellas.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -904,6 +977,10 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | **Buscar el contraejemplo** en `evidencia-y-preguntas`: no basta con no tenerlo, hay que haberlo buscado | OIE §16 | rama `feat/algoritmia-coste-y-estructuras` |
 | Sección «¿Síncrono o por lotes?» en `arquitectura` + anti-patrón «síncrono por inercia» | OIE §16 | rama `feat/algoritmia-coste-y-estructuras` |
 | Frontera explícita `rendimiento` ↔ `coste-y-estructuras` (sustituir exige medición; elegir la primera vez, no) | OIE §16 | rama `feat/algoritmia-coste-y-estructuras` |
+| Guía `consultas-correctas` (lógica de tres valores, joins que cambian de tipo, agregación sobre filas multiplicadas, frontera de la transacción, lógica en la base de datos) en `/plan`, `/implement` y `/review` | UNAM/CUAED · OVHcloud · TuxCare §17, contrastado con PostgreSQL y MySQL | rama `feat/guia-consultas-correctas` |
+| `NOT EXISTS` frente a `NOT IN` cuando la subconsulta admite nulos (devuelve cero filas sin fallar) | PostgreSQL, expresiones de subconsulta (§17) | rama `feat/guia-consultas-correctas` |
+| El nivel de aislamiento por defecto difiere entre motores (PostgreSQL `READ COMMITTED`, MySQL/InnoDB `REPEATABLE READ`) | Documentación de PostgreSQL y de MySQL (§17) | rama `feat/guia-consultas-correctas` |
+| **Clave foránea sin índice** como defecto visible en código en `rendimiento` — `PRIMARY KEY` y `UNIQUE` lo crean solos, `FOREIGN KEY` no | PostgreSQL, restricciones (§17), corrigiendo lo que la fuente da a entender | rama `feat/guia-consultas-correctas` |
 
 ---
 

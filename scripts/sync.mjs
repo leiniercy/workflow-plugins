@@ -207,6 +207,10 @@ const GUIDES = {
     description:
       "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas, el bounded context y los contratos de API vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, vas a crear o cambiar un endpoint, o la tentación de partir en servicios «por si escala».",
   },
+  "consultas-correctas": {
+    description:
+      "Úsala al escribir o revisar cualquier consulta SQL: al fijar en /plan qué debe pasar con los casos vacíos, al escribirla en /implement y al revisar el diff en /review. Síntomas: un LEFT JOIN con una condición de la tabla derecha en el WHERE, una agregación sobre un join uno-a-muchos, un NOT IN contra una subconsulta que admite nulos, un COUNT que no cuadra, un efecto irreversible dentro de una transacción, o lógica de negocio en un trigger.",
+  },
   "migraciones-de-datos": {
     description:
       "Úsala en cuanto una tarea toque el esquema o los datos que ya existen: columnas, tablas, índices, renombrados o rellenos masivos. Síntomas: vas a escribir una migración sin su reverso, un borrado o una actualización sin condición, una columna obligatoria sobre una tabla con filas, o vas a editar una migración ya aplicada. El código se revierte; los datos no.",
