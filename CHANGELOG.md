@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.18.1] - 2026-09-06
+
 Primera calibración real del eval de activación (14 sesiones). Encontró **dos bugs de disparador
 que ningún check estático podía ver** y dejó el conjunto de casos en dos, de siete.
 
