@@ -70,6 +70,13 @@ casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos d
   comprobable con un test o una acción concreta y con su escenario de prueba (EC) asociado.
   Es la sección más importante: /implement trabajará contra ella.
 - **Alcance / Fuera de alcance**: explícitos, para acotar el trabajo.
+- **Riesgo, para priorizar el esfuerzo de prueba**: no todos los criterios merecen el mismo
+  trabajo. Ordena los EC por **probabilidad de fallo × impacto si falla** (ISO/IEC/IEEE 29119-2,
+  testing basado en riesgo) y di dónde vas a poner el esfuerzo. Lo que sube el riesgo suele ser
+  reconocible: código nuevo frente a código maduro, una frontera con un tercero, dinero o datos
+  personales de por medio, algo irreversible (`migraciones-de-datos` (`${CLAUDE_PLUGIN_ROOT}/skills/migraciones-de-datos/SKILL.md`)), o una zona con
+  historial de bugs. Lo que baja de un umbral se cubre con lo mínimo y se dice. **Sin esta
+  ordenación, el esfuerzo se reparte plano y acaba donde es cómodo de probar, no donde duele.**
 - **Enfoque técnico**: ficheros a crear/modificar, decisiones de diseño, estrategia de tests
   (el nivel de cada EC y los tipos no-funcionales a considerar, según
   `niveles-y-tipos-de-prueba` (`${CLAUDE_PLUGIN_ROOT}/skills/niveles-y-tipos-de-prueba/SKILL.md`)).

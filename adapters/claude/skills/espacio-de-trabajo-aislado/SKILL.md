@@ -2,6 +2,7 @@
 name: espacio-de-trabajo-aislado
 description: "Úsala al empezar una tarea que conviene aislar del trabajo en curso, o antes de crear un worktree de git. Síntomas: el usuario tiene cambios abiertos en otra rama, quieres revisar una PR sin abandonar lo que implementas, o vas a escribir `git worktree add` sin haber comprobado si ya estás dentro de un worktree."
 user-invocable: false
+license: MIT
 ---
 # Espacio de trabajo aislado (git worktrees)
 

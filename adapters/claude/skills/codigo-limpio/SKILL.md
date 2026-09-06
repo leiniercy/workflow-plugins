@@ -2,6 +2,7 @@
 name: codigo-limpio
 description: "Úsala en el paso de refactor del ciclo TDD de /implement (con la suite en verde, antes de cerrar el criterio) y al juzgar deuda técnica en /review. Síntomas: método o clase que ha crecido, código duplicado, condicional anidada, nombres que no dicen lo que hacen, números mágicos."
 user-invocable: false
+license: MIT
 ---
 # Código limpio y refactorización segura
 

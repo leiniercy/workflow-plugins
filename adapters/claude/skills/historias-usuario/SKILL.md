@@ -2,6 +2,7 @@
 name: historias-usuario
 description: "Úsala al definir los criterios de aceptación de una tarea en /plan, al diseñar sus casos de prueba, y siempre que redactes o revises una historia de usuario o su trazabilidad con el proceso de negocio. Síntomas: criterios vagos o no verificables, casos de prueba elegidos a ojo, un requisito sin rol ni valor claros."
 user-invocable: false
+license: MIT
 ---
 # Historias de usuario — plantilla y procedimiento
 

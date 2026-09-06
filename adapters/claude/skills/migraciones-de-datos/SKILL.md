@@ -2,6 +2,7 @@
 name: migraciones-de-datos
 description: "Úsala en cuanto una tarea toque el esquema o los datos que ya existen: columnas, tablas, índices, renombrados o rellenos masivos. Síntomas: vas a escribir una migración sin su reverso, un borrado o una actualización sin condición, una columna obligatoria sobre una tabla con filas, o vas a editar una migración ya aplicada. El código se revierte; los datos no."
 user-invocable: false
+license: MIT
 ---
 # Migraciones de datos (el cambio que no se revierte con un revert)
 

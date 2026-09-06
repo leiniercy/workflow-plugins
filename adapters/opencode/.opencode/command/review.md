@@ -12,6 +12,11 @@ con /implement, que detectará el modo corrección).
 - Si `$ARGUMENTS` trae un taskId: úsalo.
 - Si no: infiérelo de la rama actual (`<tipo>/<taskId>_<slug>`). Si no es posible, lista
   `tasks/` y pide elegir.
+- **Si vas a revisar algo distinto de lo que el usuario tiene abierto** —otra rama, una PR
+  ajena— y su árbol tiene cambios sin commitear, NO cambies de rama: ofrécele revisar en un
+  worktree aparte (`espacio-de-trabajo-aislado` (skill de OpenCode, auto-activable)). Cambiar de rama bajo sus pies es la
+  forma más rápida de que una revisión le cueste su trabajo en curso. Si declina, revisa con
+  `git diff` sobre las referencias sin tocar el árbol.
 
 ## Fase 2 — Recuperación de contexto
 

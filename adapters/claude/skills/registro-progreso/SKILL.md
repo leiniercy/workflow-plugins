@@ -2,6 +2,7 @@
 name: registro-progreso
 description: "Úsala SIEMPRE que vayas a registrar el avance de una tarea, crear su fichero de estado inicial o actualizar su estado actual — al cerrar cualquier fase del flujo (plan, implement, corrección, review). Es lo que permite que un agente en sesión limpia recupere el contexto."
 user-invocable: false
+license: MIT
 ---
 # Registro de progreso — procedimiento de escritura
 

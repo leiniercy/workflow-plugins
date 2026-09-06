@@ -2,6 +2,7 @@
 name: calidad-producto
 description: "Úsala al fijar los requisitos no funcionales de una tarea en /plan y al etiquetar un hallazgo de /review con vocabulario estándar. Síntomas: un requisito de «rendimiento», «seguridad» o «usabilidad» sin criterio medible, o un hallazgo que no sabes en qué dimensión de calidad cae. Taxonomía ISO/IEC 25010."
 user-invocable: false
+license: MIT
 ---
 # Calidad de producto — ISO/IEC 25010 (taxonomía compartida)
 

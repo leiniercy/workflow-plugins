@@ -156,6 +156,20 @@ Cuando todos los criterios estén completados y la suite en verde:
    comentario opcional en la PR; la tarea ya está en "review", no la muevas de nuevo.
 6. Registra en `progress.md`: fase "implement", resultado "PR creada" (o "correcciones
    pusheadas"), enlace a la PR.
+7. **Menú de cierre de rama.** Con la PR abierta, la rama sigue viva —y el worktree, si lo
+   hubo—. No decidas tú qué pasa con ellos: ofrece las **tres opciones, literales**, y espera.
+   - **(a) Dejarlo como está.** Es el **valor por defecto**: si no contestan, esto es lo que
+     ocurre. La PR decide y no se toca nada.
+   - **(b) Integrar en la rama base.** Antes de nada, **confirma cuál es la rama base** —no la
+     asumas— y **ejecuta la suite sobre el árbol que vas a integrar**, no sobre el que acabas de
+     dejar verde: son dos árboles distintos en cuanto alguien más ha empujado.
+   - **(c) Descartar.** Solo si el usuario escribe literalmente la palabra `discard`. Ni «sí»,
+     ni «adelante», ni «bórralo»: la palabra exacta. Borrar trabajo por un malentendido no se
+     deshace, y es el único punto de este flujo donde una respuesta ambigua destruye algo.
+
+   **Limpieza por procedencia:** retira solo lo que creó este flujo —worktrees bajo
+   `.worktrees/`, según {{guide:espacio-de-trabajo-aislado}}—. Lo demás es del entorno del
+   usuario y no se toca aunque estorbe.
 
 ## Fase 5 — Cierre
 

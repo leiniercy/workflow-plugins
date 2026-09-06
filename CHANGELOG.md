@@ -5,6 +5,40 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+Cierra el backlog: los nueve pendientes que quedaban en 🔜 quedan en cero. Dos se dejan fuera
+**por decisión declarada, no por olvido** — perfiles de stack (§7), que el propio catálogo marca
+como iniciativa aparte, y el glosario `CONTEXT.md` (§9.A), que merece decidir antes si es guía o
+sección.
+
+### Añadido
+
+- **Testing basado en riesgo en `/plan`** (ISO/IEC/IEEE 29119-2): los criterios se ordenan por
+  probabilidad de fallo × impacto y la spec dice dónde va el esfuerzo. Sin esa ordenación se
+  reparte plano y acaba donde es cómodo de probar, no donde duele.
+- **Menú de cierre de rama en la Fase 4 de `/implement`** (§2.C): tres opciones literales, con
+  **dejarlo como está** por defecto, confirmación de la rama base y suite **sobre el árbol que se
+  va a integrar** —no sobre el que quedó verde, que son distintos en cuanto alguien más empuja—.
+  Descartar exige la palabra exacta `discard`: es el único punto del flujo donde una respuesta
+  ambigua destruye trabajo.
+- **Worktree de revisión cableado en `/review`** (§12): si hay que revisar otra rama y el árbol
+  del usuario tiene cambios sin commitear, se ofrece worktree en vez de cambiarle la rama bajo
+  los pies.
+- **`--runs N` y la varianza como métrica** en `check-activation.mjs` (§2.A, micro-test de
+  wording): un caso solo pasa si es **estable en las N**. Si unas repeticiones activan la guía y
+  otras no, lo que no ata es el wording de la `description` — se reescribe la description, no el
+  caso.
+- **`license: MIT`** en el frontmatter de las skills generadas (§4): sin él, una skill extraída
+  del plugin viaja sin licencia. Verificado con `claude plugin validate --strict`.
+
+### Cerrado sin cambios
+
+- **Riesgo de `<SUBAGENT-STOP>`** (§2.D): estaba anotado como «no comprobado empíricamente».
+  Comprobado por configuración — el `matcher` del hook es `startup|clear|compact` y el despacho
+  de un subagente no es ninguno de esos eventos, así que `SessionStart` no le alcanza. **No se
+  añade la guarda**: habría sido una línea que no protegía de nada.
+- **Corpus de prompts adversariales** (§2.D): la maquinaria ya existía desde
+  `adapters/claude/evals/`. Lo que queda es poblarlo, y eso se hace calibrando, no diseñando.
+
 ## [0.17.0] - 2026-09-06
 
 ## [0.16.0] - 2026-09-06
