@@ -1,0 +1,18 @@
+{
+  "guia": "consultas-correctas",
+  "mide": "Que atribuya el vacio a un NULL en la subconsulta y proponga NOT EXISTS.",
+  "debe_incluir": [
+    [
+      "null"
+    ],
+    [
+      "not exists",
+      "is not null",
+      "excluir los nulos",
+      "filtrar los nulos"
+    ]
+  ],
+  "linea_base_debe_fallar": true,
+  "calibrado": false,
+  "nota_calibracion": "Candidato SIN calibrar: nadie ha comprobado todavía que la línea base falle este caso. Córrelo con --baseline antes de fiarte de él; si sale SIN DELTA, rediseñalo o bórralo."
+}
