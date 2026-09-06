@@ -44,6 +44,13 @@ volumen**, de forma no lineal.
   que un filtro por rango o un ordenado sobre esa columna lo ignora y se vuelve al recorrido
   completo; el árbol equilibrado (B-tree y variantes) es el que cubre rango y orden. Comprueba
   la correspondencia, no solo la presencia.
+- **Clave foránea sin índice.** Es el hueco que más veces se da por cubierto, porque la
+  intuición dice que declarar la relación la indexa. `PRIMARY KEY` y `UNIQUE` sí crean su índice
+  solos; **`FOREIGN KEY` no** — *«the declaration of a foreign key constraint does not
+  automatically create an index on the referencing columns»* (documentación de PostgreSQL).
+  Sin él, cada unión por esa columna y cada borrado o actualización en la tabla referenciada
+  recorren la tabla que apunta. Es hallazgo cuando la propia tarea crea la relación o consulta
+  por ella; si la migración es suya, ver {{guide:migraciones-de-datos}}.
 - **Recálculo en cada pasada** de algo estable dentro del ciclo de render o de un bucle
   caliente; y trabajo pesado que bloquea el hilo que debía responder.
 - **Importar un módulo entero** para usar una función, en código que viaja al cliente.
