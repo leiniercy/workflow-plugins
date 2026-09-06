@@ -41,6 +41,7 @@
  *   node scripts/check-activation.mjs                  # solo activación
  *   node scripts/check-activation.mjs --baseline       # + brazo sin plugin (recomendado)
  *   node scripts/check-activation.mjs --case consultas # filtra por nombre
+ *   node scripts/check-activation.mjs --runs 5       # varianza: N muestras por caso
  *   node scripts/check-activation.mjs --json out.json  # vuelca el resultado completo
  */
 import { readFileSync, readdirSync, existsSync, writeFileSync } from "node:fs";
@@ -66,6 +67,7 @@ const value = (name) => {
 const withBaseline = flag("--baseline");
 const caseFilter = value("--case");
 const jsonOut = value("--json");
+const runs = Math.max(1, parseInt(value("--runs") || "1", 10) || 1);
 
 // ---------------------------------------------------------------------------
 // Normalización para comparar texto (sin tildes, sin mayúsculas)
@@ -172,7 +174,7 @@ if (!casos.length) {
 // el contador de la conversación desde la que lo lanzas. Medido: 0,32–0,49 USD
 // equivalentes por sesión. Por eso no se ejecuta nada sin --yes: el fallo que
 // evita es lanzar la suite entera sin darse cuenta de lo que cuesta.
-const sesiones = casos.length * (withBaseline ? 2 : 1);
+const sesiones = casos.length * (runs + (withBaseline ? 1 : 0));
 const est = (sesiones * 0.4).toFixed(2);
 if (!flag("--yes")) {
   console.log(`\nEsto lanzaría ${sesiones} sesión(es) de Claude reales.`);
@@ -193,10 +195,19 @@ const resultados = [];
 for (const caso of casos) {
   process.stdout.write(`  ${caso.nombre} … `);
 
-  const conPlugin = run(caso.prompt, { plugin: true });
+  // §2.A de docs/referencias.md — micro-test de wording: la VARIANZA es una métrica.
+  // Una sola muestra no dice nada de un disparador. Si de N repeticiones unas activan
+  // la guía y otras no, el problema no es el modelo: es que el wording de la
+  // `description` no ata. Un caso solo pasa si es estable en las N.
   const esperada = `${PLUGIN_NAME}:${caso.guia}`;
-  const activo = conPlugin.skills.includes(esperada);
+  const corridas = [];
+  for (let i = 0; i < runs; i++) corridas.push(run(caso.prompt, { plugin: true }));
+  const conPlugin = corridas[0];
+  const nActivo = corridas.filter((c) => c.skills.includes(esperada)).length;
+  const nContenido = corridas.filter((c) => corrige(c.texto, caso).ok).length;
+  const activo = nActivo === runs;
   const contenido = corrige(conPlugin.texto, caso);
+  const inestable = runs > 1 && (nActivo !== runs || nContenido !== runs) && nActivo + nContenido > 0;
 
   let base = null;
   let sinDelta = false;
@@ -208,14 +219,16 @@ for (const caso of casos) {
     if (caso.linea_base_debe_fallar !== false && bc.ok) sinDelta = true;
   }
 
-  const ok = !conPlugin.error && activo && contenido.ok && !sinDelta;
-  resultados.push({ ...caso, activo, contenido, base, sinDelta, ok, error: conPlugin.error, texto: conPlugin.texto });
+  const ok = !conPlugin.error && activo && contenido.ok && !sinDelta && !inestable;
+  resultados.push({ ...caso, activo, contenido, base, sinDelta, inestable, runs, nActivo, nContenido, ok, error: conPlugin.error, texto: conPlugin.texto });
 
   if (conPlugin.error) console.log(`✗ ERROR (${conPlugin.error})`);
   else if (caso.calibrado === false && !withBaseline)
     console.log(`${activo && contenido.ok ? "✓" : "✗"} (SIN CALIBRAR — córrelo con --baseline)`);
   else if (!activo) console.log(`✗ no se activó (disparó: ${conPlugin.skills.join(", ") || "ninguna"})`);
   else if (!contenido.ok) console.log(`✗ activó pero falta: ${contenido.faltan.join(" · ")}`);
+  else if (inestable)
+    console.log(`⚠ VARIANZA — activó ${nActivo}/${runs}, acertó ${nContenido}/${runs}: el wording no ata`);
   else if (sinDelta) console.log("⚠ SIN DELTA — la línea base también acierta: rediseña el caso");
   else console.log("✓");
 }
@@ -240,7 +253,8 @@ if (jsonOut) {
 if (fallos.length) {
   console.error(`\n✗ ${fallos.length}/${resultados.length} caso(s) no pasaron.`);
   console.error("  ✗ = la guía no se activó o no aportó lo que declara → bug de prompt.");
-  console.error("  ⚠ = el caso no discrimina → bug DEL CASO: elige uno que la línea base falle.");
+  console.error("  ⚠ SIN DELTA = el caso no discrimina → bug DEL CASO: elige uno que la línea base falle.");
+  console.error("  ⚠ VARIANZA = el disparador no ata: reescribe la description, no el caso.");
   process.exit(1);
 }
 console.log(`\n✓ ${resultados.length}/${resultados.length} caso(s) OK: la guía se activa y aporta sobre la línea base.`);

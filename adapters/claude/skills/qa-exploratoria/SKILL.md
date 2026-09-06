@@ -2,6 +2,7 @@
 name: qa-exploratoria
 description: "Úsala tras implementar criterios que tocan interfaz y antes de pedir revisión humana, o cuando el cambio afecte a un flujo de usuario completo. Síntomas: los tests pasan pero nadie ha abierto la aplicación; hay que evaluar estética, contraste o jerarquía visual, que no se verifican desde un diff."
 user-invocable: false
+license: MIT
 ---
 # QA exploratoria (probar la aplicación de verdad)
 

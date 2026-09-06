@@ -2,6 +2,7 @@
 name: arquitectura
 description: "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas, el bounded context y los contratos de API vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, vas a crear o cambiar un endpoint, o la tentación de partir en servicios «por si escala»."
 user-invocable: false
+license: MIT
 ---
 # Arquitectura: elegir y respetar la forma del sistema
 

@@ -2,6 +2,7 @@
 name: coste-y-estructuras
 description: "Úsala al derivar de un volumen la complejidad admisible en /plan, al elegir la estructura de datos de código nuevo en /implement, y al juzgar la clase de coste de un cambio en /review. Síntomas: un bucle dentro de otro sobre dos colecciones que crecen, una búsqueda lineal repetida donde cabía un índice por clave, no sabes si algo es O(n) o O(n²), vas a escribir a mano una estructura que el motor de datos ya hace, o un umbral sin volumen detrás."
 user-invocable: false
+license: MIT
 ---
 # Coste y estructuras (elegir la clase antes de escribir el código)
 

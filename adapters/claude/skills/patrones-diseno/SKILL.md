@@ -2,6 +2,7 @@
 name: patrones-diseno
 description: "Úsala al razonar el enfoque técnico en /plan y al valorar si introducir una abstracción durante el refactor de /implement. Síntomas: estás a punto de meter una fábrica, una estrategia o un singleton; te oyes decir «por si escala» o «así queda más extensible»."
 user-invocable: false
+license: MIT
 ---
 # Patrones de diseño — referencia con freno anti-sobre-ingeniería
 

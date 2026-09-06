@@ -2,6 +2,7 @@
 name: formato-toon
 description: "Úsala siempre que vayas a devolver listas largas de datos uniformes, varias rutas del grafo, esquemas de base de datos o cualquier salida estructural repetitiva, en lugar de JSON o YAML. Síntoma: la salida tendría las mismas claves repetidas en cada elemento y gastaría tokens de más."
 user-invocable: false
+license: MIT
 ---
 # Formato TOON — eficiencia de contexto en salidas estructuradas
 

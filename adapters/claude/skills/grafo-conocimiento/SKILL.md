@@ -2,6 +2,7 @@
 name: grafo-conocimiento
 description: "Úsala cuando necesites entender la estructura de un repo que no conoces, localizar las áreas que una tarea va a tocar, o analizar el impacto de un cambio sobre sus consumidores, antes de ponerte a leer ficheros crudos. Síntoma extra: vas a pedir el contenido completo de una lista (nodos, tareas, ficheros) sin haberla filtrado antes."
 user-invocable: false
+license: MIT
 ---
 # Grafo de conocimiento (graphify) — exploración eficiente del repo
 

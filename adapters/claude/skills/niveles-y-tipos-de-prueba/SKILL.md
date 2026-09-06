@@ -2,6 +2,7 @@
 name: niveles-y-tipos-de-prueba
 description: "Úsala al definir la estrategia de pruebas de una tarea en /plan y al elegir a qué nivel y con qué runner escribir cada test en /implement. Síntomas: no sabes si esto es unidad, componente, integración o E2E; el test necesita levantar medio sistema; sospechas que un test pasa sin verificar nada real."
 user-invocable: false
+license: MIT
 ---
 # Niveles y tipos de prueba (elegir dónde y con qué probar)
 

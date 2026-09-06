@@ -2,6 +2,7 @@
 name: usabilidad-accesibilidad
 description: "Úsala cuando el trabajo toque interfaz o una ruta pública: criterios de aceptación de UI en /plan, tests de componente en /implement y la dimensión 6 de /review. Síntomas: formularios sin validación o sin mensajes útiles, imágenes sin alt, controles no alcanzables por teclado, texto en duro en un repo traducido, una ruta nueva sin metadatos propios, o una URL publicada que se mueve sin redirección. Nielsen + WCAG 2.2 + SEO técnico."
 user-invocable: false
+license: MIT
 ---
 # Usabilidad, accesibilidad y SEO (la interfaz pública, revisable en código)
 

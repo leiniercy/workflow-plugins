@@ -2,6 +2,7 @@
 name: rendimiento
 description: "Úsala al fijar un requisito de rendimiento en /plan y al juzgar el coste de ejecución de un cambio en /implement y /review. Síntomas: una consulta dentro de un bucle, una lista sin paginar sobre una tabla que crece, llamadas en serie que podrían ir a la vez, «con los datos de ahora va bien», o te oyes optimizar algo que no has medido."
 user-invocable: false
+license: MIT
 ---
 # Rendimiento (medir antes de optimizar)
 

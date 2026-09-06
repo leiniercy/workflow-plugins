@@ -108,7 +108,7 @@ si la skill enseña lo correcto.
 | **Match the Form to the Failure** | Tabla fallo→forma: **disciplina** (sabe la regla y la salta) → prohibición + tabla de racionalizaciones + banderas rojas · **forma equivocada de la salida** → **receta positiva** («la salida ES X, Y, Z en este orden») · **omite un elemento** → **slot REQUIRED estructural** · comportamiento condicional → condicional sobre un predicado observable | Reencuadra nuestras «banderas rojas» (`8c198fb`), que aplicamos por igual a los 4 workflows. Criterio adoptado al redactar lo nuevo de esta iteración: las banderas rojas nuevas atacan disciplina; lo que da forma a una salida (informe de `/review`, secciones de `spec.md`) se redactó como receta | ✅ rama `feat/superpowers-v6-2` (criterio) · 🔜 (auditar las banderas rojas existentes) |
 | **Las prohibiciones se vuelven en contra en fallos de forma** | En pruebas A/B de wording, el brazo con prohibición produjo **más** contenido no deseado que el control **sin guía ninguna**. «Una receta no deja nada que negociar» | El dato más contraintuitivo del repo: explica por qué «no hagas X» falla bajo un incentivo competidor. Es el fundamento de la fila anterior | 📖 (fundamento) |
 | **Nada de cláusulas de matiz** | «No hagas X salvo que importe» reabre la negociación: añadir **una** cláusula degradó una receta ganadora de consistente a ruidosa. Y **las exenciones no acotan**: «esto no aplica a bloques de código» igual suprime los bloques de código | Auditable en nuestras guías, densas en «salvo que» / «si procede» | 🔜 |
-| **Micro-test de wording antes del escenario completo** | 1 muestra fresca por llamada · **siempre un control sin guía** (si el control no falla, no escribas la guía) · **5+ reps** · leer a mano cada match (los ecos de plantilla se cuelan) · **la varianza es una métrica**: 5 lecturas distintas = el wording no ata | Capa barata que le falta a `docs/eval-comportamiento.md`, entre el check determinista y la checklist manual | 🔜 |
+| **Micro-test de wording antes del escenario completo** | 1 muestra fresca por llamada · **siempre un control sin guía** (si el control no falla, no escribas la guía) · **5+ reps** · leer a mano cada match (los ecos de plantilla se cuelan) · **la varianza es una métrica**: 5 lecturas distintas = el wording no ata | Capa barata que le falta a `docs/eval-comportamiento.md`, entre el check determinista y la checklist manual. Adoptado en `check-activation.mjs`: el control sin guía es `--baseline` («si el control no falla, no escribas la guía» = ⚠ SIN DELTA) y `--runs N` añade la varianza como métrica — un caso solo pasa si es estable en las N, porque si unas activan y otras no, el que no ata es el wording | ✅ rama `feat/cierre-de-backlog` |
 | Ley de hierro: ninguna skill sin test que falle primero | RED = correr el escenario **sin** la skill y anotar las racionalizaciones **verbatim**; GREEN = skill mínima que ataca justo esas; REFACTOR = cerrar los huecos nuevos. Aplica también a las **ediciones** | Invierte nuestro orden (escribimos y evaluamos después). Adoptable de forma parcial y barata: al menos anotar el fallo base antes de redactar | 🔜 |
 | Cada tipo de skill se testea distinto | Disciplina → presión combinada · Técnica → aplicación + huecos · Patrón → reconocimiento + contraejemplos · Referencia → recuperación + cobertura | Formaliza nuestra división «procedurales vs. referencia» (`73679a3`) | 🟡 |
 | Presupuesto de tokens (<150 bootstrap / <200 muy cargadas / <500 resto) verificado con `wc -w` | Toda skill frecuente compite por contexto | Nuestras guías son de 2-10 KB; algunas son referencia densa a propósito. Aplicado al **frontmatter** (que sí se carga siempre), no al cuerpo | 🟡 (deliberado) |
@@ -149,19 +149,19 @@ de recuperación** que han destilado de sesiones reales, con las cifras del fall
 | **`writing-good-tests`** | «Cada test nombra la rotura que atrapa» + «cada test ejercita lo real». **Comprobación de mutación**; aserciones espejo; **detectores de cambios**; «prueba tu frontera, no el framework»; **los mocks parciales fallan en silencio**; «las clases de producción solo llevan métodos de producción» | Absorbido como sección **«Tests honestos»** de `niveles-y-tipos-de-prueba` (que cubría *dónde* probar y no *si el test puede fallar*), + anti-patrones nuevos, + cableado en la dimensión de tests de `revisor-spec-tests` | ✅ rama `feat/superpowers-v6-2` |
 | **`brainstorming`** | Hard gate antes de implementar; una pregunta por mensaje; **2-3 enfoques con trade-offs, empezando por el recomendado**; diseño por secciones con aprobación tras cada una; check de descomposición si son varios subsistemas; **auto-revisión de la spec** (marcadores, contradicciones, alcance, **ambigüedad**: ¿se lee de dos formas? elige una) | Adoptado lo que le faltaba a `/plan`: **2-3 enfoques con recomendación** (Fase 4) y **auto-revisión de la spec** (Fase 5, paso 0), con consistencia de nombres incluida. La aprobación sección a sección no: nuestro gate único sobre la spec completa ya cumple la función sin multiplicar interrupciones | 🟡 (enfoques y auto-revisión ✅; secciones ⛔) |
 | **`writing-plans`** | Audiencia: «un junior entusiasta con mal gusto, sin juicio, sin contexto y con aversión a testear». **Bloque `Global Constraints`** con valores exactos que **vinculan implícitamente a toda tarea**. `Interfaces: Consumes/Produces` por tarea. «No Placeholders» como **fallos de plan**. Auto-revisión con **consistencia de tipos entre tareas** | Adoptado el bloque como **«Restricciones globales»** en `spec.md` (`/plan` Fase 4): es exactamente el hueco que teníamos, porque `/implement` trabaja criterio a criterio y una restricción escondida en la prosa de un criterio no alcanza a los demás. `Consumes/Produces` no aplica (no troceamos en tareas para subagentes) | 🟡 |
-| **`finishing-a-development-branch`** | Menú de 3 opciones **literal**; **descartar solo si el usuario escribe la palabra `discard`**; limpieza **por procedencia** (solo worktrees bajo `.worktrees/`); confirmar la rama base; «corre la suite sobre el árbol que vas a integrar» | Nuestra Fase 4 de `/implement` es solo push+PR. El menú completo (merge local / PR / dejar) y la limpieza de worktree son una iteración aparte | 🔜 |
+| **`finishing-a-development-branch`** | Menú de 3 opciones **literal**; **descartar solo si el usuario escribe la palabra `discard`**; limpieza **por procedencia** (solo worktrees bajo `.worktrees/`); confirmar la rama base; «corre la suite sobre el árbol que vas a integrar» | Nuestra Fase 4 de `/implement` es solo push+PR. Adoptado en el paso 7 de la Fase 4 de `/implement`: las tres opciones literales, con **dejarlo como está** por defecto, confirmación de la rama base y suite sobre el árbol que se va a integrar (no sobre el que quedó verde), y `discard` como palabra exacta — es el único punto del flujo donde una respuesta ambigua destruye trabajo | ✅ rama `feat/cierre-de-backlog` |
 | `dispatching-parallel-agents` | Mayormente nuestro. Añade: «varias llamadas en una respuesta = paralelo; una por respuesta = secuencial», y verificar después («los agentes cometen errores sistemáticos») | Nuestro `/review` ya despacha en paralelo | 🟡 |
 
 ### 2.D — Infraestructura
 
 | Patrón | Detalle | Aplicación | Estado |
 |---|---|---|---|
-| `<SUBAGENT-STOP>` en el bootstrap | Primera línea de la skill que inyecta el hook: «si te despacharon como subagente para una tarea concreta, ignora esta skill» | Protege a un subagente de heredar instrucciones de sesión que le harían abandonar su tarea. **Nuestro riesgo es menor por diseño**: nuestro hook inyecta *estado de la tarea*, no doctrina de flujo, y el `matcher` de `SessionStart` es `startup\|clear\|compact` —eventos de sesión, no de despacho—. Aun así **no está comprobado empíricamente** que el hook no alcance a nuestros revisores: una guarda de una línea sería barata si la comprobación resulta negativa | 🔜 (comprobar en la checklist manual de `docs/eval-comportamiento.md`) |
+| `<SUBAGENT-STOP>` en el bootstrap | Primera línea de la skill que inyecta el hook: «si te despacharon como subagente para una tarea concreta, ignora esta skill» | Protege a un subagente de heredar instrucciones de sesión que le harían abandonar su tarea. **Nuestro riesgo es menor por diseño**: nuestro hook inyecta *estado de la tarea*, no doctrina de flujo, y el `matcher` de `SessionStart` es `startup\|clear\|compact` —eventos de sesión, no de despacho—. Aun así **no está comprobado empíricamente** que el hook no alcance a nuestros revisores: **Comprobado, y no hace falta guarda**: el `matcher` del hook en `adapters/claude/hooks/hooks.json` es `startup|clear|compact`, y el despacho de un subagente no es ninguno de esos eventos, así que `SessionStart` no le alcanza. Se cierra por configuración, sin añadir una línea que no protegía de nada | ⛔ (riesgo inexistente, verificado) |
 | Hook multi-harness por variable de entorno | Emite `additional_context` (Cursor) / `hookSpecificOutput.additionalContext` (Claude) / `additionalContext` (Copilot) detectando por env var, porque **«Claude Code lee AMBOS sin deduplicar»** → hay que emitir solo uno | Confirma nuestra fila ✅ de la primera pasada y aporta el porqué; relevante si algún día enviamos hooks a OpenCode | ✅ (validado) |
 | El bootstrap inyecta la skill **entera** | No un puntero: el texto completo de su skill de entrada | ⛔ Nuestro hook inyecta **estado de la tarea**, no doctrina; la doctrina vive en los comandos. Coherente con «explícito, no ambiental» | ⛔ (consciente) |
 | Prioridad de skills explícita | Skills de **proceso** primero (fijan el enfoque), luego las de implementación. Y: instrucciones de usuario > skills > comportamiento por defecto | Barato de añadir si algún día hay colisión entre guías | 🔜 (menor) |
 | `.version-bump.json` declarativo | Lista fichero + campo a sincronizar (incluido el path JSON `plugins.0.version`) + `audit.exclude` | Nuestro `bump-version.mjs` lo hace imperativo y ya cubre los 3 manifiestos; la config declarativa sería más limpia, no más correcta | 🔜 (menor) |
-| **Corpus de prompts adversariales** | `tests/explicit-skill-requests/prompts/`: `skip-formalities`, `i-know-what-sdd-means`, `claude-suggested-it`, `after-planning-flow`… + variantes en modelo pequeño y multi-turno | Espejo barato para `docs/eval-comportamiento.md`: convertir nuestra checklist manual en prompts guardados y reutilizables | 🔜 |
+| **Corpus de prompts adversariales** | `tests/explicit-skill-requests/prompts/`: `skip-formalities`, `i-know-what-sdd-means`, `claude-suggested-it`, `after-planning-flow`… + variantes en modelo pequeño y multi-turno | Espejo barato para `docs/eval-comportamiento.md`: convertir nuestra checklist manual en prompts guardados y reutilizables. **Maquinaria hecha**: `adapters/claude/evals/<caso>/prompt.md` es exactamente ese corpus, versionado y ejecutable. Lo que queda es poblarlo — un caso por fila de la checklist — y eso se hace calibrando, no diseñando | ✅ (maquinaria) rama `feat/eval-de-activacion` |
 | `printf` en vez de heredoc en hooks bash | Cuelgue de heredoc en bash 5.3+ (su issue #571) | 📖 mina de portabilidad; nuestros hooks son `node` y no la pisan | 📖 |
 | Telemetría (logo remoto con la versión) | Opt-out por env var; honra `DISABLE_TELEMETRY` | ⛔ Anti-objetivo nuestro, aunque la suya sea transparente y mínima | ⛔ |
 | Visual companion (servidor HTTP zero-dep, WebSocket, endurecimiento de auth) | ~90 KB de skill + servidor + tests para mostrar mockups en el navegador durante el brainstorming | ⛔ Sobre-ingeniería: nuestro anti-objetivo literal | ⛔ |
@@ -218,7 +218,7 @@ esta skill mejora justo el trabajo de UI que hace `/implement`.
 | Skill auto-activable vía `description` fuerte | "Guidance for … Use when …" dispara la skill sin invocación explícita | Ya aplica: las guías se auto-activan por `description` (lo gobierna ese campo, no el flag `user-invocable`); redactadas como "Úsala cuando…" | ✅ `ea0e156` |
 | Plantilla de skill: **persona + anti-patrones nombrados + proceso + autocrítica** | Da rol, nombra los defaults a evitar, define proceso e itera con auto-revisión | Aplicada a las guías: las 3 procedurales (`registro-progreso`, `grafo-conocimiento`, `revision-hallazgos`) con plantilla completa; las 2 de referencia (`estados-tareas`, `formato-toon`) con el espíritu (rol + anti-patrones), sin forzar persona en una tabla de consulta | ✅ `73679a3` |
 | Bucle plan → autocrítica contra el brief → build | Propone un plan, lo critica contra el brief, y solo entonces implementa | Ya vive en `/plan` (gate de aprobación) e `/implement`; podríamos añadir auto-crítica explícita del enfoque antes de codificar | 🟡 |
-| Campo `license` en el frontmatter de la skill | Declara licencia a nivel de skill | Trivial de añadir a nuestras skills | 🔜 (menor) |
+| Campo `license` en el frontmatter de la skill | Declara licencia a nivel de skill | Añadido `license: MIT` al frontmatter que genera `sync.mjs`: sin él, una skill extraída del plugin viaja sin licencia. Verificado con `claude plugin validate --strict` | ✅ rama `feat/cierre-de-backlog` |
 | **Skill `frontend-design` como add-on** | La propia skill de diseño UI | **Recomendada, no empaquetada:** es propietaria de Anthropic (© Anthropic PBC, verificado en su LICENSE), así que NO se redistribuye. El README y `/implement` la sugieren como add-on opcional para UI en Next.js; el usuario la instala aparte | ✅ `e759f23` |
 
 ---
@@ -272,7 +272,7 @@ es del repo objetivo, no del plugin.
 | Fuente | Qué aporta | Aplicación a nuestro plugin | Estado |
 |---|---|---|---|
 | **[1] ISTQB** (Foundation + glosario) | Técnicas de caja negra (partición de equivalencia, valores límite, tabla de decisión, transición de estados), vocabulario (defecto/error/fallo, oráculo), 7 principios, cobertura | Nueva sección "Técnicas de diseño de casos de prueba" en `historias-usuario`: formaliza la matriz V/I/N/A que ya existía | ✅ rama `feat/bibliografia-testing` |
-| **[2] ISO/IEC/IEEE 29119** (partes 1–5) | Parte 4: técnicas + medida de cobertura; Parte 2: testing basado en riesgo; Parte 3: plantillas documentales | Parte 4 refuerza a ISTQB en `historias-usuario`; testing basado en riesgo → sección "Riesgos" de `/plan`; plantillas descartadas (spec.md esbelto, gestión en ClickUp) | 🟡 (técnicas ✅ · riesgo 🔜 · plantillas ⛔) |
+| **[2] ISO/IEC/IEEE 29119** (partes 1–5) | Parte 4: técnicas + medida de cobertura; Parte 2: testing basado en riesgo; Parte 3: plantillas documentales | Parte 4 refuerza a ISTQB en `historias-usuario`; testing basado en riesgo → sección "Riesgos" de `/plan`; plantillas descartadas (spec.md esbelto, gestión en ClickUp). Riesgo adoptado en la Fase 4 de `/plan`: los EC se ordenan por probabilidad × impacto y se dice dónde va el esfuerzo, porque sin esa ordenación se reparte plano y acaba donde es cómodo de probar | ✅ (técnicas ✅ · riesgo ✅ · plantillas ⛔) |
 | **[3] Playwright** | E2E cross-browser, auto-wait, locators por rol/accesibilidad | E2E por defecto en Next.js en la nueva guía `niveles-y-tipos-de-prueba` | ✅ rama `feat/bibliografia-testing` |
 | **[4] Selenium** | WebDriver (estándar W3C), Grid distribuido | Fallback: solo si el repo objetivo ya lo usa (respetar el runner existente) | 📖 referencia |
 | **[5] Jest + Testing Library** | "Probar comportamiento, no implementación"; niveles unidad/componente | Respaldo canónico a la bandera roja del paso 1 del TDD de `/implement`; niveles en `niveles-y-tipos-de-prueba` | ✅ rama `feat/bibliografia-testing` |
@@ -586,7 +586,7 @@ decir cómo se hace**, que es una forma elegante de no hacerlo nunca.
 · guía `qa-exploratoria` (rama `feat/guia-qa-exploratoria`: cableada en `/implement` antes de la
 PR y en la dimensión 6 de `/review` como destino de lo que no se juzga desde el diff) ·
 deduplicación por causa en `revision-hallazgos` (esta rama transversal).
-**Pendiente (🔜):** worktree dedicado a revisión (§12).
+**Consumido (✅):** worktree dedicado a revisión (§12) — cableado en la Fase 1 de `/review`: si hay que revisar otra rama y el árbol del usuario tiene cambios sin commitear, se ofrece worktree en vez de cambiarle la rama bajo los pies.
 **Descartado (⛔):** piscina de N worktrees pre-aprovisionados y campaña autónoma con fusión sin
 gate humano.
 
@@ -889,12 +889,23 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
     del plugin y la plantilla `CLAUDE.md.example` para el repo consumidor. → §14.
 
 **Backlog consumido (#1–#13).** Nuevas mejoras salen de analizar repos nuevos (añade una sección
-`## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba. Consumidos además el
-**paquete de revisión por fichero** (§2.B, el que marcaba mayor ahorro de contexto), el bucket
-`in-progress/` (§9.B) y el **progressive disclosure** de §1. Los de mayor valor pendientes hoy:
-glosario `CONTEXT.md` de lenguaje ubicuo (§9.A), micro-test de wording (§2.A), corpus de prompts
-adversariales (§2.D), menú de cierre de rama (§2.C), worktree dedicado a revisión (§12),
-`license` en skills §4, testing basado en riesgo §6/[2] y perfiles de stack §7.
+`## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba. **Backlog vaciado.** Consumidos
+en esta tanda: paquete de revisión por fichero (§2.B), progressive disclosure (§1), bucket
+`in-progress/` (§9.B), micro-test de wording (§2.A), corpus adversarial (§2.D, maquinaria), menú
+de cierre de rama (§2.C), worktree de revisión (§12), `license` en skills (§4) y testing basado
+en riesgo (§6/[2]). El riesgo de `<SUBAGENT-STOP>` se cerró comprobando que no existía.
+
+Quedan **dos, y por decisión, no por olvido**:
+
+- **Perfiles de stack (§7)** — el propio §7 lo marca como *iniciativa aparte*: es un refactor
+  transversal de `core/` para desacoplar los defaults de Next.js, no una mejora incremental.
+  Entra cuando sea su tarea, con su spec.
+- **Glosario `CONTEXT.md` (§9.A)** — «candidato real, no trivial», y roza `historias-usuario`
+  sin que esa lo cubra. Merece decidir primero si es guía nueva o sección, que es justo la clase
+  de decisión que no se toma de pasada al final de una tanda.
+
+Lo único pendiente de ejecución, no de diseño: **calibrar los 7 casos de `evals/`**, que gasta
+cuota fuera de la sesión de trabajo.
 
 ### Nota de método
 
@@ -985,6 +996,11 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | Sección «Índice antes que detalle» en `grafo-conocimiento` (grafo, ClickUp y ficheros) | claude-mem §1, progressive disclosure | rama `feat/indice-antes-que-detalle` |
 | Bucket `core/guides/in-progress/` para borradores + 2 aserciones que impiden publicarlos | mattpocock/skills §9.B | rama `feat/bucket-in-progress` |
 | Eval de activación semi-automático (`check-activation.mjs`) con brazo de línea base y freno de cuota | Hueco propio: `check-behavior` asevera la forma del disparador, no que dispare | rama `feat/eval-de-activacion` |
+| `license: MIT` en el frontmatter de las skills generadas | mattpocock/skills §4 | rama `feat/cierre-de-backlog` |
+| `--runs N` y la varianza como métrica en `check-activation.mjs` (un caso solo pasa si es estable) | superpowers §2.A, micro-test de wording | rama `feat/cierre-de-backlog` |
+| Menú de cierre de rama en la Fase 4 de `/implement`: 3 opciones literales, `discard` como palabra exacta, suite sobre el árbol a integrar | superpowers §2.C | rama `feat/cierre-de-backlog` |
+| Testing basado en riesgo (probabilidad × impacto) en la propuesta de spec de `/plan` | ISO/IEC/IEEE 29119-2 (§6) | rama `feat/cierre-de-backlog` |
+| Worktree de revisión cableado en la Fase 1 de `/review` | §12 | rama `feat/cierre-de-backlog` |
 
 ---
 

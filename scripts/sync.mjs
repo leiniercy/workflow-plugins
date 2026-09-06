@@ -285,6 +285,9 @@ const ADAPTERS = {
         "name: " + name,
         "description: " + yamlString(meta.description),
         "user-invocable: false",
+        // §4 de docs/referencias.md: declarar la licencia a nivel de skill. El paquete es
+        // MIT; sin este campo, una skill extraída del plugin viaja sin licencia.
+        "license: MIT",
         "---",
         "",
       ].join("\n"),

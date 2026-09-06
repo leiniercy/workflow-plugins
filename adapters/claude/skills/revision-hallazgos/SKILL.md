@@ -2,6 +2,7 @@
 name: revision-hallazgos
 description: "Úsala en /review y en los subagentes revisores, antes de reportar cualquier hallazgo. Síntomas de que la necesitas: dudas de si algo es un defecto real o un nitpick, si ya lo pillaría el linter, si es preexistente, o si merece bloquear una PR."
 user-invocable: false
+license: MIT
 ---
 # Validación y puntuación de hallazgos de revisión
 

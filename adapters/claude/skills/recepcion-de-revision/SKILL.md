@@ -2,6 +2,7 @@
 name: recepcion-de-revision
 description: "Úsala al recibir hallazgos de una revisión —informe de /review, comentarios de un humano en la PR, avisos de CI— antes de tocar código. Síntomas: te oyes decir «tienes toda la razón», vas a implementar sin comprobarlo contra el repo, o hay puntos que no entiendes y piensas empezar por los que sí."
 user-invocable: false
+license: MIT
 ---
 # Recepción de revisión — evaluar antes de implementar
 

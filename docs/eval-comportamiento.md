@@ -32,7 +32,14 @@ node scripts/check-activation.mjs --baseline                 # EN SECO: dice qu�
 node scripts/check-activation.mjs --baseline --yes           # lo ejecuta de verdad
 node scripts/check-activation.mjs --case fk --yes            # un solo caso
 node scripts/check-activation.mjs --baseline --yes --json r.json
+node scripts/check-activation.mjs --runs 5 --yes             # varianza del disparador
 ```
+
+**La varianza es una métrica, no ruido.** Una sola muestra no dice nada de un disparador: con
+`--runs N` el caso solo pasa si es **estable en las N**. Si unas repeticiones activan la guía y
+otras no, el que no ata es el **wording de la `description`** — se reescribe la description, no
+el caso. Es el micro-test de wording de §2.A, y es la capa que faltaba entre el check
+determinista y la checklist manual.
 
 **Sin `--yes` no lanza nada**: imprime cuántas sesiones abriría y el coste estimado, y sale. El
 freno está puesto a propósito, porque el gasto de este script **no aparece en el contador de la
