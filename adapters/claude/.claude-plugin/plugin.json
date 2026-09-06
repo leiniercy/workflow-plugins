@@ -19,5 +19,8 @@
     "task-management",
     "graphify",
     "knowledge-graph"
-  ]
+  ],
+  "experimental": {
+    "evals": "evals"
+  }
 }
