@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "custom-ia-plugin",
-      "version": "0.15.0",
+      "version": "0.16.0",
       "source": "./adapters/claude",
       "description": "Flujo de desarrollo guiado por tareas de ClickUp: planificación con spec.md, implementación con TDD, revisión y continuidad entre sesiones."
     }

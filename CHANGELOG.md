@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.16.0] - 2026-09-06
+
 ### Añadido
 
 - **Bucket `core/guides/in-progress/`** — el único sitio donde una guía puede existir sin
