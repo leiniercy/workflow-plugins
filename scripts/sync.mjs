@@ -197,7 +197,7 @@ const GUIDES = {
   },
   "rendimiento": {
     description:
-      "Úsala al fijar un requisito de rendimiento en /plan y al juzgar el coste de ejecución de un cambio en /implement y /review. Síntomas: una consulta dentro de un bucle, una lista sin paginar sobre una tabla que crece, llamadas en serie que podrían ir a la vez, «con los datos de ahora va bien», o te oyes optimizar algo que no has medido.",
+      "Úsala al fijar un requisito de rendimiento en /plan y al juzgar el coste de ejecución de un cambio en /implement y /review. Síntomas: una consulta dentro de un bucle, una lista sin paginar sobre una tabla que crece, llamadas en serie que podrían ir a la vez, vas a declarar una clave foránea o a filtrar por una columna sin índice, «con los datos de ahora va bien», o te oyes optimizar algo que no has medido.",
   },
   "coste-y-estructuras": {
     description:
@@ -209,7 +209,7 @@ const GUIDES = {
   },
   "arquitectura": {
     description:
-      "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas, el bounded context y los contratos de API vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, vas a crear o cambiar un endpoint, o la tentación de partir en servicios «por si escala».",
+      "Úsala al decidir dónde debe vivir el código nuevo y si una frontera está justificada (enfoque técnico de /plan), y al comprobar en /review que un cambio respeta las capas, el bounded context y los contratos de API vigentes. Síntomas: lógica de dominio filtrándose a la UI, un módulo saltándose la frontera de otro, vas a crear o cambiar un endpoint, una operación larga o masiva metida dentro de una petición-respuesta, o la tentación de partir en servicios «por si escala».",
   },
   "consultas-correctas": {
     description:

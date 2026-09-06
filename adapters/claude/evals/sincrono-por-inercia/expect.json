@@ -11,6 +11,6 @@
     ]
   ],
   "linea_base_debe_fallar": true,
-  "calibrado": false,
-  "nota_calibracion": "Candidato SIN calibrar: nadie ha comprobado todavía que la línea base falle este caso. Córrelo con --baseline antes de fiarte de él; si sale SIN DELTA, rediseñalo o bórralo."
+  "calibrado": true,
+  "nota_calibracion": "La línea base no plantea el procesamiento por lotes; con la guía, sí. Delta confirmado el 2026-09-06, tras añadir a arquitectura el síntoma de la operación larga dentro de una petición-respuesta."
 }

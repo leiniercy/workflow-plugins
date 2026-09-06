@@ -64,24 +64,38 @@ Con sesión OAuth eso **no se factura**: consume límite de uso. En CI sí se fa
 allí haría falta una clave de API — y esa, más que el tiempo, es la razón de que este eval no
 esté en ningún workflow.
 
-### Estado de los casos: SIN CALIBRAR
+### Estado de los casos: calibrados el 2026-09-06
 
-Los siete casos actuales llevan `"calibrado": false`. Se escribieron eligiendo síntomas que
-**parecen** difíciles para la línea base, pero **nadie lo ha comprobado todavía**: la calibración
-son dos sesiones por caso y se paró a propósito para no gastar cuota.
+Se corrieron los siete candidatos con `--baseline` (14 sesiones). **Sobreviven dos.** El eval
+hizo exactamente lo que se construyó para hacer: separar lo que el plugin aporta de lo que el
+modelo ya sabía.
 
-Hasta que se corran con `--baseline`, son **candidatos, no verificación**. Lo que sí está medido:
+| Caso | Activó | Línea base | Veredicto |
+|---|---|---|---|
+| `fk-sin-indice` | ✅ (tras arreglo) | ❌ falla | **Delta real** — se queda |
+| `sincrono-por-inercia` | ✅ (tras arreglo) | ❌ falla | **Delta real** — se queda |
+| `agregacion-multiplicada` | ✅ | ✅ acierta | ⚠ sin delta — borrado |
+| `not-in-nulos` | ✅ | ✅ acierta | ⚠ sin delta — borrado |
+| `oraculo-lento` | ✅ | ✅ acierta | ⚠ sin delta — borrado |
+| `contraejemplo` | ✅ | ✅ acierta | ⚠ sin delta — borrado |
+| `estructura-innecesaria` | ✅ | ✅ acierta | ⚠ sin delta — borrado |
 
-| Comprobación | Resultado |
-|---|---|
-| `consultas-correctas` se activa ante un `LEFT JOIN` con la condición en el `WHERE` | ✅ Verificado |
-| `coste-y-estructuras` se activa ante «cruzo dos listas que crecen» | ✅ Verificado |
-| Ese mismo caso del `LEFT JOIN`, **¿aporta sobre la línea base?** | ❌ **No.** El modelo lo diagnostica igual sin el plugin |
+**Dos bugs de disparador encontrados y corregidos.** Los dos casos con delta real
+**no activaban su guía**, y en ambos la causa era la misma: a la `description` le faltaba el
+síntoma. `rendimiento` no listaba la clave foránea, y `arquitectura` no listaba la operación
+larga metida en una petición-respuesta. Añadidos los dos síntomas, ambos casos pasan. Esto es
+lo que ningún check estático podía encontrar: la `description` estaba bien **formada** y no
+disparaba.
 
-Ese último resultado es el que da sentido a todo esto: por eso los siete casos apuntan a
-síntomas más duros —la multiplicación de filas, el `NOT IN` con nulos, la clave foránea sin
-índice— y no al `LEFT JOIN`, que ya sabemos que no discrimina. Cuando los calibres, marca
-`"calibrado": true` en los que sobrevivan y borra o rediseña los que salgan **⚠ SIN DELTA**.
+**Y el resultado incómodo, que es el más útil:** en cinco de siete, el modelo sin el plugin
+acierta igual. No significa que esas guías sobren —siguen fijando severidad, encuadre y
+vocabulario común, y eso es consistencia, no conocimiento—, pero sí que **no se puede
+demostrar su aporte con un caso de activación**. Un caso que mide lo que el modelo ya sabe es
+un test tautológico, así que se borraron en vez de dejarlos dando falso verde.
+
+**Al añadir un caso nuevo, el listón es este:** córrelo con `--baseline` ANTES de commitearlo.
+Si la línea base acierta, no lo añadas — busca un síntoma más específico del plugin, o acepta
+que esa guía aporta consistencia y no conocimiento, que también es una respuesta.
 
 ## 1. Auto-activación de guías (checklist manual)
 

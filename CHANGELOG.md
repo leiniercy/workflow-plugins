@@ -5,6 +5,31 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+Primera calibración real del eval de activación (14 sesiones). Encontró **dos bugs de disparador
+que ningún check estático podía ver** y dejó el conjunto de casos en dos, de siete.
+
+### Corregido
+
+- **`rendimiento` no se activaba ante una clave foránea.** Su `description` estaba bien formada
+  —entrecomillada, ≤ 500, redactada como disparador— y aun así no disparaba: le faltaba el
+  síntoma. Añadido «vas a declarar una clave foránea o a filtrar por una columna sin índice».
+  El caso pasa de ✗ a ✓ con el arreglo.
+- **`arquitectura` no se activaba ante una operación masiva dentro de un endpoint.** Mismo
+  patrón: añadido «una operación larga o masiva metida dentro de una petición-respuesta».
+
+### Cambiado
+
+- **Cinco de los siete casos, borrados por no discriminar.** En `agregacion-multiplicada`,
+  `not-in-nulos`, `oraculo-lento`, `contraejemplo` y `estructura-innecesaria`, el modelo **sin el
+  plugin acierta igual**. No prueba que esas guías sobren —fijan severidad, encuadre y
+  vocabulario, que es consistencia y no conocimiento— pero sí que su aporte no se demuestra con
+  un caso de activación. Dejarlos habría sido dar falso verde.
+- **Los dos supervivientes pasan a `calibrado: true`** con la nota de qué falla la línea base
+  en cada uno.
+- **`docs/eval-comportamiento.md`**: la sección «SIN CALIBRAR» se sustituye por la tabla de
+  resultados reales y el listón para añadir casos nuevos — correr `--baseline` **antes** de
+  commitear, y si la línea base acierta, no añadirlo.
+
 ## [0.18.0] - 2026-09-06
 
 Cierra el backlog: los nueve pendientes que quedaban en 🔜 quedan en cero. Dos se dejan fuera
