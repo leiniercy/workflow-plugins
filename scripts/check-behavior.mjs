@@ -116,6 +116,33 @@ for (const g of GUIDES) {
     `${g} frontmatter ≤ ${FRONTMATTER_MAX} chars (techo del formato) — actual: ${fm.length}`);
 }
 
+// --- paquete de revisión por fichero: el diff NO viaja en los prompts ---
+//
+// El ahorro entero depende de una cosa: que /review escriba el patch a un fichero y
+// pase la RUTA a los cinco agentes, en vez de pegar el diff cinco veces. Es un contrato
+// que se revierte sin darse cuenta —basta con volver a redactar «pásale el diff»— y la
+// regresión no rompe nada visible: solo multiplica el gasto en silencio. Por eso se
+// asevera aquí.
+const reviewBody = read(join(CLAUDE, "commands/review.md")) || "";
+assert(/>\s*\/tmp\/review-/.test(reviewBody), "/review genera el paquete de revisión a fichero");
+assert(
+  /RUTAS, no contenido/i.test(reviewBody),
+  "/review despacha los revisores con rutas, no pegando el diff",
+);
+for (const a of [
+  "revisor-bugs-seguridad",
+  "revisor-spec-tests",
+  "revisor-convenciones",
+  "revisor-usabilidad-accesibilidad",
+  "verificador-hallazgos",
+]) {
+  const body = read(join(CLAUDE, "agents", a + ".md")) || "";
+  assert(
+    /\/tmp\/review-/.test(body),
+    `${a} espera el paquete de revisión por ruta (no el diff pegado en el prompt)`,
+  );
+}
+
 // --- bucket in-progress/: borradores que NO se publican ---
 //
 // core/guides/in-progress/ es el único sitio donde una guía puede existir sin enviarse.

@@ -19,7 +19,29 @@ con /implement, que detectará el modo corrección).
 1. Lee `tasks/<taskId>/spec.md`. Si no existe, revisa igualmente (diff contra develop) pero
    ADVIERTE que sin spec no puedes evaluar cumplimiento, solo calidad del código.
 2. Lee `progress.md` para conocer el historial y decisiones tomadas.
-3. Obtén el diff completo: `git diff develop...HEAD` (cambios de la rama, no de develop).
+3. **Paquete de revisión (por fichero, NO por contexto).** Todo lo que pegues en un prompt y
+   todo lo que un subagente imprima **queda residente en tu contexto el resto de la sesión y se
+   relee en cada turno**. Un diff completo pegado a cuatro subagentes se paga cinco veces. Así
+   que el diff se escribe a un fichero **fuera del repo** y a los revisores se les pasa **la
+   ruta**, no el contenido:
+
+   ```bash
+   git log --oneline develop..HEAD                       # commits: barato, se queda aquí
+   git diff --stat develop...HEAD                        # qué ficheros: barato, se queda aquí
+   git diff -U10 develop...HEAD > /tmp/review-<taskId>.diff   # el patch: va a fichero
+   ```
+
+   **No leas ese fichero.** Ahí está el punto: el diff completo no entra en tu contexto. Con
+   `--stat` y los commits ya sabes qué se tocó, que es lo que necesitas para repartir
+   dimensiones y decidir si la 6 aplica. El `-U10` da a los revisores más contexto por hunk, así
+   que necesitan abrir menos ficheros.
+
+   El fichero va a un directorio temporal **por eso**: `/review` no escribe nada en el repo, así
+   que su contrato de solo-lectura sigue siendo literal. Nada que gitignorar, nada que limpiar.
+
+   **Degrada** si no puedes escribirlo (redirección no permitida) o si no vas a despachar
+   subagentes (OpenCode): entonces lee el diff directamente y sigue como siempre. Sin subagentes
+   no hay nada que ahorrar, porque no hay cuatro copias.
 4. **Análisis de impacto con el grafo (solo si ya existe):** coherente con tu contrato de
    solo-lectura, NO construyas ni actualices el grafo. Si `graphify-out/graph.json` existe,
    consulta la guía `grafo-conocimiento` (`${CLAUDE_PLUGIN_ROOT}/skills/grafo-conocimiento/SKILL.md`) y úsalo para detectar impacto no obvio:
@@ -93,10 +115,19 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
 
 **Si dispones de los agentes revisores del plugin** (`revisor-bugs-seguridad`,
 `revisor-spec-tests`, `revisor-convenciones`, `revisor-usabilidad-accesibilidad`):
-despáchalos EN PARALELO como subagentes,
-pasándole a cada uno el contexto que ya recopilaste en la Fase 2 (contenido de spec.md, el
-diff completo, los hallazgos del grafo si los hubo y las notas de progress.md). El reparto y
-el modelo de cada uno (tiering por coste/complejidad, patrón del plugin oficial `code-review`):
+despáchalos EN PARALELO como subagentes.
+
+**Pásales RUTAS, no contenido.** A cada uno: la ruta del paquete de la Fase 2
+(`/tmp/review-<taskId>.diff`), la de `tasks/<taskId>/spec.md` y la de `tasks/<taskId>/progress.md`.
+Tienen `Read`: abren lo que necesiten. Inline solo va lo barato y lo que no es un fichero: su
+dimensión, el `--stat` para que sepan la forma del cambio, y los hallazgos del grafo si los hubo.
+
+**Nunca pegues el diff en el prompt.** Es el mismo error que pagar cinco veces el mismo texto, y
+además envenena tu contexto para el resto de la sesión. Si el paquete no existe porque la Fase 2
+degradó, pega el diff y asúmelo — pero entonces sabes lo que estás gastando.
+
+El reparto y el modelo de cada uno (tiering por coste/complejidad, patrón del plugin oficial
+`code-review`):
 
 - `revisor-bugs-seguridad` (opus) → dimensiones 2 (bugs) y 5 (seguridad).
 - `revisor-spec-tests` (sonnet) → dimensiones 1 (cumplimiento de spec) y 3 (tests).
@@ -152,7 +183,8 @@ Además, resuelve estas tres cosas antes de pasar a la refutación:
 ### 4.2 — Refutación cruzada (validación adversarial independiente)
 
 **Si dispones del agente `verificador-hallazgos`**: despáchalo UNA vez con la lista de
-hallazgos candidatos sintetizados, el diff y el spec. Es un revisor independiente que NO los
+hallazgos candidatos sintetizados —esa sí va inline, es tu síntesis y es corta— y las **rutas**
+del paquete de revisión y de `spec.md`, por lo mismo que en la Fase 3. Es un revisor independiente que NO los
 encontró y cuyo trabajo es intentar REFUTARLOS (¿preexistente?, ¿correcto en su contexto
 completo?, ¿ya cubierto por un test?, ¿contradice a otro hallazgo?). Quédate solo con los que
 marque `confirmado`; descarta los `refutado` y reubica los `dudoso` en la nota de baja
@@ -209,4 +241,5 @@ de solo-lectura.
 | "Progress.md dice que se decidió así, lo doy por bueno" | Las notas son afirmaciones, no hechos, y una justificación no baja la severidad de lo que el código sostiene (Fase 4.1). |
 | "El grep coincide, con eso ya puedo reportarlo" | Una coincidencia señala dónde mirar: es una hipótesis. Abre el fichero completo y confírmala antes de que entre en el informe (guía evidencia-y-preguntas). |
 | "Este criterio no se ve en el diff, lo doy por cumplido (o por incumplido)" | Ni una cosa ni otra: se marca ⚠️ no verificable y lo resuelves tú con spec.md delante (Fases 3.1 y 4.1). |
+| "Le pego el diff al subagente, que así lo tiene seguro" | Se lo pegas a los cuatro, y además se te queda residente el resto de la sesión. Pásale la ruta del paquete de la Fase 2: tiene `Read`. |
 | "La spec pide esto, así que no lo reporto" | La autoría de la spec no califica su propio trabajo: repórtalo como `exigido-por-spec` y que decida el usuario (Fase 4.1). |

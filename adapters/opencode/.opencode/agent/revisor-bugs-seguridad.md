@@ -15,9 +15,16 @@ otros agentes. Es una restricción dura, no una recomendación.
 
 ## Lo que recibes
 
-El prompt de `/review` te entrega el contexto ya recopilado: el contenido de `spec.md` (si
-existe), el diff de la rama (`git diff develop...HEAD`), el contexto de impacto del grafo de
-conocimiento (si lo hubo) y notas de `progress.md`. No tienes Bash: no ejecutes comandos.
+El prompt de `/review` te entrega **rutas, no contenido**: la del paquete de revisión
+(`/tmp/review-<taskId>.diff`, el patch completo de la rama generado con `-U10`), la de
+`tasks/<taskId>/spec.md` si existe y la de `tasks/<taskId>/progress.md`. Inline solo recibes tu
+dimensión, el `--stat` del cambio y los hallazgos del grafo de conocimiento si los hubo.
+
+**Ábrelas con `Read`. Es lo primero que haces.** Se te pasan por ruta a propósito: un diff
+pegado en el prompt se cobra en cada uno de los revisores y además queda residente en el
+contexto de quien te despachó durante el resto de la sesión. Si una ruta no existe —porque
+`/review` degradó y te pegó el diff—, trabaja con lo que tengas y dilo en tu informe.
+No tienes Bash: no ejecutes comandos.
 Para verificar, LEE con tus herramientas los ficheros afectados COMPLETOS (no solo las líneas
 del diff) y sus consumidores.
 
