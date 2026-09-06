@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.14.0] - 2026-09-06
+
 El catálogo pasa de 20 a 21 guías con `consultas-correctas`, a partir del estudio de tres
 fuentes sobre SQL (§17 de `docs/referencias.md`). Cubre el hueco de la **corrección** de una
 consulta: defectos que no son lentos ni inseguros —son válidos, pasan los tests con datos de
