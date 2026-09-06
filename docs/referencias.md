@@ -697,6 +697,64 @@ sirve». Es un sitio donde merece la pena mirar al auditar el resto de guías.
 
 ---
 
+## 16. Aprende Programación Competitiva (OIE) — 54 manuales de algoritmia
+
+**Qué es:** el material de estudio de la Olimpiada Informática Española
+(`aprende.olimpiada-informatica.org`): 54 manuales agrupados en fundamentales (eficiencia,
+costes, recursividad, voraces, análisis amortizado), algoritmos con números, búsqueda completa y
+programación dinámica, estructuras de datos (de la STL y propias), grafos, geometría
+computacional y listas de problemas. Está escrito para preparar concurso, con demostraciones
+trabajadas, mediciones y código en C++.
+
+**Relación con nosotros:** es la primera fuente del catálogo cuyo **dominio no es el nuestro**.
+A diferencia de §15 el problema no es la fiabilidad —tiene demostraciones y mediciones, no
+diagramas con pie de media página— sino la **transferencia**: la mayor parte de su contenido
+resuelve un problema que un repo de producto no tiene, porque el motor de datos ya lo resuelve.
+Lo que aquí es un árbol de segmentos, allí es un índice. El filtro, por tanto, no fue contrastar
+con la fuente primaria sino preguntar por cada pieza *¿esto aparece alguna vez en una tarea de
+producto?*
+
+**Cómo se filtró:** fuera la mayor parte del temario por dominio —grafos, geometría, teoría de
+números, optimizaciones de programación dinámica, detalles de C++— no por ser incorrecto, sino
+porque su condición de uso (datos en memoria, muchas consultas sobre el mismo conjunto, sin
+motor de datos detrás) casi nunca se cumple en el trabajo del plugin. Lo que queda son cuatro
+huecos reales y tres transferencias de **método**, que son las que más valen.
+
+| Patrón | Qué aporta | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Del volumen a la clase de coste admisible** | La restricción es la pista principal: de `n` sale la complejidad objetivo, y eso descarta soluciones antes de escribirlas | Sección 1 de `coste-y-estructuras`. Da contenido a la pieza «con qué volumen» que `rendimiento` ya exigía en un criterio pero no sabía derivar | ✅ |
+| **Reglas para leer la clase de coste de un código** | Bucles que multiplican, el `j = i+1` que no cambia la clase, recursión por niveles, peor caso, coste amortizado | Sección 2 de `coste-y-estructuras`. Lo que convierte «esto parece lento» en una afirmación comprobable | ✅ |
+| **Elegir el contenedor por las operaciones que necesita** | Mapa *hash* por defecto; ordenado solo si el orden se usa; montículo si solo hace falta el siguiente | Sección 3. Es la decisión que aparece en casi toda tarea y la que `rendimiento` mandaba —con razón— no tocar **sin medir**, dejando sin cubrir el caso de elegirla la primera vez | ✅ |
+| **Bucle anidado sobre colecciones sin techo** | Búsqueda lineal repetida donde cabía un índice por clave | Firma nueva para la dim. 4 de `/review`, con el mismo perfil que el N+1: correcto hoy, roto con volumen, evitable mientras escribes | ✅ |
+| **La búsqueda exhaustiva como oráculo** | Escribir *a propósito* la versión lenta y obviamente correcta para validar la rápida sobre casos pequeños | `niveles-y-tipos-de-prueba`: resuelve el caso que la guía dejaba abierto —qué hacer cuando el esperado no se puede derivar a mano— y es la puerta a las pruebas basadas en propiedades | ✅ |
+| **Lo voraz hay que demostrarlo** | Una heurística funciona en tus ejemplos tanto si es correcta como si no; el contraejemplo canónico son las monedas de 1, 3 y 4 para sumar 6 | `evidencia-y-preguntas`: sube un escalón el principio del plugin —no basta con no tener contraejemplo, hay que **haberlo buscado**—. Con su bandera roja | ✅ |
+| **Online contra offline** | Poder acumular y reordenar el trabajo desbloquea soluciones que en modo síncrono no existen | `arquitectura`: sección «¿Síncrono o por lotes?» + anti-patrón «síncrono por inercia». Va ahí y no en rendimiento porque la respuesta **se ve en la interfaz** | ✅ |
+| **Las tres monedas** (tiempo por consulta, precálculo, memoria) | Casi ninguna estructura es «más rápida»: cambian una moneda por otra | Sección 4 de `coste-y-estructuras`, con el aviso del precálculo que no se amortiza | ✅ |
+| Repertorio de estructuras (sumas acumuladas, tabla dispersa, árbol de segmentos, bloques √, union-find, trie, treap) | Consultas sobre rangos, conjuntos disjuntos, prefijos | Adoptado **como catálogo de reconocimiento, no de uso**: cada fila lleva su condición y la tabla entera lleva el aviso de cuándo NO escribirlas. Solo las sumas acumuladas aparecen a menudo en producto | ✅ |
+| Grafos (Dijkstra, Bellman-Ford, Floyd-Warshall, MST, SCC/2-SAT, LCA, HLD, centroid decomposition, emparejamiento bipartito) | — | Fuera de alcance: cuando un repo de producto necesita un camino mínimo, lo necesita una vez y con una librería | ⛔ |
+| Geometría computacional (envolvente convexa, orientación, teorema de Pick) | — | Dominio ajeno al plugin | ⛔ |
+| Teoría de números (criba, exponenciación rápida, Fermat, Euclides) | — | Ídem | ⛔ |
+| Optimizaciones de programación dinámica (Knuth, divide y vencerás, SOS DP, Li Chao) | — | Condición de uso inexistente en producto | ⛔ |
+| Detalles de C++ y de la STL (`reserve` en potencia de 2, `pop()` no retorna, reservar `4n` en el árbol de segmentos) | — | El core es agnóstico de stack (§7): una guía no se ata a un lenguaje | ⛔ |
+
+### Lo que no se importa tal cual
+
+| Afirmación | Cómo queda en la guía |
+|---|---|
+| «~10⁸ operaciones por segundo» como presupuesto | **No es un dato de la fuente.** Es una regla de pulgar del ambiente competitivo, calibrada contra la única medición que la fuente sí da (manual II: ~10⁹ pasos triviales por segundo) y bajada un orden de magnitud porque las operaciones reales cuestan más. Va escrita **como regla de pulgar**, no como medición |
+| La tabla de `n` contra complejidad | Se importa como **filtro**, no como cálculo: sirve para descartar antes de escribir, no para predecir tiempos |
+
+**La lección de proceso:** en §15 los huecos estaban en el **segundo movimiento** de reglas que
+ya existían. Aquí ha sido justo al revés: `rendimiento` tenía el segundo movimiento («no
+sustituyas una estructura sin medir») y le faltaba el primero («cuál eliges cuando todavía no hay
+código y no hay nada que medir»). Merece la pena auditar el resto de guías por los dos lados: una
+regla puede estar coja por delante o por detrás. Y el hallazgo secundario: las piezas más
+valiosas de una fuente de otro dominio no fueron sus algoritmos, sino sus **métodos** —el
+oráculo, el contraejemplo, la pregunta online/offline—, que viajan entre dominios mucho mejor
+que las técnicas.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -840,8 +898,14 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | Sección «Dos patrones que se pagan caro» (event sourcing y CQRS, redactados por su coste) en `arquitectura` | ByteByteGo §15, encuadrado con Fowler (§7) | rama `feat/bytebytego-cache-indices-contrato` |
 | Guía transversal `evidencia-y-preguntas` (procedencia del dato + test de los tres escalones) enganchada en los 4 workflows | Petición del usuario; formaliza lo que estaba repartido en `revision-hallazgos`, `/plan` e `/implement` | rama `feat/bytebytego-cache-indices-contrato` |
 | `check-behavior.mjs` deriva la lista de guías del **disco** (no de `sync.mjs`, que la volvería tautológica) — cierra la deriva que dejaba sin comprobar toda guía nueva | Defecto detectado durante esta iteración | rama `feat/bytebytego-cache-indices-contrato` |
+| Guía `coste-y-estructuras` (presupuesto de coste, lectura de la clase, elección de contenedor y repertorio con su «cuándo NO») en `/plan`, `/implement` y dim. 4 de `/review` | OIE §16 | rama `feat/algoritmia-coste-y-estructuras` |
+| Firma de revisión: bucle anidado sobre dos colecciones sin techo cuando una podía indexarse por clave | OIE §16 | rama `feat/algoritmia-coste-y-estructuras` |
+| El **oráculo lento** en `niveles-y-tipos-de-prueba` (versión obviamente correcta como referencia; puerta a las pruebas basadas en propiedades) | OIE §16 | rama `feat/algoritmia-coste-y-estructuras` |
+| **Buscar el contraejemplo** en `evidencia-y-preguntas`: no basta con no tenerlo, hay que haberlo buscado | OIE §16 | rama `feat/algoritmia-coste-y-estructuras` |
+| Sección «¿Síncrono o por lotes?» en `arquitectura` + anti-patrón «síncrono por inercia» | OIE §16 | rama `feat/algoritmia-coste-y-estructuras` |
+| Frontera explícita `rendimiento` ↔ `coste-y-estructuras` (sustituir exige medición; elegir la primera vez, no) | OIE §16 | rama `feat/algoritmia-coste-y-estructuras` |
 
 ---
 
-_Última actualización: 2026-09-04. Mantén este documento al día cuando adoptes un patrón o
+_Última actualización: 2026-09-06. Mantén este documento al día cuando adoptes un patrón o
 analices un repo nuevo._

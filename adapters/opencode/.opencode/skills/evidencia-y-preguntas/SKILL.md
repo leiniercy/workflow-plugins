@@ -65,6 +65,13 @@ hecho por una duda parcial es su propio fallo.
 - **Lo que afirma otro no es un hecho por venir de dentro.** Lo que diga `progress.md`, un
   subagente o el propio enunciado de la tarea es una afirmación con autor: se verifica igual que
   la de fuera (`revision-hallazgos` (skill de OpenCode, auto-activable)).
+- **Una regla que has deducido se comprueba buscándole el contraejemplo**, no acumulando casos
+  que la confirman. Reunir ejemplos a favor no distingue una regla correcta de una que casi
+  siempre acierta: el único caso que informa es el que la rompería. **No basta con no tener
+  contraejemplo; hay que haberlo buscado** —y la forma de buscarlo suele ser generar casos
+  pequeños y contrastarlos con la versión obviamente correcta
+  (`niveles-y-tipos-de-prueba` (skill de OpenCode, auto-activable)). Si lo buscaste y no apareció, sigue siendo una asunción
+  y se declara como tal.
 - **Una fuente externa se contrasta con la primaria de su tema** —el RFC, la documentación del
   motor, la norma— antes de que su contenido entre en una decisión. El material divulgativo vale
   para saber qué mirar, no para citarlo.
@@ -119,11 +126,14 @@ puedes sostener.
 | "Lo dice progress.md, es del propio flujo" | Es una afirmación con autor, no un hecho. Verifícala como cualquier otra. |
 | "Debería pasar, el cambio es evidente" | Ejecuta y lee la salida. Sin ella no puedes afirmarlo. |
 | "Lo vi en un artículo / en el PDF ese" | Contrasta con la fuente primaria del tema antes de meterlo en una decisión. |
+| "He probado cinco casos y sale bien" | Cinco casos a favor no comprueban una regla. Busca el que la rompería; una regla que casi siempre acierta se comporta igual que una correcta hasta que no. |
 
 ## Autocrítica antes de cerrar
 
 Antes de escribir en `spec.md`, registrar en `progress.md` o emitir un informe, pregúntate:
 **¿cada afirmación que he escrito es un hecho comprobado, una asunción declarada o un dato del
-usuario? ¿hay alguna que no sepa clasificar? ¿pregunté algo que estaba en el repo? ¿me callé
+usuario? ¿hay alguna que no sepa clasificar? ¿alguna regla que doy por buena la he confirmado
+juntando ejemplos a favor en vez de buscarle el contraejemplo? ¿pregunté algo que estaba en el
+repo? ¿me callé
 una duda cuya otra respuesta habría cambiado el trabajo? ¿bloqueé cosas que no dependían de la
 pregunta?** Si algo falla, corrígelo antes de seguir.

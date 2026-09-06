@@ -195,6 +195,10 @@ const GUIDES = {
     description:
       "Úsala al fijar un requisito de rendimiento en /plan y al juzgar el coste de ejecución de un cambio en /implement y /review. Síntomas: una consulta dentro de un bucle, una lista sin paginar sobre una tabla que crece, llamadas en serie que podrían ir a la vez, «con los datos de ahora va bien», o te oyes optimizar algo que no has medido.",
   },
+  "coste-y-estructuras": {
+    description:
+      "Úsala al derivar de un volumen la complejidad admisible en /plan, al elegir la estructura de datos de código nuevo en /implement, y al juzgar la clase de coste de un cambio en /review. Síntomas: un bucle dentro de otro sobre dos colecciones que crecen, una búsqueda lineal repetida donde cabía un índice por clave, no sabes si algo es O(n) o O(n²), vas a escribir a mano una estructura que el motor de datos ya hace, o un umbral sin volumen detrás.",
+  },
   "usabilidad-accesibilidad": {
     description:
       "Úsala cuando el trabajo toque interfaz o una ruta pública: criterios de aceptación de UI en /plan, tests de componente en /implement y la dimensión 6 de /review. Síntomas: formularios sin validación o sin mensajes útiles, imágenes sin alt, controles no alcanzables por teclado, texto en duro en un repo traducido, una ruta nueva sin metadatos propios, o una URL publicada que se mueve sin redirección. Nielsen + WCAG 2.2 + SEO técnico.",

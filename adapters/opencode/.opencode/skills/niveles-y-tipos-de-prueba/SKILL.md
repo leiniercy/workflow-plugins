@@ -74,6 +74,19 @@ expect(construirQuery({ tag: "urgente" })).toBe(esperado);
 expect(construirQuery({ tag: "urgente" })).toBe('tag:"urgente"');
 ```
 
+**Cuando no puedes derivarlo a mano: el oráculo lento.** Hay resultados cuyo esperado no se
+escribe a mano para un caso realista —un cálculo optimizado, un algoritmo con poda, una
+agregación—. La salida no es renunciar ni caer en la aserción espejo: es escribir **a propósito**
+la versión lenta y obviamente correcta —la que recorre todo sin optimizar, la que se lee de un
+vistazo— y usarla como referencia sobre entradas pequeñas. El test compara las dos
+implementaciones; el oráculo vive en utilidades de test y nunca en producción.
+
+Funciona porque las dos versiones fallan de formas distintas: si el oráculo es lo bastante
+simple como para darlo por correcto leyéndolo, un desacuerdo señala al código optimizado. Es la
+puerta natural a las **pruebas basadas en propiedades** —en vez de casos elegidos a ojo, generas
+entradas y aseveras que ambas coinciden— y es la técnica con la que `coste-y-estructuras` (skill de OpenCode, auto-activable)
+manda comprobar una heurística antes de fiarse de ella.
+
 **Prueba tu frontera, no el framework.** El contrato que hace tu código (la ruta que registras,
 la query que emites, la respuesta que produces) es tuyo; que el router invoque un handler
 registrado es el test de sus mantenedores.
@@ -130,6 +143,7 @@ desprotegido — o el test como tautológico.
 
 Antes de fijar la estrategia (`/plan`) o de escribir el test (`/implement`), pregúntate:
 **¿estoy probando en el nivel más bajo que sirve? ¿sé nombrar qué rotura atraparía este test?
-¿el valor esperado está derivado a mano? ¿marqué los tipos no-funcionales que el CA exige?
+¿el valor esperado está derivado a mano —o contra un oráculo lento, si a mano no se podía—?
+¿marqué los tipos no-funcionales que el CA exige?
 ¿reutilizo el runner del repo? ¿evité integrar maquinaria que es del proyecto, no del plugin?**
 Si algo falla, corrígelo antes de seguir.
