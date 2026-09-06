@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.18.0] - 2026-09-06
+
 Cierra el backlog: los nueve pendientes que quedaban en 🔜 quedan en cero. Dos se dejan fuera
 **por decisión declarada, no por olvido** — perfiles de stack (§7), que el propio catálogo marca
 como iniciativa aparte, y el glosario `CONTEXT.md` (§9.A), que merece decidir antes si es guía o
