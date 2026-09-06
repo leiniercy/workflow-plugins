@@ -5,6 +5,40 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+El catálogo pasa de 19 a 20 guías con `coste-y-estructuras`, a partir del estudio de los 54
+manuales de algoritmia de la OIE (§16 de `docs/referencias.md`). Cierra el **primer movimiento**
+de una regla que solo tenía el segundo: `rendimiento` sabía decir «no sustituyas una estructura
+sin medir», pero no «cuál eliges cuando todavía no hay código y no hay nada que medir». Y trae
+tres transferencias de método —el oráculo, el contraejemplo, la pregunta online/offline— que
+viajan entre dominios mejor que las técnicas de las que salen.
+
+### Añadido
+
+- **Guía `coste-y-estructuras`** — la decisión anterior a la medición: derivar del volumen la
+  clase de complejidad admisible, leer la clase de coste de un código (bucles anidados, el
+  `j = i+1` que no cambia la clase, recursión por niveles, peor caso, coste amortizado) y elegir
+  el contenedor por las operaciones que necesita. Trae el repertorio de estructuras avanzadas con
+  su condición de uso y, sobre todo, con el aviso de cuándo **no** escribirlas: en un repo de
+  aplicación, lo que aquí es un árbol de segmentos allí es un índice.
+- **`coste-y-estructuras`: firma nueva para `/review`** — bucle anidado, explícito o escondido en
+  una búsqueda lineal, sobre dos colecciones que crecen sin techo cuando una podía indexarse por
+  clave. Mismo perfil que el N+1: correcto hoy, roto con volumen, evitable mientras escribes.
+- **`niveles-y-tipos-de-prueba`: el oráculo lento** — qué hacer cuando el valor esperado no se
+  puede derivar a mano: escribir a propósito la versión lenta y obviamente correcta y comparar
+  ambas sobre entradas pequeñas. Es la puerta a las pruebas basadas en propiedades y la técnica
+  con la que se comprueba una heurística antes de fiarse de ella.
+- **`evidencia-y-preguntas`: buscar el contraejemplo** — una regla deducida no se comprueba
+  acumulando casos a favor; no basta con no tener contraejemplo, hay que haberlo buscado. Con su
+  bandera roja («he probado cinco casos y sale bien»).
+- **`arquitectura`: sección «¿Síncrono o por lotes?»** — la pregunta que casi nadie plantea en
+  diseño y que se ve en la interfaz, con su anti-patrón: quedarse en síncrono por inercia, que es
+  el modo más caro y el que menos soluciones admite.
+
+### Cambiado
+
+- **`rendimiento`: frontera explícita** con `coste-y-estructuras` en «Lo que NO se juzga sin
+  medir» — sustituir una estructura escrita exige medición; elegirla la primera vez, no.
+
 ## [0.12.0] - 2026-09-04
 
 El catálogo de guías pasa de 18 a 19 con `evidencia-y-preguntas`, la primera guía **transversal**

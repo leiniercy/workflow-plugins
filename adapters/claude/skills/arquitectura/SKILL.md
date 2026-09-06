@@ -111,6 +111,29 @@ Pregunta lo justo para elegir; con señales débiles, tira al default. Las fuerz
 - **No-funcionales:** latencia, disponibilidad, consistencia (¿toleras consistencia eventual?)
 - **Despliegue independiente:** ¿de verdad hace falta desplegar partes por separado?
 - **Madurez operacional:** ¿hay observabilidad, CI/CD y DevOps para sostener lo distribuido?
+- **Modo de respuesta:** ¿hay que contestar cada petición antes de conocer la siguiente, o se
+  pueden acumular? (ver abajo — es la pregunta que menos se hace)
+
+## ¿Síncrono o por lotes? (la pregunta que casi nadie plantea)
+
+Antes de elegir cómo se calcula algo, decide **cuándo hay que contestar**. Son dos modos con
+consecuencias muy distintas:
+
+- **Síncrono (online):** cada petición se responde sin conocer las siguientes. Es el modo más
+  restrictivo, y por eso el que menos soluciones admite.
+- **Por lotes (offline):** puedes acumular trabajo, **reordenarlo** y resolverlo junto. Eso
+  desbloquea cosas que en síncrono no existen: reutilizar el esfuerzo entre peticiones vecinas,
+  agrupar por coste compartido, amortizar un arranque caro entre muchos elementos
+  (`coste-y-estructuras` (`${CLAUDE_PLUGIN_ROOT}/skills/coste-y-estructuras/SKILL.md`)).
+
+El error no es elegir mal: es **no plantear la pregunta** y quedarse en síncrono por inercia,
+que es el modo caro. Y va aquí, en arquitectura, porque la respuesta **se ve en la interfaz** —
+un resultado inmediato o un «te avisamos cuando esté»— y por tanto es una decisión de producto
+que hay que tomar en `/plan`, no un detalle de implementación que se descubra después.
+
+**Cómo se decide:** pregunta si alguien necesita el resultado *en ese mismo gesto* para
+continuar. Si la respuesta se consume minutos u horas después —un informe, una exportación, un
+recálculo masivo, una sincronización—, es por lotes aunque hoy esté escrito como síncrono.
 
 ## El default (para casi todo proyecto nuevo)
 
@@ -172,6 +195,9 @@ autorización y la exposición de datos a la dimensión 5 para no reportar dos v
 - **Cambiar la estrategia de paginación de un endpoint vivo** — pasar de desplazamiento a
   cursor (o al revés) rompe a todos sus consumidores de golpe. Es el caso anterior disfrazado
   de mejora de rendimiento, y se planifica igual: convivencia primero, retirada después.
+- **Síncrono por inercia** — dejar en petición-respuesta un cálculo cuyo resultado nadie consume
+  en ese gesto, porque nadie llegó a preguntarse si podía ir por lotes. Es el modo más caro y el
+  que menos soluciones admite, elegido sin decidirlo.
 - **Arquitectura resume-driven / «porque mola»** — elegir por prestigio o novedad, no por una fuerza.
 - **Hexagonal/puertos por todo con un solo adaptador** — generalidad especulativa a nivel de
   arquitectura: el mismo olor que `patrones-diseno` (`${CLAUDE_PLUGIN_ROOT}/skills/patrones-diseno/SKILL.md`) frena a nivel de clase.

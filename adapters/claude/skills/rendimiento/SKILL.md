@@ -66,6 +66,12 @@ de forma sistemática: el tiempo casi nunca está donde uno cree. Sin una medici
 respuesta correcta es **el código más simple**, y la optimización se convierte en su propia
 tarea con su propio criterio.
 
+**Ojo a la frontera:** esto vale para **sustituir** una estructura que ya está escrita. Para
+**elegirla la primera vez**, cuando el código todavía no existe y no hay nada que medir, no hay
+especulación posible —hay una tabla de operaciones contra costes— y esa decisión la resuelve
+`coste-y-estructuras` (`${CLAUDE_PLUGIN_ROOT}/skills/coste-y-estructuras/SKILL.md`), igual que la de derivar del volumen qué clase de coste es
+admisible.
+
 ## Cuando el cambio SÍ mete una caché
 
 Que la caché no sea la primera respuesta (ver anti-patrones) no significa que nunca sea la

@@ -10,7 +10,7 @@ revisión independiente y continuidad entre sesiones vía `progress.md`.
 custom-ia-plugin/
 ├── core/                      ← ÚNICA fuente de verdad (editar SOLO aquí)
 │   ├── workflows/             start.md · plan.md · implement.md · review.md
-│   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
+│   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo
 ├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior
 ├── adapters/
