@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.15.0] - 2026-09-06
+
 Cierra el hueco que el eval determinista dejaba abierto: `check-behavior.mjs` asevera **la
 forma** del disparador de cada guía, no que dispare. Ahora hay un tercer nivel de eval que sí lo
 comprueba, con la regla que lo hace útil: **que una guía se active no demuestra que sirva**.
