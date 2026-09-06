@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.13.0] - 2026-09-06
+
 El catálogo pasa de 19 a 20 guías con `coste-y-estructuras`, a partir del estudio de los 54
 manuales de algoritmia de la OIE (§16 de `docs/referencias.md`). Cierra el **primer movimiento**
 de una regla que solo tenía el segundo: `rendimiento` sabía decir «no sustituyas una estructura
