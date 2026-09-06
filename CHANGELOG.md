@@ -9,6 +9,21 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **Paquete de revisión por fichero en `/review`** — era el pendiente prioritario del backlog
+  (§2.B) y el mayor ahorro de contexto disponible. El diff ya no viaja dentro de los prompts: la
+  Fase 2 lo escribe con `git diff -U10 develop...HEAD > /tmp/review-<taskId>.diff` y a los cinco
+  agentes se les pasa **la ruta**. En contexto se quedan solo `--stat` y los commits, que es lo
+  que hace falta para repartir dimensiones. El principio que lo justifica queda escrito en el
+  workflow: todo lo que se pega en un prompt **queda residente el resto de la sesión y se relee
+  en cada turno**, así que un diff pegado a cuatro subagentes se paga cinco veces.
+- **Contrato de entrada por rutas** en los cuatro revisores y en `verificador-hallazgos`:
+  `Read` es lo primero que hacen. Su allowlist de herramientas **no cambia** — `Read` ya bastaba.
+- **Cuatro aserciones nuevas** en `check-behavior.mjs` (205 → 209) que encodean el contrato: que
+  `/review` genera el paquete, que despacha con rutas, y que los cinco agentes lo esperan por
+  ruta. Es una regresión fácil de introducir sin darse cuenta —basta con volver a redactar
+  «pásale el diff»— y que no rompe nada visible: solo multiplica el gasto en silencio.
+- **Bandera roja nueva** en `/review`: «le pego el diff al subagente, que así lo tiene seguro».
+
 - **Bucket `core/guides/in-progress/`** — el único sitio donde una guía puede existir sin
   enviarse. Hasta ahora las 21 se publicaban todas, así que la única forma de no publicar algo
   era no escribirlo y el trabajo a medias se perdía entre sesiones. Con su README: para qué

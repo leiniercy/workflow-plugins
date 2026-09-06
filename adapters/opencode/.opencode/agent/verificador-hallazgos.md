@@ -16,10 +16,14 @@ modificar nada ni despachar otros agentes. Es una restricción dura.
 
 ## Lo que recibes
 
-El prompt de `/review` te entrega: la lista de hallazgos CANDIDATOS (cada uno con dimensión,
-`fichero:línea`, descripción y confianza asignada por el agente que lo encontró), el diff de
-la rama y el contenido de `spec.md` (si existe). No tienes Bash: para verificar, LEE con tus
-herramientas los ficheros afectados COMPLETOS en su contexto real.
+El prompt de `/review` te entrega la lista de hallazgos CANDIDATOS inline (cada uno con
+dimensión, `fichero:línea`, descripción y confianza asignada por el agente que lo encontró) —esa
+es corta y es la síntesis de quien te despacha—, y el resto **por ruta**: el paquete de revisión
+(`/tmp/review-<taskId>.diff`) y `tasks/<taskId>/spec.md` si existe.
+
+**Ábrelas con `Read` antes de juzgar nada.** Refutar un hallazgo exige el contexto real, no el
+fragmento que otro eligió mostrar: es justo lo que separa tu trabajo del suyo. No tienes Bash:
+para verificar, LEE los ficheros afectados COMPLETOS.
 
 ## Tu trabajo: refutar, no confirmar por inercia
 

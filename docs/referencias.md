@@ -125,7 +125,7 @@ de recuperación** que han destilado de sesiones reales, con las cifras del fall
 | Patrón | Qué dice | Aplicación a nuestro plugin | Estado |
 |---|---|---|---|
 | **Ledger anti-compactación** | «La memoria de conversación no sobrevive a la compactación. Controladores que perdieron el sitio han **re-despachado secuencias enteras de tareas ya completas — el fallo más caro observado**». Tras compactar, **fía del fichero y de `git log`, no de tu recuerdo** | **Convergencia**: nuestro `progress.md` resuelve el mismo problema y ya es la fuente de continuidad. Confirma el diseño | ✅ (validado, `7ebd0ae`) |
-| **Los artefactos van por fichero, nunca por el contexto** | «Todo lo que pegas en un prompt y todo lo que un subagente imprime **queda residente en tu contexto el resto de la sesión y se relee en cada turno**». 3 scripts: dir de trabajo por plan, extracción de la tarea a fichero, y **paquete de revisión** (commits + stat + `git diff -U10`) a fichero: al revisor se le pasa **la ruta**, no el diff. Dato real: un dispatch llegó a 42k chars, 99% historial pegado | Nuestro `/review` pasa hoy el diff **dentro** del prompt a 4 subagentes. Cambio de alto valor pero que toca el contrato de los 4 agentes y su fallback en OpenCode (sin Bash no pueden generar el fichero): merece su propia iteración | 🔜 (prioridad alta) |
+| **Los artefactos van por fichero, nunca por el contexto** | «Todo lo que pegas en un prompt y todo lo que un subagente imprime **queda residente en tu contexto el resto de la sesión y se relee en cada turno**». 3 scripts: dir de trabajo por plan, extracción de la tarea a fichero, y **paquete de revisión** (commits + stat + `git diff -U10`) a fichero: al revisor se le pasa **la ruta**, no el diff. Dato real: un dispatch llegó a 42k chars, 99% historial pegado | Adoptado en la Fase 2 de `/review`: `git diff -U10 > /tmp/review-<taskId>.diff` y a los **cinco** agentes se les pasa la RUTA. `--stat` y los commits sí se quedan en contexto, que es lo que hace falta para repartir dimensiones. **De los dos obstáculos anotados, uno no existía**: el `tools` de los agentes no cambia, porque `Read` ya les basta para abrir el paquete — solo cambia su contrato de entrada. El otro se resolvió solo: en OpenCode no hay subagentes, así que no hay cuatro copias que ahorrar y la degradación es leer el diff como siempre. El fichero va fuera del repo a propósito, para que «solo informa» siga siendo literal | ✅ rama `feat/paquete-de-revision` |
 | **Tope de rondas + disyuntor + adjudicación escrita** | Máx. 5 rondas de corrección por tarea; al tope se **adjudica** cada hallazgo abierto: aparcar con veredicto escrito, o **PARAR** si es portante. «Adjudicar antes del tope es pre-juzgar con otro nombre». **Los descartes silenciosos están prohibidos** | Adoptado en la guía nueva `recepcion-de-revision` y en el modo CORRECCIÓN de `/implement`, con **tope de 3** (no 5): sin escalado de modelo en el agente principal, 3 es el mismo umbral que la regla de los tres arreglos de la depuración sistemática, y por la misma razón | ✅ rama `feat/superpowers-v6-2` |
 | **Re-verificación acotada** | Tras el fix se revisa **solo el diff del fix**, veredictando cada hallazgo `corregido`/`no corregido`. Lo nuevo fuera de alcance se anota; **nunca alarga la ronda**. Los Minor no entran al bucle: se difieren y se triagean antes del merge | En `recepcion-de-revision` y en el modo CORRECCIÓN | ✅ rama `feat/superpowers-v6-2` |
 | **No pre-juzgues por el revisor** | Lint sobre tu propio prompt de despacho: si contiene «no marques X», «no lo trates como defecto», «como mucho Minor», «el plan lo eligió» → **para: estás ahorrándote una ronda a costa de la señal** | Adoptado en la Fase 3 de `/review` y en `revision-hallazgos`, **con el matiz que lo hace compatible** con nuestra lista «qué NO reportar»: lo prohibido es el pre-juicio *ad-hoc del orquestador sobre este caso*; una **rúbrica general** que el revisor aplica a todo es legítima | ✅ rama `feat/superpowers-v6-2` |
@@ -175,9 +175,8 @@ revisor en `revision-hallazgos` (afirmaciones ≠ hechos · `exigido-por-spec` �
 · gate de verificación con evidencia en `/implement` · 2-3 enfoques, «Restricciones globales» y
 auto-revisión de spec en `/plan` · `revisor-convenciones` de haiku a sonnet.
 
-**Pendiente prioritario (🔜):** paquete de revisión por fichero en `/review` (§2.B) — el mayor
-ahorro de contexto disponible, pero toca el contrato de los 4 agentes y su degradación en
-OpenCode.
+**Consumido (✅):** el paquete de revisión por fichero de §2.B, que era el pendiente prioritario
+y el mayor ahorro de contexto disponible. El diff dejó de viajar dentro de los prompts.
 
 ---
 
@@ -890,12 +889,12 @@ Orden sugerido para próximas iteraciones, por relación valor/coste y encaje co
     del plugin y la plantilla `CLAUDE.md.example` para el repo consumidor. → §14.
 
 **Backlog consumido (#1–#13).** Nuevas mejoras salen de analizar repos nuevos (añade una sección
-`## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba. Los de mayor
-valor pendientes hoy: **paquete de revisión por fichero** en `/review` (§2.B — mayor ahorro de
-contexto disponible), glosario `CONTEXT.md` de lenguaje ubicuo (§9.A), micro-test de wording
-(§2.A), corpus de prompts adversariales (§2.D), bucket `in-progress/` (§9.B), menú de cierre de
-rama (§2.C), worktree dedicado a revisión (§12), `license` en skills §4, progressive
-disclosure §1, testing basado en riesgo §6/[2] y perfiles de stack §7.
+`## N. <repo>` con su tabla) o de los patrones aún en 🔜/🟡 de las tablas de arriba. Consumidos además el
+**paquete de revisión por fichero** (§2.B, el que marcaba mayor ahorro de contexto), el bucket
+`in-progress/` (§9.B) y el **progressive disclosure** de §1. Los de mayor valor pendientes hoy:
+glosario `CONTEXT.md` de lenguaje ubicuo (§9.A), micro-test de wording (§2.A), corpus de prompts
+adversariales (§2.D), menú de cierre de rama (§2.C), worktree dedicado a revisión (§12),
+`license` en skills §4, testing basado en riesgo §6/[2] y perfiles de stack §7.
 
 ### Nota de método
 
@@ -981,6 +980,11 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | `NOT EXISTS` frente a `NOT IN` cuando la subconsulta admite nulos (devuelve cero filas sin fallar) | PostgreSQL, expresiones de subconsulta (§17) | rama `feat/guia-consultas-correctas` |
 | El nivel de aislamiento por defecto difiere entre motores (PostgreSQL `READ COMMITTED`, MySQL/InnoDB `REPEATABLE READ`) | Documentación de PostgreSQL y de MySQL (§17) | rama `feat/guia-consultas-correctas` |
 | **Clave foránea sin índice** como defecto visible en código en `rendimiento` — `PRIMARY KEY` y `UNIQUE` lo crean solos, `FOREIGN KEY` no | PostgreSQL, restricciones (§17), corrigiendo lo que la fuente da a entender | rama `feat/guia-consultas-correctas` |
+| **Paquete de revisión por fichero** en `/review`: el patch va a `/tmp/review-<taskId>.diff` y a los 5 agentes se les pasa la ruta, no el diff | superpowers §2.B | rama `feat/paquete-de-revision` |
+| Contrato de entrada por RUTAS en los 4 revisores y el verificador (`Read` primero), sin tocar su allowlist de herramientas | superpowers §2.B | rama `feat/paquete-de-revision` |
+| Sección «Índice antes que detalle» en `grafo-conocimiento` (grafo, ClickUp y ficheros) | claude-mem §1, progressive disclosure | rama `feat/indice-antes-que-detalle` |
+| Bucket `core/guides/in-progress/` para borradores + 2 aserciones que impiden publicarlos | mattpocock/skills §9.B | rama `feat/bucket-in-progress` |
+| Eval de activación semi-automático (`check-activation.mjs`) con brazo de línea base y freno de cuota | Hueco propio: `check-behavior` asevera la forma del disparador, no que dispare | rama `feat/eval-de-activacion` |
 
 ---
 

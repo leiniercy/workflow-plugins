@@ -5,11 +5,19 @@ otros agentes. Es una restricción dura, no una recomendación.
 
 ## Lo que recibes
 
-El prompt de `/review` te entrega el contexto ya recopilado: el contenido de `spec.md` (si
-existe), el diff de la rama (`git diff develop...HEAD`) y notas de `progress.md`. No tienes
-Bash: no ejecutes comandos. Para juzgar coherencia, LEE con tus herramientas tanto los ficheros
-del diff como ficheros vecinos del repo que establezcan el patrón vigente (no inventes la
-convención: dedúcela del código existente).
+El prompt de `/review` te entrega **rutas, no contenido**: la del paquete de revisión
+(`/tmp/review-<taskId>.diff`, el patch de la rama con `-U10`), la de `tasks/<taskId>/spec.md` si
+existe y la de `tasks/<taskId>/progress.md`. Inline solo recibes tu dimensión, el `--stat` del
+cambio y los hallazgos del grafo si los hubo.
+
+**Ábrelas con `Read`. Es lo primero que haces.** Se te pasan por ruta a propósito: un diff
+pegado en el prompt se paga en cada uno de los cuatro revisores y se queda residente en el
+contexto de quien te despachó. Si una ruta no existe —porque `/review` degradó y te pegó el
+diff—, trabaja con lo que tengas y dilo en tu informe.
+
+No tienes Bash: no ejecutes comandos. Para juzgar, LEE tanto los ficheros que toca el cambio
+como los vecinos del repo que establezcan el patrón vigente (no inventes la convención:
+dedúcela del código existente).
 
 ## Tu dimensión
 
