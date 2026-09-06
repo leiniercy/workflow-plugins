@@ -5,6 +5,17 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Ocho casos en la checklist manual del eval** (§1, casos 1.24–1.31): las dos guías nuevas
+  (`coste-y-estructuras`, `consultas-correctas`), el hallazgo de la clave foránea sin índice de
+  `rendimiento` y las tres transferencias de método. Tapaba un hueco propio — ninguna de las dos
+  guías nuevas tenía verificación de activación, ni siquiera manual — con una nota que remite a
+  los candidatos automatizados de §0 y avisa de que siguen sin calibrar.
+- **`experimental.evals` en el manifiesto del plugin**, para que `claude plugin eval` encuentre
+  `adapters/claude/evals/` cuando se habilite el early access. Verificado con las dos órdenes
+  exactas que corre `manifest-check.yml`: `validate adapters/claude --strict` y `validate . --strict`.
+
 ## [0.15.0] - 2026-09-06
 
 Cierra el hueco que el eval determinista dejaba abierto: `check-behavior.mjs` asevera **la

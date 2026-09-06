@@ -103,6 +103,18 @@ síntomas más duros —la multiplicación de filas, el `NOT IN` con nulos, la c
 | 1.21 | "crea la página pública /blog/[slug]" en un repo con rutas indexables | Se apoya en `usabilidad-accesibilidad`: incluye metadatos propios de la ruta (título/descripción), canónica si procede y, si el repo tiene i18n, claves de traducción en vez de literales | ☐ |
 | 1.22 | "renombra la ruta /precios a /planes" | Señala que una URL ya publicada necesita **redirección permanente**; no lo trata como un simple renombrado de carpeta | ☐ |
 | 1.23 | "monta un endpoint que devuelva todos los pedidos" | Se apoya en `arquitectura` (contrato de API): valida la entrada por esquema en la frontera, usa los códigos de estado que distinguen los casos y **pagina la colección** en vez de devolver la tabla entera | ☐ |
+| 1.24 | "junto los pedidos con sus clientes; son dos arrays que me llegan por separado y pueden crecer" | Se apoya en `coste-y-estructuras`: construye un índice por clave (mapa) **antes** del bucle en vez de una búsqueda lineal por elemento; nombra el salto de `O(n·m)` a `O(n+m)` | ☐ |
+| 1.25 | "voy a implementar un árbol de segmentos para consultar sumas por rango; los datos están en Postgres" | Se apoya en `coste-y-estructuras` y **frena**: en un repo de aplicación eso lo resuelve el motor con un índice y una consulta agregada; escribirlo a mano es código propio que mantener sin ganar nada | ☐ |
+| 1.26 | "¿está bien esta consulta?" con `SUM(f.importe)` sobre un `JOIN` a `lineas_factura` agrupado por cliente | Se apoya en `consultas-correctas`: detecta que el join uno-a-muchos multiplica las filas y el `SUM` cuenta cada factura una vez por línea; el total sale inflado, no da error | ☐ |
+| 1.27 | "esta consulta no devuelve nada": `WHERE id NOT IN (SELECT cliente_id FROM pedidos)` | Se apoya en `consultas-correctas`: si la subconsulta trae un nulo, `NOT IN` evalúa a desconocido y `WHERE` descarta **todas** las filas; propone `NOT EXISTS` o excluir los nulos | ☐ |
+| 1.28 | "añado la relación pedidos → clientes con una clave foránea en Postgres" | Se apoya en `rendimiento`: avisa de que `FOREIGN KEY` **no** crea índice sola (a diferencia de `PRIMARY KEY` y `UNIQUE`) y de que sin él cada unión y cada borrado en la tabla referenciada recorren la tabla entera | ☐ |
+| 1.29 | "he reescrito el cálculo con memoización y podas, ¿cómo lo testeo?" | Se apoya en `niveles-y-tipos-de-prueba`: propone el **oráculo lento** —conservar la versión obviamente correcta y comparar ambas sobre entradas pequeñas generadas—, no solo casos de ejemplo elegidos a mano | ☐ |
+| 1.30 | "lo he probado con cinco casos y en los cinco sale bien, lo dejo así" | Se apoya en `evidencia-y-preguntas`: cinco casos a favor no comprueban una regla; **exige buscar el contraejemplo** y, si no aparece, declararlo como asunción | ☐ |
+| 1.31 | "necesito un endpoint que recalcule el precio de los 80.000 productos al cambiar el margen" | Se apoya en `arquitectura`: pregunta si alguien necesita el resultado **en ese mismo gesto** antes de asumir petición-respuesta, y plantea el procesamiento por lotes; no se queda en síncrono por inercia | ☐ |
+
+> Los casos 1.24–1.31 tienen candidatos automatizados en §0 (`adapters/claude/evals/`), todavía
+> **sin calibrar**. Mientras no se calibren, esta checklist manual es la única verificación real
+> de esas guías.
 
 ## 2. Routing de comandos por estado
 
