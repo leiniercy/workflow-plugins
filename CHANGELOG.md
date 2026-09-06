@@ -7,6 +7,15 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **Bucket `core/guides/in-progress/`** — el único sitio donde una guía puede existir sin
+  enviarse. Hasta ahora las 21 se publicaban todas, así que la única forma de no publicar algo
+  era no escribirlo y el trabajo a medias se perdía entre sesiones. Con su README: para qué
+  sirve, el contrato de cuatro puntos, y cómo se promueve y se retira.
+- **Dos aserciones nuevas en `check-behavior.mjs`** (202 → 204 con un borrador presente): un
+  borrador **no genera skill**, y no colisiona con una guía publicada del mismo nombre. El otro
+  lado del contrato ya era ruidoso —promover sin mover el fichero revienta `sync.mjs`—; este era
+  el lado silencioso. Verificado creando la violación y comprobando que el check falla.
+
 - **`grafo-conocimiento`: sección «Índice antes que detalle»** — el patrón de *progressive
   disclosure* que el backlog tenía en 🟡 desde §1, generalizado a las tres fuentes de volumen:
   el grafo (`query` acota, `explain` solo de los supervivientes), ClickUp (buscar devuelve ids y

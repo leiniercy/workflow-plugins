@@ -146,6 +146,10 @@ const MCP_SERVERS = {
 // buscables, y ≤ 500 caracteres (aseverado en check-behavior.mjs).
 // (revision-hallazgos se mantiene con disparador acotado a /review a propósito: es una
 // subrutina interna, no conocimiento ambiental.)
+// core/guides/in-progress/ es el bucket de BORRADORES: lo que vive ahí no se registra
+// aquí, no genera skill y no se envía. Promover = mover el fichero Y añadirlo a este
+// registro; si se hace solo lo segundo, este script falla al no encontrar el .md — que
+// es el fallo que queremos, porque el silencioso sería publicar un borrador.
 const GUIDES = {
   "estados-tareas": {
     description:

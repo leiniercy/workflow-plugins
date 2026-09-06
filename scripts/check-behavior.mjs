@@ -116,6 +116,27 @@ for (const g of GUIDES) {
     `${g} frontmatter ≤ ${FRONTMATTER_MAX} chars (techo del formato) — actual: ${fm.length}`);
 }
 
+// --- bucket in-progress/: borradores que NO se publican ---
+//
+// core/guides/in-progress/ es el único sitio donde una guía puede existir sin enviarse.
+// El contrato tiene dos lados y el segundo es el que importa aquí: un borrador NO debe
+// generar skill. El fallo contrario —promover una guía y olvidar moverla— ya es ruidoso,
+// porque sync.mjs no encontraría core/guides/<nombre>.md y reventaría; el silencioso
+// sería este, publicar material a medio hacer sin que nadie se entere.
+const IN_PROGRESS = join(ROOT, "core/guides/in-progress");
+const borradores = existsSync(IN_PROGRESS)
+  ? readdirSync(IN_PROGRESS)
+      .filter((f) => f.endsWith(".md") && f !== "README.md")
+      .map((f) => f.replace(/\.md$/, ""))
+  : [];
+for (const b of borradores) {
+  assert(
+    !existsSync(join(CLAUDE, "skills", b, "SKILL.md")),
+    `borrador ${b} NO genera skill (vive en core/guides/in-progress/: no debe publicarse)`,
+  );
+  assert(!GUIDES.includes(b), `borrador ${b} no colisiona con una guía publicada del mismo nombre`);
+}
+
 // --- estados-tareas mapea los 4 estados del flujo ---
 const estados = read(join(CLAUDE, "skills/estados-tareas/SKILL.md")) || "";
 for (const st of ["to do", "in progress", "review", "complete"]) {
