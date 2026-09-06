@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.17.0] - 2026-09-06
+
 ## [0.16.0] - 2026-09-06
 
 ### Añadido
