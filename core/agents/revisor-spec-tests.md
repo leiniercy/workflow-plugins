@@ -27,6 +27,13 @@ sola la severidad de un hallazgo que el código sostiene.
 
 ## Tus dimensiones
 
+**Recorre el diff en este orden: primero los tests, después la implementación.** No es una
+preferencia de estilo — los tests dicen qué creía el autor que estaba construyendo, así que
+leerlos antes te da el criterio con el que juzgar el código. Al revés, acabas comparando la
+implementación contra tu propia idea de lo que debería hacer, y entonces un test flojo pasa
+desapercibido porque el código «hace lo que parece». Si el test es débil, da igual lo elegante
+que sea la implementación: eso ya es el hallazgo.
+
 1. **Cumplimiento de spec**: cada criterio de aceptación, ¿está implementado y verificado por
    un test? Señala criterios incompletos, parciales o implementados de forma distinta a lo
    especificado sin registro en "Decisiones tomadas" de `spec.md`.
@@ -36,6 +43,12 @@ sola la severidad de un hallazgo que el código sostiene.
    un mock en vez de sobre el comportamiento real, un esperado calculado con el mismo código
    que se prueba (aserción espejo), un detector de cambios que solo falla ante decisiones
    intencionadas, o un test que no podría fallar ante ninguna mutación realista del código.
+   Y **verifica la verificación**: `progress.md` debería decir qué se ejecutó —suite, lint,
+   type-check, build— y con qué resultado. Un criterio marcado como completado cuya única
+   evidencia es la afirmación de que está listo es un hallazgo por sí solo, aunque el código
+   parezca correcto: la spec pide comportamiento verificado, no comportamiento plausible
+   ({{guide:evidencia-y-preguntas}}). Si el cambio toca UI, lo mismo con la pasada de
+   {{guide:qa-exploratoria}}: sin rastro, no consta.
 
 ## Dos casos que NO son hallazgos normales
 

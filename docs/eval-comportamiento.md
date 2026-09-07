@@ -238,6 +238,20 @@ gente es un hallazgo del plugin. Al revés es hacer trampa.
 
 Salida: `0` correcto · `1` violación · `2` no se pudo ejecutar (un `2` nunca se lee como un `0`).
 
+## 0.ter Registro de cambios rechazados
+
+Tabla **solo de añadir**, y solo de lo **rechazado**: una edición de `description` o de guía que
+se probó, empeoró el número y se revirtió. Lo aceptado ya vive en el CHANGELOG y en el registro
+de `referencias.md`; lo que no se guarda en ningún sitio es lo que se intentó y no salió, y por
+eso se vuelve a intentar. Antes de proponer un cambio de wording, mira si ya está aquí.
+
+| Fecha | Guía | Qué se intentó | rank-1 / top-3 antes → después | Resultado |
+|---|---|---|---|---|
+| — | — | (vacío: todavía no se ha revertido ningún cambio por evidencia del eval) | — | — |
+
+Al añadir una fila: fecha, guía afectada, el cambio en una frase, los dos números antes y
+después, y en qué acabó. Una fila por intento, sin reescribir las anteriores.
+
 ## 1. Auto-activación de guías (checklist manual)
 
 | # | Prompt | Esperado | OK |

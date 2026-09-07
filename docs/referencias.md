@@ -33,6 +33,12 @@ Todo patrón se evalúa contra estos principios; lo que choca, se descarta y se 
 - **Tono coercitivo** (`<EXTREMELY_IMPORTANT>`, "no tienes elección"): incompatible con la
   aprobación humana. Preferimos sugerir, no imponer.
 - **Telemetría**.
+- **Un comando que orqueste a los demás** (un `/auto` que encadene `/start → /plan → /implement
+  → /review`). Es el anti-patrón C del catálogo de orquestación de agent-skills (§18): un
+  orquestador secuencial parafrasea entre pasos, pierde los checkpoints humanos justo donde el
+  juicio importa, y dobla el coste (turno del orquestador + turno del subagente por paso). El
+  usuario **es** el orquestador; lo que se documenta es la secuencia recomendada, no un comando
+  que la ejecute por él.
 
 ---
 
@@ -868,13 +874,13 @@ anti-objetivos de la filosofía.
 | `frontend-ui-engineering` | Arquitectura de componentes, WCAG 2.1 | `usabilidad-accesibilidad` + add-on `frontend-design` | ⛔ ya cubierto |
 | **`security-and-hardening`** | **OWASP LLM Top 10; triaje de auditoría por alcanzabilidad; higiene de cadena de suministro**; sistema de tres niveles (siempre/preguntar/nunca) | `revisor-bugs-seguridad` (A06 + bloque LLM) y dim. 5 de `/review` | ✅ rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | **`browser-testing-with-devtools`** | **Contenido del navegador como dato no fiable; perfil aislado; freno a ejecutar JS**; consola limpia como listón | `qa-exploratoria` | ✅ rama `feat/agent-skills-seguridad-datos-no-fiables` |
-| **`debugging-and-error-recovery`** | **Salida de error como dato no fiable**; `git bisect` como técnica de localización; parar la línea | `depuracion-sistematica` | ✅ dato no fiable y `git bisect` · 🔜 parar la línea |
+| **`debugging-and-error-recovery`** | **Salida de error como dato no fiable**; `git bisect` como técnica de localización; parar la línea | `depuracion-sistematica` | ✅ misma rama |
 | **`test-driven-development`** | Regla de Beyoncé; DAMP sobre DRY; implementaciones reales antes que dobles; **tamaños por recurso** (pequeño = sin red ni disco); patrón «demuéstralo» para bugs | `niveles-y-tipos-de-prueba` | ✅ misma rama |
 | **`constraint-driven-development`** | **Guardia del suelo** (5 movimientos que aflojan el listón, sobre el diff); **trinquete**; ranking de circularidad (externo/proyecto/suite); códigos de salida 0/1/2 | Escaneo determinista en la Fase 2 de `/review` (con `Grep`, que no rompe la regla de no leer el diff) + autocomprobación en `/implement`. **No** se adoptó `CONSTRAINTS.md` ni la entrevista ni las 13 herramientas: eso es el producto de otro | ✅ rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | **`doubt-driven-development`** | CLAIM→EXTRACT→DOUBT→RECONCILE→STOP en vuelo; **no pasarle el CLAIM al revisor**; precedencia al reconciliar; **«teatro de la duda» como señal comprobable** | Ciclo TDD de `/implement`, solo decisiones no triviales, con el agente nuevo `refutador-decision` (opus, solo-lectura). Las tres piezas que lo hacen funcionar: no pasarle el CLAIM, orden de precedencia al reconciliar, y el «teatro de la duda» como señal comprobable | ✅ misma rama |
 | **`source-driven-development`** | Detectar versión instalada → doc oficial de esa versión → citar la URL | `evidencia-y-preguntas` | ✅ misma rama |
 | `code-simplification` | **Valla de Chesterton** | `codigo-limpio`, que decía «código muerto → eliminarlo» (el consejo opuesto sin el freno) | ✅ misma rama |
-| `code-review-and-quality` | **Revisar los tests primero**; **verificar la verificación**; norma de tamaño del cambio | `/review` | 🔜 (única de §18.B sin adoptar) |
+| `code-review-and-quality` | **Revisar los tests primero**; **verificar la verificación**; norma de tamaño del cambio; ordenar por palanca | `revisor-spec-tests`, Fase 2 de `/review` y `revision-hallazgos` | ✅ misma rama |
 | `performance-optimization` | **Conservar o revertir**: si la optimización no movió el número, se revierte | `rendimiento` | ✅ misma rama |
 | `api-and-interface-design` | Ley de Hyrum; regla de una versión | `arquitectura` | ✅ misma rama |
 | `deprecation-and-migration` | Deprecación obligatoria vs. avisada; patrón estrangulador | `migraciones-de-datos` | ✅ misma rama |
@@ -893,11 +899,11 @@ anti-objetivos de la filosofía.
 | **Eval Tier 2: enrutado y colisión** | TF-IDF sobre las `description`: tasa de rank-1 con suelo en CI (`--min-rank1 80`, línea base suya 86 %) y colisión por pares (aviso ≥ 50 %, error ≥ 75 %). Coste cero, determinista | La capa que nos faltaba entre `check-behavior` (forma del disparador) y `check-activation` (modelo real, caro, manual). Implementado con dos cambios de diseño: el suelo se pone sobre **top-3**, no sobre rank-1, y un positivo suelto **no tumba el check** —si lo hiciera, la salida cómoda sería retocar el prompt hasta que pase, que es falsear el eval—. Medido sobre 21 guías y 63 prompts: colisión máxima **16,7 %** (limpia; vale de freno de deriva), rank-1 **52,4 %**, top-3 **77,8 %**, suelo calibrado en **70 %**. Ese rank-1 mide el proxy léxico, no el plugin: donde falla, el mejor candidato suele puntuar ~0 %. Aun así destapó **siete huecos reales de vocabulario** y arreglarlos subió el top-3 de 68,3 % a 77,8 % | ✅ `scripts/check-routing.mjs`, rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | **Disparadores negativos con `owner`** | Un negativo declara de qué skill ES el prompt; el runner asevera que el dueño **supera** a esta | Adoptado como **pares confundibles**: 8 pares declarados (`dueno` / `no_debe_ganar`) sobre las fronteras que de verdad se rozan, en vez de dos negativos por guía. Falla si la guía equivocada supera a la dueña | ✅ misma rama |
 | **Casos de presión en los evals** | Presión de tiempo, coste hundido y autoridad: «el tech lead dice que es un one-liner y la ventana de hotfix cierra en diez minutos». Verifica que la disciplina aguanta cuando el prompt argumenta para saltársela | Nuestros dos casos miden conocimiento y delta; ninguno mide que **los gates aguanten**, que es nuestra propuesta de valor. Tres casos escritos y calibrados el 2026-09-07: `presion-coste-hundido` **borrado por SIN DELTA** (su brazo sin plugin activó `superpowers:systematic-debugging`, o sea que el veredicto es «otra skill instalada ya lo cubre», no «el modelo ya se lo sabe»); los otros dos quedan **INCONCLUSOS** porque un brazo reventó por `ETIMEDOUT` en cada uno. La calibración destapó de paso un **delta fabricado** en `check-activation.mjs` | 🔄 1 borrado · 2 pendientes de repetir |
-| **Ledger de cambios rechazados** (`evals/skill-impact.md`) | Tabla append-only de ediciones de `description` rechazadas, con rank-1 antes→después y el PR | Este documento registra patrones descartados, no ediciones de wording con puntuación. Evita re-litigar un cambio que ya bajó el número una vez | 🔜 |
-| **Catálogo de orquestación** (`references/orchestration-patterns.md`) | 5 patrones aprobados y 4 anti-patrones; «el usuario es el orquestador, las personas no invocan personas», profundidad ≤ 1 | Valida nuestra arquitectura punto por punto. Lo aprovechable es escribir su anti-patrón C en los anti-objetivos de la filosofía | 🔜 ver 18.A |
-| Campos de frontmatter de agentes de plugin | Afirman que `hooks`, `mcpServers` y `permissionMode` se ignoran en silencio, y que sí funcionan `model`, `tools`, `maxTurns`, `memory`, `effort`, `isolation` | Si es cierto, `effort` y `maxTurns` son palancas que nuestros 6 agentes no usan. **Afirmación suya, no verificada por nosotros** | 🟡 verificar antes de usar |
-| Regla por ruta (`.claude/rules/*.md` con `paths:`) | Dispara al tocar `skills/**` y apunta al CONTRIBUTING | Mismo problema nuestro: «edita `core/`, no `adapters/`» vive en prosa del README y solo se lee si alguien la busca. **El mecanismo no nos consta en la versión actual de Claude Code**; la alternativa con mecanismo verificado es un `PreToolUse` sobre edición con comprobación de ruta, con la forma de `destructive-guard.js` | 🟡 verificar mecanismo |
-| Plantilla de issue `skill-gap.yml` | Formulario para «la guía se equivocó en mi repo»: skill afectada, extracto, contexto del proyecto, qué hiciste en su lugar | Canal de realimentación estructurado desde los repos consumidores | 🔜 bajo |
+| **Ledger de cambios rechazados** (`evals/skill-impact.md`) | Tabla append-only de ediciones de `description` rechazadas, con rank-1 antes→después y el PR | Adoptado como §0.ter de `docs/eval-comportamiento.md`, junto a los números que lo alimentan, en vez de un fichero suelto | ✅ misma rama |
+| **Catálogo de orquestación** (`references/orchestration-patterns.md`) | 5 patrones aprobados y 4 anti-patrones; «el usuario es el orquestador, las personas no invocan personas», profundidad ≤ 1 | Anti-patrón C escrito en los anti-objetivos de la filosofía. **Pero una de sus premisas ya no se sostiene:** afirman que «los subagentes no pueden generar otros subagentes» y que por eso sus anti-patrones B y D son imposibles «por construcción» en Claude Code. La documentación oficial (verificada el 2026-09-07) dice que **anidan hasta 3 niveles** por defecto, configurables con `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`. Lo que impide que nuestros revisores generen otros no es la plataforma: es que su `tools` es `Read, Grep, Glob` y no incluye `Agent` | ✅ misma rama |
+| Campos de frontmatter de agentes de plugin | Afirman que `hooks`, `mcpServers` y `permissionMode` se ignoran en silencio, y que sí funcionan `model`, `tools`, `maxTurns`, `memory`, `effort`, `isolation` | **Verificado en la documentación oficial el 2026-09-07: cierto.** Y de paso quedan disponibles `effort`, `maxTurns`, `memory`, `background`, `isolation` y `experimental.cacheTtl` para nuestros 7 agentes. No se aplican todavía **a propósito**: `effort: high` en los dos agentes opus subiría el coste de cada `/review` en silencio, y eso se decide, no se hereda | 🟡 disponible, sin aplicar (decisión, no olvido) |
+| Regla por ruta (`.claude/rules/*.md` con `paths:`) | Dispara al tocar `skills/**` y apunta al CONTRIBUTING | **Verificado el 2026-09-07: el mecanismo existe** — las reglas con `paths:` se cargan cuando el agente lee un fichero que casa con el glob. Adoptado en `.claude/rules/editar-solo-core.md`: salta al tocar `adapters/**` y recuerda que es salida generada, con las tres excepciones que sí se editan a mano | ✅ misma rama |
+| Plantilla de issue `skill-gap.yml` | Formulario para «la guía se equivocó en mi repo»: skill afectada, extracto, contexto del proyecto, qué hiciste en su lugar | Adoptada como `.github/ISSUE_TEMPLATE/guia-fallo.yml`, con un campo más: si la guía **no se activó**, que también es defecto del disparador | ✅ misma rama |
 | Listón de < 500 líneas por `SKILL.md` | Eficiencia de contexto: la skill se carga entera cuando dispara | **Cumplimos con margen**: máximo 256 líneas (`consultas-correctas`). Aseverado en CI como freno, no como listón alcanzable | ✅ misma rama |
 | Hook `sdd-cache` (caché HTTP con ETag) | Revalida con el origen en cada reúso; solo sirve del disco con un `304` | `jq` + `curl` + caché propia para ahorrarse un `WebFetch` | ⛔ sobre-ingeniería |
 | Hook `simplify-ignore` | Sustituye bloques marcados por placeholders **en disco** y los restaura al parar la sesión | Sus propias limitaciones incluyen dejar ficheros con placeholders si la sesión casca | ⛔ invasivo |
@@ -1022,10 +1028,17 @@ Orden por relación valor/coste, con el racimo de seguridad ya cerrado:
    una decisión se supera y no se borra, deprecación avisada vs. obligatoria, y hechos del
    framework con versión y URL. Más el techo de 500 líneas por skill aseverado en CI. → §18.B
 
-**Queda 🔜 de §18:** `code-review-and-quality` (revisar los tests primero, verificar la
-verificación, tamaño del cambio), el ledger de cambios rechazados, la plantilla `skill-gap.yml`,
-el anti-patrón C escrito en la filosofía, «parar la línea» en `depuracion-sistematica`, y los dos
-🟡 pendientes de verificar (campos de frontmatter de agentes de plugin, reglas por ruta).
+5. ✅ **Cierre de §18** — `code-review-and-quality` (leer los tests primero, verificar la
+   verificación, tamaño del cambio, ordenar por palanca), «parar la línea», el ledger de cambios
+   rechazados, la plantilla de issue, el anti-patrón C en los anti-objetivos, y la regla por
+   ruta `editar-solo-core`. Los dos 🟡 se cerraron **verificándolos contra la documentación
+   oficial**, no dándolos por buenos: los campos ignorados son ciertos, las reglas por ruta
+   existen, y su premisa de que los subagentes no anidan **es falsa hoy**. → §18
+
+**§18 consumido.** Lo único abierto es de ejecución, no de diseño: certificar los dos casos de
+presión (`presion-autoridad-borrado` tiene señal y merece `--runs 3`; `presion-dato-sin-verificar`
+nunca ha llegado a responder), y decidir si se aplica `effort` a los agentes opus, que sube el
+coste de cada `/review` y por eso no se hereda sin decidirlo.
 
 ### Nota de método
 
@@ -1142,6 +1155,16 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | Criterio de parada de la entrevista de `/plan` (predecir las tres siguientes respuestas), número de confianza y lista de lo que NO cuenta como aprobación | agent-skills `interview-me` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Qué entra en un commit (ficheros generados; el cambio va en la fuente) en el gate de `/implement` | agent-skills `git-workflow-and-versioning` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Techo de 500 líneas por skill aseverado en CI — se carga entera al dispararse | agent-skills, eficiencia de contexto (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Leer los tests ANTES que la implementación en `revisor-spec-tests` (los tests dicen qué creía el autor que construía; al revés se juzga contra la propia idea) | agent-skills `code-review-and-quality` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| «Verificar la verificación»: un criterio completado cuya única evidencia es la afirmación de que está listo es hallazgo propio | agent-skills `code-review-and-quality` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Tamaño del cambio declarado en la Fase 2 de `/review` desde el `--stat` — como advertencia sobre la fiabilidad del propio diagnóstico, no como reproche | agent-skills `code-review-and-quality` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| «Ordena por palanca» en `revision-hallazgos`: si hay un problema estructural y diez nits, el estructural ES la revisión | agent-skills `code-review-and-quality` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| «Parar la línea» en `depuracion-sistematica`: los errores se componen, y lo construido encima de algo roto habrá que revisarlo otra vez | agent-skills `debugging-and-error-recovery` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Registro de cambios rechazados (§0.ter de `eval-comportamiento.md`), solo de añadir y solo de lo revertido por evidencia | agent-skills `evals/skill-impact.md` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Plantilla de issue `guia-fallo.yml` para los repos consumidores | agent-skills `skill-gap.yml` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Regla por ruta `.claude/rules/editar-solo-core.md`: salta al tocar `adapters/**`, que es salida generada | agent-skills `.claude/rules/` (§18.C), mecanismo verificado en la doc oficial | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Anti-patrón C («ningún comando que orqueste a los demás») escrito en los anti-objetivos de la filosofía | agent-skills `orchestration-patterns` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| **Corrección a la fuente:** su premisa de que los subagentes no pueden anidar es falsa hoy (anidan hasta 3 niveles). Lo que protege nuestros revisores es su `tools`, no la plataforma | Documentación oficial de Claude Code, verificada (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Guardia del suelo: escaneo de las 5 formas de aflojar la barra en la Fase 2 de `/review` (con `Grep`, sin leer el diff) y autocomprobación en `/implement`; «apretar es silencioso, aflojar es ruidoso» | agent-skills `constraint-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Duda en vuelo en `/implement` + agente `refutador-decision` (opus, read-only): enunciar → extraer → dudar → reconciliar → parar, tope de 3 vueltas | agent-skills `doubt-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | **No pasarle la conclusión al refutador** (darle el CLAIM convierte la revisión en ratificación) + orden de precedencia al reconciliar + «teatro de la duda» como señal comprobable | agent-skills `doubt-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |

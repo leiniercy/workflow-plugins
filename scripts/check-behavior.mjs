@@ -266,6 +266,26 @@ assert(
   "refutador-decision declara que NO recibe la conclusión de quien lo despacha",
 );
 
+// --- revisión: orden de lectura, verificar la verificación y tamaño del cambio ---
+const specTests = read(join(CLAUDE, "agents/revisor-spec-tests.md")) || "";
+assert(
+  /primero los tests, después la implementación/i.test(specTests),
+  "revisor-spec-tests lee los tests antes que la implementación",
+);
+assert(
+  /verifica la verificación/i.test(specTests),
+  "revisor-spec-tests comprueba que progress.md registra qué se ejecutó",
+);
+assert(
+  /~1000 es demasiado/.test(reviewBody),
+  "/review declara el tamaño del cambio antes de repartir dimensiones",
+);
+const hallazgos = read(join(CLAUDE, "skills/revision-hallazgos/SKILL.md")) || "";
+assert(
+  /problema estructural ES la revisión/i.test(hallazgos),
+  "revision-hallazgos ordena por palanca (lo estructural no se entierra entre nits)",
+);
+
 if (failures.length) {
   console.error(`✗ ${failures.length}/${total} aserciones de comportamiento fallaron:`);
   for (const f of failures) console.error("  - " + f);

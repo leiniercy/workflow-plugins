@@ -143,6 +143,47 @@ Tres superficies, una sola regla.
   margen —el máximo son 256 líneas— y está como freno: cuando una guía se acerque, lo que toca
   es partir el material, no subir el número. 21 aserciones nuevas (227 → 248).
 
+- **Revisión: leer los tests primero, verificar la verificación y declarar el tamaño**
+  (agent-skills §18.B, lo último que quedaba de la tabla). `revisor-spec-tests` recorre ahora
+  el diff **empezando por los tests**: dicen qué creía el autor que estaba construyendo, y sin
+  ese criterio acabas comparando la implementación contra tu propia idea de lo que debería
+  hacer — y un test flojo pasa desapercibido porque el código «hace lo que parece». Y comprueba
+  la **historia de verificación**: un criterio marcado como completado cuya única evidencia es
+  la afirmación de que está listo es un hallazgo por sí solo. `/review` declara además el
+  **tamaño del cambio** desde el `--stat` que ya tiene, no como reproche —la rama ya está
+  escrita— sino como advertencia sobre la fiabilidad de su propio diagnóstico.
+- **«Ordena por palanca» en `revision-hallazgos`.** Si hay un problema estructural y diez
+  detalles menores, **el problema estructural ES la revisión**: enterrarlo entre nits garantiza
+  que se lea como uno más y se corrija el último, o ninguno.
+- **«Parar la línea» en `depuracion-sistematica`.** En cuanto algo falla se para de avanzar, se
+  conserva la evidencia y se diagnostica. El motivo no es disciplina por disciplina: los errores
+  se componen, y cuando por fin mires el fallo no sabrás qué parte del desastre es el bug y qué
+  parte la construiste tú encima.
+- **Registro de cambios rechazados** (§0.ter de `docs/eval-comportamiento.md`): tabla solo de
+  añadir con las ediciones de `description` que empeoraron el número y se revirtieron. Lo
+  aceptado ya está en el CHANGELOG; lo que no se guardaba en ningún sitio es lo que se intentó y
+  no salió, y por eso se reintenta.
+- **Plantilla de issue `guia-fallo.yml`** para los repos consumidores, con un campo más que el
+  original: si la guía **no se activó**, también es defecto del disparador.
+- **Regla por ruta `.claude/rules/editar-solo-core.md`**: salta al leer cualquier fichero de
+  `adapters/**` y recuerda que es salida generada, con las tres excepciones que sí se editan a
+  mano (hooks, evals, manifiesto). «Edita `core/`, no `adapters/`» vivía en prosa del README, o
+  sea que solo se leía si alguien la buscaba.
+- **Anti-patrón C en los anti-objetivos de la filosofía**: ningún comando que orqueste a los
+  demás. Un `/auto` que encadene el ciclo parafrasea entre pasos, pierde los checkpoints humanos
+  justo donde el juicio importa y dobla el coste. El usuario **es** el orquestador.
+- **Los dos 🟡 de §18 cerrados verificándolos, no dándolos por buenos.** Confirmado que los
+  agentes de plugin ignoran `hooks`, `mcpServers` y `permissionMode`, y que quedan disponibles
+  `effort`, `maxTurns`, `memory`, `background` e `isolation` — que **no se aplican todavía a
+  propósito**: `effort: high` en los dos agentes opus subiría el coste de cada `/review` en
+  silencio. Confirmado también que las reglas por ruta existen. **Y refutada una premisa suya:**
+  afirman que los subagentes no pueden generar otros y que por eso dos de sus anti-patrones son
+  imposibles «por construcción»; la documentación oficial dice que anidan hasta 3 niveles. Lo
+  que impide que nuestros revisores generen otros no es la plataforma: es que su `tools` es
+  `Read, Grep, Glob`.
+- **4 aserciones más** (248 → 252). Una de ellas falló al escribirla porque la frase que
+  buscaba se parte en dos líneas: se ajustó el patrón, que es justo para lo que sirve.
+
 ### Corregido
 
 - **`check-activation.mjs` fabricaba un delta cuando el brazo de línea base reventaba.** El

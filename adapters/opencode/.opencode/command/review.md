@@ -37,7 +37,19 @@ con /implement, que detectará el modo corrección).
 
    **No leas ese fichero.** Ahí está el punto: el diff completo no entra en tu contexto. Con
    `--stat` y los commits ya sabes qué se tocó, que es lo que necesitas para repartir
-   dimensiones y decidir si la 6 aplica. El `-U10` da a los revisores más contexto por hunk, así
+   dimensiones y decidir si la 6 aplica.
+
+   **Y con el `--stat` delante, di el tamaño antes de empezar**, porque condiciona lo fiable
+   que va a ser todo lo demás. Orden de magnitud: **~100 líneas** se revisa de una sentada;
+   **~300** es asumible si es un solo cambio lógico; **~1000 es demasiado** y lo honesto es
+   decirlo. No es un hallazgo ni un reproche —la rama ya está escrita, partirla ahora no
+   ayuda—, es una **advertencia sobre tu propia revisión**: a partir de cierto tamaño el
+   diagnóstico se degrada y quien lo lea merece saberlo. Dos matices: mira también el **tamaño
+   final de los ficheros**, porque un diff pequeño puede empujar un fichero ya grande más allá
+   de donde se puede leer; y hay diffs enormes que no cuentan —borrados completos, renombrados
+   masivos, refactor automático—, donde solo hay que verificar la intención, no cada línea. Si
+   un mismo cambio mezcla refactor y funcionalidad nueva, eso sí es material del informe
+   (dimensión 4): son dos cambios. El `-U10` da a los revisores más contexto por hunk, así
    que necesitan abrir menos ficheros.
 
    El fichero va a un directorio temporal **por eso**: `/review` no escribe nada en el repo, así

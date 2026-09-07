@@ -1,0 +1,59 @@
+name: "Una guía falló en mi repo"
+description: "La guía se activó pero su consejo era incorrecto, estaba desfasado o no aplicaba a este proyecto."
+title: "[guía] "
+labels: ["guia", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Para el caso concreto de **una guía que dio un consejo malo o inaplicable**. Si lo que
+        pasa es que la guía **no se activó**, dilo igual aquí: es el mismo tipo de defecto (el
+        disparador), y se arregla en la `description`.
+
+        Lo que hace falta para triarlo sin escribir un ensayo son cuatro cosas.
+  - type: input
+    id: guia
+    attributes:
+      label: Guía afectada
+      description: "El nombre de la carpeta, p. ej. rendimiento, consultas-correctas."
+      placeholder: rendimiento
+    validations:
+      required: true
+  - type: textarea
+    id: extracto
+    attributes:
+      label: El trozo concreto
+      description: "Pega la frase o la regla de la guía que falló. No el fichero entero."
+    validations:
+      required: true
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto del proyecto
+      description: "Stack, versiones, runner de tests, motor de datos — lo que haga que el consejo no encaje. Una guía que asume npm test en un repo con Maven es un defecto de la guía."
+    validations:
+      required: true
+  - type: textarea
+    id: que-hiciste
+    attributes:
+      label: Qué hiciste en su lugar
+      description: "Lo más útil del informe: lo que sí funcionó. De ahí sale el arreglo."
+    validations:
+      required: true
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de fallo
+      options:
+        - "El consejo era incorrecto"
+        - "El consejo estaba desfasado"
+        - "El consejo no aplicaba a este stack"
+        - "La guía no se activó cuando debía"
+        - "La guía se activó cuando no venía a cuento"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versión del plugin
+      placeholder: "0.18.1"

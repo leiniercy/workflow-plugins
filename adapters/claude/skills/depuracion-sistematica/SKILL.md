@@ -14,6 +14,16 @@ disciplina más ahorra: investigar es **más rápido** que la ronda de prueba y 
 **La ley:** ningún arreglo sin investigación de causa raíz primero. Si no has completado la
 fase 1, no propones arreglos.
 
+**Y antes de la ley, el reflejo:** en cuanto algo falla —un test rojo, un build roto, una salida
+que no cuadra—, **para de avanzar**. Nada de terminar el criterio que tenías a medias «ya que
+estoy» ni de empezar el siguiente. Se conserva la evidencia (la salida entera, los logs, los
+pasos que lo reproducen), se diagnostica, se arregla la causa y solo entonces se sigue.
+
+El motivo no es disciplina por disciplina: **los errores se componen**. Seguir construyendo
+sobre algo que ya está roto hace que el trabajo posterior sea sospechoso —y cuando por fin
+mires el fallo, no sabrás qué parte del desastre es el bug original y qué parte la construiste
+tú encima.
+
 Aplícala ante cualquier fallo técnico: test que falla, bug reportado, comportamiento
 inesperado, build roto, problema de rendimiento, integración que no responde. Y **especialmente**
 cuando el arreglo parece obvio, cuando hay urgencia, o cuando ya llevas un intento fallido.
@@ -126,6 +136,7 @@ Escúchalas como una parada de emergencia; todas significan «vuelve a la fase 1
 |---|---|
 | «Es simple, no necesita proceso» | Lo simple también tiene causa raíz, y el proceso es rápido con bugs simples. |
 | «Es urgente, no hay tiempo de proceso» | Investigar es MÁS rápido que la ronda de prueba y error. |
+| «Sigo con lo mío y luego miro ese test rojo» | Los errores se componen. Lo que construyas encima de algo roto habrá que revisarlo otra vez. |
 | «Pruebo esto primero y luego investigo» | El primer arreglo marca el patrón. Hazlo bien desde el principio. |
 | «Escribo el test cuando confirme el arreglo» | Un arreglo sin test no se sostiene; el test primero es lo que prueba que arreglaste algo. |
 | «Cambio varias cosas a la vez, gano tiempo» | No podrás aislar qué funcionó, y sembrarás bugs nuevos. |

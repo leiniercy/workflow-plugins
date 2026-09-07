@@ -82,6 +82,22 @@ Deja que el revisor levante el hallazgo y resuélvelo después. (No confundir co
 abajo: eso es una **rúbrica general** que el revisor aplica a todo, no una instrucción para
 tapar un caso concreto que te incomoda.)
 
+## Ordena por palanca, no por orden de descubrimiento
+
+Un informe no es una lista de todo lo que viste: es lo que el autor tiene que hacer, en el
+orden en que le conviene hacerlo. Primero corrección y seguridad; después lo estructural —una
+frontera rota, una simplificación que se dejó pasar—; y al final el resto.
+
+La regla que se olvida: **si tienes un problema estructural y diez detalles menores, el
+problema estructural ES la revisión.** Enterrarlo entre nits garantiza que se lea como uno más
+de la lista y se corrija el último, o ninguno. Unos pocos hallazgos con convicción alta valen
+más que un inventario largo, porque el inventario largo se lee entero una vez y se ignora la
+siguiente.
+
+Y por eso la severidad tiene que distinguir de verdad lo obligatorio de lo opcional: si todo
+llega con el mismo peso, el autor trata todo como obligatorio, gasta el tiempo en lo barato y
+acaba desconfiando de la siguiente revisión.
+
 ## Anti-patrones (qué NO reportar, aunque parezca defecto)
 
 - **Lo preexistente** — problemas que la rama no introdujo.
