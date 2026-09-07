@@ -97,8 +97,15 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
    detectado — control de acceso (endpoints/handlers sin authz, IDOR), exposición de datos al
    cliente (variables públicas del framework, filtraciones servidor→cliente), inyección
    (SQL/NoSQL, XSS, SSRF), gestión de sesión y autenticación, secretos hardcodeados, mala
-   configuración y dependencias vulnerables. El agente `revisor-bugs-seguridad` lo detalla por
-   categoría; en línea, recórrelo igual.
+   configuración y dependencias vulnerables — un aviso de auditoría solo es hallazgo si la
+   función vulnerable es **alcanzable** desde este código, y el diff del lockfile se mira igual
+   que el del código (paquete nuevo sin dueño, nombre a un carácter de otro conocido, scripts de
+   instalación de más). **Y si el cambio llama a un modelo de lenguaje** —chat, resumen, agente,
+   RAG— recórrelo además con el OWASP Top 10 para LLM: salida del modelo usada como código, texto
+   no fiable entrando al contexto con el prompt de sistema haciendo de falsa frontera, secretos o
+   datos de otro tenant dentro del prompt, herramientas con más permiso del necesario y consumo
+   sin techo. El agente `revisor-bugs-seguridad` lo detalla por categoría; en línea, recórrelo
+   igual.
 6. **Usabilidad, accesibilidad y SEO**: SOLO si el diff toca UI (componentes, vistas,
    plantillas, formularios, textos de interfaz) **o rutas públicas** (metadatos de ruta, mapa
    del sitio, reglas de rastreo, redirecciones); si no toca ninguna, decláralo no aplicable en

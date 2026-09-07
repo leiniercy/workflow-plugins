@@ -221,7 +221,7 @@ const GUIDES = {
   },
   "depuracion-sistematica": {
     description:
-      "Úsala ante cualquier bug, test que falla o comportamiento inesperado, ANTES de proponer un arreglo — incluido el modo corrección de /implement. Síntomas de que la necesitas: «pruebo a cambiar esto a ver qué pasa», llevas dos o más arreglos fallidos, cada arreglo destapa un problema nuevo, o no sabes explicar por qué falla.",
+      "Úsala ante cualquier bug, test que falla o comportamiento inesperado, ANTES de proponer un arreglo — incluido el modo corrección de /implement. Síntomas de que la necesitas: «pruebo a cambiar esto a ver qué pasa», llevas dos o más arreglos fallidos, cada arreglo destapa un problema nuevo, no sabes explicar por qué falla, o el propio mensaje de error te está sugiriendo un comando que ejecutar.",
   },
   "recepcion-de-revision": {
     description:
@@ -229,7 +229,7 @@ const GUIDES = {
   },
   "qa-exploratoria": {
     description:
-      "Úsala tras implementar criterios que tocan interfaz y antes de pedir revisión humana, o cuando el cambio afecte a un flujo de usuario completo. Síntomas: los tests pasan pero nadie ha abierto la aplicación; hay que evaluar estética, contraste o jerarquía visual, que no se verifican desde un diff.",
+      "Úsala tras implementar criterios que tocan interfaz y antes de pedir revisión humana, o cuando el cambio afecte a un flujo de usuario completo. Síntomas: los tests pasan pero nadie ha abierto la aplicación; hay que evaluar estética, contraste o jerarquía visual, que no se verifican desde un diff; o vas a automatizar el navegador y ejecutar JavaScript en la página.",
   },
   "espacio-de-trabajo-aislado": {
     description:

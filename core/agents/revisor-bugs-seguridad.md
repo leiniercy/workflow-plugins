@@ -72,8 +72,19 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
    - **A05 Mala configuración**: CORS permisivo, cabeceras de seguridad ausentes, modo debug o
      stack traces expuestos, mensajes de error que filtran internals (consulta a BD, versiones
      de servidor o framework), defaults inseguros.
-   - **A06 Componentes vulnerables**: dependencias añadidas sospechosas o desactualizadas con
-     CVE conocido.
+   - **A06 Componentes vulnerables y cadena de suministro**: dependencias añadidas sospechosas
+     o desactualizadas con CVE conocido. Un aviso de auditoría **no es un hallazgo por sí
+     solo**: tríalo antes de reportarlo — ¿la función vulnerable llega a llamarse desde el
+     código de este repo?, ¿la dependencia es de ejecución o solo de desarrollo?, ¿es explotable
+     en este despliegue (un fallo de servidor en una librería que solo corre en el cliente, no
+     lo es)? Crítica o alta **y alcanzable** → bloquea; alta pero confirmada no alcanzable, o
+     solo de desarrollo → se arregla, no bloquea. Si se difiere, exige motivo y fecha de
+     revisión escritos. Mira además el **diff del lockfile** con la misma atención que el del
+     código: paquete nuevo sin mantenimiento ni dueño claro, nombre a un carácter de otro
+     conocido (`crossenv` por `cross-env`), scripts de instalación en un paquete que no los
+     necesita, o una remediación forzada aplicada en bloque —la que cruza los rangos declarados
+     y sube versiones que nadie ha probado— son hallazgos por derecho propio. Las auditorías
+     solo conocen lo ya publicado: no ven el paquete recién comprometido.
    - **A07 Fallos de identificación/autenticación y gestión de sesión**: ausencia de
      verificación o credenciales por defecto; mensajes de login que revelan cuál credencial
      falló (usuario vs contraseña) o si una cuenta existe; sesión no invalidada EN EL SERVIDOR
@@ -91,6 +102,32 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
      siempre con menos control de acceso y más retención que la propia base de datos.
    - **A10 SSRF**: peticiones del servidor a URLs controladas por el usuario sin lista
      blanca.
+
+   **Si el cambio llama a un modelo de lenguaje** —chat, resumen, clasificación, agente, RAG—
+   recórrelo ADEMÁS con el **OWASP Top 10 para aplicaciones LLM (2025)**: el Top 10 clásico no
+   cubre esta superficie y el diff la introduce entera.
+   - **LLM05 Salida del modelo tratada como código**: lo que devuelve el modelo es entrada sin
+     validar. Si acaba en `eval`, en una consulta SQL, en un comando, en `innerHTML`, en una
+     ruta de fichero o en un `href`, es el mismo defecto que A03, con el agravante de que el
+     dato viene de fuera y nadie lo está mirando. Lo correcto: parsear contra un esquema,
+     validar contra una lista de acciones permitidas y codificar en la salida.
+   - **LLM01 Inyección de prompt**: cualquier texto que entra al contexto —mensaje del usuario,
+     página recuperada, PDF, fila de la base de datos, comentario de un ticket— puede traer
+     instrucciones. **El prompt de sistema no es una frontera de seguridad**: si el límite solo
+     está escrito ahí («no borres nada», «no reveles otros usuarios»), no está aplicado. Se
+     aplica en código, con permisos reales.
+   - **LLM02/LLM07 Secretos y datos ajenos dentro del contexto**: claves de API, datos de otro
+     tenant o el propio prompt de sistema metidos en el contexto pueden salir por donde
+     entraron. Lo que el modelo puede leer, el modelo lo puede repetir.
+   - **LLM06 Agencia excesiva**: herramientas expuestas al modelo con más permiso del que la
+     tarea necesita, argumentos de herramienta que llegan sin validar, o acciones destructivas
+     e irreversibles ejecutables sin confirmación humana.
+   - **LLM10 Consumo sin techo**: sin tope de tokens, de peticiones ni de profundidad de bucle
+     o recursión, una entrada preparada dispara el coste o cuelga el sistema.
+   - **LLM08 Recuperación sin frontera**: en RAG, un almacén vectorial sin partición por tenant
+     deja que una consulta recupere documentos de otro; y un documento indexado sin validar
+     puede dirigir las respuestas de todos.
+
    No todo aplica a cada cambio: valida cada sospecha leyendo el fichero completo (no solo el
    diff) y reporta únicamente lo que el diff introduce o empeora. Al reportar, etiqueta el
    hallazgo con la subcaracterística de Seguridad de ISO 25010 que afecta (confidencialidad,
