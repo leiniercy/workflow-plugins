@@ -211,16 +211,27 @@ for (const caso of casos) {
 
   let base = null;
   let sinDelta = false;
+  let baseInconcluso = false;
   if (withBaseline) {
     const b = run(caso.prompt, { plugin: false });
     const bc = corrige(b.texto, caso);
     base = { skills: b.skills, ok: bc.ok, faltan: bc.faltan, error: b.error };
-    // El caso solo vale si la línea base falla lo que el caso mide.
-    if (caso.linea_base_debe_fallar !== false && bc.ok) sinDelta = true;
+    if (b.error) {
+      // Un brazo que NO llegó a ejecutarse no es evidencia de nada. Sin esta rama, el
+      // texto vacío de una sesión que reventó no casa con `debe_incluir`, sale `ok:false`
+      // y el informe lo canta como «línea base falla (hay delta)»: un delta fabricado que
+      // nadie ha medido. Es el mismo defecto que leer un «no pude ejecutarme» como un
+      // «correcto». Detectado calibrando los casos de presión el 2026-09-07.
+      baseInconcluso = true;
+    } else if (caso.linea_base_debe_fallar !== false && bc.ok) {
+      // El caso solo vale si la línea base falla lo que el caso mide.
+      sinDelta = true;
+    }
   }
 
-  const ok = !conPlugin.error && activo && contenido.ok && !sinDelta && !inestable;
-  resultados.push({ ...caso, activo, contenido, base, sinDelta, inestable, runs, nActivo, nContenido, ok, error: conPlugin.error, texto: conPlugin.texto });
+  const ok =
+    !conPlugin.error && activo && contenido.ok && !sinDelta && !inestable && !baseInconcluso;
+  resultados.push({ ...caso, activo, contenido, base, sinDelta, baseInconcluso, inestable, runs, nActivo, nContenido, ok, error: conPlugin.error, texto: conPlugin.texto });
 
   if (conPlugin.error) console.log(`✗ ERROR (${conPlugin.error})`);
   else if (caso.calibrado === false && !withBaseline)
@@ -230,6 +241,8 @@ for (const caso of casos) {
   else if (inestable)
     console.log(`⚠ VARIANZA — activó ${nActivo}/${runs}, acertó ${nContenido}/${runs}: el wording no ata`);
   else if (sinDelta) console.log("⚠ SIN DELTA — la línea base también acierta: rediseña el caso");
+  else if (baseInconcluso)
+    console.log(`⚠ INCONCLUSO — la línea base no se pudo ejecutar (${base.error}): el delta no está medido`);
   else console.log("✓");
 }
 
@@ -239,8 +252,14 @@ for (const caso of casos) {
 const fallos = resultados.filter((r) => !r.ok);
 console.log("\n" + "─".repeat(78));
 for (const r of resultados) {
-  const estado = r.ok ? "✓" : r.sinDelta ? "⚠" : "✗";
-  const delta = r.base ? (r.base.ok ? " · línea base TAMBIÉN acierta" : " · línea base falla (hay delta)") : "";
+  const estado = r.ok ? "✓" : r.sinDelta || r.baseInconcluso ? "⚠" : "✗";
+  const delta = !r.base
+    ? ""
+    : r.base.error
+      ? ` · línea base SIN EJECUTAR (${r.base.error}): delta NO medido`
+      : r.base.ok
+        ? " · línea base TAMBIÉN acierta"
+        : " · línea base falla (hay delta)";
   console.log(`${estado}  ${r.nombre}  →  ${r.guia}${delta}`);
 }
 console.log("─".repeat(78));
@@ -255,6 +274,7 @@ if (fallos.length) {
   console.error("  ✗ = la guía no se activó o no aportó lo que declara → bug de prompt.");
   console.error("  ⚠ SIN DELTA = el caso no discrimina → bug DEL CASO: elige uno que la línea base falle.");
   console.error("  ⚠ VARIANZA = el disparador no ata: reescribe la description, no el caso.");
+  console.error("  ⚠ INCONCLUSO = un brazo no llegó a ejecutarse → repite ESE caso; no es veredicto.");
   process.exit(1);
 }
 console.log(`\n✓ ${resultados.length}/${resultados.length} caso(s) OK: la guía se activa y aporta sobre la línea base.`);

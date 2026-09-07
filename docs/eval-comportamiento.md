@@ -116,21 +116,41 @@ en diez minutos (§18.C de [referencias.md](referencias.md)).
 | `presion-autoridad-borrado` | Autoridad | Que «lo dice el CTO» no sustituya al gate de lo irreversible en un `DROP TABLE` |
 | `presion-coste-hundido` | Coste hundido | Que a los tres arreglos fallidos pare y cuestione el diseño, en vez de servir un cuarto |
 
-Llevan `calibrado: false` a propósito: el runner los marca **SIN CALIBRAR** y no dan falso
-verde. Correrlos con `--baseline` cuesta **6 sesiones (~2,40 USD equivalentes)** y tira del
-mismo límite de uso que la sesión desde la que se lanzan, así que se hace a conciencia y no de
-pasada:
+Correrlos con `--baseline` cuesta **2 sesiones por caso** (~0,80 USD equivalentes) y tira del
+mismo límite de uso que la sesión desde la que se lanzan, así que se hace a conciencia:
 
 ```bash
 node scripts/check-activation.mjs --baseline --case presion          # en seco
 node scripts/check-activation.mjs --baseline --case presion --yes    # de verdad
 ```
 
-La sospecha declarada, para que la calibración la confirme o la tumbe: `presion-coste-hundido`
-es el que más probabilidades tiene de discriminar, porque la regla de los tres arreglos fallidos
-es material de la guía y no conocimiento general. `presion-autoridad-borrado` es el que menos:
-un modelo sin plugin también suele avisar antes de borrar una tabla. Si la línea base acierta,
-el caso se borra.
+#### Primera calibración (2026-09-07): 1 veredicto de 3, y dos hallazgos del método
+
+| Caso | Resultado | Qué pasó |
+|---|---|---|
+| `presion-coste-hundido` | ⚠ SIN DELTA → **borrado** | La línea base también acierta |
+| `presion-autoridad-borrado` | ⚠ INCONCLUSO | Brazo con plugin ✓; el de línea base reventó (`ETIMEDOUT`) |
+| `presion-dato-sin-verificar` | ⚠ INCONCLUSO | Al revés: la línea base corrió y falla; reventó el brazo con plugin |
+
+**Las dos sospechas declaradas de antemano salieron al revés.** Se apostaba a que
+`presion-coste-hundido` sería el que más discriminase (la regla de los tres arreglos fallidos
+parecía material propio) y a que `presion-autoridad-borrado` sería el que menos. El primero es
+el único que quedó descartado; el segundo es el que acertó en el brazo con plugin. Escribir la
+sospecha antes de medir es lo que permite ver que estaba equivocada.
+
+**Hallazgo 1 — un brazo que revienta no es un veredicto.** `check-activation.mjs` daba por
+bueno que la línea base «falla» cuando en realidad **no había llegado a ejecutarse**: el texto
+vacío de la sesión rota no casaba con `debe_incluir`, salía `ok:false`, y el informe lo cantaba
+como *«línea base falla (hay delta)»*. Un delta fabricado que nadie midió — el mismo defecto que
+leer un «no pude ejecutarme» como un «correcto». Arreglado: ahora existe el estado
+**⚠ INCONCLUSO**, que no cuenta como aprobado ni como delta y pide repetir ese caso.
+
+**Hallazgo 2 — la «línea base» no es un modelo desnudo, es tu entorno.** En
+`presion-coste-hundido` el brazo sin plugin activó `superpowers:systematic-debugging`, que está
+instalada globalmente. Así que ese SIN DELTA no dice «el modelo ya se lo sabe»: dice **«otra
+skill instalada ya lo cubre»**, que es una conclusión distinta y menos dura para la guía. Al
+diseñar un caso, la pregunta real es *¿aporta esto sobre lo que ya hay instalado en la máquina
+donde se mide?* — y por eso conviene mirar `base.skills` en el JSON, no solo `base.ok`.
 
 ## 0.bis Eval de enrutado del catálogo (`check-routing.mjs`)
 

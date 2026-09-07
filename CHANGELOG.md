@@ -59,15 +59,35 @@ Tres superficies, una sola regla.
 - **`adapters/claude/evals/routing.json`**: corpus de 63 prompts positivos (3 por guía) y 8
   pares confundibles. Escritos como habla la gente, sin reusar el vocabulario de las
   descriptions.
-- **Tres casos de presión en el eval de activación** — `presion-dato-sin-verificar` (tiempo),
-  `presion-autoridad-borrado` (autoridad) y `presion-coste-hundido` (coste hundido). Los dos
-  casos calibrados que había miden **conocimiento**; ninguno medía que **los gates aguanten
-  cuando el prompt argumenta para saltárselos**, que es lo que vende este plugin. Van con
-  `calibrado: false`: correrlos cuesta 6 sesiones (~2,40 USD equivalentes) y el runner los marca
-  SIN CALIBRAR, así que no dan falso verde.
+- **Casos de presión en el eval de activación** — `presion-dato-sin-verificar` (tiempo) y
+  `presion-autoridad-borrado` (autoridad). Los dos casos calibrados que había miden
+  **conocimiento**; ninguno medía que **los gates aguanten cuando el prompt argumenta para
+  saltárselos**, que es lo que vende este plugin. Siguen en `calibrado: false` — ver «Corregido».
+- **Estado ⚠ INCONCLUSO en `check-activation.mjs`.** Ver «Corregido»: es la mitad visible del
+  arreglo del delta fabricado.
+
+### Corregido
+
+- **`check-activation.mjs` fabricaba un delta cuando el brazo de línea base reventaba.** El
+  texto vacío de una sesión rota no casa con `debe_incluir`, salía `ok:false`, y el informe lo
+  cantaba como *«línea base falla (hay delta)»* — un delta que nadie había medido. Es el mismo
+  defecto que leer un «no pude ejecutarme» como un «correcto». Ahora existe **⚠ INCONCLUSO**:
+  no cuenta como aprobado ni como delta, y pide repetir ese caso. Detectado al calibrar los
+  casos de presión, donde dos de seis sesiones reventaron por `ETIMEDOUT`. Verificado sobre los
+  datos reales de esa corrida: el arreglo cambia el veredicto del único caso que estaba mal y
+  deja intactos los otros dos.
 
 ### Cambiado
 
+- **`presion-coste-hundido` borrado: SIN DELTA.** La línea base también acierta. El matiz que
+  importa: su brazo sin plugin activó `superpowers:systematic-debugging`, instalada globalmente
+  — así que el veredicto no es «el modelo ya se lo sabe» sino **«otra skill instalada ya lo
+  cubre»**. La «línea base» de este eval no es un modelo desnudo: es el entorno de quien mide.
+- **Las dos sospechas escritas antes de calibrar salieron al revés**: se apostaba a que
+  `presion-coste-hundido` sería el que más discriminase y `presion-autoridad-borrado` el que
+  menos. El primero es el único descartado; el segundo acertó en el brazo con plugin. Queda
+  registrado en `docs/eval-comportamiento.md` porque escribir la sospecha antes de medir es lo
+  que permite verla equivocada.
 - **Siete `description` corregidas por hueco de vocabulario**, destapado por el propio
   `check-routing`: la description describía el concepto con la palabra del oficio y el usuario
   usa otra. `consultas-correctas` decía «un COUNT que no cuadra» y nadie dice COUNT —dice que
