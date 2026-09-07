@@ -39,8 +39,44 @@ Tres superficies, una sola regla.
   aserción de `qa-exploratoria` **no mordía** —casaba con el puntero y con el anti-patrón, así
   que pasaba con la sección borrada— y se apretó a dos reglas que solo viven dentro.
 
+- **`scripts/check-routing.mjs`: eval determinista del catálogo, en CI y a coste cero**
+  (agent-skills §18.C). Es la capa que faltaba entre `check-behavior` —que asevera la *forma*
+  del disparador— y `check-activation` —que comprueba que dispara, pero gasta cuota y no corre
+  en CI—. Con 21 guías cuyos dominios se rozan, «¿se están acercando dos descripciones?» no lo
+  responde ningún check por guía: es una propiedad del corpus entero.
+
+  Dos decisiones de diseño, porque es un proxy **léxico** de un enrutado que es semántico:
+  el suelo se pone sobre **top-3** y no sobre rank-1; y **un positivo suelto no tumba el check**,
+  solo informa. Si lo tumbara, la salida cómoda sería retocar el prompt hasta que pase —o
+  meterle el vocabulario de la description—, que es exactamente cómo se falsea un eval. Lo que
+  sí falla: colisión entre `description`s (≥ 75 % error, ≥ 50 % aviso), pares confundibles, y la
+  tasa agregada de top-3 bajo su suelo. Salida `0`/`1`/`2`, donde un `2` («no pude ejecutarme»)
+  nunca se lee como un `0`.
+
+  **Calibración del 2026-09-07:** rank-1 52,4 %, top-3 77,8 %, colisión máxima 16,7 %
+  (`coste-y-estructuras` ~ `rendimiento`). Suelo en 70 %, unos puntos por debajo de lo medido.
+  Trinquete: se sube, no se baja.
+- **`adapters/claude/evals/routing.json`**: corpus de 63 prompts positivos (3 por guía) y 8
+  pares confundibles. Escritos como habla la gente, sin reusar el vocabulario de las
+  descriptions.
+- **Tres casos de presión en el eval de activación** — `presion-dato-sin-verificar` (tiempo),
+  `presion-autoridad-borrado` (autoridad) y `presion-coste-hundido` (coste hundido). Los dos
+  casos calibrados que había miden **conocimiento**; ninguno medía que **los gates aguanten
+  cuando el prompt argumenta para saltárselos**, que es lo que vende este plugin. Van con
+  `calibrado: false`: correrlos cuesta 6 sesiones (~2,40 USD equivalentes) y el runner los marca
+  SIN CALIBRAR, así que no dan falso verde.
+
 ### Cambiado
 
+- **Siete `description` corregidas por hueco de vocabulario**, destapado por el propio
+  `check-routing`: la description describía el concepto con la palabra del oficio y el usuario
+  usa otra. `consultas-correctas` decía «un COUNT que no cuadra» y nadie dice COUNT —dice que
+  dos informes dan números distintos, o que el total se duplica—; `coste-y-estructuras` hablaba
+  de `O(n)` y `O(n²)` y se pregunta cuánto aguanta antes de ponerse lento; `revision-hallazgos`
+  decía «preexistente» y se dice «ya estaba roto antes de mi cambio». También `formato-toon`,
+  `rendimiento`, `registro-progreso` y `depuracion-sistematica`. Subieron el top-3 de 68,3 % a
+  77,8 %. **Confirmarlo de verdad exige `check-activation`**, que gasta cuota: el eval léxico
+  señala el candidato, no lo demuestra.
 - **Disparadores de `depuracion-sistematica` y `qa-exploratoria`** ampliados con el vocabulario
   nuevo: «el propio mensaje de error te está sugiriendo un comando que ejecutar» y «vas a
   automatizar el navegador y ejecutar JavaScript en la página».

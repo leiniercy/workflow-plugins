@@ -1,0 +1,194 @@
+{
+  "_comentario": "Corpus del eval de enrutado (scripts/check-routing.mjs). Los prompts se escriben como habla la gente, NO copiando el vocabulario de la description: un prompt que reusa la description mide el eval, no el plugin. Si un positivo no ranquea, el arreglo por defecto es la description, no el prompt.",
+  "guias": {
+    "arquitectura": {
+      "positivos": [
+        "El endpoint de alta manda el correo de bienvenida ahi mismo y a veces tarda ocho segundos en responder",
+        "Donde meto la regla de que un pedido no puede llevar descuento y cupon a la vez",
+        "Estamos pensando en partir esto en dos servicios separados, lo ves razonable"
+      ]
+    },
+    "calidad-producto": {
+      "positivos": [
+        "En la tarea pone que vaya rapido y ya esta, como lo dejo escrito para que se pueda comprobar",
+        "No se si lo que he encontrado cuenta como problema de seguridad o de experiencia de uso",
+        "Que requisitos no funcionales deberia llevar esta pantalla"
+      ]
+    },
+    "codigo-limpio": {
+      "positivos": [
+        "Este metodo se me ha ido a doscientas lineas y hay condicionales dentro de condicionales",
+        "Tengo el mismo bloque copiado en tres sitios distintos",
+        "Antes de commitear le doy una pasada, los nombres de las variables no dicen gran cosa"
+      ]
+    },
+    "consultas-correctas": {
+      "positivos": [
+        "El informe le da 340 al cliente y el panel le da 512",
+        "Cuando un pedido tiene dos pagos la suma se me duplica",
+        "Si el cliente no tiene ninguna factura esto me devuelve cero o no me devuelve nada"
+      ]
+    },
+    "coste-y-estructuras": {
+      "positivos": [
+        "Cuantos usuarios aguanta este recorrido antes de ponerse lento",
+        "Recorro la lista de pedidos y por cada uno busco su cliente en otra lista",
+        "Merece la pena montar aqui un diccionario en memoria o lo dejo tal cual"
+      ]
+    },
+    "depuracion-sistematica": {
+      "positivos": [
+        "Llevo toda la manana con esto y no consigo que funcione",
+        "Voy a subirle el timeout a ver si asi deja de fallar",
+        "Cada vez que arreglo una cosa se me rompe otra distinta"
+      ]
+    },
+    "espacio-de-trabajo-aislado": {
+      "positivos": [
+        "Tengo cosas a medias en otra rama y me piden mirar una PR urgente",
+        "Puedo ponerme con esto sin perder lo que tengo abierto ahora mismo",
+        "Quiero tener dos copias del proyecto abiertas a la vez"
+      ]
+    },
+    "estados-tareas": {
+      "positivos": [
+        "Por donde va esta tarea y que toca hacer ahora",
+        "En el tablero pone QA, eso a que corresponde en el flujo",
+        "Puedo pasarla ya a completado"
+      ]
+    },
+    "evidencia-y-preguntas": {
+      "positivos": [
+        "Ponlo en la spec, seguro que ellos usan Postgres",
+        "Esto lo doy por hecho o se lo pregunto al usuario",
+        "El subagente dice que ese criterio ya esta cubierto, me fio de lo que dice"
+      ]
+    },
+    "formato-toon": {
+      "positivos": [
+        "Devuelveme las cuarenta filas de la tabla de configuracion",
+        "Sacame el listado entero de rutas del modulo con sus campos",
+        "Necesito ver todas las columnas de estas seis tablas de golpe"
+      ]
+    },
+    "grafo-conocimiento": {
+      "positivos": [
+        "Antes de tocar nada, por donde empiezo en este repo que no conozco",
+        "A quien le va a afectar si cambio la firma de esta funcion",
+        "Que partes del proyecto toca esta tarea"
+      ]
+    },
+    "historias-usuario": {
+      "positivos": [
+        "Como escribo los criterios de aceptacion de esta tarea",
+        "Tengo un campo de importe de 1 a 9999, que casos deberia probar",
+        "La tarea dice mejorar el buscador y poco mas"
+      ]
+    },
+    "migraciones-de-datos": {
+      "positivos": [
+        "Quiero quitar la tabla vieja de sesiones que ya no usa nadie",
+        "Voy a cambiarle el nombre a la columna user_name en produccion",
+        "Necesito anadir un campo obligatorio a una tabla que ya tiene medio millon de filas"
+      ]
+    },
+    "niveles-y-tipos-de-prueba": {
+      "positivos": [
+        "Esto lo pruebo con Playwright o con un test normal",
+        "Para probar esta validacion tengo que levantar media aplicacion, es normal",
+        "Sospecho que este test pasa aunque rompa el codigo por debajo"
+      ]
+    },
+    "patrones-diseno": {
+      "positivos": [
+        "Voy a meter una interfaz para que el dia de manana se pueda cambiar el proveedor de pagos",
+        "Le pongo una fabrica a esto o lo dejo directo",
+        "Asi queda mas extensible por si crece, no"
+      ]
+    },
+    "qa-exploratoria": {
+      "positivos": [
+        "He terminado, pero nadie ha abierto la aplicacion todavia",
+        "Antes de pedir revision, das una vuelta por el flujo de alta y me dices",
+        "Puedes abrir el navegador y probar la pantalla nueva"
+      ]
+    },
+    "recepcion-de-revision": {
+      "positivos": [
+        "Me han dejado ocho comentarios en la pull request, los aplico",
+        "La integracion continua se queja de algo que yo creo que ya estaba antes",
+        "El revisor dice que esto esta mal pero la tarea pedia justo eso"
+      ]
+    },
+    "registro-progreso": {
+      "positivos": [
+        "Quiero apuntar donde me he quedado antes de cerrar el portatil",
+        "He terminado el segundo criterio, lo dejo anotado en algun sitio",
+        "Si manana empiezo de cero, como sabe el agente por donde iba"
+      ]
+    },
+    "rendimiento": {
+      "positivos": [
+        "La pantalla de listado tarda muchisimo desde que subimos los datos de enero",
+        "Estoy lanzando una consulta por cada fila del bucle",
+        "Voy a relacionar pedidos con clientes y la tabla de pedidos es enorme"
+      ]
+    },
+    "revision-hallazgos": {
+      "positivos": [
+        "Esto merece bloquear la pull request o es una tonteria",
+        "Esto ya lo pillaria el linter, lo reporto igual",
+        "No se si esto ya estaba roto antes de mi cambio"
+      ]
+    },
+    "usabilidad-accesibilidad": {
+      "positivos": [
+        "El formulario de alta no se puede completar solo con el teclado",
+        "Los mensajes de error le dicen Error 500 al usuario y ya",
+        "He anadido una pagina nueva, le falta algo para que Google la coja"
+      ]
+    }
+  },
+  "pares_confundibles": [
+    {
+      "prompt": "Este bucle dentro de otro sobre dos colecciones que crecen, que clase de coste tiene",
+      "dueno": "coste-y-estructuras",
+      "no_debe_ganar": "rendimiento"
+    },
+    {
+      "prompt": "Me han dejado comentarios en la pull request y no se si aplicarlos tal cual",
+      "dueno": "recepcion-de-revision",
+      "no_debe_ganar": "revision-hallazgos"
+    },
+    {
+      "prompt": "Estoy mirando un diff y dudo si esto es un defecto de verdad o una manía mía",
+      "dueno": "revision-hallazgos",
+      "no_debe_ganar": "recepcion-de-revision"
+    },
+    {
+      "prompt": "Disena los casos de prueba de un campo de importe con rango de 1 a 9999",
+      "dueno": "historias-usuario",
+      "no_debe_ganar": "niveles-y-tipos-de-prueba"
+    },
+    {
+      "prompt": "Este test pasa pero creo que no esta verificando nada real",
+      "dueno": "niveles-y-tipos-de-prueba",
+      "no_debe_ganar": "historias-usuario"
+    },
+    {
+      "prompt": "Los tests estan verdes pero nadie ha mirado la pantalla en el navegador",
+      "dueno": "qa-exploratoria",
+      "no_debe_ganar": "depuracion-sistematica"
+    },
+    {
+      "prompt": "Voy a borrar una columna que creo que ya no usa nadie",
+      "dueno": "migraciones-de-datos",
+      "no_debe_ganar": "consultas-correctas"
+    },
+    {
+      "prompt": "Este dato no lo he comprobado, lo escribo en la spec igualmente",
+      "dueno": "evidencia-y-preguntas",
+      "no_debe_ganar": "registro-progreso"
+    }
+  ]
+}

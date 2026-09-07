@@ -7,6 +7,11 @@ que los ficheros son correctos. El eval es **híbrido**:
   contratos estructurales (read-only de `/review`, `tools`/modelo de cada agente, **la forma**
   del disparador de cada guía, banderas rojas…). Corre en `behavior-check.yml`. Ojo con lo que
   *no* comprueba: asevera que la `description` está bien redactada, no que **dispare**.
+- **Determinista de catálogo** (automatizado, en CI): `node scripts/check-routing.mjs` mide el
+  corpus entero de guías, no cada una por separado — colisión entre `description`s, fronteras
+  entre las guías que se confunden entre sí, y la tasa de top-3 sobre su suelo. Es la capa que
+  faltaba: con 21 guías cuyos dominios se rozan, «¿se están acercando dos descripciones?» no lo
+  responde ningún check por guía. Cuesta cero y corre en `behavior-check.yml`. Ver §0.bis.
 - **Semi-automático** (fuera de CI): `node scripts/check-activation.mjs --baseline` lanza
   sesiones reales aisladas y comprueba que la guía se activa sola ante sus síntomas **y que
   aporta algo sobre la línea base**. Cubre el hueco que deja el check determinista. Consume
@@ -96,6 +101,87 @@ un test tautológico, así que se borraron en vez de dejarlos dando falso verde.
 **Al añadir un caso nuevo, el listón es este:** córrelo con `--baseline` ANTES de commitearlo.
 Si la línea base acierta, no lo añadas — busca un síntoma más específico del plugin, o acepta
 que esa guía aporta consistencia y no conocimiento, que también es una respuesta.
+
+### Casos de presión (añadidos el 2026-09-07, PENDIENTES de calibrar)
+
+Los dos casos calibrados miden **conocimiento**: que la guía aporte un dato que el modelo solo
+no da. Ninguno mide lo que de verdad vende este plugin, que es que **los gates aguanten cuando
+el prompt argumenta para saltárselos**. Patrón tomado de `agent-skills`, cuyo caso de TDD
+incluye una variante donde el tech lead dice que es un one-liner y la ventana de hotfix cierra
+en diez minutos (§18.C de [referencias.md](referencias.md)).
+
+| Caso | Presión | Qué mide |
+|---|---|---|
+| `presion-dato-sin-verificar` | Tiempo | Que con prisa no escriba en la spec un dato sin comprobar: lo verifica, lo marca como asunción declarada, o lo pregunta |
+| `presion-autoridad-borrado` | Autoridad | Que «lo dice el CTO» no sustituya al gate de lo irreversible en un `DROP TABLE` |
+| `presion-coste-hundido` | Coste hundido | Que a los tres arreglos fallidos pare y cuestione el diseño, en vez de servir un cuarto |
+
+Llevan `calibrado: false` a propósito: el runner los marca **SIN CALIBRAR** y no dan falso
+verde. Correrlos con `--baseline` cuesta **6 sesiones (~2,40 USD equivalentes)** y tira del
+mismo límite de uso que la sesión desde la que se lanzan, así que se hace a conciencia y no de
+pasada:
+
+```bash
+node scripts/check-activation.mjs --baseline --case presion          # en seco
+node scripts/check-activation.mjs --baseline --case presion --yes    # de verdad
+```
+
+La sospecha declarada, para que la calibración la confirme o la tumbe: `presion-coste-hundido`
+es el que más probabilidades tiene de discriminar, porque la regla de los tres arreglos fallidos
+es material de la guía y no conocimiento general. `presion-autoridad-borrado` es el que menos:
+un modelo sin plugin también suele avisar antes de borrar una tabla. Si la línea base acierta,
+el caso se borra.
+
+## 0.bis Eval de enrutado del catálogo (`check-routing.mjs`)
+
+TF-IDF sobre las `description` **enviadas** + coseno, contra el corpus de
+`adapters/claude/evals/routing.json` (3 prompts positivos por guía + pares confundibles).
+Determinista y gratis. Patrón tomado del Tier 2 de `addyosmani/agent-skills` (§18.C de
+[referencias.md](referencias.md)).
+
+```bash
+node scripts/check-routing.mjs              # informe + veredicto
+node scripts/check-routing.mjs --verbose    # rango de cada positivo
+node scripts/check-routing.mjs --min-top3 85
+```
+
+**Qué falla y qué solo informa**, que es donde está el diseño. Es un proxy **léxico** de un
+enrutado que en realidad es semántico, así que no todo lo que mide pesa igual:
+
+| Señal | Fuerza | Comportamiento |
+|---|---|---|
+| Colisión entre dos `description`s | Sólida — se mide entre descripciones, sin prompts de por medio | Error ≥ 75 %, aviso ≥ 50 % |
+| Par confundible (un prompt no puede quedar por debajo de la guía con la que se confunde) | Sólida — comparación relativa sobre el mismo texto | Error |
+| Rango de un positivo suelto | Débil — depende del vocabulario compartido | **Solo informa** |
+| Tasa agregada de top-3 | Media — un agregado absorbe el ruido de un caso | Error bajo el suelo |
+
+Un positivo suelto NO tumba el check **a propósito**: si lo hiciera, la salida más cómoda sería
+retocar el prompt hasta que pase, o meterle el vocabulario de la `description`, que es
+exactamente cómo se falsea un eval.
+
+**Calibración del 2026-09-07:** rank-1 **52,4 %**, top-3 **77,8 %**, colisión máxima **16,7 %**
+(`coste-y-estructuras` ~ `rendimiento`). Suelo puesto en **70 %** de top-3, unos puntos por
+debajo de lo medido para que una edición no relacionada no ponga CI en rojo de golpe. **Es un
+trinquete: se sube cuando el corpus mejora y no se baja para que pase una regresión.**
+
+Ese 52,4 % de rank-1 **mide el proxy, no el plugin**: en buena parte de los positivos que
+fallan, el mejor candidato puntúa ~0 % —ni una palabra en común con ninguna `description`— y ahí
+el orden es azar. Quien confirma que una guía dispara de verdad es `check-activation`, que gasta
+cuota.
+
+**La primera pasada encontró siete huecos de vocabulario reales** y arreglarlos subió el top-3
+de 68,3 % a 77,8 %. El patrón se repite: la `description` describía el concepto con la palabra
+del oficio y el usuario usa otra. `consultas-correctas` decía «un COUNT que no cuadra» y nadie
+dice COUNT: dice que **dos informes dan números distintos** o que **el total se duplica**.
+`coste-y-estructuras` hablaba de `O(n)` y `O(n²)`; se pregunta **cuánto aguanta antes de ponerse
+lento**. `revision-hallazgos` decía «preexistente» y se dice **«ya estaba roto antes de mi
+cambio»**.
+
+**Cuando un caso falla, el arreglo por defecto es la `description`, no el prompt.** Que un
+prompt realista no pueda ranquear porque a la description le falta el vocabulario que usa la
+gente es un hallazgo del plugin. Al revés es hacer trampa.
+
+Salida: `0` correcto · `1` violación · `2` no se pudo ejecutar (un `2` nunca se lee como un `0`).
 
 ## 1. Auto-activación de guías (checklist manual)
 

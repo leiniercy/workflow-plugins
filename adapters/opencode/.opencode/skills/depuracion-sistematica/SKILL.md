@@ -1,6 +1,6 @@
 ---
 name: depuracion-sistematica
-description: "Úsala ante cualquier bug, test que falla o comportamiento inesperado, ANTES de proponer un arreglo — incluido el modo corrección de /implement. Síntomas de que la necesitas: «pruebo a cambiar esto a ver qué pasa», llevas dos o más arreglos fallidos, cada arreglo destapa un problema nuevo, no sabes explicar por qué falla, o el propio mensaje de error te está sugiriendo un comando que ejecutar."
+description: "Úsala ante cualquier bug, test que falla o comportamiento inesperado, ANTES de proponer un arreglo — incluido el modo corrección de /implement. Síntomas de que la necesitas: «pruebo a cambiar esto a ver qué pasa», llevas horas atascado sin avanzar, llevas dos o más arreglos fallidos, cada arreglo destapa un problema nuevo, no sabes explicar por qué falla, o el propio mensaje de error te está sugiriendo un comando que ejecutar."
 ---
 # Depuración sistemática — causa raíz antes de arreglar
 

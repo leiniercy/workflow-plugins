@@ -157,7 +157,7 @@ const GUIDES = {
   },
   "registro-progreso": {
     description:
-      "Úsala SIEMPRE que vayas a registrar el avance de una tarea, crear su fichero de estado inicial o actualizar su estado actual — al cerrar cualquier fase del flujo (plan, implement, corrección, review). Es lo que permite que un agente en sesión limpia recupere el contexto.",
+      "Úsala SIEMPRE que vayas a registrar el avance de una tarea, apuntar dónde te has quedado, crear su fichero de estado inicial o actualizar su estado actual — al cerrar cualquier fase del flujo (plan, implement, corrección, review). Es lo que permite que un agente en sesión limpia recupere el contexto.",
   },
   "grafo-conocimiento": {
     description:
@@ -165,7 +165,7 @@ const GUIDES = {
   },
   "formato-toon": {
     description:
-      "Úsala siempre que vayas a devolver listas largas de datos uniformes, varias rutas del grafo, esquemas de base de datos o cualquier salida estructural repetitiva, en lugar de JSON o YAML. Síntoma: la salida tendría las mismas claves repetidas en cada elemento y gastaría tokens de más.",
+      "Úsala siempre que vayas a devolver listas largas de datos uniformes, varias rutas del grafo, esquemas de base de datos o cualquier salida estructural repetitiva, en lugar de JSON o YAML. Síntomas: vas a volcar decenas de filas o de registros de una tabla; la salida tendría las mismas claves repetidas en cada elemento y gastaría tokens de más.",
   },
   "evidencia-y-preguntas": {
     description:
@@ -173,7 +173,7 @@ const GUIDES = {
   },
   "revision-hallazgos": {
     description:
-      "Úsala en /review y en los subagentes revisores, antes de reportar cualquier hallazgo. Síntomas de que la necesitas: dudas de si algo es un defecto real o un nitpick, si ya lo pillaría el linter, si es preexistente, o si merece bloquear una PR.",
+      "Úsala en /review y en los subagentes revisores, antes de reportar cualquier hallazgo. Síntomas de que la necesitas: dudas de si algo es un defecto real o un nitpick, si ya lo pillaría el linter, si ya estaba roto antes de tu cambio, o si merece bloquear una PR.",
   },
   "historias-usuario": {
     description:
@@ -197,11 +197,11 @@ const GUIDES = {
   },
   "rendimiento": {
     description:
-      "Úsala al fijar un requisito de rendimiento en /plan y al juzgar el coste de ejecución de un cambio en /implement y /review. Síntomas: una consulta dentro de un bucle, una lista sin paginar sobre una tabla que crece, llamadas en serie que podrían ir a la vez, vas a declarar una clave foránea o a filtrar por una columna sin índice, «con los datos de ahora va bien», o te oyes optimizar algo que no has medido.",
+      "Úsala al fijar un requisito de rendimiento en /plan y al juzgar el coste de ejecución de un cambio en /implement y /review. Síntomas: una consulta dentro de un bucle, una lista sin paginar sobre una tabla que crece, llamadas en serie que podrían ir a la vez, vas a declarar una clave foránea o a filtrar por una columna sin índice, una pantalla que tarda desde que crecieron los datos, «con los datos de ahora va bien», o te oyes optimizar algo que no has medido.",
   },
   "coste-y-estructuras": {
     description:
-      "Úsala al derivar de un volumen la complejidad admisible en /plan, al elegir la estructura de datos de código nuevo en /implement, y al juzgar la clase de coste de un cambio en /review. Síntomas: un bucle dentro de otro sobre dos colecciones que crecen, una búsqueda lineal repetida donde cabía un índice por clave, no sabes si algo es O(n) o O(n²), vas a escribir a mano una estructura que el motor de datos ya hace, o un umbral sin volumen detrás.",
+      "Úsala al derivar de un volumen la complejidad admisible en /plan, al elegir la estructura de datos de código nuevo en /implement, y al juzgar la clase de coste de un cambio en /review. Síntomas: un bucle dentro de otro sobre dos colecciones que crecen, una búsqueda lineal repetida donde cabía un índice por clave, no sabes cuánto aguanta antes de ponerse lento ni si algo es O(n) o O(n²), vas a escribir a mano una estructura que el motor de datos ya hace, o un umbral sin volumen detrás.",
   },
   "usabilidad-accesibilidad": {
     description:
@@ -213,7 +213,7 @@ const GUIDES = {
   },
   "consultas-correctas": {
     description:
-      "Úsala al escribir o revisar cualquier consulta SQL: al fijar en /plan qué debe pasar con los casos vacíos, al escribirla en /implement y al revisar el diff en /review. Síntomas: un LEFT JOIN con una condición de la tabla derecha en el WHERE, una agregación sobre un join uno-a-muchos, un NOT IN contra una subconsulta que admite nulos, un COUNT que no cuadra, un efecto irreversible dentro de una transacción, o lógica de negocio en un trigger.",
+      "Úsala al escribir o revisar cualquier consulta SQL: al fijar en /plan qué debe pasar con los casos vacíos, al escribirla en /implement y al revisar el diff en /review. Síntomas: un LEFT JOIN con una condición de la tabla derecha en el WHERE, una agregación sobre un join uno-a-muchos, un NOT IN contra una subconsulta que admite nulos, un total que no cuadra entre dos informes o que se duplica, un efecto irreversible dentro de una transacción, o lógica de negocio en un trigger.",
   },
   "migraciones-de-datos": {
     description:
@@ -221,7 +221,7 @@ const GUIDES = {
   },
   "depuracion-sistematica": {
     description:
-      "Úsala ante cualquier bug, test que falla o comportamiento inesperado, ANTES de proponer un arreglo — incluido el modo corrección de /implement. Síntomas de que la necesitas: «pruebo a cambiar esto a ver qué pasa», llevas dos o más arreglos fallidos, cada arreglo destapa un problema nuevo, no sabes explicar por qué falla, o el propio mensaje de error te está sugiriendo un comando que ejecutar.",
+      "Úsala ante cualquier bug, test que falla o comportamiento inesperado, ANTES de proponer un arreglo — incluido el modo corrección de /implement. Síntomas de que la necesitas: «pruebo a cambiar esto a ver qué pasa», llevas horas atascado sin avanzar, llevas dos o más arreglos fallidos, cada arreglo destapa un problema nuevo, no sabes explicar por qué falla, o el propio mensaje de error te está sugiriendo un comando que ejecutar.",
   },
   "recepcion-de-revision": {
     description:

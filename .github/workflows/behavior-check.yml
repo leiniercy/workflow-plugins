@@ -1,8 +1,11 @@
 name: Contratos de comportamiento
 
-# Mitad determinista del eval de comportamiento (#6): asevera los contratos que
-# encodean el comportamiento del plugin (read-only de /review, tools/modelo de los
-# agentes, auto-activación de guías, banderas rojas). La mitad manual vive en
+# Mitad determinista del eval, en dos capas:
+#   check-behavior.mjs — contratos de los prompts (read-only de /review, tools/modelo de
+#     los agentes, auto-activación de guías, banderas rojas, dato no fiable).
+#   check-routing.mjs  — enrutado del catálogo: colisión entre descriptions, fronteras
+#     entre guías confundibles y tasa de top-3 sobre su suelo.
+# La mitad que necesita un modelo vive en check-activation.mjs (gasta cuota, a mano) y en
 # docs/eval-comportamiento.md.
 
 on:
@@ -12,6 +15,7 @@ on:
       - "core/**"
       - "scripts/sync.mjs"
       - "scripts/check-behavior.mjs"
+      - "scripts/check-routing.mjs"
       - "adapters/**"
       - ".github/workflows/behavior-check.yml"
   pull_request:
@@ -19,6 +23,7 @@ on:
       - "core/**"
       - "scripts/sync.mjs"
       - "scripts/check-behavior.mjs"
+      - "scripts/check-routing.mjs"
       - "adapters/**"
       - ".github/workflows/behavior-check.yml"
 
@@ -36,3 +41,6 @@ jobs:
 
       - name: Asevera los contratos de comportamiento
         run: node scripts/check-behavior.mjs
+
+      - name: Asevera el enrutado del catálogo de guías
+        run: node scripts/check-routing.mjs

@@ -1,6 +1,6 @@
 ---
 name: consultas-correctas
-description: "Úsala al escribir o revisar cualquier consulta SQL: al fijar en /plan qué debe pasar con los casos vacíos, al escribirla en /implement y al revisar el diff en /review. Síntomas: un LEFT JOIN con una condición de la tabla derecha en el WHERE, una agregación sobre un join uno-a-muchos, un NOT IN contra una subconsulta que admite nulos, un COUNT que no cuadra, un efecto irreversible dentro de una transacción, o lógica de negocio en un trigger."
+description: "Úsala al escribir o revisar cualquier consulta SQL: al fijar en /plan qué debe pasar con los casos vacíos, al escribirla en /implement y al revisar el diff en /review. Síntomas: un LEFT JOIN con una condición de la tabla derecha en el WHERE, una agregación sobre un join uno-a-muchos, un NOT IN contra una subconsulta que admite nulos, un total que no cuadra entre dos informes o que se duplica, un efecto irreversible dentro de una transacción, o lógica de negocio en un trigger."
 user-invocable: false
 license: MIT
 ---
