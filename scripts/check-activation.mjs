@@ -97,6 +97,7 @@ function run(prompt, { plugin }) {
 
   const skills = [];
   let texto = "";
+  let fallo = null;
   for (const linea of (r.stdout || "").split("\n")) {
     if (!linea.trim()) continue;
     let d;
@@ -105,7 +106,13 @@ function run(prompt, { plugin }) {
     } catch {
       continue;
     }
-    if (d.type === "result") texto = d.result || "";
+    if (d.type === "result") {
+      texto = d.result || "";
+      // La CLI puede salir con código 0 y aun así no haber respondido: lo dice aquí.
+      if (d.is_error === true || (d.subtype && d.subtype !== "success")) {
+        fallo = d.subtype || "is_error";
+      }
+    }
     const bloques = d?.message?.content;
     if (Array.isArray(bloques)) {
       for (const b of bloques) {
@@ -113,7 +120,18 @@ function run(prompt, { plugin }) {
       }
     }
   }
-  return { skills, texto, error: null };
+  // Segunda red, por si la CLI no marca el fallo en el evento: una respuesta vacía o un
+  // error de la API NO es una respuesta que se pueda corregir. Sin esto, ese texto no casa
+  // con `debe_incluir`, sale ok:false y el informe lo canta como veredicto — el mismo delta
+  // fabricado del ETIMEDOUT, entrando por otra puerta. Visto con un 403 el 2026-09-07.
+  const SIN_VEREDICTO =
+    /Failed to authenticate|API Error:|Request not allowed|Invalid API key|Credit balance|rate limit exceeded|Usage limit reached/i;
+  if (!fallo) {
+    if (!texto.trim()) fallo = "SIN_RESPUESTA";
+    else if (SIN_VEREDICTO.test(texto)) fallo = "ERROR_DE_API";
+  }
+
+  return { skills, texto, error: fallo };
 }
 
 // ---------------------------------------------------------------------------
@@ -215,7 +233,9 @@ for (const caso of casos) {
   if (withBaseline) {
     const b = run(caso.prompt, { plugin: false });
     const bc = corrige(b.texto, caso);
-    base = { skills: b.skills, ok: bc.ok, faltan: bc.faltan, error: b.error };
+    // Se guarda también el TEXTO de la línea base: sin él, un resultado raro del brazo sin
+    // plugin no se puede diagnosticar después sin volver a gastar sesiones.
+    base = { skills: b.skills, ok: bc.ok, faltan: bc.faltan, error: b.error, texto: b.texto };
     if (b.error) {
       // Un brazo que NO llegó a ejecutarse no es evidencia de nada. Sin esta rama, el
       // texto vacío de una sesión que reventó no casa con `debe_incluir`, sale `ok:false`
@@ -233,7 +253,8 @@ for (const caso of casos) {
     !conPlugin.error && activo && contenido.ok && !sinDelta && !inestable && !baseInconcluso;
   resultados.push({ ...caso, activo, contenido, base, sinDelta, baseInconcluso, inestable, runs, nActivo, nContenido, ok, error: conPlugin.error, texto: conPlugin.texto });
 
-  if (conPlugin.error) console.log(`✗ ERROR (${conPlugin.error})`);
+  if (conPlugin.error)
+    console.log(`⚠ INCONCLUSO — el brazo con plugin no llegó a responder (${conPlugin.error})`);
   else if (caso.calibrado === false && !withBaseline)
     console.log(`${activo && contenido.ok ? "✓" : "✗"} (SIN CALIBRAR — córrelo con --baseline)`);
   else if (!activo) console.log(`✗ no se activó (disparó: ${conPlugin.skills.join(", ") || "ninguna"})`);
@@ -252,7 +273,11 @@ for (const caso of casos) {
 const fallos = resultados.filter((r) => !r.ok);
 console.log("\n" + "─".repeat(78));
 for (const r of resultados) {
-  const estado = r.ok ? "✓" : r.sinDelta || r.baseInconcluso ? "⚠" : "✗";
+  const estado = r.ok ? "✓" : r.sinDelta || r.baseInconcluso || r.error ? "⚠" : "✗";
+  if (r.error) {
+    console.log(`⚠  ${r.nombre}  →  ${r.guia} · brazo con plugin SIN EJECUTAR (${r.error}): sin veredicto`);
+    continue;
+  }
   const delta = !r.base
     ? ""
     : r.base.error

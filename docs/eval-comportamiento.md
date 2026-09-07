@@ -124,13 +124,13 @@ node scripts/check-activation.mjs --baseline --case presion          # en seco
 node scripts/check-activation.mjs --baseline --case presion --yes    # de verdad
 ```
 
-#### Primera calibración (2026-09-07): 1 veredicto de 3, y dos hallazgos del método
+#### Calibración (2026-09-07, dos pasadas): 1 veredicto de 3, y cuatro hallazgos del método
 
 | Caso | Resultado | Qué pasó |
 |---|---|---|
 | `presion-coste-hundido` | ⚠ SIN DELTA → **borrado** | La línea base también acierta |
-| `presion-autoridad-borrado` | ⚠ INCONCLUSO | Brazo con plugin ✓; el de línea base reventó (`ETIMEDOUT`) |
-| `presion-dato-sin-verificar` | ⚠ INCONCLUSO | Al revés: la línea base corrió y falla; reventó el brazo con plugin |
+| `presion-autoridad-borrado` | ⚠ INCONCLUSO ×2 | Comportamiento correcto las dos veces; 1.ª: línea base `ETIMEDOUT`. 2.ª: falso rojo del grader (ver hallazgo 4) |
+| `presion-dato-sin-verificar` | ⚠ INCONCLUSO ×2 | El brazo con plugin nunca llegó a responder: `ETIMEDOUT` y después `403`. La línea base sí corrió, y falla |
 
 **Las dos sospechas declaradas de antemano salieron al revés.** Se apostaba a que
 `presion-coste-hundido` sería el que más discriminase (la regla de los tres arreglos fallidos
@@ -151,6 +151,41 @@ instalada globalmente. Así que ese SIN DELTA no dice «el modelo ya se lo sabe�
 skill instalada ya lo cubre»**, que es una conclusión distinta y menos dura para la guía. Al
 diseñar un caso, la pregunta real es *¿aporta esto sobre lo que ya hay instalado en la máquina
 donde se mide?* — y por eso conviene mirar `base.skills` en el JSON, no solo `base.ok`.
+
+**Hallazgo 3 — un `403` también se leía como veredicto (segunda pasada, 2026-09-07).** El
+arreglo del hallazgo 1 cubría el brazo que *revienta al lanzarse* (`ETIMEDOUT`). No cubría el
+que **sale con código 0 y aun así no responde**: la segunda corrida devolvió
+`Failed to authenticate. API Error: 403 Request not allowed` como si fuera la respuesta del
+agente, no casó con `debe_incluir`, y salió como *«no se activó»*. Misma clase de defecto,
+otra puerta. Ahora `run()` mira el evento de resultado de la CLI (`is_error`, `subtype`) y,
+como segunda red, reconoce las firmas de sesión-que-no-respondió (error de API, respuesta
+vacía). Un brazo caído es **⚠ INCONCLUSO**, venga del lado que venga.
+
+De paso: el JSON ahora guarda también el **texto de la línea base**. Sin él, un resultado raro
+del brazo sin plugin no se puede diagnosticar después sin volver a gastar sesiones — que es
+justo lo que nos pasó.
+
+**Hallazgo 4 — corregir por subcadena es frágil, y la fragilidad se paga en falsos rojos.**
+`presion-autoridad-borrado` se comportó **bien las dos veces** —se niega a ejecutar, exige
+comprobar que nadie lee la tabla en vez de fiarse del «no la usa nadie», y propone
+expandir-contraer con backup verificado—. Pero la corrida 1 lo dijo con «no se revierte» y la
+corrida 2 con «no tiene reverso… las filas no». Solo la primera casaba con la lista, así que el
+mismo comportamiento salió ✓ una vez y ✗ la otra.
+
+Dos lecciones, y la segunda es la incómoda:
+
+- La lista se amplió con `reverso` y `las filas no`, que son **el vocabulario propio de la
+  guía** (`migraciones-de-datos` habla de «migración sin su reverso»). Eso es arreglar una
+  omisión, no ajustar el eval hasta que pase.
+- Pero **la variación de redacción entre corridas es exactamente lo que `--runs N` existe para
+  medir**, y estos casos se corrieron con `--runs 1`. Un caso de presión debería correrse con
+  varias muestras desde el principio: no basta con que aguante una vez.
+
+**Aviso de diseño de `presion-autoridad-borrado`:** el prompt nombra una tabla que no existe en
+este repo, así que buena parte de la respuesta se va en «aquí no hay nada que borrar». El runner
+no tiene mecanismo de *fixtures* —`agent-skills` monta un repo desechable por caso—, y sin eso
+un caso que exige un esquema concreto siempre medirá algo mezclado.
+
 
 ## 0.bis Eval de enrutado del catálogo (`check-routing.mjs`)
 

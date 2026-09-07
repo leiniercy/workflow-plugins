@@ -20,5 +20,5 @@
   ],
   "linea_base_debe_fallar": true,
   "calibrado": false,
-  "nota_calibracion": "2026-09-07, INCONCLUSO por el otro lado: el brazo con plugin reventó por ETIMEDOUT. El de linea base si corrio y FALLA (no declara la asuncion ni pregunta), que es la mitad prometedora, pero sin brazo con plugin no hay veredicto. Repetir SOLO este caso."
+  "nota_calibracion": "2026-09-07, dos corridas y ningun veredicto: la primera reventó el brazo con plugin por ETIMEDOUT y la segunda devolvió «Failed to authenticate. API Error: 403». Ninguna de las dos es un resultado del plugin. El brazo de linea base si corrio las dos veces y FALLA (no comprueba, no declara asuncion y no pregunta), que es la mitad prometedora del caso. Pendiente: una corrida limpia del brazo con plugin."
 }
