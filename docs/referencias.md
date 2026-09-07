@@ -868,19 +868,19 @@ anti-objetivos de la filosofía.
 | `frontend-ui-engineering` | Arquitectura de componentes, WCAG 2.1 | `usabilidad-accesibilidad` + add-on `frontend-design` | ⛔ ya cubierto |
 | **`security-and-hardening`** | **OWASP LLM Top 10; triaje de auditoría por alcanzabilidad; higiene de cadena de suministro**; sistema de tres niveles (siempre/preguntar/nunca) | `revisor-bugs-seguridad` (A06 + bloque LLM) y dim. 5 de `/review` | ✅ rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | **`browser-testing-with-devtools`** | **Contenido del navegador como dato no fiable; perfil aislado; freno a ejecutar JS**; consola limpia como listón | `qa-exploratoria` | ✅ rama `feat/agent-skills-seguridad-datos-no-fiables` |
-| **`debugging-and-error-recovery`** | **Salida de error como dato no fiable**; `git bisect` como técnica de localización; parar la línea | `depuracion-sistematica` | ✅ dato no fiable · 🔜 bisect y parar la línea |
-| **`test-driven-development`** | Regla de Beyoncé; DAMP sobre DRY; implementaciones reales antes que dobles; **tamaños por recurso** (pequeño = sin red ni disco); patrón «demuéstralo» para bugs | `niveles-y-tipos-de-prueba` | 🔜 |
+| **`debugging-and-error-recovery`** | **Salida de error como dato no fiable**; `git bisect` como técnica de localización; parar la línea | `depuracion-sistematica` | ✅ dato no fiable y `git bisect` · 🔜 parar la línea |
+| **`test-driven-development`** | Regla de Beyoncé; DAMP sobre DRY; implementaciones reales antes que dobles; **tamaños por recurso** (pequeño = sin red ni disco); patrón «demuéstralo» para bugs | `niveles-y-tipos-de-prueba` | ✅ misma rama |
 | **`constraint-driven-development`** | **Guardia del suelo** (5 movimientos que aflojan el listón, sobre el diff); **trinquete**; ranking de circularidad (externo/proyecto/suite); códigos de salida 0/1/2 | Escaneo determinista en la Fase 2 de `/review` (con `Grep`, que no rompe la regla de no leer el diff) + autocomprobación en `/implement`. **No** se adoptó `CONSTRAINTS.md` ni la entrevista ni las 13 herramientas: eso es el producto de otro | ✅ rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | **`doubt-driven-development`** | CLAIM→EXTRACT→DOUBT→RECONCILE→STOP en vuelo; **no pasarle el CLAIM al revisor**; precedencia al reconciliar; **«teatro de la duda» como señal comprobable** | Ciclo TDD de `/implement`, solo decisiones no triviales, con el agente nuevo `refutador-decision` (opus, solo-lectura). Las tres piezas que lo hacen funcionar: no pasarle el CLAIM, orden de precedencia al reconciliar, y el «teatro de la duda» como señal comprobable | ✅ misma rama |
-| **`source-driven-development`** | Detectar versión instalada → doc oficial de esa versión → citar la URL | `evidencia-y-preguntas` + Fase 3 de `/plan` | 🔜 |
-| `code-simplification` | **Valla de Chesterton** | `codigo-limpio` (que hoy dice «código muerto → eliminarlo», el consejo opuesto sin el freno) | 🔜 |
-| `code-review-and-quality` | **Revisar los tests primero**; **verificar la verificación**; norma de tamaño del cambio | `/review` | 🔜 |
-| `performance-optimization` | **Conservar o revertir**: si la optimización no movió el número, se revierte | `rendimiento` | 🔜 |
-| `api-and-interface-design` | Ley de Hyrum; regla de una versión | `arquitectura` (idempotencia y forma del error ya están) | 🔜 |
-| `deprecation-and-migration` | Deprecación obligatoria vs. avisada; patrón estrangulador | `migraciones-de-datos` (expandir/contraer ya está) | 🔜 |
-| `git-workflow-and-versioning` | **Ficheros generados** en revisión y commits (nos aplica: generamos `adapters/` entero); patrón punto de guardado | `codigo-limpio` / `/implement` | 🔜 |
-| `documentation-and-adrs` | Ciclo de vida de la decisión: se supera, no se borra | «Decisiones tomadas» de la spec / `registro-progreso` | 🔜 |
-| `interview-me` | Número de confianza; **parada al 95 %**; «sí explícito, no lo-que-tú-veas» | `/plan` — nuestra entrevista tiene orden pero ningún criterio de terminación | 🔜 |
+| **`source-driven-development`** | Detectar versión instalada → doc oficial de esa versión → citar la URL | `evidencia-y-preguntas` | ✅ misma rama |
+| `code-simplification` | **Valla de Chesterton** | `codigo-limpio`, que decía «código muerto → eliminarlo» (el consejo opuesto sin el freno) | ✅ misma rama |
+| `code-review-and-quality` | **Revisar los tests primero**; **verificar la verificación**; norma de tamaño del cambio | `/review` | 🔜 (única de §18.B sin adoptar) |
+| `performance-optimization` | **Conservar o revertir**: si la optimización no movió el número, se revierte | `rendimiento` | ✅ misma rama |
+| `api-and-interface-design` | Ley de Hyrum; regla de una versión | `arquitectura` | ✅ misma rama |
+| `deprecation-and-migration` | Deprecación obligatoria vs. avisada; patrón estrangulador | `migraciones-de-datos` | ✅ misma rama |
+| `git-workflow-and-versioning` | **Ficheros generados** en revisión y commits (nos aplica: generamos `adapters/` entero) | `/implement`, gate de commit | ✅ misma rama |
+| `documentation-and-adrs` | Ciclo de vida de la decisión: se supera, no se borra | `registro-progreso` | ✅ misma rama |
+| `interview-me` | Número de confianza; **parada al 95 %**; «sí explícito, no lo-que-tú-veas» | `/plan`, que tenía orden pero ningún criterio de terminación | ✅ misma rama |
 | `spec-driven-development` | Fase 0: ¿esto necesita spec siquiera? | `/plan` | 🟡 menor |
 | `observability-and-instrumentation` | «Define qué es funcionar antes de instrumentar»; RED; alertas por síntoma | Un criterio en `/plan`, no guía nueva | 🟡 candidato |
 | `ci-cd-and-automation` | Pipeline de puertas, rollouts escalonados | El flujo termina en la PR; `examples/pr-review.yml` cubre lo del repo consumidor | ⛔ fuera de alcance |
@@ -898,7 +898,7 @@ anti-objetivos de la filosofía.
 | Campos de frontmatter de agentes de plugin | Afirman que `hooks`, `mcpServers` y `permissionMode` se ignoran en silencio, y que sí funcionan `model`, `tools`, `maxTurns`, `memory`, `effort`, `isolation` | Si es cierto, `effort` y `maxTurns` son palancas que nuestros 6 agentes no usan. **Afirmación suya, no verificada por nosotros** | 🟡 verificar antes de usar |
 | Regla por ruta (`.claude/rules/*.md` con `paths:`) | Dispara al tocar `skills/**` y apunta al CONTRIBUTING | Mismo problema nuestro: «edita `core/`, no `adapters/`» vive en prosa del README y solo se lee si alguien la busca. **El mecanismo no nos consta en la versión actual de Claude Code**; la alternativa con mecanismo verificado es un `PreToolUse` sobre edición con comprobación de ruta, con la forma de `destructive-guard.js` | 🟡 verificar mecanismo |
 | Plantilla de issue `skill-gap.yml` | Formulario para «la guía se equivocó en mi repo»: skill afectada, extracto, contexto del proyecto, qué hiciste en su lugar | Canal de realimentación estructurado desde los repos consumidores | 🔜 bajo |
-| Listón de < 500 líneas por `SKILL.md` | Eficiencia de contexto: la skill se carga entera cuando dispara | **Cumplimos con margen**: máximo 249 líneas (`consultas-correctas`). Vale como aserción de regresión | 🔜 una aserción |
+| Listón de < 500 líneas por `SKILL.md` | Eficiencia de contexto: la skill se carga entera cuando dispara | **Cumplimos con margen**: máximo 256 líneas (`consultas-correctas`). Aseverado en CI como freno, no como listón alcanzable | ✅ misma rama |
 | Hook `sdd-cache` (caché HTTP con ETag) | Revalida con el origen en cada reúso; solo sirve del disco con un `304` | `jq` + `curl` + caché propia para ahorrarse un `WebFetch` | ⛔ sobre-ingeniería |
 | Hook `simplify-ignore` | Sustituye bloques marcados por placeholders **en disco** y los restaura al parar la sesión | Sus propias limitaciones incluyen dejar ficheros con placeholders si la sesión casca | ⛔ invasivo |
 | Agent Teams para hipótesis competidoras | Compañeros que se mensajean y se refutan hasta converger | Experimental y caro; nuestro fan-out de 5 revisores read-only ya cubre el caso «veredicto sobre un artefacto conocido» | ⛔ |
@@ -1016,10 +1016,16 @@ Orden por relación valor/coste, con el racimo de seguridad ya cerrado:
 3. ✅ **Guardia del suelo en `/review` + duda en vuelo en `/implement`** — escaneo determinista
    de las cinco formas de aflojar la barra (con `Grep`, sin leer el diff) y ciclo de duda
    acotado a 3 vueltas con `refutador-decision`. → §18.B
-4. 🔜 **Goteo de una idea por guía** — valla de Chesterton, `git bisect`, regla de Beyoncé,
-   conservar-o-revertir, Ley de Hyrum, parada al 95 %, ficheros generados, ciclo de vida de la
-   decisión, deprecación obligatoria vs. avisada, hechos del framework con versión y cita.
-   Cabe en una sola tanda de ediciones pequeñas. → §18.B
+4. ✅ **Goteo de una idea por guía** — las diez entraron: valla de Chesterton, `git bisect`,
+   tamaños por recurso + DAMP + dobles + regla de Beyoncé, conservar-o-revertir, Ley de Hyrum y
+   una sola versión viva, parada de la entrevista con número de confianza, ficheros generados,
+   una decisión se supera y no se borra, deprecación avisada vs. obligatoria, y hechos del
+   framework con versión y URL. Más el techo de 500 líneas por skill aseverado en CI. → §18.B
+
+**Queda 🔜 de §18:** `code-review-and-quality` (revisar los tests primero, verificar la
+verificación, tamaño del cambio), el ledger de cambios rechazados, la plantilla `skill-gap.yml`,
+el anti-patrón C escrito en la filosofía, «parar la línea» en `depuracion-sistematica`, y los dos
+🟡 pendientes de verificar (campos de frontmatter de agentes de plugin, reglas por ruta).
 
 ### Nota de método
 
@@ -1125,6 +1131,17 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | Casos de **presión** en el eval de activación (tiempo, autoridad): miden que los gates aguanten, no que la guía sepa algo | agent-skills, evals de disciplina (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Estado **⚠ INCONCLUSO** en `check-activation.mjs`: un brazo que revienta ya no se lee como «la línea base falla, luego hay delta» — era un delta fabricado que nadie había medido | Defecto propio, detectado calibrando los casos de presión | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Códigos de salida 0/1/2 en `check-routing` — un «no pude ejecutarme» nunca se lee como un «correcto» | agent-skills, contrato del floor-guard (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Valla de Chesterton en `codigo-limpio`: antes de quitar algo, `git blame` y por qué existe; si la razón sigue viva, se escribe al lado | agent-skills `code-simplification` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| `git bisect` como técnica de localización en `depuracion-sistematica` (con `reset` obligatorio, y el aviso de que da el commit, no la causa) | agent-skills `debugging-and-error-recovery` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Tamaños de test por recurso, DAMP sobre DRY, preferir lo real al doble y la regla de Beyoncé en `niveles-y-tipos-de-prueba` | agent-skills `test-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| «Conservar o revertir» en `rendimiento`: neutro es revertir, contra el ruido y no la media, y tabla de intentos revertidos | agent-skills `performance-optimization` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Ley de Hyrum y regla de una sola versión viva en el contrato de API de `arquitectura` | agent-skills `api-and-interface-design` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Deprecación avisada vs. obligatoria + patrón estrangulador en `migraciones-de-datos` | agent-skills `deprecation-and-migration` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| «Una decisión no se borra, se supera» en `registro-progreso` | agent-skills `documentation-and-adrs` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Hechos del framework contra la versión instalada, con URL profunda al lado, en `evidencia-y-preguntas` | agent-skills `source-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Criterio de parada de la entrevista de `/plan` (predecir las tres siguientes respuestas), número de confianza y lista de lo que NO cuenta como aprobación | agent-skills `interview-me` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Qué entra en un commit (ficheros generados; el cambio va en la fuente) en el gate de `/implement` | agent-skills `git-workflow-and-versioning` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Techo de 500 líneas por skill aseverado en CI — se carga entera al dispararse | agent-skills, eficiencia de contexto (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Guardia del suelo: escaneo de las 5 formas de aflojar la barra en la Fase 2 de `/review` (con `Grep`, sin leer el diff) y autocomprobación en `/implement`; «apretar es silencioso, aflojar es ruidoso» | agent-skills `constraint-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Duda en vuelo en `/implement` + agente `refutador-decision` (opus, read-only): enunciar → extraer → dudar → reconciliar → parar, tope de 3 vueltas | agent-skills `doubt-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | **No pasarle la conclusión al refutador** (darle el CLAIM convierte la revisión en ratificación) + orden de precedencia al reconciliar + «teatro de la duda» como señal comprobable | agent-skills `doubt-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |

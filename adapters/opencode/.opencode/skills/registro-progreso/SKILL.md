@@ -36,7 +36,13 @@ trabajo y cómo retomarlo. Ese lector es tu criterio para todo lo que escribas a
 5. **Inputs de una entrada:** `taskId` y ruta (`tasks/<taskId>/progress.md`), `fase`,
    `resultado` (frase concreta y verificable), `notas` (opcional pero recomendado) y la nueva
    línea de Estado actual.
-6. **Creación inicial (solo /start):** si el fichero no existe, créalo completo con Estado
+6. **Una decisión no se borra: se supera.** Cuando una decisión ya registrada deja de valer
+   —en `progress.md` o en «Decisiones tomadas» de `spec.md`—, no la reescribas ni la quites:
+   añade la nueva **diciendo a cuál sustituye y por qué cambió**. Lo que se pierde al borrarla
+   no es el texto viejo, es la razón por la que se tomó, y sin esa razón el siguiente vuelve a
+   proponer lo mismo dentro de tres meses. La historia de por qué se descartó algo vale tanto
+   como la decisión vigente.
+7. **Creación inicial (solo /start):** si el fichero no existe, créalo completo con Estado
    actual "Rama creada, pendiente de planificación" y la primera entrada de fase `start`. Si
    YA existe, jamás lo recrees: añade entradas según el proceso.
 
@@ -51,6 +57,8 @@ trabajo y cómo retomarlo. Ese lector es tu criterio para todo lo que escribas a
 - **Entrada sin salida** — registrar lo hecho pero no el siguiente paso ni el porqué de una
   decisión. Tu yo futuro se queda sin hilo del que tirar.
 - **Recrear un fichero existente** — destruye el historial acumulado.
+- **Reescribir una decisión que cambió** — deja la vieja y añade la nueva diciendo a cuál
+  sustituye. Borrarla borra el porqué, y el porqué es lo que evita repetir el error.
 
 ## Autocrítica antes de cerrar
 

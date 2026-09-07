@@ -165,6 +165,40 @@ paginar, la consulta sin índice, el bucle cuadrático— y convierte un umbral 
 derivado de una fuerza real del dominio. Si el dominio acota el volumen de verdad, esa cota
 **es** la respuesta y se escribe.
 
+## Cuando ya has optimizado: conservar o revertir
+
+Un arreglo de rendimiento es una **hipótesis hasta que vuelves a medir**. Y se vuelve a medir
+igual que la línea base: mismo comando, mismas condiciones, mismo presupuesto. Una base tomada
+en frío contra un resultado tomado en caliente mide la caché, no tu cambio. Una cosa cada vez:
+tres optimizaciones juntas dan un solo número que no puedes atribuir a ninguna.
+
+Y se compara contra el **ruido**, no contra la media: una mejora del 3 % dentro de una varianza
+de ±5 % no es una mejora, es otra muestra. Repite la medición antes de decidir.
+
+Entonces se decide, sin margen:
+
+| Resultado frente a la línea base | Qué se hace |
+|---|---|
+| Supera el umbral y la suite está verde | **Se conserva**, con los números antes/después en el mensaje del commit |
+| Dentro del ruido (sin cambio medible) | **Se revierte** |
+| Peor | **Se revierte** |
+| Mejora, pero un test se puso rojo | **Se revierte**: es una regresión disfrazada de victoria |
+
+**«Neutro» es revertir, no conservar.** Y es justo el paso que se salta todo el mundo: el
+cambio ya está escrito, tirarlo se siente como desperdiciar el trabajo, así que entra sin medir
+— y el código acumula complejidad que nunca compró nada. **Lo que conservas, lo mantienes para
+siempre**: que se pague a sí mismo.
+
+Con una condición por encima: **la corrección manda sobre el número**. Una «optimización» que
+gana quitando trabajo que el producto necesitaba —saltarse una validación, cachear algo que
+tenía que estar fresco, quitar una espera que sostenía algo— no es una victoria, es un bug con
+buena métrica.
+
+**Deja constancia también de lo revertido.** Un experimento que se revierte no deja rastro en el
+historial, y por eso la misma idea muerta se vuelve a intentar dentro de seis meses. Una tabla
+corta en `progress.md` —idea, línea base → resultado, veredicto, por qué— basta, y es lo que
+lee el siguiente antes de proponer lo que ya falló.
+
 ## Cómo aplicarla
 
 - **En `/plan`:** solo si la tarea activa la característica de eficiencia
@@ -191,6 +225,8 @@ derivado de una fuerza real del dominio. Si el dominio acota el volumen de verda
 - **Confundir latencia con throughput** — perseguir peticiones por segundo cuando lo que
   molesta al usuario es lo que tarda la suya, o al revés. Son criterios distintos y se miden
   distinto.
+- **Conservar una optimización que no movió el número** — «ya que está escrita». Lo que se
+  conserva se mantiene para siempre: si está dentro del ruido, se revierte.
 - **«Habría que medir» como excusa para callar un N+1** — el N+1 no es lento, es incorrecto por
   diseño. Se reporta.
 - **Umbral sin volumen** — «responde en menos de 200 ms» sin decir con cuántos datos ni con

@@ -71,6 +71,15 @@ hecho por una duda parcial es su propio fallo.
 - **Una fuente externa se contrasta con la primaria de su tema** —el RFC, la documentación del
   motor, la norma— antes de que su contenido entre en una decisión. El material divulgativo vale
   para saber qué mirar, no para citarlo.
+- **Un hecho sobre un framework se comprueba contra la versión que el repo tiene instalada**, no
+  contra la que recuerdas. Las APIs se deprecan y los patrones recomendados cambian de una mayor
+  a la siguiente, así que el orden es: leer la versión exacta en el manifiesto o el lockfile →
+  buscar la documentación oficial **de esa versión** → y dejar la **URL concreta** junto a la
+  decisión (en `spec.md`, en el comentario del código o en la propia respuesta), con enlace
+  profundo al apartado, no a la portada. Si la versión no se puede determinar, se pregunta: es
+  la que decide qué patrón es correcto. Y si tras buscarla **no encuentras documentación** del
+  patrón, dilo con esas palabras —«no he encontrado documentación oficial de esto; va de
+  memoria y puede estar desactualizado»— en vez de presentarlo como comprobado.
 
 ## Cómo se declara una asunción
 
@@ -106,6 +115,8 @@ puede refutar de un vistazo.
   dato que solo afectaba a una parte.
 - **Preguntar para cubrirse** — trasladar la decisión que ya te tocaba a ti para que la firme
   otro. Si el test dice escalón 2, se asume y se declara.
+- **Escribir el patrón del framework de memoria** — «así se hace en React». ¿En qué versión?
+  Léela en el manifiesto y busca la documentación de esa versión, con la URL al lado.
 
 ## Banderas rojas
 

@@ -89,6 +89,7 @@ for (const [name, model] of Object.entries(AGENTS)) {
 //   - contiene "Úsala", que es como se redacta un disparador ("Úsala cuando/al/en…")
 const DESC_MAX = 500;
 const FRONTMATTER_MAX = 1024;
+const SKILL_LINES_MAX = 500;
 // La lista NO se importa de sync.mjs —este test re-declara a propósito (ver cabecera): si la
 // importara, borrar una guía del registro de sync.mjs haría que el check la siguiera y diera
 // verde—. Pero tampoco se mantiene a mano, que es como se coló la deriva: se deriva del DISCO,
@@ -115,6 +116,16 @@ for (const g of GUIDES) {
     `${g} description ≤ ${DESC_MAX} chars (disparador, no resumen) — actual: ${desc.length}`);
   assert(/Úsala/.test(desc),
     `${g} description redactada como disparador ("Úsala cuando/al/en…")`);
+  // Techo de líneas: una skill se carga ENTERA en cuanto dispara, así que su tamaño es
+  // contexto que se paga en cada activación. 500 es el listón de la comunidad (agent-skills
+  // §18.C) y hoy sobra margen — el máximo son 255 líneas. Está aquí como freno: el día que
+  // una guía se acerque, lo que toca es partir el material a un fichero de apoyo, no subir
+  // el número.
+  const lineas = body === null ? 0 : body.split(/\n/).length;
+  assert(
+    lineas <= SKILL_LINES_MAX,
+    `${g} tiene ${lineas} líneas (techo ${SKILL_LINES_MAX}: se carga entera al dispararse)`,
+  );
   assert(fm.length <= FRONTMATTER_MAX,
     `${g} frontmatter ≤ ${FRONTMATTER_MAX} chars (techo del formato) — actual: ${fm.length}`);
 }

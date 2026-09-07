@@ -95,6 +95,54 @@ Tres superficies, una sola regla.
 - **10 aserciones más en `check-behavior.mjs`** (217 → 227), verificadas por mutación: borrar
   el escaneo del suelo o el ciclo de duda hace fallar el check.
 
+- **Diez ideas sueltas absorbidas guía a guía** (agent-skills §18.B). Ninguna justificaba una
+  guía nueva; todas cierran un hueco concreto donde ya había material:
+  - **`codigo-limpio` — la valla de Chesterton.** La guía decía «código muerto → eliminarlo»,
+    que es el consejo opuesto sin el freno. Ahora, antes de quitar nada, hay que poder responder
+    de qué se encarga, quién lo llama, qué casos de error cubre y **qué dice `git blame`**. Y si
+    la razón sigue viva, lo que falta no es borrar: es escribir el porqué al lado.
+  - **`depuracion-sistematica` — `git bisect`.** La guía tenía cuatro fases y la regla de los
+    tres arreglos fallidos, pero ninguna técnica para acotar **cuándo** se rompió. Con el aviso
+    de cerrar con `git bisect reset` y de que da el commit culpable, no la causa raíz.
+  - **`niveles-y-tipos-de-prueba` — tres reglas.** **Tamaños por recurso** (pequeño = un
+    proceso, sin red ni disco), que hace *decidible* si algo es unidad en vez de discutible —
+    «si tu test unitario toca la red, no es pequeño»—; **repetirse está bien en tests**, porque
+    un helper que esconde lo que el test verifica cuesta más de lo que ahorra; y **preferir lo
+    real al doble**, con el orden real → fake → stub → mock. Más la regla de que si te importa,
+    tenía que tener test: el hueco es del test, no de la actualización que lo rompió.
+  - **`rendimiento` — conservar o revertir.** La guía decía «medir antes de optimizar» y no
+    cerraba el ciclo. Ahora: se remide igual que la línea base, se compara contra el ruido y no
+    contra la media, y **«neutro» es revertir, no conservar** — lo que conservas lo mantienes
+    para siempre. Con la corrección por encima del número, y una tabla de intentos revertidos
+    en `progress.md` para que la misma idea muerta no se reintente dentro de seis meses.
+  - **`arquitectura` — Ley de Hyrum y una sola versión viva.** Con suficientes consumidores,
+    todo comportamiento observable acaba siendo contrato: el orden sin `ORDER BY`, el texto del
+    error, que un campo opcional siempre venga. Y los tests de contrato no bastan: pasan en
+    verde mientras rompes a quien dependía de lo que no documentaste.
+  - **`migraciones-de-datos` — retirar lo que otros usan.** Expandir/contraer decía **cómo**;
+    faltaba el **cuándo**: avisada (por defecto) frente a obligatoria (solo si el coste o el
+    riesgo lo justifican, y entonces con herramienta y guía, no solo una fecha). Más el patrón
+    de estrangular lo grande y vivo, y el aviso sobre lo viejo que nadie se atreve a borrar.
+  - **`registro-progreso` — una decisión no se borra, se supera.** Se añade la nueva diciendo a
+    cuál sustituye y por qué. Lo que se pierde al borrarla no es el texto: es la razón, y sin
+    ella el siguiente vuelve a proponer lo mismo en tres meses.
+  - **`evidencia-y-preguntas` — hechos del framework con versión y URL.** Ya exigía contrastar
+    con la fuente primaria; faltaba que la versión instalada decide qué patrón es correcto:
+    leer el manifiesto → documentación **de esa versión** → enlace profundo junto a la decisión.
+    Y decirlo con esas palabras cuando no se encuentra documentación, en vez de darlo por
+    comprobado.
+  - **`/plan` — criterio de parada de la entrevista.** Tenía disciplina de orden pero **ningún
+    criterio de terminación**. Ahora es comprobable: *¿puedes predecir cómo respondería el
+    usuario a las tres siguientes preguntas?* Con número de confianza declarado, suelo para
+    cuando no converge, y la lista de lo que **no** cuenta como aprobación («lo que tú veas»,
+    «me parece bien», «venga, tira»).
+  - **`/implement` — qué entra en el commit.** Lo generado se commitea solo si el repo lo
+    espera; y si el repo genera código a partir de otra fuente, el cambio va en la fuente.
+- **Techo de 500 líneas por skill aseverado en CI** (agent-skills §18.C): una skill se carga
+  entera al dispararse, así que su tamaño es contexto que se paga en cada activación. Hoy sobra
+  margen —el máximo son 256 líneas— y está como freno: cuando una guía se acerque, lo que toca
+  es partir el material, no subir el número. 21 aserciones nuevas (227 → 248).
+
 ### Corregido
 
 - **`check-activation.mjs` fabricaba un delta cuando el brazo de línea base reventaba.** El

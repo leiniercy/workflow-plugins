@@ -50,6 +50,29 @@ escrito en `spec.md`.
     una tabla vacía—. Una migración que solo se ha probado hacia adelante y sobre cero filas no
     se ha probado.
 
+## Retirar algo que otros ya usan
+
+Expandir y contraer (regla 6) dice **cómo** se retira sin caída. Falta el **cuándo**, y ahí hay
+dos modos que no se deciden igual:
+
+| Modo | Cuándo | Cómo se ejecuta |
+|---|---|---|
+| **Avisada** | Lo viejo es estable y su coste de mantenimiento es asumible | Aviso, documentación, empujones. Cada consumidor migra a su ritmo. Sin fecha impuesta |
+| **Obligatoria** | Lo viejo tiene un problema de seguridad, bloquea el avance, o mantener las dos formas sale demasiado caro | Fecha límite y retirada real. **Exige poner de tu parte:** herramienta de migración, guía y acompañamiento |
+
+**Por defecto, avisada.** La obligatoria se reserva para cuando el coste o el riesgo justifican
+forzar a otros — y entonces no vale con anunciar una fecha: si no das la herramienta y la guía,
+lo que has hecho es trasladarles tu problema.
+
+Para lo grande y vivo —una tabla central, un módulo que todo el mundo llama— no se sustituye de
+golpe: se **estrangula**. Se pone lo nuevo al lado, se desvía a los consumidores de uno en uno
+midiendo que cada desvío sigue funcionando, y lo viejo se retira cuando ya no le llama nadie.
+Es la misma forma de expandir y contraer, aplicada al código en vez de al esquema.
+
+Ojo con la pieza que casi siempre queda: **lo viejo que ya no llama nadie pero nadie se atreve
+a borrar**. Si la retirada no tiene dueño y fecha, no es una retirada: es un trozo de código que
+se mantiene para siempre por si acaso.
+
 ## Cómo aplicarla
 
 - **En `/plan`:** si la tarea toca el esquema o transforma datos existentes, **eso es una

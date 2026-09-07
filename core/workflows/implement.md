@@ -86,6 +86,12 @@ criterio de aceptación pendiente, en orden:
    en varios commits (un commit que mezcla tres asuntos no se puede revertir ni leer después);
    y si el cambio **rompe algo que otros consumen** —contrato de API, firma pública, formato de
    dato—, dilo explícitamente en el pie del mensaje, no solo en el cuerpo.
+   **Y mira qué estás metiendo en el commit.** Lo generado se commitea solo si el repo lo
+   espera —un lockfile, las migraciones, artefactos que el propio repo declara versionados—; la
+   salida de build, los ficheros de entorno y la configuración personal del editor, nunca: si
+   aparecen en `git status`, lo que falta es una línea en `.gitignore`, no un commit. Y si el
+   repo **genera** parte de su código a partir de otra fuente, el cambio va en la fuente y se
+   regenera; editar el fichero generado a mano lo pierde en la siguiente regeneración.
 
 **Decisiones no triviales (duda en vuelo, antes del gate de commit):** una respuesta segura no
 es una respuesta correcta, y una sesión larga convierte suposiciones en «hechos» sin que nadie

@@ -24,7 +24,14 @@ Cada fase se completa antes de pasar a la siguiente.
 2. **Reprodúcelo de forma fiable.** ¿Qué pasos exactos lo disparan? ¿Ocurre siempre? Si no
    consigues reproducirlo, recopila más datos — no empieces a adivinar.
 3. **Mira qué cambió.** `git diff`, commits recientes, dependencias nuevas, cambios de
-   configuración o de entorno.
+   configuración o de entorno. Si el fallo **antes no estaba** y el historial es largo, no leas
+   commits uno a uno: **bisecta**. `git bisect start` → `git bisect bad HEAD` →
+   `git bisect good <commit que sí funcionaba>`, y en cada punto medio ejecutas la
+   comprobación que distingue bien de mal. En una decena de pasos te deja el commit exacto sobre
+   una rama de cientos. Necesita dos cosas: un comando que dé un veredicto claro y un commit
+   bueno conocido. **Cierra siempre con `git bisect reset`**, o te quedas en un HEAD suelto
+   creyendo que estás en tu rama. Y ojo: te da **el commit que lo introdujo**, que es una pista
+   sobre dónde mirar — no la causa raíz, que sigue exigiendo las fases 2 y 3.
 4. **Instrumenta las fronteras (sistemas multi-componente).** Si el fallo cruza componentes
    (petición → servicio → base de datos; CI → build → despliegue), añade trazas en **cada
    frontera** —qué entra, qué sale, qué configuración se propaga— y ejecuta **una vez** para

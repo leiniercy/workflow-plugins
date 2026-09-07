@@ -128,6 +128,26 @@ que recorre el árbol de decisiones de la tarea hasta que tú y el usuario enten
 - **El objetivo no es acordar rápido**, sino que no quede ninguna decisión implícita dada por
   supuesta en silencio.
 
+**Cuándo parar de preguntar.** La entrevista tiene un criterio de terminación comprobable, no
+una sensación de «ya está»: **¿puedes predecir cómo respondería el usuario a las tres siguientes
+preguntas que le harías?** Si sí, ya entendéis lo mismo — para y pasa a la propuesta. Si no,
+todavía te falta una pregunta.
+
+Ayuda escribir tu lectura de la tarea en una frase **con un número de confianza** antes de
+empezar («creo que quieres X; confianza ~40 %, me falta saber Y y Z»). El número obliga a ser
+honesto: si pones 80 % pero no sabes predecir las tres respuestas siguientes, el número está
+mal. Por debajo de ~70 %, di en la misma línea qué falta.
+
+Y tiene suelo: si llevas varias rondas y sigues sin poder predecir, eso es información **sobre
+la tarea**, no motivo para seguir preguntando. Dilo — «llevo N preguntas y sigo sin poder
+anticipar tus respuestas; algo de fondo se me escapa, ¿damos un paso atrás?».
+
+**La aprobación es un sí explícito.** No cuentan como sí: «lo que tú veas» (está delegando, o
+sea que él tampoco lo tiene claro: vuelve a preguntar con dos opciones concretas), «me parece
+bien» (ambiguo: pregunta si hay algo que matizaría), «venga, tira» (suele ser cortesía para
+cerrar la conversación) ni el silencio seguido de «empieza ya». Si te corrige, integra la
+corrección y vuelve a enunciarlo.
+
 Itera así hasta que el usuario apruebe. SOLO entonces escribe `spec.md`.
 
 ## Fase 5 — Persistencia
@@ -178,6 +198,8 @@ saltarte el contrato.
 | "Diseño con patrones/abstracciones por si escala" | Un patrón se justifica solo ante el problema real (un olor ya presente); si no existe, código simple (guía patrones-diseño). |
 | "De paso reorganizo la arquitectura del repo" | La arquitectura de un repo existente se conforma, no se refunda en una tarea; una migración de estilo es su propia decisión (guía arquitectura). |
 | "Tengo claro el enfoque, propongo directamente ese" | Salvo tarea trivial, pon 2-3 alternativas con su coste y su renuncia, empezando por la que recomiendas (Fase 4). El enfoque no comparado es el que se cae a mitad de /implement. |
+| "Lo que tú veas" contado como aprobación | No es un sí: es delegar. Vuelve con dos opciones concretas y que elija (Fase 4). |
+| "Ya lo tengo claro" sin poder predecir sus tres siguientes respuestas | Ese es el criterio de parada, y es comprobable. Si no puedes predecirlas, falta una pregunta. |
 | "Dejo un 'pendiente de concretar' y ya se verá al implementar" | Un marcador sin resolver es un defecto de la spec: se concreta ahora o se resuelve mal después (Fase 5, paso 0). |
 | "Este criterio se entiende, aunque admita dos lecturas" | Si admite dos lecturas, elige una y hazla explícita: /implement solo verá el texto (Fase 5, paso 0). |
 | "Le paso al usuario una lista con todas mis dudas de golpe" | Una pregunta cada vez, con tu respuesta recomendada y en orden de dependencia: un bloque de preguntas desconcierta y cada respuesta cambia las siguientes (Fase 4). |

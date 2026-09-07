@@ -147,7 +147,23 @@ Next.js o NestJS por igual.
 
 Un endpoint es una **frontera arquitectónica publicada**: en cuanto alguien lo llama, cambiarlo
 cuesta coordinación ajena. Por eso el contrato se decide al planificar, no se descubre al
-integrar. Esto no es un catálogo de estilos de API —el repo ya tendrá el suyo, REST o el que
+integrar.
+
+Y el contrato real es más grande que el escrito. Con suficientes consumidores, **todo
+comportamiento observable acaba siendo del que alguien depende**, prometas lo que prometas: el
+orden en que devuelves una lista sin `ORDER BY`, el texto exacto de un mensaje de error, que un
+campo opcional siempre venga relleno, cuánto tarda. La consecuencia práctica no es rendirse, son
+tres cosas: **sé deliberado con lo que expones** —cada comportamiento visible es un compromiso
+en potencia—, **no dejes escapar detalles de implementación** —si se puede observar, se
+dependerá de ello—, y **da por hecho que los tests de contrato no bastan**: pasan en verde
+mientras rompes a quien dependía de lo que no documentaste. Ahí es donde el cambio deja de ser
+aditivo y entra `migraciones-de-datos` (`${CLAUDE_PLUGIN_ROOT}/skills/migraciones-de-datos/SKILL.md`) con su expandir/contraer.
+
+De la misma familia, la regla de **una sola versión viva**: no obligues a tus consumidores a
+elegir entre dos versiones de lo mismo. Dos versiones en paralelo se pagan en cada cambio
+posterior, y cuando dos consumidores necesitan versiones distintas de la misma pieza el problema
+ya no tiene solución barata. Extiende, no bifurques — y si tienes que romper, la vía es
+expandir, migrar y contraer, no mantener las dos para siempre. Esto no es un catálogo de estilos de API —el repo ya tendrá el suyo, REST o el que
 sea— sino los criterios que hacen que la frontera sea estable y coherente con las demás:
 
 - **Coherencia con el repo antes que con el libro.** El primer trabajo es leer los endpoints
@@ -213,6 +229,10 @@ autorización y la exposición de datos a la dimensión 5 para no reportar dos v
   sin que dos fuerzas distintas lo pidan es pagar dos veces por una decisión que no se tomó.
 - **Refundar la arquitectura de un repo existente en una tarea** — conforma, no reinventes; una
   migración de estilo es su propia decisión, no un efecto colateral de un criterio de aceptación.
+- **«Ese comportamiento no está documentado, puedo cambiarlo»** — con suficientes consumidores,
+  lo observable es contrato de hecho. Si es visible, alguien depende de ello.
+- **Publicar la v2 y dejar viva la v1 «un tiempo»** — dos versiones en paralelo se pagan en cada
+  cambio posterior. Extiende; y si hay que romper, expande-migra-contrae con una fecha.
 
 ## Autocrítica antes de cerrar
 

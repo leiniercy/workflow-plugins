@@ -62,6 +62,26 @@ Si valoras introducir una **abstracción o un patrón de diseño**, consulta
 «por si acaso». Introducir capas de indirección sin un olor que las justifique es
 sobre-ingeniería.
 
+## Antes de quitar algo: entiende por qué está
+
+La valla de Chesterton: si te encuentras una valla cruzando un camino y no sabes por qué está
+ahí, no la tires. Primero averigua la razón; después decide si sigue valiendo.
+
+Es la contraparte necesaria de la mitad de este catálogo, que te dice **elimina**. Antes de
+borrar una rama, un `if` que parece imposible, una comprobación redundante o código que nadie
+llama, contesta:
+
+- ¿De qué se encarga esto? ¿Quién lo llama y a quién llama?
+- ¿Qué casos límite y qué rutas de error cubre?
+- ¿Hay un test que fije su comportamiento? Si lo hay, léelo: suele explicar la valla.
+- ¿Por qué pudo escribirse así? ¿Rendimiento, una limitación de la plataforma, un bug de un
+  tercero, una razón histórica?
+- **`git blame` y el commit que lo introdujo**: ahí está el contexto que el código no cuenta.
+
+Si no puedes responder, todavía no estás en condiciones de quitarlo: lee más contexto. Y si la
+razón resulta seguir viva, lo que falta no es borrar el código: es **escribir el porqué al
+lado**, que es lo que evita que el siguiente lo intente otra vez.
+
 ## Catálogo de olores de código (qué buscar → cómo curarlo)
 
 Los olores son **síntomas**, no siempre defectos: indican dónde mirar. Se acumulan con el tiempo.
@@ -95,7 +115,7 @@ Cinco familias:
 | Comentarios | Comentarios que explican código poco claro | Extraer método; Renombrar método |
 | Código duplicado | Fragmentos casi idénticos | Extraer método; Subir método; Formar método plantilla |
 | Clase de datos | Solo getters/setters, sin comportamiento | Mover el comportamiento hacia ella; Encapsular campo |
-| Código muerto | Variable/método/clase que ya no se usa | Eliminarlo |
+| Código muerto | Variable/método/clase que ya no se usa | Eliminarlo — tras pasar la valla de Chesterton: «no lo encuentro llamado» no es lo mismo que «no se usa» (reflexión, carga dinámica, consumidor externo) |
 | **Generalidad especulativa** | Clase/método/parámetro creado «por si acaso» | Alinear/eliminar. **Es el olor de la sobre-ingeniería.** |
 
 ### Couplers (acopladores) — demasiada dependencia entre clases

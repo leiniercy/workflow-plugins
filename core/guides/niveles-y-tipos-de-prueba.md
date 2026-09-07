@@ -24,6 +24,19 @@ cobertura**.
 de validación es **unidad**; un flujo de UI multi-página es **E2E**. No subas «por realismo» lo
 que la unidad ya cubre (lento y frágil), ni bajes a unidad lo que solo se rompe integrando.
 
+**Y si el nombre del nivel te deja dudando, clasifica por lo que el test CONSUME**, que es
+decidible mirando el código en vez de discutible:
+
+| Tamaño | Qué se le permite | Velocidad |
+|---|---|---|
+| **Pequeño** | Un solo proceso. Ni red, ni disco, ni base de datos, ni reloj real | Milisegundos |
+| **Mediano** | Varios procesos, pero todo en local. Ningún servicio externo | Segundos |
+| **Grande** | Varias máquinas, servicios externos permitidos | Minutos |
+
+La regla operativa que sale de ahí: **si tu «test unitario» toca la red o el disco, no es
+pequeño**, por mucho que viva en la carpeta de unidad — y ahí nace la mayoría de las suites
+lentas e intermitentes. La inmensa mayoría de los tests deberían ser pequeños.
+
 ## Tipos: funcional vs no-funcional (nombrar, no integrar)
 
 Los CA cubren lo **funcional** (la mayoría del trabajo). Los tipos **no-funcionales** el plugin
@@ -108,6 +121,30 @@ equivocada, efecto colateral que falta, retorno vacío o por defecto, validació
 cero / vacío / no autorizado. Una mutación que nadie detecta marca ese comportamiento como
 desprotegido — o el test como tautológico.
 
+## Cómo se escribe el test (tres reglas que van a contracorriente)
+
+**1. Si te importa, ponle un test.** Ni el refactor, ni la actualización de una dependencia, ni
+la migración son responsables de cazar tus bugs: **tus tests lo son**. Si un cambio de
+infraestructura rompe algo y no había test que lo cubriera, el hueco es del test. Sirve además
+como criterio para decidir qué merece cobertura: lo que te dolería que se rompiera en silencio.
+
+**2. En tests, repetirse está bien.** En código de producción, no repetirse suele ser lo
+correcto. En un test lo correcto es otra cosa: que **se lea entero de un vistazo**, como una
+especificación — qué entra, qué se hace, qué se espera. Un `beforeEach` con la construcción del
+caso repartida en tres helpers ahorra líneas y **esconde justo lo que el test verifica**: quien
+lo lee cuando falla tiene que reconstruirlo saltando entre funciones. Duplicar la preparación es
+un precio barato por que cada test se entienda solo.
+
+**3. Prefiere lo real al doble.** Cuanto más código real ejecuta un test, más confianza da.
+De más a menos preferible: **implementación real** → **fake** (versión en memoria, un
+repositorio sobre un `Map`) → **stub** (datos fijos, sin comportamiento) → **mock de
+interacción** (verifica que se llamó a un método), este último con cuentagotas.
+
+Un doble se justifica cuando lo real es **lento, no determinista o tiene efectos que no
+controlas**: una API de terceros, el envío de un correo, el reloj. Fuera de eso, sobre-mockear
+produce el peor test posible: uno que pasa en verde mientras producción está rota, porque solo
+verifica que tu código llama a lo que tú dijiste que llamaría.
+
 ## Cómo aplicarla
 
 - **En `/plan` (estrategia de tests):** por cada HU, indica el nivel de sus EC y marca los tipos
@@ -134,6 +171,14 @@ desprotegido — o el test como tautológico.
   Molesta en cada rediseño y no atrapa ningún bug.
 - **Test contra el texto fuente** — asegurar que un script o un documento «contiene esta
   línea» solo demuestra que la fuente es la fuente. Ejecútalo y asevera su efecto.
+- **«Unidad» que toca la red o el disco** — si consume esos recursos no es un test pequeño,
+  esté donde esté. Clasifica por recurso, no por carpeta.
+- **Preparación extraída a helpers para no repetirse** — en tests manda la legibilidad: un
+  helper que esconde lo que el test verifica cuesta más de lo que ahorra.
+- **Mockear porque es más rápido** — el doble se justifica si lo real es lento, no determinista
+  o con efectos incontrolables. Fuera de eso solo verificas tus propias llamadas.
+- **«Se rompió al actualizar la librería, mala suerte»** — si te importaba, tenía que tener
+  test. El hueco es del test, no de la actualización.
 
 ## Autocrítica antes de cerrar
 
