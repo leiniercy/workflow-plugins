@@ -46,7 +46,30 @@ con /implement, que detectará el modo corrección).
    **Degrada** si no puedes escribirlo (redirección no permitida) o si no vas a despachar
    subagentes (OpenCode): entonces lee el diff directamente y sigue como siempre. Sin subagentes
    no hay nada que ahorrar, porque no hay cuatro copias.
-4. **Análisis de impacto con el grafo (solo si ya existe):** coherente con tu contrato de
+4. **Escaneo del suelo de calidad (barato, determinista, ANTES de repartir dimensiones).** Un
+   agente que topa con un check en rojo no inventa una laguna ingeniosa: coge el camino más
+   barato al verde. Esos atajos se ven con `Grep` sobre el paquete de revisión —solo devuelve
+   las líneas que casan, así que **no rompe la regla de no leer el diff**—. Busca las cinco
+   formas de aflojar la barra, todas sobre líneas **añadidas** (`^\+`) salvo donde se diga:
+
+   | Movimiento | Qué buscar |
+   |---|---|
+   | Checker silenciado | `@ts-ignore`, `@ts-nocheck`, `eslint-disable`, `biome-ignore`, `# noqa`, `# type: ignore`, `istanbul ignore`, `nosemgrep`, `gitleaks:allow`, `@SuppressWarnings` |
+   | Test hecho más fácil | `.skip`/`.todo` en `it`/`test`/`describe`, `xit`, `xdescribe`, `@pytest.mark.skip`, `t.Skip`; y en líneas **borradas** (`^-`), aserciones quitadas de un test que se queda (`expect`, `assert`, `should`) |
+   | Trabajo sin terminar | `throw new Error("not implemented")`, `catch {}` o `catch (e) {}` vacío, `TODO`/`FIXME` donde debería estar la implementación |
+   | Umbral movido | En el `--stat` que ya tienes: cambios en ficheros de puertas (workflows de CI, config de lint/tipos/tests, scripts `check`/`test`/`lint` del manifiesto). Si los hay, busca en el diff `coverage`, `threshold`, `severity`, `max-warnings`, `continue-on-error` |
+   | Test desaparecido | En el `--stat`: un fichero `*.test.*` o `*.spec.*` con solo borrados |
+
+   **Apretar el listón es silencioso; aflojarlo es ruidoso**: si el diff SUBE la barra, no hay
+   nada que reportar. Y ojo con el falso positivo, que aquí es fácil: una supresión **con su
+   motivo escrito al lado** no es un hallazgo — es una decisión declarada. Lo que se reporta es
+   la que aparece **muda**, o la que aparece en el mismo commit que el código que estaba
+   fallando. Lo que salga entra como hallazgo candidato en la dimensión que le toque (tests →
+   3, supresiones y umbrales → 4, stub o `catch` vacío → 2) y pasa por la misma disciplina de
+   la Fase 4 que todos los demás; no es un veredicto aparte.
+
+   Si el escaneo no devuelve nada, dilo en una línea y sigue.
+5. **Análisis de impacto con el grafo (solo si ya existe):** coherente con tu contrato de
    solo-lectura, NO construyas ni actualices el grafo. Si `graphify-out/graph.json` existe,
    consulta la guía `grafo-conocimiento` (skill de OpenCode, auto-activable) y úsalo para detectar impacto no obvio:
    `graphify path` entre los módulos tocados y sus dependientes, y `graphify query` sobre
@@ -54,7 +77,7 @@ con /implement, que detectará el modo corrección).
    Si el grafo es más antiguo que los cambios, adviértelo y trata sus respuestas como
    orientativas. Verifica en el código todo hallazgo INFERRED/AMBIGUOUS antes de
    reportarlo.
-5. NO consultes ClickUp: la fuente de verdad de la revisión es spec.md y el código.
+6. NO consultes ClickUp: la fuente de verdad de la revisión es spec.md y el código.
 
 ## Fase 3 — Análisis en seis dimensiones
 
@@ -254,3 +277,4 @@ de solo-lectura.
 | "Este criterio no se ve en el diff, lo doy por cumplido (o por incumplido)" | Ni una cosa ni otra: se marca ⚠️ no verificable y lo resuelves tú con spec.md delante (Fases 3.1 y 4.1). |
 | "Le pego el diff al subagente, que así lo tiene seguro" | Se lo pegas a los cuatro, y además se te queda residente el resto de la sesión. Pásale la ruta del paquete de la Fase 2: tiene `Read`. |
 | "La spec pide esto, así que no lo reporto" | La autoría de la spec no califica su propio trabajo: repórtalo como `exigido-por-spec` y que decida el usuario (Fase 4.1). |
+| "Han metido un `eslint-disable`, no es asunto de la revisión" | Lo es: el listón se aflojó dentro de este diff. Si no lleva motivo escrito al lado, es hallazgo (Fase 2, paso 4). |

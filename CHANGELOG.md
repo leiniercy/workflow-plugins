@@ -66,6 +66,35 @@ Tres superficies, una sola regla.
 - **Estado ⚠ INCONCLUSO en `check-activation.mjs`.** Ver «Corregido»: es la mitad visible del
   arreglo del delta fabricado.
 
+- **Guardia del suelo de calidad en `/review` (Fase 2) y en `/implement`.** Un agente que topa
+  con un check en rojo no inventa una laguna ingeniosa: coge el **camino más barato al verde**.
+  `/review` escanea ahora el paquete de revisión con `Grep` —que devuelve solo las líneas que
+  casan, así que no rompe la regla de no leer el diff— buscando las cinco formas de aflojar la
+  barra: checker silenciado, test hecho más fácil, trabajo sin terminar, umbral movido y test
+  desaparecido. `/implement` hace la misma comprobación sobre sí mismo en el paso de
+  verificación y en el gate de la Fase 4. La regla que lo resume: **apretar el listón es
+  silencioso; aflojarlo es ruidoso.** Con el falso positivo declarado, que aquí es fácil: una
+  supresión **con su motivo escrito al lado** no es hallazgo — lo es la que aparece muda.
+- **Duda en vuelo en `/implement`, y el agente `refutador-decision` (opus, solo-lectura).**
+  La refutación adversarial vivía solo en `/review`, o sea **después** de que el código
+  estuviera escrito. Ahora, antes del gate de commit y solo ante decisiones **no triviales**
+  —ramificación nueva, cruce de frontera, una invariante que el compilador no puede verificar,
+  o radio irreversible—, la decisión pasa por un revisor de contexto fresco: enunciar → extraer
+  la unidad mínima → dudar → reconciliar → parar, con tope de 3 vueltas. Tres reglas que son
+  las que hacen que funcione:
+  - **Al refutador se le pasa ARTEFACTO + CONTRATO, nunca la conclusión.** Darle lo que crees
+    haber conseguido convierte la revisión en ratificación.
+  - **Orden de precedencia al reconciliar**, gana el primero que encaje: contrato mal leído →
+    accionable → se acepta con el motivo escrito en `progress.md` → ruido. Si el hallazgo salió
+    porque el contrato era ambiguo, se arregla el contrato primero.
+  - **El teatro de la duda es comprobable, no una sensación:** si en dos o más vueltas con
+    hallazgos de fondo ninguno acabó accionable, no estás dudando, estás validando. Para y dilo.
+
+  Con su lista explícita de **cuándo NO** (renombrados, formato, cambios de una línea, o cuando
+  el usuario pide velocidad), porque si dudas de cada tecla no entregas nada.
+- **10 aserciones más en `check-behavior.mjs`** (217 → 227), verificadas por mutación: borrar
+  el escaneo del suelo o el ciclo de duda hace fallar el check.
+
 ### Corregido
 
 - **`check-activation.mjs` fabricaba un delta cuando el brazo de línea base reventaba.** El

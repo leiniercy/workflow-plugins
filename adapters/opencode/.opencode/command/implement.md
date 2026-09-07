@@ -59,6 +59,14 @@ criterio de aceptación pendiente, en orden:
    pasa. Si algo falla, el estado real es «falla», y se dice con la salida delante. Si la
    suite destapa una regresión (algo que funcionaba se rompe), vuelve al paso 2 con la misma
    disciplina: `depuracion-sistematica` (skill de OpenCode, auto-activable), no toques cosas a ver si vuelve el verde.
+   **Y comprueba CÓMO llegaste al verde**, que es donde se cuela el atajo: un agente que topa
+   con un check en rojo no inventa una laguna ingeniosa, coge el camino más barato. Si para
+   pasar has añadido una supresión (`@ts-ignore`, `eslint-disable`, `# noqa`, `istanbul
+   ignore`…), has puesto un `.skip`, has quitado una aserción de un test que se queda, has
+   bajado un umbral o has dejado un `catch {}` vacío o un stub que lanza: **eso no es verde, es
+   el listón bajado**. Apretar el listón es silencioso; aflojarlo se dice en voz alta. Si de
+   verdad hace falta —a veces sí—, va con su motivo escrito al lado y se declara al usuario;
+   nunca en silencio para cerrar el criterio.
 4. **Refactor (con la suite en verde)**: mejora el diseño del código recién escrito SIN
    cambiar su comportamiento, siguiendo la guía `codigo-limpio` (skill de OpenCode, auto-activable). Pasos pequeños,
    re-ejecutando la suite tras cada uno (debe seguir verde) y sin añadir funcionalidad:
@@ -81,6 +89,54 @@ criterio de aceptación pendiente, en orden:
    en varios commits (un commit que mezcla tres asuntos no se puede revertir ni leer después);
    y si el cambio **rompe algo que otros consumen** —contrato de API, firma pública, formato de
    dato—, dilo explícitamente en el pie del mensaje, no solo en el cuerpo.
+
+**Decisiones no triviales (duda en vuelo, antes del gate de commit):** una respuesta segura no
+es una respuesta correcta, y una sesión larga convierte suposiciones en «hechos» sin que nadie
+lo note. Antes del paso 6, si el criterio incluyó una decisión **no trivial**, sométela a un
+revisor de contexto fresco. Es no trivial si cumple al menos una:
+
+- Introduce o cambia lógica de ramificación.
+- Cruza una frontera de módulo o de servicio.
+- Afirma una propiedad que el compilador no puede verificar: orden, unicidad, idempotencia,
+  ausencia de carrera, una invariante de negocio.
+- Su radio es irreversible: datos, contrato publicado, despliegue.
+
+**Cuándo NO:** renombrados, formato, mover ficheros, cambios de una línea con corrección
+evidente, leer o resumir código, o cuando el usuario ha pedido velocidad explícitamente. Si
+dudas de cada tecla no entregas nada.
+
+El ciclo, acotado:
+
+1. **Enuncia** la decisión en dos o tres líneas: qué afirmas y por qué importa. Si no te cabe
+   en tres líneas, no tienes una decisión: tienes una intuición. Enúnciala antes de examinarla.
+2. **Extrae** la unidad más pequeña revisable: el hunk o la función, no el fichero entero; el
+   criterio de aceptación y las restricciones que debe respetar. Si no cabe en una lectura,
+   pártela.
+3. **Duda.** Despacha `refutador-decision` (opus, solo-lectura) con **ARTEFACTO (rutas) +
+   CONTRATO**, y con el encargo explícito de *encontrar lo que está mal, asumiendo que el autor
+   está demasiado seguro*. **No le pases tu conclusión.** Entregarle lo que crees haber
+   conseguido es lo que convierte la revisión en una ratificación.
+4. **Reconcilia.** Su salida es dato, no veredicto: sigues siendo tú quien decide. Relee el
+   artefacto contra cada hallazgo y clasifícalo **en este orden, gana el primero que encaje**:
+   (a) *contrato mal leído* — lo señaló porque el CONTRATO que le diste era ambiguo: arregla el
+   contrato primero y vuelve a preguntar; (b) *válido y accionable* — cámbialo; (c) *válido pero
+   se acepta* — el arreglo cuesta más que el problema: **escríbelo en `progress.md`**, no lo
+   dejes en tu cabeza; (d) *ruido* — es correcto bajo un contexto que él no tenía, y la pregunta
+   que sigue es si ese contexto debería haber estado en el CONTRATO.
+5. **Para.** Cuando la siguiente vuelta solo devuelva cosas triviales o ya consideradas, o a las
+   **3 vueltas**, o si el usuario dice que sigas. Tres vueltas sin cerrar no es motivo para una
+   cuarta: es información sobre el artefacto, y se le cuenta al usuario. Si tres vueltas «se
+   quedan cortas» porque el artefacto es enorme, el artefacto es el problema: vuelve al punto 2
+   y pártelo.
+
+**La señal de que esto se ha vuelto teatro** es comprobable, no una sensación: si en dos o más
+vueltas con hallazgos de fondo **ninguno** acabó clasificado como accionable, no estás dudando,
+estás validando. Para y dilo.
+
+**Degradación:** si no puedes despachar subagentes, reescribe ARTEFACTO + CONTRATO como un
+prompt nuevo para ti, con una separación dura de todo lo que venías razonando, y recorre los
+cinco pasos. **No es revisión de contexto fresco** —te llevas tu propio contexto puesto—, así
+que dilo al presentar el resultado.
 
 **Esquema y datos (gate propio):** si el criterio exige cambiar el esquema o transformar datos
 existentes, aplica `migraciones-de-datos` (skill de OpenCode, auto-activable) antes de escribir nada. La migración se
@@ -135,6 +191,12 @@ Cuando todos los criterios estén completados y la suite en verde:
      roto para el resto.
    - **Migraciones**: si las hay, ¿están aplicadas y probadas también en reverso
      (`migraciones-de-datos` (skill de OpenCode, auto-activable))?
+
+   Y una cuarta, sobre el camino y no sobre el resultado: **¿el verde se ha conseguido bajando
+   el listón?** Repasa el diff de la rama buscando lo que aflojó la barra —supresiones nuevas,
+   `.skip`, un test borrado, aserciones quitadas de tests que se quedaron, un umbral bajado, un
+   stub que lanza o un `catch {}` vacío—. Lo que aparezca sin motivo escrito al lado se
+   presenta al usuario ANTES de hablar de PR, no después.
 
    Después repasa `spec.md` criterio a criterio contra el código y
    confirma que cada checkbox marcado tiene su test. Solo con esa evidencia delante puedes
@@ -194,6 +256,11 @@ saltarte el contrato.
 | "Commiteo / pusheo / abro la PR y aviso después" | Commit, push y PR solo con aprobación explícita del usuario (Fases 3 y 4). |
 | "El enfoque de la spec no encaja, improviso por aquí" | Detente, explica el problema y propón actualizar spec.md ("Decisiones tomadas") antes de desviarte. |
 | "Consulto ClickUp para decidir qué implementar" | La fuente de verdad es spec.md, no ClickUp (Fase 3). |
+| "Le meto un `@ts-ignore` / un `.skip` y ya está en verde" | Eso no es verde: es el listón bajado. Apretarlo es silencioso, aflojarlo se dice en voz alta y con el motivo escrito al lado (Fase 3, paso 3). |
+| "El check se queja de algo que no viene a cuento, lo silencio" | El camino más barato al verde es el atajo que este flujo existe para no tomar. Si la supresión hace falta, se declara al usuario; nunca en silencio. |
+| "Estoy seguro de esta decisión, no hace falta que la mire nadie" | La seguridad correlaciona mal con el acierto justo en lo que no es rutina. Si la decisión es no trivial, pasa por `refutador-decision` antes del commit (Fase 3). |
+| "Le paso al refutador lo que he conseguido para que lo confirme" | Darle tu conclusión convierte la revisión en ratificación. Solo ARTEFACTO + CONTRATO. |
+| "El refutador no ha encontrado nada en dos vueltas, vamos bien" | Si hubo hallazgos de fondo y ninguno acabó accionable, no estás dudando: estás validando. Para y dilo. |
 | "Funciona, el test pasa, ya está" | El ciclo es red-green-**refactor**: con la suite en verde, limpia los olores que introdujiste antes de registrar (Fase 3, paso 4; guía código-limpio). |
 | "Testeo el estado interno o el método privado para que sea más fácil verificar" | Testea el **comportamiento observable**, no la implementación: un test acoplado al detalle se rompe al refactorizar aunque el comportamiento siga bien (principio de Testing Library; Fase 3, paso 1). |
 | "Meto una abstracción/patrón por si acaso o por si escala" | Un patrón se justifica solo si su problema ya existe; anticiparlo es sobre-ingeniería (guía patrones-diseño). |

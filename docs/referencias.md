@@ -870,8 +870,8 @@ anti-objetivos de la filosofía.
 | **`browser-testing-with-devtools`** | **Contenido del navegador como dato no fiable; perfil aislado; freno a ejecutar JS**; consola limpia como listón | `qa-exploratoria` | ✅ rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | **`debugging-and-error-recovery`** | **Salida de error como dato no fiable**; `git bisect` como técnica de localización; parar la línea | `depuracion-sistematica` | ✅ dato no fiable · 🔜 bisect y parar la línea |
 | **`test-driven-development`** | Regla de Beyoncé; DAMP sobre DRY; implementaciones reales antes que dobles; **tamaños por recurso** (pequeño = sin red ni disco); patrón «demuéstralo» para bugs | `niveles-y-tipos-de-prueba` | 🔜 |
-| **`constraint-driven-development`** | **Guardia del suelo** (5 movimientos que aflojan el listón, sobre el diff); **trinquete**; ranking de circularidad (externo/proyecto/suite); códigos de salida 0/1/2 | Fase 2 de `/review` | 🔜 |
-| **`doubt-driven-development`** | CLAIM→EXTRACT→DOUBT→RECONCILE→STOP en vuelo; **no pasarle el CLAIM al revisor**; precedencia al reconciliar; **«teatro de la duda» como señal comprobable** | Ciclo TDD de `/implement`, solo decisiones no triviales | 🔜 |
+| **`constraint-driven-development`** | **Guardia del suelo** (5 movimientos que aflojan el listón, sobre el diff); **trinquete**; ranking de circularidad (externo/proyecto/suite); códigos de salida 0/1/2 | Escaneo determinista en la Fase 2 de `/review` (con `Grep`, que no rompe la regla de no leer el diff) + autocomprobación en `/implement`. **No** se adoptó `CONSTRAINTS.md` ni la entrevista ni las 13 herramientas: eso es el producto de otro | ✅ rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| **`doubt-driven-development`** | CLAIM→EXTRACT→DOUBT→RECONCILE→STOP en vuelo; **no pasarle el CLAIM al revisor**; precedencia al reconciliar; **«teatro de la duda» como señal comprobable** | Ciclo TDD de `/implement`, solo decisiones no triviales, con el agente nuevo `refutador-decision` (opus, solo-lectura). Las tres piezas que lo hacen funcionar: no pasarle el CLAIM, orden de precedencia al reconciliar, y el «teatro de la duda» como señal comprobable | ✅ misma rama |
 | **`source-driven-development`** | Detectar versión instalada → doc oficial de esa versión → citar la URL | `evidencia-y-preguntas` + Fase 3 de `/plan` | 🔜 |
 | `code-simplification` | **Valla de Chesterton** | `codigo-limpio` (que hoy dice «código muerto → eliminarlo», el consejo opuesto sin el freno) | 🔜 |
 | `code-review-and-quality` | **Revisar los tests primero**; **verificar la verificación**; norma de tamaño del cambio | `/review` | 🔜 |
@@ -1013,9 +1013,9 @@ Orden por relación valor/coste, con el racimo de seguridad ya cerrado:
 2. 🔄 **Eval Tier 2 en CI + casos de presión** — `check-routing.mjs` en CI (colisión, pares
    confundibles y top-3 con suelo calibrado en 70 %); tres casos de presión escritos y
    **pendientes de calibrar con `--baseline`**, que gasta cuota. → §18.C
-3. 🔜 **Guardia del suelo en `/review` + duda en vuelo en `/implement`** — los dos mecanismos de
-   más valor de producto: detectar sobre el diff que el listón se aflojó, y refutar decisiones
-   no triviales mientras corregir aún es barato. → §18.B
+3. ✅ **Guardia del suelo en `/review` + duda en vuelo en `/implement`** — escaneo determinista
+   de las cinco formas de aflojar la barra (con `Grep`, sin leer el diff) y ciclo de duda
+   acotado a 3 vueltas con `refutador-decision`. → §18.B
 4. 🔜 **Goteo de una idea por guía** — valla de Chesterton, `git bisect`, regla de Beyoncé,
    conservar-o-revertir, Ley de Hyrum, parada al 95 %, ficheros generados, ciclo de vida de la
    decisión, deprecación obligatoria vs. avisada, hechos del framework con versión y cita.
@@ -1125,6 +1125,9 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | Casos de **presión** en el eval de activación (tiempo, autoridad): miden que los gates aguanten, no que la guía sepa algo | agent-skills, evals de disciplina (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Estado **⚠ INCONCLUSO** en `check-activation.mjs`: un brazo que revienta ya no se lee como «la línea base falla, luego hay delta» — era un delta fabricado que nadie había medido | Defecto propio, detectado calibrando los casos de presión | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Códigos de salida 0/1/2 en `check-routing` — un «no pude ejecutarme» nunca se lee como un «correcto» | agent-skills, contrato del floor-guard (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Guardia del suelo: escaneo de las 5 formas de aflojar la barra en la Fase 2 de `/review` (con `Grep`, sin leer el diff) y autocomprobación en `/implement`; «apretar es silencioso, aflojar es ruidoso» | agent-skills `constraint-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Duda en vuelo en `/implement` + agente `refutador-decision` (opus, read-only): enunciar → extraer → dudar → reconciliar → parar, tope de 3 vueltas | agent-skills `doubt-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| **No pasarle la conclusión al refutador** (darle el CLAIM convierte la revisión en ratificación) + orden de precedencia al reconciliar + «teatro de la duda» como señal comprobable | agent-skills `doubt-driven-development` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 
 ---
 

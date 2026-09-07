@@ -55,7 +55,7 @@ for (const cmd of ["start", "plan", "implement", "review"]) {
   assert(body !== null && /Banderas rojas/i.test(body), `/${cmd} tiene tabla de Banderas rojas`);
 }
 
-// --- 6 agentes: read-only DURO (tools exacto) + modelo por tier ---
+// --- 7 agentes: read-only DURO (tools exacto) + modelo por tier ---
 const AGENTS = {
   "revisor-bugs-seguridad": "opus",
   "revisor-spec-tests": "sonnet",
@@ -65,6 +65,9 @@ const AGENTS = {
   "revisor-usabilidad-accesibilidad": "sonnet",
   "verificador-hallazgos": "opus",
   "explorador-repo": "sonnet",
+  // opus: se despacha rara vez (solo decisiones no triviales) y su única función es ver lo
+  // que el autor no vio. Abaratarlo es abaratar justo eso.
+  "refutador-decision": "opus",
 };
 for (const [name, model] of Object.entries(AGENTS)) {
   const body = read(join(CLAUDE, "agents", name + ".md"));
@@ -213,6 +216,43 @@ assert(
 assert(
   /Perfil aislado/i.test(qa),
   "qa-exploratoria exige perfil de navegador dedicado o aislado",
+);
+
+// --- suelo de calidad y duda en vuelo ---
+//
+// Dos contratos que se pierden en silencio porque su ausencia no rompe nada: nadie nota que
+// /review dejó de mirar si el listón se aflojó, ni que /implement dejó de dudar. Y son justo
+// los dos que existen para frenar el camino más barato al verde.
+const implementBody = read(join(CLAUDE, "commands/implement.md")) || "";
+assert(
+  /Apretar el listón es silencioso/.test(reviewBody) &&
+    /Apretar el listón es silencioso/.test(implementBody),
+  "la regla del suelo («apretar es silencioso, aflojar es ruidoso») está en /review y en /implement",
+);
+assert(
+  /eslint-disable/.test(reviewBody) && /istanbul ignore/.test(reviewBody),
+  "/review escanea el diff en busca de checkers silenciados",
+);
+assert(
+  /Escaneo del suelo de calidad/.test(reviewBody),
+  "/review tiene el escaneo del suelo antes de repartir dimensiones",
+);
+assert(
+  /Decisiones no triviales \(duda en vuelo/.test(implementBody),
+  "/implement tiene el ciclo de duda en vuelo antes del gate de commit",
+);
+assert(
+  /No le pases tu conclusión/.test(implementBody),
+  "/implement prohíbe pasarle la conclusión al refutador (sesga hacia la ratificación)",
+);
+const refutador = read(join(CLAUDE, "agents/refutador-decision.md")) || "";
+assert(
+  /No valides\. No resumas\./.test(refutador),
+  "refutador-decision tiene el encargo adversarial (no validar, no resumir)",
+);
+assert(
+  /Lo que NO recibes/.test(refutador),
+  "refutador-decision declara que NO recibe la conclusión de quien lo despacha",
 );
 
 if (failures.length) {

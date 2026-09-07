@@ -111,6 +111,15 @@ const AGENTS = {
     model: "opus",
     tools: ["Read", "Grep", "Glob"],
   },
+  // opus a propósito: se despacha RARA vez —solo ante decisiones no triviales— y su único
+  // trabajo es encontrar lo que el autor no vio. Abaratar el tier aquí es abaratar justo la
+  // función por la que existe el agente, y encima sobre el volumen más pequeño del flujo.
+  "refutador-decision": {
+    description:
+      "Revisor adversarial de contexto fresco para /implement (solo-lectura). Despáchalo EN VUELO, antes del gate de commit, cuando un criterio incluyó una decisión no trivial: ramificación nueva, cruce de frontera de módulo o servicio, una invariante que el compilador no puede verificar (orden, idempotencia, concurrencia, unicidad) o un efecto irreversible. Recibe ARTEFACTO (rutas) y CONTRATO (el criterio), NUNCA la conclusión de quien lo despacha. Devuelve solo problemas, con el caso concreto que los dispara; no valida ni emite veredicto.",
+    model: "opus",
+    tools: ["Read", "Grep", "Glob"],
+  },
   "explorador-repo": {
     description:
       "Explorador de repositorio read-only para la Fase 3 de /plan. Despáchalo para mapear la estructura y el stack del proyecto (manifiesto, framework, paradigma), convenciones vigentes, ficheros candidatos y señales de riesgo, y devolver un mapa estructurado (TOON). No propone el plan ni escribe ficheros: el planificador razona el enfoque a partir de su mapa.",

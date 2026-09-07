@@ -12,7 +12,7 @@ custom-ia-plugin/
 │   ├── workflows/             start.md · plan.md · implement.md · review.md
 │   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
 │   │   └── in-progress/      borradores versionados que NO se publican (ver su README)
-│   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo
+│   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo · refutador-decision
 ├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-activation (activación con modelo, manual)
 ├── adapters/
 │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
@@ -21,7 +21,7 @@ custom-ia-plugin/
 │   │   ├── evals/             casos del eval de activación + routing.json (corpus del eval de enrutado) — a mano, NO generado
 │   │   ├── commands/          (generado por sync.mjs — no editar a mano)
 │   │   ├── skills/            (generado por sync.mjs — no editar a mano)
-│   │   ├── agents/            (generado por sync.mjs — subagentes read-only de /review y /plan)
+│   │   ├── agents/            (generado por sync.mjs — subagentes read-only de /review, /plan e /implement)
 │   │   └── hooks/             SessionStart (contexto de tarea) · Stop (notificación sonora) · PreToolUse (gate de acciones irreversibles)
 │   └── opencode/
 │       └── .opencode/         carpeta lista para copiar al repo consumidor
@@ -53,7 +53,7 @@ frontmatter propio de cada una. Los ficheros generados se sobrescriben: no los e
 |---|---|---|
 | `/start [taskId]` | Lee la tarea, crea rama `tipo/taskId_slug` desde `develop` y el esqueleto `tasks/<taskId>/` (spec.md + progress.md) | `to do → in progress` (con aprobación) |
 | `/plan [taskId]` | Explora el repo (grafo de graphify si está disponible) y completa `spec.md` con criterios de aceptación, alcance y enfoque | ninguna |
-| `/implement [taskId]` | TDD criterio a criterio contra spec.md; commits/push/PR solo con aprobación | `in progress → review` al crear la PR (con aprobación) |
+| `/implement [taskId]` | TDD criterio a criterio contra spec.md; duda en vuelo sobre las decisiones no triviales; commits/push/PR solo con aprobación | `in progress → review` al crear la PR (con aprobación) |
 | `/review [taskId]` | Diagnóstico en 6 dimensiones frente a spec.md (taxonomía ISO 25010; usabilidad/accesibilidad solo si el diff toca UI); **solo informa** | ninguna |
 
 El paso a `complete` es siempre humano. Principios transversales: **nada se afirma sin
