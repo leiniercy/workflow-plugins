@@ -34,6 +34,14 @@ y de headroom, de su **estadística** y no de su compresor.
   `progress.md`: `spec.md` no se recorta, porque de ahí se cuentan criterios y recortar antes
   de contar daría un número menor que el real. Es salvaguarda del
   contrato «jamás rompe la sesión», no ahorro de tokens.
+- **`scripts/check-hooks.mjs`** — el hook de `SessionStart` dejó de ser decorativo: decide
+  qué comando se sugiere al arrancar, y un fallo suyo no casca, **miente**. Ahora se ejecuta
+  contra repos git desechables en 9 escenarios (42 aserciones): la cuenta de criterios con
+  specs largas, el reparto `/plan` · `/implement` · `/review`, el bloqueo y su parada, el
+  bloqueo vacío, el `progress.md` malformado, la rama que no es de tarea, y el contrato de
+  que jamás rompe la sesión (sin git, cwd inexistente, stdin no-JSON). Verificado
+  reintroduciendo el bug crítico de esta misma tanda: el check lo caza con 6 aserciones.
+  Corre junto a `check-hygiene` en `hygiene-check.yml`.
 - **«Cuándo NO usar este flujo» en el README** — un arreglo de un fichero, un *spike*, una
   emergencia en producción o un repo sin `develop` no son para esto. Con la advertencia de que
   los números del README se midieron en nuestros repos: `check-activation.mjs` existe para que

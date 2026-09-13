@@ -1150,6 +1150,13 @@ La tanda se cerró en la rama `feat/context-mode-headroom`. Lo que entró:
 5. ✅ **«Cuándo NO usar este flujo» en el README** — con la advertencia de que nuestros
    números se midieron en nuestros repos. → §20
 
+6. ✅ **`check-hooks.mjs`: lo que el hook decide, se ejecuta en un test** — salió de la
+   revisión de la propia tanda, no de §19 ni de §20. El bug crítico que encontró (la cota
+   de `progress.md` aplicándose a `spec.md`, que hacía anunciar «todos los criterios
+   marcados» con cuatro pendientes) era invisible para los checks estáticos: el fichero
+   era sintácticamente perfecto. 42 aserciones en 9 escenarios, validadas reintroduciendo
+   el bug. → revisión del 2026-09-13
+
 Queda **uno**, y es de diseño, no de ejecución:
 
 - 🔜 **Disciplina de destino para lo que el agente escribe fuera de `tasks/<id>/`** (§20):
@@ -1284,6 +1291,7 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | `check-hygiene.mjs`: un hook no escribe ni toca `~/.claude` | context-mode, al desinstalarlo (§19) | rama `feat/context-mode-headroom` |
 | `## Bloqueo` en `progress.md` + parada en el hook de `SessionStart` | context-mode, *Session Guide* (§19) | rama `feat/context-mode-headroom` |
 | Sección «Cuándo NO usar este flujo» en el README | headroom (§20) | rama `feat/context-mode-headroom` |
+| `check-hooks.mjs`: el hook de `SessionStart` ejecutado en 9 escenarios | revisión de la tanda (2026-09-13) | rama `feat/context-mode-headroom` |
 | Plantilla de issue `guia-fallo.yml` para los repos consumidores | agent-skills `skill-gap.yml` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Regla por ruta `.claude/rules/editar-solo-core.md`: salta al tocar `adapters/**`, que es salida generada | agent-skills `.claude/rules/` (§18.C), mecanismo verificado en la doc oficial | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Anti-patrón C («ningún comando que orqueste a los demás») escrito en los anti-objetivos de la filosofía | agent-skills `orchestration-patterns` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |

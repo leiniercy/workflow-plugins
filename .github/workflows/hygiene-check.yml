@@ -1,8 +1,16 @@
-name: Higiene del plugin
+name: Hooks — higiene y comportamiento
 
-# Un hook lee y emite JSON por stdout: no escribe en disco ni toca la configuración
-# global del usuario. Un plugin que escribe fuera de su raíz no se desinstala solo
-# (medido con context-mode el 2026-09-11 — ver scripts/check-hygiene.mjs).
+# Dos invariantes sobre el único código nuestro que se ejecuta solo, en cada sesión y en
+# todos los repos del usuario:
+#
+#   check-hygiene  un hook lee y emite JSON por stdout: no escribe en disco, no toca la
+#                  configuración global, y hooks.json solo registra rutas del plugin.
+#                  Un plugin que escribe fuera de su raíz no se desinstala solo (medido
+#                  con context-mode el 2026-09-11).
+#   check-hooks    el hook hace lo que dice: se ejecuta contra repos desechables y se
+#                  comprueba el texto que inyecta. Lo que el hook DECIDE (qué comando se
+#                  sugiere al arrancar) va en un test, porque un fallo suyo no casca:
+#                  miente, y una sesión limpia se fía.
 
 on:
   push:
@@ -10,15 +18,17 @@ on:
     paths:
       - "adapters/claude/hooks/**"
       - "scripts/check-hygiene.mjs"
+      - "scripts/check-hooks.mjs"
       - ".github/workflows/hygiene-check.yml"
   pull_request:
     paths:
       - "adapters/claude/hooks/**"
       - "scripts/check-hygiene.mjs"
+      - "scripts/check-hooks.mjs"
       - ".github/workflows/hygiene-check.yml"
 
 jobs:
-  hygiene-check:
+  hooks-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,5 +39,8 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Comprobar higiene de los hooks
+      - name: Higiene de los hooks
         run: node scripts/check-hygiene.mjs
+
+      - name: Comportamiento del hook de SessionStart
+        run: node scripts/check-hooks.mjs
