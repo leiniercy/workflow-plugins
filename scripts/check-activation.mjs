@@ -25,12 +25,32 @@
  * un fallo DEL CASO (hay que rediseñarlo), no del plugin. Es lo que `claude plugin eval`
  * llama ablación «with-without»; se hace a mano porque ese comando está en early access.
  *
+ * El control recibe las MISMAS `--runs N` que el tratamiento. Medir la varianza en un
+ * solo brazo deja el delta a merced de una corrida: una línea base afortunada produce un
+ * SIN DELTA falso y una desafortunada, un «hay delta» falso. Con N en ambos brazos el
+ * informe distingue tres cosas, y solo la última es un delta:
+ *
+ *   base acierta N/N  → **SIN DELTA**  el caso no discrimina; rediséñalo.
+ *   base acierta k/N  → **RUIDO**      el delta no se sostiene; rediséñalo.
+ *   base acierta 0/N  → hay delta.
+ *
+ * La regla de RUIDO es la simétrica de `activo = nActivo === runs`: la estabilidad que
+ * le exigimos al tratamiento se le exige igual al control. → §20 de docs/referencias.md.
+ *
+ * OJO con el remedio: subir `--runs` NO saca a un caso de RUIDO, lo hunde más. Si la
+ * línea base acierta con probabilidad p, la probabilidad de que acierte al menos una vez
+ * de N es 1-(1-p)^N, que CRECE con N — y cada incremento cuesta el doble de sesiones.
+ * La única salida de RUIDO es rediseñar el caso para que la línea base no lo resuelva.
+ * Es una regla estricta a propósito, no un test de intervalo: no mide cuánto delta hay,
+ * decide si el caso separa al plugin del modelo desnudo con fiabilidad.
+ *
  * ── Lo que consume ─────────────────────────────────────────────────────────────
  *
- * Cada caso son una o dos sesiones reales. Medido: ~0,32–0,49 USD equivalentes por
+ * Cada caso son `--runs N` sesiones, el doble con --baseline. Medido: ~0,32–0,49 USD equivalentes por
  * sesión (unos 60k tokens leídos de caché con el plugin cargado; más en el brazo sin
  * plugin, que arrastra el entorno completo del usuario). Los siete casos con
- * --baseline rondan los 5–6 USD equivalentes y varios minutos de reloj.
+ * --baseline rondan los 5–6 USD equivalentes y varios minutos de reloj; con --runs 3,
+ * el triple. El freno de --yes calcula el número exacto antes de gastar nada.
  *
  * En local, con sesión OAuth, eso NO es facturación: consume límite de uso. En CI sí
  * lo sería, porque allí haría falta una clave de API y se factura por token — por eso,
@@ -188,11 +208,12 @@ if (!casos.length) {
 // ---------------------------------------------------------------------------
 // Freno de cuota — este script gasta de la MISMA bolsa que tu sesión de trabajo
 // ---------------------------------------------------------------------------
-// Cada caso lanza una sesión real (dos con --baseline), y ese gasto no aparece en
+// Cada caso lanza `--runs N` sesiones reales, el doble con --baseline, y ese gasto no
+// aparece en
 // el contador de la conversación desde la que lo lanzas. Medido: 0,32–0,49 USD
 // equivalentes por sesión. Por eso no se ejecuta nada sin --yes: el fallo que
 // evita es lanzar la suite entera sin darse cuenta de lo que cuesta.
-const sesiones = casos.length * (runs + (withBaseline ? 1 : 0));
+const sesiones = casos.length * runs * (withBaseline ? 2 : 1);
 const est = (sesiones * 0.4).toFixed(2);
 if (!flag("--yes")) {
   console.log(`\nEsto lanzaría ${sesiones} sesión(es) de Claude reales.`);
@@ -230,28 +251,57 @@ for (const caso of casos) {
   let base = null;
   let sinDelta = false;
   let baseInconcluso = false;
+  let ruido = false;
+  let nBaseOk = 0;
   if (withBaseline) {
-    const b = run(caso.prompt, { plugin: false });
+    // El brazo de CONTROL recibe las mismas N muestras que el brazo con plugin.
+    // Con una sola muestra la varianza se medía en la mitad del experimento: una corrida
+    // afortunada de la línea base produce un SIN DELTA falso (descartas un caso bueno) y
+    // una desafortunada, un «hay delta» falso (certificas uno que no discrimina). En ambos
+    // casos el delta no está medido: está muestreado una vez. Es el mismo defecto que ya
+    // corregimos dos veces en el brazo con plugin, solo que en el otro brazo. → §20.
+    const basales = [];
+    for (let i = 0; i < runs; i++) basales.push(run(caso.prompt, { plugin: false }));
+    const b = basales[0];
     const bc = corrige(b.texto, caso);
+    nBaseOk = basales.filter((x) => !x.error && corrige(x.texto, caso).ok).length;
+    const primerError = basales.find((x) => x.error);
     // Se guarda también el TEXTO de la línea base: sin él, un resultado raro del brazo sin
     // plugin no se puede diagnosticar después sin volver a gastar sesiones.
-    base = { skills: b.skills, ok: bc.ok, faltan: bc.faltan, error: b.error, texto: b.texto };
-    if (b.error) {
+    // nBaseOk es el agregado de las N; lo que lleva sufijo `Muestra0` viene de la primera
+    // corrida y está solo para diagnosticar a mano sin volver a gastar sesiones.
+    base = {
+      nBaseOk,
+      runs,
+      error: primerError ? primerError.error : null,
+      skillsMuestra0: b.skills,
+      okMuestra0: bc.ok,
+      faltanMuestra0: bc.faltan,
+      textoMuestra0: b.texto,
+    };
+    if (primerError) {
       // Un brazo que NO llegó a ejecutarse no es evidencia de nada. Sin esta rama, el
       // texto vacío de una sesión que reventó no casa con `debe_incluir`, sale `ok:false`
       // y el informe lo canta como «línea base falla (hay delta)»: un delta fabricado que
       // nadie ha medido. Es el mismo defecto que leer un «no pude ejecutarme» como un
       // «correcto». Detectado calibrando los casos de presión el 2026-09-07.
+      // Basta UN error de las N: una muestra incompleta no se promedia, se repite.
       baseInconcluso = true;
-    } else if (caso.linea_base_debe_fallar !== false && bc.ok) {
+    } else if (caso.linea_base_debe_fallar !== false && nBaseOk === runs) {
       // El caso solo vale si la línea base falla lo que el caso mide.
       sinDelta = true;
+    } else if (caso.linea_base_debe_fallar !== false && nBaseOk > 0) {
+      // Un delta dentro de la banda no es un delta (§20). Si la línea base acierta aunque
+      // sea UNA vez de N, el caso no separa al plugin del modelo desnudo con la fiabilidad
+      // que el informe afirmaría. Simétrico con `activo = nActivo === runs`: la regla de
+      // estabilidad que exigimos al tratamiento se le exige igual al control.
+      ruido = true;
     }
   }
 
   const ok =
-    !conPlugin.error && activo && contenido.ok && !sinDelta && !inestable && !baseInconcluso;
-  resultados.push({ ...caso, activo, contenido, base, sinDelta, baseInconcluso, inestable, runs, nActivo, nContenido, ok, error: conPlugin.error, texto: conPlugin.texto });
+    !conPlugin.error && activo && contenido.ok && !sinDelta && !inestable && !baseInconcluso && !ruido;
+  resultados.push({ ...caso, activo, contenido, base, sinDelta, baseInconcluso, ruido, inestable, runs, nActivo, nContenido, nBaseOk, ok, error: conPlugin.error, texto: conPlugin.texto });
 
   if (conPlugin.error)
     console.log(`⚠ INCONCLUSO — el brazo con plugin no llegó a responder (${conPlugin.error})`);
@@ -261,7 +311,10 @@ for (const caso of casos) {
   else if (!contenido.ok) console.log(`✗ activó pero falta: ${contenido.faltan.join(" · ")}`);
   else if (inestable)
     console.log(`⚠ VARIANZA — activó ${nActivo}/${runs}, acertó ${nContenido}/${runs}: el wording no ata`);
-  else if (sinDelta) console.log("⚠ SIN DELTA — la línea base también acierta: rediseña el caso");
+  else if (sinDelta)
+    console.log(`⚠ SIN DELTA — la línea base acierta ${nBaseOk}/${runs}: rediseña el caso`);
+  else if (ruido)
+    console.log(`⚠ RUIDO — la línea base acierta ${nBaseOk}/${runs}: el delta cae dentro de la banda`);
   else if (baseInconcluso)
     console.log(`⚠ INCONCLUSO — la línea base no se pudo ejecutar (${base.error}): el delta no está medido`);
   else console.log("✓");
@@ -273,7 +326,11 @@ for (const caso of casos) {
 const fallos = resultados.filter((r) => !r.ok);
 console.log("\n" + "─".repeat(78));
 for (const r of resultados) {
-  const estado = r.ok ? "✓" : r.sinDelta || r.baseInconcluso || r.error ? "⚠" : "✗";
+  const estado = r.ok
+    ? "✓"
+    : r.sinDelta || r.ruido || r.inestable || r.baseInconcluso || r.error
+      ? "⚠"
+      : "✗";
   if (r.error) {
     console.log(`⚠  ${r.nombre}  →  ${r.guia} · brazo con plugin SIN EJECUTAR (${r.error}): sin veredicto`);
     continue;
@@ -282,9 +339,13 @@ for (const r of resultados) {
     ? ""
     : r.base.error
       ? ` · línea base SIN EJECUTAR (${r.base.error}): delta NO medido`
-      : r.base.ok
-        ? " · línea base TAMBIÉN acierta"
-        : " · línea base falla (hay delta)";
+      : r.linea_base_debe_fallar === false
+        ? ` · línea base acierta ${r.nBaseOk}/${r.runs} (esperado por el caso)`
+        : r.nBaseOk === r.runs
+          ? ` · línea base TAMBIÉN acierta (${r.nBaseOk}/${r.runs})`
+          : r.nBaseOk > 0
+            ? ` · línea base acierta ${r.nBaseOk}/${r.runs}: delta DENTRO de la banda`
+            : ` · línea base falla ${r.runs}/${r.runs} (hay delta)`;
   console.log(`${estado}  ${r.nombre}  →  ${r.guia}${delta}`);
 }
 console.log("─".repeat(78));
@@ -298,6 +359,10 @@ if (fallos.length) {
   console.error(`\n✗ ${fallos.length}/${resultados.length} caso(s) no pasaron.`);
   console.error("  ✗ = la guía no se activó o no aportó lo que declara → bug de prompt.");
   console.error("  ⚠ SIN DELTA = el caso no discrimina → bug DEL CASO: elige uno que la línea base falle.");
+  console.error(
+    "  ⚠ RUIDO = la línea base acierta a veces → el caso no discrimina con fiabilidad: " +
+      "rediséñalo (subir --runs solo lo hace MÁS probable, y cuesta el doble)."
+  );
   console.error("  ⚠ VARIANZA = el disparador no ata: reescribe la description, no el caso.");
   console.error("  ⚠ INCONCLUSO = un brazo no llegó a ejecutarse → repite ESE caso; no es veredicto.");
   process.exit(1);

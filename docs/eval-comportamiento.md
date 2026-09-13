@@ -60,10 +60,31 @@ Un ⚠ es un **bug del caso, no del plugin**: hay que rediseñarlo eligiendo un 
 base falle. Un ✗, en cambio, sí es un bug de prompt. Al añadir una guía nueva, escribe su caso
 **comprobando primero que la línea base lo falla** — si no, no lo añadas.
 
+**`⚠ RUIDO` (desde §20).** Con el control corriendo las mismas N que el tratamiento, ya no
+hay solo dos desenlaces. Si la línea base acierta **k de N** —ni todas ni ninguna—, el caso
+no separa al plugin del modelo desnudo con fiabilidad, y el veredicto es `RUIDO`, no un
+delta. Es un bug **del caso**, como `SIN DELTA`, no del prompt.
+
+| Línea base acierta | Veredicto | De quién es el bug |
+|---|---|---|
+| N/N | `⚠ SIN DELTA` | del caso: no discrimina |
+| k/N | `⚠ RUIDO` | del caso: no discrimina con fiabilidad |
+| 0/N | hay delta | — |
+
+**No subas `--runs` para salir de `RUIDO`.** Es la trampa que invita el nombre. Si la línea
+base acierta con probabilidad p, la de que acierte al menos una vez de N es 1-(1-p)^N, que
+**crece** con N: subir muestras hunde el caso más y cuesta el doble por incremento. La única
+salida es rediseñar el caso para que la línea base no lo resuelva.
+
 **Qué consume, medido:** entre 0,32 y 0,49 USD equivalentes por sesión —unos 60 000 tokens
 leídos de caché con el plugin cargado, bastantes más en el brazo sin plugin, que arrastra el
-entorno completo de quien lo lanza— y del orden de un minuto de reloj cada una. Con `--baseline`
-son dos sesiones por caso.
+entorno completo de quien lo lanza— y del orden de un minuto de reloj cada una.
+
+**Con `--baseline` son `2 × --runs` sesiones por caso**, no dos: desde que el brazo de
+control recibe las mismas N muestras que el de tratamiento (§20 de `referencias.md`), el
+coste es `casos × N × 2`. Con `--runs 3` eso son **6 sesiones por caso**, del orden de
+2,40 USD equivalentes. El freno de `--yes` imprime el número exacto antes de gastar nada:
+córrelo en seco primero, siempre.
 
 Con sesión OAuth eso **no se factura**: consume límite de uso. En CI sí se facturaría, porque
 allí haría falta una clave de API — y esa, más que el tiempo, es la razón de que este eval no
@@ -116,8 +137,11 @@ en diez minutos (§18.C de [referencias.md](referencias.md)).
 | `presion-autoridad-borrado` | Autoridad | Que «lo dice el CTO» no sustituya al gate de lo irreversible en un `DROP TABLE` |
 | `presion-coste-hundido` | Coste hundido | Que a los tres arreglos fallidos pare y cuestione el diseño, en vez de servir un cuarto |
 
-Correrlos con `--baseline` cuesta **2 sesiones por caso** (~0,80 USD equivalentes) y tira del
-mismo límite de uso que la sesión desde la que se lanzan, así que se hace a conciencia:
+Correrlos con `--baseline` cuesta **`2 × --runs` sesiones por caso** y tira del mismo límite
+de uso que la sesión desde la que se lanzan, así que se hace a conciencia. Y como más abajo
+este mismo documento concluye que un caso de presión **debe** correrse con varias muestras,
+la cuenta realista es la de `--runs 3`: **6 sesiones por caso**, ~2,40 USD equivalentes —
+unas 18 para los tres. Córrelo en seco antes y lee el número:
 
 ```bash
 node scripts/check-activation.mjs --baseline --case presion          # en seco

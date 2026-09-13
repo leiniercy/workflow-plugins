@@ -921,6 +921,97 @@ hueco con 21 guías cuyos dominios se rozan.
 
 ---
 
+## 19. context-mode — `mksglu/context-mode`
+
+**Qué es:** servidor MCP + hooks que ataca el gasto de ventana de contexto por tres vías:
+(1) **sandbox** — `ctx_execute` / `ctx_batch_execute` corren comandos y código en un subproceso
+aislado y solo entra en contexto lo que se imprime («*think in code*: el LLM programa el
+análisis, no lo computa»); (2) **continuidad de sesión** — cinco hooks capturan eventos en
+SQLite, `PreCompact` construye un *snapshot* y `SessionStart` lo reinyecta tras compactar o
+`--resume`; (3) **enrutado forzado** — un `PreToolUse` desvía al sandbox las llamadas que
+volcarían datos crudos. v1.0.169, 17 harnesses, sin telemetría (todo local). Licencia **ELv2**,
+no MIT/Apache: prohíbe ofrecerlo como servicio gestionado y retirar sus avisos.
+
+**Relación con nosotros:** resuelve el **otro** problema de contexto. El nuestro es *qué
+información sobrevive entre sesiones y quién decide sobre ella* (`tasks/<id>/{spec,progress}.md`
++ gates humanos); el suyo es *cuántos bytes entran en la ventana*. El valor transferible está en
+su **taxonomía de continuidad** — no en su motor, que cae de lleno en un anti-objetivo ya
+escrito («SQLite/Chroma, motores de memoria»).
+
+**Corrección a la primera redacción de esta sección.** La primera versión proponía cinco slots
+nuevos en `progress.md` y encabezaba la tabla con un «techo de presupuesto» para la inyección de
+arranque. Al revisarlo contra el código, las dos cosas estaban infladas: cuatro de los cinco
+slots ya estaban cubiertos (`spec.md` y «una decisión se supera»), y la parte sin cota de la
+inyección eran 3-10 criterios, no un problema de presupuesto. Lo que sí había era **otro** fallo,
+de robustez, y una lección que no venía de su README sino de desinstalarlo. La tabla de abajo es
+la versión medida.
+
+| Patrón | Qué es | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Un plugin que escribe fuera de su raíz no se desinstala solo** | Hallazgo propio al desinstalarlo (2026-09-11): se había registrado un hook en el `~/.claude/settings.json` **global** del usuario y un script en `~/.claude/hooks/`, y `claude plugin uninstall` no eliminó ninguno de los dos. Habría seguido disparándose en cada sesión, en todos los repos, apuntando a un plugin que ya no existe | Nuestros hooks viven en `adapters/claude/hooks/` y se van con el plugin — pero eso era un acierto sin proteger. Convertido en invariante aseverado: `scripts/check-hygiene.mjs` falla si un hook usa una API de escritura (incluida la vía `openSync`+`writeSync`), si referencia `homedir`/`USERPROFILE`/`.claude.json`/`.claude/settings`, o si un `command` de `hooks.json` no se resuelve bajo `${CLAUDE_PLUGIN_ROOT}` — esto último es lo que cierra el fallo original, que fue un **registro** huérfano y no código huérfano. Recorre subdirectorios y `.js`/`.mjs`/`.cjs`. **No** detecta escrituras vía subproceso: es un cable trampa contra el descuido, no un sandbox. En CI (`hygiene-check.yml`) | ✅ rama `feat/context-mode-headroom` |
+| **Bloqueos como slot con nombre en la reinyección** | Su *Session Guide* trae «blocked on» / «waiting for» como sección propia, seguida hasta resolverse | El único de sus 19 slots que nos faltaba de verdad. `progress.md` gana una sección `## Bloqueo` opcional y sobrescribible (hermana de `## Estado actual`), y el hook la saca **arriba del todo** y sustituye el «Próximo paso» por una parada. El defecto que cierra es concreto: sin ella, una sesión limpia leía «implementando el criterio 3», sugería `/implement` y empujaba contra una pared ya conocida | ✅ rama `feat/context-mode-headroom` |
+| Cota a la sección inyectada | Su `PreCompact` construye ≤ 2 KB por niveles de prioridad | **No por presupuesto** (nuestra inyección son 3-10 criterios), sino por robustez: `section()` captura desde `## Estado actual` hasta el siguiente `## `, así que un `progress.md` malformado —sin `## Historial`— se llevaba el historial **entero**, que es *append-only*. La cota es de `MAX_SECCION` = 600 chars por sección narrativa, así que un `progress.md` de cualquier tamaño inyecta un bloque acotado en vez del historial completo. Es salvaguarda del contrato «jamás rompe la sesión» | ✅ rama `feat/context-mode-headroom` |
+| **«La prosa guía, el hook bloquea»** | Lo cuantifican: el mismo enrutado rinde ~60 % de ahorro solo con instrucciones y ~98 % con hook, porque «un solo `curl` sin enrutar vuelca 56 KB» | Confirmación independiente de la decisión que ya tomamos con `destructive-guard.js` («los gates viven en la prosa: gobiernan al agente cuando razona, no cuando se salta el paso»). No hay nada que adoptar; sí un argumento citable con número | 📖 |
+| No ensuciar el árbol del repo | Dejaron de escribir sus ficheros de enrutado en el proyecto (issues #158/#164) porque contaminaban `git status` | Contraste deliberado, no corrección: nosotros **sí** escribimos `tasks/<id>/` y es correcto, porque es artefacto durable y versionado, no caché del agente. El criterio de frontera: lo que es estado *del agente* no se versiona; lo que es estado *de la tarea*, sí | 📖 |
+| Progressive disclosure (índice barato → detalle bajo demanda) | `ctx_search` devuelve ventanas alrededor de los términos, no documentos enteros | Segunda confirmación independiente del 🟡 que dejó claude-mem (§1). Refuerza que el hueco es real, pero no cambia el diseño: nuestro equivalente barato sigue siendo TOON + listar antes de leer | 🟡 (sigue pendiente, → §1) |
+| Los otros cuatro slots del *Session Guide* | Errores sin resolver, restricciones descubiertas, enfoques rechazados, última petición del usuario | Descartados tras medirlos contra lo que ya tenemos: «errores sin resolver» se solapa con el bloqueo (un test en rojo que no arreglaste *es* el bloqueo), «restricciones» ya cabe en «Decisiones tomadas» de `spec.md`, «enfoques rechazados» lo cubre «una decisión no se borra: se supera» (§18), y el hook ya emite «Próximo paso». Cinco slots eran la sobre-ingeniería que este documento rechaza | ⛔ (ya cubiertos) |
+| Motor de memoria: SQLite + FTS5 + BM25 + RRF + *stemming* + caché TTL | El corazón del producto | Anti-objetivo ya escrito. Nuestro estado vive en dos markdown versionados que el humano lee, audita y corrige en una PR; una BD en `~` no la audita nadie | ⛔ (sobre-ingeniería declarada) |
+| Tono del bloque inyectado (`<EXTREMELY_IMPORTANT>`, «paradigma obligatorio», «MUST») | Cómo impone el enrutado cuando no hay hook | Anti-objetivo explícito nuestro, y su propio caso lo ilustra: enrutar datos es un **fallo de forma** (dónde va la salida), y §2.A documenta con medición que ahí la prohibición se vuelve en contra y la receta positiva gana. Su README defiende justo eso para la prosa final («no dictamos cómo escribe el modelo»), pero no lo aplica a su propio bloque | ⛔ |
+| *Progressive throttling* (llamadas 1-3 normales, 4-8 degradadas, 9+ bloqueadas) | Degrada los resultados para castigar la insistencia | Castiga al agente por insistir en vez de darle una salida. Choca con «sugerir, no imponer» y con los gates: quien decide cuándo parar es el usuario | ⛔ |
+| Recomendarlo como add-on opcional (al estilo `frontend-design`) | — | **Decidido en contra.** Además de ELv2 (no redistribuible), deja residuos que su propio desinstalador no limpia: recomendarlo sería trasladar ese problema a quien nos lea | ⛔ |
+
+### Nota de composición (medido el 2026-09-11)
+
+Estaba instalado en la máquina de desarrollo (`context-mode@context-mode` v1.0.169) y su
+`SessionStart` inyectaba el bloque de enrutado (4748 bytes, ≈1.200 tokens por arranque), pero
+las herramientas `mcp__plugin_context-mode_context-mode__*` no estaban disponibles en la sesión
+y `~/.context-mode/content/` seguía **vacío** desde la instalación: nunca se indexó nada. La
+mitad instalada es el peor de los dos mundos — se paga la factura entera sin recibir el
+servicio. Se desinstaló, y fue al hacerlo cuando apareció el hook huérfano de la primera fila.
+
+La lección operativa, que vale para cualquier add-on que recomendemos: **una instalación no se
+da por buena hasta que se verifica que sus herramientas responden**, no solo que el plugin
+figura como instalado. Es el mismo criterio de `evidencia-y-preguntas` aplicado al entorno.
+
+---
+
+## 20. headroom — `headroomlabs-ai/headroom`
+
+**Qué es:** capa de **compresión de contexto** que reescribe lo que el agente envía antes de que
+llegue al LLM — proxy local, librería Python/TS, servidor MCP y un modelo propio
+(`kompress-v2-base`) para prosa, con compresores dedicados para JSON (SmartCrusher) y código
+(AST). Apache 2.0. También trae `headroom learn`, que mina sesiones fallidas y escribe
+correcciones en `CLAUDE.local.md`.
+
+**Relación con nosotros:** su maquinaria es **íntegramente fuera de alcance** — no hay nada que
+adoptar de un proxy de compresión en un plugin de markdown. Lo valioso está en otro sitio y es
+inesperado: **cómo miden**. Es el repo más honesto de los analizados a la hora de declarar lo
+que sus propios números no sostienen, y eso aterriza directo en `check-activation.mjs`, que era
+lo único que el backlog daba por pendiente de ejecución.
+
+| Patrón | Qué es | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **El control recibe las mismas N que el tratamiento** | Para pasar de «estimado» a «medido» reservan un brazo sin tratar de forma **permanente** (`HEADROOM_OUTPUT_HOLDOUT=0.1`), no una calibración de una vez; el panel solo dice `measured` cuando ese brazo existe | Hueco real y verificado en nuestro código: `check-activation.mjs` daba `--runs N` muestras al brazo **con** plugin y exactamente **una** al brazo sin plugin. La varianza se medía en la mitad del experimento, así que una corrida afortunada de la línea base producía un `SIN DELTA` falso (descartas un caso bueno) y una desafortunada, un «hay delta» falso (certificas uno que no discrimina). Es el mismo defecto que ya habíamos corregido **dos veces** en el otro brazo. Corregido: el control corre las N | ✅ rama `feat/context-mode-headroom` |
+| **Un delta dentro de la banda no es un delta** | Sobre su propio benchmark: «a N=100 un delta de ±0.03 cae dentro del intervalo de confianza, así que TruthfulQA **no muestra diferencia detectable** en vez de una mejora». Se niegan a apuntarse una victoria que su N no sostiene | Nuestro veredicto era binario (la base falla → hay delta). Con N en ambos brazos el informe distingue tres cosas: base acierta **N/N** → `SIN DELTA` (el caso no discrimina), **k/N** → `⚠ RUIDO` nuevo (el delta no se sostiene a esta N), **0/N** → hay delta. La regla de RUIDO es la simétrica de `activo = nActivo === runs`: la estabilidad que le exigimos al tratamiento se le exige igual al control. **Matiz honesto sobre esta fila:** headroom hace un test de intervalo y lo nuestro es «un acierto de la base invalida», que a N pequeña es bastante más estricto. Lo adoptado es el principio —no te apuntes un delta que tu N no sostiene—, no su estadística. Corolario que costó ver: subir `--runs` NO saca a un caso de RUIDO, porque 1-(1-p)^N crece con N; la única salida es rediseñar el caso | ✅ rama `feat/context-mode-headroom` |
+| **Sección «cuándo NO usar esto»** | Su `When to use · when to skip` dice sin adornos dónde no rinde: «prosa y cargas ya densas comprimen muy poco» | Nuestro README no la tenía. Añadida: no uses el flujo para un arreglo de un fichero, un *spike* exploratorio, una emergencia en producción, ni un repo sin `develop` o sin quien revise la PR. Encaja con §2.A: decir cuándo **no** dispararse es parte del disparador | ✅ rama `feat/context-mode-headroom` |
+| **«Corre esto contra tu propio tráfico»** | Acompañan su tabla de ahorros con la negativa a que el titular se lea como universal: los porcentajes dependen de lo repetitiva que sea tu carga | Contraste directo con el «98 %» plano de §19. Añadido al final de la sección nueva del README: nuestros números se midieron en nuestros repos, y `check-activation.mjs` existe para que midas los tuyos. Un número que no has reproducido es una expectativa, no un dato | ✅ misma rama |
+| **Si escribes fuera de tu raíz: dilo, trae el inverso, ofrece el opt-out** | Headroom **también** escribe fuera de su sitio (instala Serena en el `~/.claude.json` del usuario, a *user scope*), pero lo **documenta** en el README («sigue disponible en tus otros proyectos hasta que corras `headroom unwrap`»), **trae el comando inverso** y **ofrece desactivarlo** (`--code-memory none`) | Cierra el patrón que abrió §19 con el contraejemplo. Ya no es una anécdota: hay ejemplo negativo (context-mode: sin documentar, sin inverso) y positivo. Nosotros elegimos la vía más simple —no escribir— y ahora está aseverada en `check-hygiene.mjs`; la regla queda escrita para el día que algo *tenga* que escribir | 📖 (fundamento de §19) |
+| `headroom learn`: destino por defecto *gitignored*, flag explícito para el fichero del equipo | Escribe en `CLAUDE.local.md` por defecto y exige `--target CLAUDE.md` para tocar el fichero compartido | La maquinaria (minería de sesiones) está fuera de alcance, pero la **disciplina de destino** es un gate de los nuestros: lo que cambia el comportamiento de todo el equipo se toca con un flag explícito, nunca por defecto. Candidato a criterio general para cualquier cosa que el agente escriba fuera de `tasks/<id>/` | 🔜 |
+| Benchmarks sembrados y reproducibles | `--seed 20260902`, «*seeded and offline, so you get the same numbers we did*» | Nuestro eval es no determinista por naturaleza (activación de un modelo) y eso no tiene arreglo, pero la **selección de casos** y el corpus de `routing.json` sí podrían sembrarse. Valor bajo hoy: el corpus es fijo y pequeño | 🟡 |
+| Telemetría anónima **activada por defecto** | Respetan `DO_NOT_TRACK` y `HEADROOM_BEACON=off`, pero el defecto es enviar | El ejemplo concreto de nuestro anti-objetivo `⛔ Telemetría`: un defecto no se compensa con un opt-out. Quien no lee el README, envía | ⛔ |
+| *Verbosity steering* (inyectar «sé breve» al final del *system prompt*) | Recorta tokens de salida moldeando cómo escribe el modelo | Aquí las dos fuentes de esta tanda **se contradicen de frente**: context-mode (§19) se niega explícitamente a moldear la prosa y cita evidencia de que los prompts de brevedad agresiva degradan *benchmarks* de código; headroom lo vende como *feature*. Para nosotros la pregunta está resuelta —no moldeamos salida—, pero la evidencia sirve de freno: **no metas «sé conciso» en las guías** | ⛔ |
+| Proxy, modelo de compresión, SmartCrusher, CodeCompressor, CCR | El producto | Otra liga y otro problema. Un plugin de markdown no comprime nada | ⛔ (fuera de alcance) |
+
+### Nota de método
+
+Los dos repos de esta tanda se analizaron por la misma pregunta («¿cómo manejan el contexto?») y
+ninguno la contestó por donde se esperaba. De context-mode lo aprovechable no salió del README
+sino de **desinstalarlo**; de headroom, no de su compresor sino de su **estadística**. Es una
+variante de la lección de §2: lo que un repo grande te enseña casi nunca es lo que anuncia en
+su portada.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
@@ -1039,6 +1130,34 @@ Orden por relación valor/coste, con el racimo de seguridad ya cerrado:
 presión (`presion-autoridad-borrado` tiene señal y merece `--runs 3`; `presion-dato-sin-verificar`
 nunca ha llegado a responder), y decidir si se aplica `effort` a los agentes opus, que sube el
 coste de cada `/review` y por eso no se hereda sin decidirlo.
+
+### Backlog abierto por §19 y §20 (context-mode · headroom)
+
+La tanda se cerró en la rama `feat/context-mode-headroom`. Lo que entró:
+
+1. ✅ **Control con las mismas N que el tratamiento en `check-activation.mjs`** — el brazo
+   sin plugin corría una sola muestra mientras el brazo con plugin corría `--runs N`.
+   Corregido, más el estado `⚠ RUIDO` para el delta que no se sostiene a esa N. Ojo al
+   coste: con `--baseline` el gasto pasa de `casos × (N+1)` a `casos × N × 2` sesiones, y
+   el freno de `--yes` lo dice antes de gastar. → §20
+2. ✅ **Invariante de higiene aseverado** — `scripts/check-hygiene.mjs` + `hygiene-check.yml`:
+   un hook no escribe en disco ni referencia rutas del usuario. Salió de desinstalar
+   context-mode y encontrar su hook huérfano en el `settings.json` global. → §19
+3. ✅ **`## Bloqueo` en `progress.md`** — sección opcional y sobrescribible; el hook la saca
+   arriba y sustituye el «Próximo paso» por una parada. → §19
+4. ✅ **Cota a la sección inyectada** — un `progress.md` malformado se llevaba el historial
+   entero a la inyección de arranque. → §19
+5. ✅ **«Cuándo NO usar este flujo» en el README** — con la advertencia de que nuestros
+   números se midieron en nuestros repos. → §20
+
+Queda **uno**, y es de diseño, no de ejecución:
+
+- 🔜 **Disciplina de destino para lo que el agente escribe fuera de `tasks/<id>/`** (§20):
+  destino por defecto local y *gitignored*, flag explícito para tocar el fichero del equipo.
+  Hoy no escribimos nada fuera, así que no urge; merece decidirse antes de que algo lo haga.
+
+Y sigue abierto de antes, sin cambios: **calibrar los casos de presión de `evals/`**, que
+ahora cuesta el doble con `--baseline` y por eso conviene hacerlo en una sola pasada.
 
 ### Nota de método
 
@@ -1161,6 +1280,10 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | «Ordena por palanca» en `revision-hallazgos`: si hay un problema estructural y diez nits, el estructural ES la revisión | agent-skills `code-review-and-quality` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | «Parar la línea» en `depuracion-sistematica`: los errores se componen, y lo construido encima de algo roto habrá que revisarlo otra vez | agent-skills `debugging-and-error-recovery` (§18.B) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Registro de cambios rechazados (§0.ter de `eval-comportamiento.md`), solo de añadir y solo de lo revertido por evidencia | agent-skills `evals/skill-impact.md` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
+| Control del eval con las mismas N que el tratamiento + estado `RUIDO` | headroom (§20) | rama `feat/context-mode-headroom` |
+| `check-hygiene.mjs`: un hook no escribe ni toca `~/.claude` | context-mode, al desinstalarlo (§19) | rama `feat/context-mode-headroom` |
+| `## Bloqueo` en `progress.md` + parada en el hook de `SessionStart` | context-mode, *Session Guide* (§19) | rama `feat/context-mode-headroom` |
+| Sección «Cuándo NO usar este flujo» en el README | headroom (§20) | rama `feat/context-mode-headroom` |
 | Plantilla de issue `guia-fallo.yml` para los repos consumidores | agent-skills `skill-gap.yml` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Regla por ruta `.claude/rules/editar-solo-core.md`: salta al tocar `adapters/**`, que es salida generada | agent-skills `.claude/rules/` (§18.C), mecanismo verificado en la doc oficial | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Anti-patrón C («ningún comando que orqueste a los demás») escrito en los anti-objetivos de la filosofía | agent-skills `orchestration-patterns` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |

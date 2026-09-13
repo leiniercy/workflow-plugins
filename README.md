@@ -13,7 +13,7 @@ custom-ia-plugin/
 │   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
 │   │   └── in-progress/      borradores versionados que NO se publican (ver su README)
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo · refutador-decision
-├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-activation (activación con modelo, manual)
+├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-hygiene (los hooks no escriben fuera, CI) · check-activation (activación con modelo, manual)
 ├── adapters/
 │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
 │   │   ├── .claude-plugin/plugin.json
@@ -28,7 +28,7 @@ custom-ia-plugin/
 │           ├── command/       (generado por sync.mjs — no editar a mano)
 │           └── guides/        (generado por sync.mjs — no editar a mano)
 ├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a adapters/claude)
-├── .github/workflows/         review.yml (CI de PRs) · sync-check · version-check · behavior-check · manifest-check
+├── .github/workflows/         review.yml (CI de PRs) · sync-check · version-check · behavior-check · manifest-check · hygiene-check
 └── examples/                  plantillas para repos consumidores
 ```
 
@@ -81,6 +81,27 @@ Es una **red para accidentes, no un sandbox**: un agente decidido puede reformul
 El bloqueo duro de solo-lectura sigue siendo el campo `tools` de los agentes revisores.
 Se ajusta por entorno: `CUSTOM_IA_PROTECTED_PATHS` añade rutas propias del repo y
 `CUSTOM_IA_GUARD=off` lo desactiva (ver `examples/repo-settings.json`).
+
+## Cuándo NO usar este flujo
+
+Este plugin está construido para **trabajo guiado por tarea**: hay un ticket, hay
+criterios de aceptación que alguien va a verificar, y hay una PR que otro humano revisa.
+Fuera de ese supuesto, la ceremonia cuesta más de lo que aporta. No lo uses para:
+
+- **Un arreglo de un fichero que ya sabes hacer.** Crear rama, `spec.md`, `progress.md` y
+  PR para cambiar una constante es papeleo. Haz el cambio.
+- **Un *spike* exploratorio.** `/plan` te pide criterios de aceptación verificables; un
+  spike existe precisamente porque todavía no sabes cuáles son. Explora primero, y abre la
+  tarea cuando sepas qué vas a construir.
+- **Una emergencia en producción.** Los gates de aprobación están para frenar; a las tres
+  de la mañana lo que necesitas es desplegar y documentar después.
+- **Un repo sin rama base `develop`, o sin nadie que revise la PR.** El flujo termina en
+  una revisión humana que no existiría: `/review` solo informa, nunca aprueba.
+
+Y una advertencia sobre el resto del README: los porcentajes, tiempos y costes que
+aparecen aquí se midieron **en nuestros repos**. El eval de activación
+(`scripts/check-activation.mjs`) existe para que midas los tuyos, no para que te creas los
+nuestros. Un número que no has reproducido en tu código es una expectativa, no un dato.
 
 ## Add-on recomendado: diseño de UI (`frontend-design`)
 

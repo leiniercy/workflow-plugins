@@ -1,0 +1,33 @@
+name: Higiene del plugin
+
+# Un hook lee y emite JSON por stdout: no escribe en disco ni toca la configuración
+# global del usuario. Un plugin que escribe fuera de su raíz no se desinstala solo
+# (medido con context-mode el 2026-09-11 — ver scripts/check-hygiene.mjs).
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "adapters/claude/hooks/**"
+      - "scripts/check-hygiene.mjs"
+      - ".github/workflows/hygiene-check.yml"
+  pull_request:
+    paths:
+      - "adapters/claude/hooks/**"
+      - "scripts/check-hygiene.mjs"
+      - ".github/workflows/hygiene-check.yml"
+
+jobs:
+  hygiene-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Comprobar higiene de los hooks
+        run: node scripts/check-hygiene.mjs

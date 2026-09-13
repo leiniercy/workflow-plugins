@@ -7,6 +7,38 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+Tanda de **context-mode** y **headroom** (§19 y §20 de `docs/referencias.md`). Ninguno de los
+dos aportó lo que anunciaba en su portada: de context-mode lo útil salió de **desinstalarlo**,
+y de headroom, de su **estadística** y no de su compresor.
+
+- **El control del eval recibe las mismas `--runs N` que el tratamiento** — `check-activation.mjs`
+  daba N muestras al brazo con plugin y **una** al brazo sin plugin. La varianza se medía en la
+  mitad del experimento: una corrida afortunada de la línea base producía un `SIN DELTA` falso
+  (descartabas un caso bueno) y una desafortunada, un «hay delta» falso (certificabas uno que no
+  discrimina). Es el mismo defecto ya corregido dos veces en el otro brazo. Con N en ambos, el
+  informe distingue `SIN DELTA` (base acierta N/N), el nuevo **`⚠ RUIDO`** (k/N: el delta no se
+  sostiene a esa N) y el delta real (0/N). **El coste de `--baseline` pasa de `casos × (N+1)` a
+  `casos × N × 2` sesiones**; el freno de `--yes` lo calcula antes de gastar nada.
+- **`scripts/check-hygiene.mjs` + `hygiene-check.yml`** — invariante aseverado: un hook lee y
+  emite JSON por stdout; no usa APIs de escritura ni referencia `homedir`, `USERPROFILE`,
+  `.claude.json` o `.claude/settings`. Salió de desinstalar context-mode y encontrar que se
+  había registrado un hook en el `settings.json` **global** del usuario y un script en
+  `~/.claude/hooks/`, y que su propio desinstalador no limpió ninguno de los dos.
+- **`## Bloqueo` en `progress.md`** — sección opcional y sobrescribible, hermana de
+  `## Estado actual`. El hook de `SessionStart` la saca **arriba del todo** y sustituye el
+  «Próximo paso» por una parada. Cierra un defecto concreto: sin ella, una sesión limpia leía
+  «implementando el criterio 3», sugería `/implement` y empujaba contra una pared ya conocida.
+- **Cota a la sección inyectada por el hook** — `section()` capturaba hasta el siguiente `## `,
+  así que un `progress.md` malformado (sin `## Historial`) se llevaba el historial entero, que es
+  *append-only*. La cota es de 600 chars por sección narrativa, y se aplica **solo** a
+  `progress.md`: `spec.md` no se recorta, porque de ahí se cuentan criterios y recortar antes
+  de contar daría un número menor que el real. Es salvaguarda del
+  contrato «jamás rompe la sesión», no ahorro de tokens.
+- **«Cuándo NO usar este flujo» en el README** — un arreglo de un fichero, un *spike*, una
+  emergencia en producción o un repo sin `develop` no son para esto. Con la advertencia de que
+  los números del README se midieron en nuestros repos: `check-activation.mjs` existe para que
+  midas los tuyos.
+
 Racimo de **dato no fiable**, del análisis de `addyosmani/agent-skills` (§18). Un `grep` sobre
 `core/` por «prompt injection», «untrusted», «no fiable» y «LLM» devolvía **cero resultados**: el
 plugin no miraba ni la superficie de las funcionalidades de IA ni el texto que le llega de fuera.

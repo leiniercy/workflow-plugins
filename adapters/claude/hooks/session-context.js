@@ -19,6 +19,11 @@ const { execFileSync } = require("child_process");
 const { readFileSync, existsSync } = require("fs");
 const { join } = require("path");
 
+/** Techo por sección inyectada. Una línea de estado cabe de sobra; un historial, no. */
+const MAX_SECCION = 600;
+/** Techo de criterios pendientes listados uno a uno antes de resumir el resto. */
+const MAX_CRITERIOS = 12;
+
 /** Emite la respuesta del hook y termina siempre con éxito. */
 function emit(additionalContext) {
   const out = { continue: true, suppressOutput: true };
@@ -47,7 +52,7 @@ function git(args, cwd) {
   }
 }
 
-/** Devuelve el cuerpo de una sección `## <titulo>` hasta el siguiente `## `. */
+/** Devuelve el cuerpo de una sección `## <titulo>` hasta el siguiente `## `. Sin recortar. */
 function section(md, headingRegex) {
   const lines = md.split(/\r?\n/);
   let capturing = false;
@@ -65,6 +70,28 @@ function section(md, headingRegex) {
     }
   }
   return body.join("\n").trim();
+}
+
+/**
+ * Acota una sección de prosa antes de inyectarla, nombrando el fichero que revisar.
+ *
+ * Solo se aplica a las secciones narrativas de `progress.md`. Si ese fichero queda
+ * malformado (por ejemplo sin `## Historial`), `section()` no encuentra dónde parar y
+ * se lleva el historial entero — que es append-only y crece sin techo — a la inyección
+ * de arranque. Truncar es preferible a inundar el contexto justo donde más caro sale.
+ *
+ * NO se aplica a `spec.md`: de ahí se cuentan criterios, y recortar antes de contar
+ * daría un número menor que el real. El techo de esa lista es MAX_CRITERIOS, y va en
+ * la presentación, después de contar.
+ */
+function acotar(texto, fichero, max = MAX_SECCION) {
+  if (texto.length <= max) return texto;
+  return (
+    texto.slice(0, max).trimEnd() +
+    "… _(recortado: revisa la estructura de `" +
+    fichero +
+    "`)_"
+  );
 }
 
 try {
@@ -132,10 +159,15 @@ try {
   const parts = [];
   let nextStep = null;
 
+  let bloqueo = null;
   if (existsSync(progressPath)) {
     const progress = readFileSync(progressPath, "utf8");
-    const estado = section(progress, /^estado actual$/i);
+    const estado = acotar(section(progress, /^estado actual$/i), "progress.md");
     if (estado) parts.push("**Estado actual:** " + estado);
+    // Un bloqueo es lo primero que hay que saber: sin él, una sesión limpia arranca
+    // sugiriendo el próximo comando y empuja contra una pared ya conocida.
+    bloqueo = acotar(section(progress, /^bloqueo$/i), "progress.md") || null;
+    if (bloqueo) parts.unshift("**⚠ BLOQUEADO:** " + bloqueo);
   }
 
   if (existsSync(specPath)) {
@@ -152,11 +184,14 @@ try {
       .map((l) => l.trim());
 
     if (pendientes.length) {
+      const listados = pendientes.slice(0, MAX_CRITERIOS);
+      const resto = pendientes.length - listados.length;
       parts.push(
         "**Criterios de aceptación pendientes (" +
           pendientes.length +
           "):**\n" +
-          pendientes.join("\n")
+          listados.join("\n") +
+          (resto > 0 ? "\n- … y " + resto + " más en `spec.md`" : "")
       );
     }
 
@@ -195,7 +230,14 @@ try {
     "/`:";
 
   if (parts.length) context += "\n\n" + parts.join("\n\n");
-  if (nextStep) context += "\n\n### Próximo paso\n" + nextStep;
+  // Con un bloqueo vivo, sugerir el siguiente comando es peor que no sugerir nada:
+  // el agente avanzaría contra lo que ya sabemos que lo para.
+  if (bloqueo)
+    context +=
+      "\n\n### Próximo paso\nLa tarea está BLOQUEADA (ver arriba). No avances por tu " +
+      "cuenta: resuelve el bloqueo con el usuario, o confirma con él que ya no aplica y " +
+      "borra la sección `## Bloqueo` de `progress.md`.";
+  else if (nextStep) context += "\n\n### Próximo paso\n" + nextStep;
   context +=
     "\n\n_Gates: pide aprobación antes de cualquier acción visible (commit, push, PR, " +
     "cambio de estado en ClickUp). La fuente de verdad es `tasks/" +
