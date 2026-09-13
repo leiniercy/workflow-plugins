@@ -68,6 +68,9 @@ import { readFileSync, readdirSync, existsSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+// La corrección vive en su propio módulo para que `check-graders.mjs` pueda probarla
+// sin lanzar sesiones: un grader que aprueba la respuesta equivocada no se ve de otro modo.
+import { corrige } from "./lib/grader.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PLUGIN_DIR = join(ROOT, "adapters/claude");
@@ -92,12 +95,6 @@ const runs = Math.max(1, parseInt(value("--runs") || "1", 10) || 1);
 // ---------------------------------------------------------------------------
 // Normalización para comparar texto (sin tildes, sin mayúsculas)
 // ---------------------------------------------------------------------------
-function norm(s) {
-  return (s || "")
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase();
-}
 
 // ---------------------------------------------------------------------------
 // Una ejecución: devuelve { skills, texto, error }
@@ -160,17 +157,6 @@ function run(prompt, { plugin }) {
 // Cada entrada de `debe_incluir` es una frase obligatoria, o un ARRAY de alternativas
 // del que basta con que aparezca una. Sin eso el criterio se rompe ante cualquier
 // sinónimo y el caso empieza a fallar por redacción en vez de por comportamiento.
-function corrige(texto, caso) {
-  const t = norm(texto);
-  const cumple = (req) =>
-    Array.isArray(req) ? req.some((alt) => t.includes(norm(alt))) : t.includes(norm(req));
-
-  const faltan = (caso.debe_incluir || [])
-    .filter((req) => !cumple(req))
-    .map((req) => (Array.isArray(req) ? req.join(" | ") : req));
-  const sobran = (caso.no_debe_incluir || []).filter((frase) => t.includes(norm(frase)));
-  return { ok: faltan.length === 0 && sobran.length === 0, faltan, sobran };
-}
 
 // ---------------------------------------------------------------------------
 // Carga de casos

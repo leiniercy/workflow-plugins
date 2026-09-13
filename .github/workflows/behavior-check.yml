@@ -5,6 +5,9 @@ name: Contratos de comportamiento
 #     los agentes, auto-activación de guías, banderas rojas, dato no fiable).
 #   check-routing.mjs  — enrutado del catálogo: colisión entre descriptions, fronteras
 #     entre guías confundibles y tasa de top-3 sobre su suelo.
+#   check-graders.mjs  — que el grader de cada caso distinga acierto de fallo, contra las
+#     respuestas de ejemplo de su `graders/muestras.json`. Es la parte más barata de
+#     equivocarse y era la única que nadie probaba: un grader roto no falla, canta un ✓.
 # La mitad que necesita un modelo vive en check-activation.mjs (gasta cuota, a mano) y en
 # docs/eval-comportamiento.md.
 
@@ -16,6 +19,8 @@ on:
       - "scripts/sync.mjs"
       - "scripts/check-behavior.mjs"
       - "scripts/check-routing.mjs"
+      - "scripts/check-graders.mjs"
+      - "scripts/lib/grader.mjs"
       - "adapters/**"
       - ".github/workflows/behavior-check.yml"
   pull_request:
@@ -24,6 +29,8 @@ on:
       - "scripts/sync.mjs"
       - "scripts/check-behavior.mjs"
       - "scripts/check-routing.mjs"
+      - "scripts/check-graders.mjs"
+      - "scripts/lib/grader.mjs"
       - "adapters/**"
       - ".github/workflows/behavior-check.yml"
 
@@ -44,3 +51,6 @@ jobs:
 
       - name: Asevera el enrutado del catálogo de guías
         run: node scripts/check-routing.mjs
+
+      - name: Asevera que los graders distinguen acierto de fallo
+        run: node scripts/check-graders.mjs

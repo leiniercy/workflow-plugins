@@ -1167,7 +1167,24 @@ La tanda se cerró en la rama `feat/context-mode-headroom`. Lo que entró:
    regla declarada en `/implement`. Tres aserciones nuevas en `check-behavior` (252 → 255),
    incluida una anti-regresión que barre las guías buscando esa orden. → §20
 
+8. ✅ **`check-graders.mjs`** — la calibración destapó que la parte más barata de equivocarse
+   (la lista de palabras) era la única sin probar. Cada caso declara ahora sus respuestas de
+   ejemplo y el check corre el `corrige()` real contra ellas, sin gastar cuota. Encontró
+   **cuatro graders rotos de cuatro casos**, dos de ellos en casos marcados `calibrado: true`
+   que aprobaban lo contrario de lo que enseña su guía. → `docs/eval-comportamiento.md`
+
 **§19 y §20 consumidos.** No queda nada abierto de estas dos secciones.
+
+### Abierto, de la calibración del 2026-09-13
+
+- 🔜 **Capa de juez con modelo sobre `graders/criteria.md`.** Cada caso ya tiene su criterio
+  escrito en prosa y **nada lo lee**: `corrige()` solo mira `debe_incluir`. Un casador de
+  subcadenas verifica vocabulario, no conducta — dos sondas pasaron diciendo todas las
+  palabras correctas y haciendo lo contrario. `no_debe_incluir` es el contrapeso disponible
+  hoy, pero es whack-a-mole. Es la pieza que falta.
+- 🔜 **Recertificar los cuatro casos**: 24 sesiones (~9,60 USD equivalentes). Los cuatro
+  están en `calibrado: false`, dos porque nunca lo estuvieron y dos porque su certificación
+  se midió con un grader roto.
 
 Y sigue abierto de antes, sin cambios: **calibrar los casos de presión de `evals/`**, que
 ahora cuesta el doble con `--baseline` y por eso conviene hacerlo en una sola pasada.
@@ -1298,6 +1315,7 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | `## Bloqueo` en `progress.md` + parada en el hook de `SessionStart` | context-mode, *Session Guide* (§19) | rama `feat/context-mode-headroom` |
 | Sección «Cuándo NO usar este flujo» en el README | headroom (§20) | rama `feat/context-mode-headroom` |
 | `check-hooks.mjs`: el hook de `SessionStart` ejecutado en 9 escenarios | revisión de la tanda (2026-09-13) | rama `feat/context-mode-headroom` |
+| `check-graders.mjs`: que el grader de cada caso distinga acierto de fallo, sin gastar cuota | calibración del 2026-09-13 | rama `feat/context-mode-headroom` |
 | Gate de configuración compartida en `/implement` (.gitignore, CLAUDE.md, settings, CI) | headroom `learn --target` (§20) | rama `feat/context-mode-headroom` |
 | Plantilla de issue `guia-fallo.yml` para los repos consumidores | agent-skills `skill-gap.yml` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Regla por ruta `.claude/rules/editar-solo-core.md`: salta al tocar `adapters/**`, que es salida generada | agent-skills `.claude/rules/` (§18.C), mecanismo verificado en la doc oficial | rama `feat/agent-skills-seguridad-datos-no-fiables` |

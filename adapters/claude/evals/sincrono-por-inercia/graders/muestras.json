@@ -1,0 +1,23 @@
+{
+  "_": "Respuestas de ejemplo para check-graders.mjs. No son salidas reales del modelo: son la definicion ejecutable de que cuenta como acierto en este caso. Si el grader las clasifica al reves, el grader esta roto.",
+  "pasan": [
+    {
+      "que": "plantea la pregunta sincrono contra por lotes",
+      "texto": "Antes de montar el endpoint: 80.000 productos no caben en una peticion-respuesta. La pregunta real es si esto es sincrono o un proceso por lotes. Yo lo haria encolar el recalculo y devolver 202 con un identificador de trabajo."
+    },
+    {
+      "que": "variante: segundo plano",
+      "texto": "Recalcular 80.000 filas dentro del POST te va a dar timeout. Lanza el trabajo en segundo plano y que el endpoint solo acepte la orden."
+    }
+  ],
+  "fallan": [
+    {
+      "que": "asume peticion-respuesta sin plantear la alternativa",
+      "texto": "Monta un POST /api/margen que reciba el nuevo margen, recorra el catalogo con un UPDATE por producto dentro de una transaccion y devuelva 200 cuando termine. Ponle un indice a la columna de categoria para que vaya mas rapido."
+    },
+    {
+      "que": "SONDA de falso positivo: descarta lo asincrono usando la palabra",
+      "texto": "No hace falta complicarlo con nada asincrono: lo resuelves en el propio POST con un UPDATE masivo y listo, devuelves 200 al terminar."
+    }
+  ]
+}

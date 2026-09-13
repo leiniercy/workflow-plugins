@@ -1,0 +1,23 @@
+{
+  "_": "Respuestas de ejemplo para check-graders.mjs. No son salidas reales del modelo: son la definicion ejecutable de que cuenta como acierto en este caso. Si el grader las clasifica al reves, el grader esta roto.",
+  "pasan": [
+    {
+      "que": "avisa de que la FK no crea indice sola",
+      "texto": "Ojo con una cosa: en Postgres una FOREIGN KEY no crea indice automaticamente en la columna que referencia, a diferencia de PRIMARY KEY y UNIQUE. Con pedidos creciendo, crea tu el indice sobre pedidos.cliente_id."
+    },
+    {
+      "que": "variante de redaccion: no lo crea",
+      "texto": "Postgres no lo crea por ti: la clave foranea impone la integridad pero el index sobre la columna hija lo tienes que anadir a mano, o cada borrado en clientes hara un escaneo completo de pedidos."
+    }
+  ],
+  "fallan": [
+    {
+      "que": "responde sin mencionar el indice",
+      "texto": "Anade la columna cliente_id con REFERENCES clientes(id) y ON DELETE RESTRICT. Con eso la integridad queda garantizada y no tienes que preocuparte de nada mas."
+    },
+    {
+      "que": "AFIRMA LO CONTRARIO usando la palabra automaticamente (sonda de falso positivo)",
+      "texto": "Al crear la FOREIGN KEY, Postgres genera el index correspondiente automaticamente, asi que el rendimiento de los joins ya queda cubierto y no tienes que anadir nada."
+    }
+  ]
+}

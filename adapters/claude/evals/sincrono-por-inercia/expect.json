@@ -5,12 +5,14 @@
     [
       "lote",
       "batch",
-      "asincron",
       "segundo plano",
-      "cola"
+      "cola",
+      "encolar",
+      "en background",
+      "202"
     ]
   ],
   "linea_base_debe_fallar": true,
-  "calibrado": true,
-  "nota_calibracion": "La línea base no plantea el procesamiento por lotes; con la guía, sí. Delta confirmado el 2026-09-06, tras añadir a arquitectura el síntoma de la operación larga dentro de una petición-respuesta."
+  "calibrado": false,
+  "nota_calibracion": "La línea base no plantea el procesamiento por lotes; con la guía, sí. Delta confirmado el 2026-09-06, tras añadir a arquitectura el síntoma de la operación larga dentro de una petición-respuesta. || 2026-09-13, GRADER CORREGIDO y certificacion invalidada. Sonda de check-graders.mjs: la subcadena suelta \"asincron\" casaba en \"No hace falta complicarlo con nada asincrono\", que es exactamente la respuesta equivocada. Sustituida por vocabulario que solo aparece al PROPONER el diferido (encolar, en background, 202). calibrado a false: la certificacion anterior se midio con un grader que aprobaba el error. Recertificar: 6 sesiones."
 }

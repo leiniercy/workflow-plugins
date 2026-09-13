@@ -13,7 +13,7 @@ custom-ia-plugin/
 │   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
 │   │   └── in-progress/      borradores versionados que NO se publican (ver su README)
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo · refutador-decision
-├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-hygiene (los hooks no escriben fuera, CI) · check-hooks (el hook de SessionStart, ejecutado, CI) · check-activation (activación con modelo, manual)
+├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-hygiene (los hooks no escriben fuera, CI) · check-hooks (el hook de SessionStart, ejecutado, CI) · check-graders (que los graders distingan, CI) · check-activation (activación con modelo, manual)
 ├── adapters/
 │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
 │   │   ├── .claude-plugin/plugin.json

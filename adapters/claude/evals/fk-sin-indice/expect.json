@@ -7,12 +7,15 @@
       "index"
     ],
     [
-      "automatic",
       "no lo crea",
-      "no crea"
+      "no crea",
+      "no se crea",
+      "no lo genera",
+      "no genera",
+      "no se genera"
     ]
   ],
   "linea_base_debe_fallar": true,
-  "calibrado": true,
-  "nota_calibracion": "La línea base no menciona que FOREIGN KEY no cree índice; con la guía, sí. Delta confirmado el 2026-09-06, tras corregir el disparador de rendimiento (le faltaba el síntoma de la clave foránea)."
+  "calibrado": false,
+  "nota_calibracion": "La línea base no menciona que FOREIGN KEY no cree índice; con la guía, sí. Delta confirmado el 2026-09-06, tras corregir el disparador de rendimiento (le faltaba el síntoma de la clave foránea). || 2026-09-13, GRADER CORREGIDO y certificacion invalidada. La sonda de check-graders.mjs descubrio un falso positivo: el grupo 2 tenia la subcadena suelta \"automatic\", que casa igual en \"no lo crea automaticamente\" (correcto) que en \"lo crea automaticamente\" (exactamente el error que el caso mide). Una respuesta que afirmaba LO CONTRARIO de lo que ensena la guia pasaba el grader. Sustituido por formas que llevan la negacion pegada. calibrado pasa a false a proposito: la certificacion anterior se midio con un grader que aprobaba la respuesta equivocada, asi que no se puede dar por buena. Recertificar son 6 sesiones (~2,40 USD equivalentes)."
 }
