@@ -55,6 +55,39 @@ for (const cmd of ["start", "plan", "implement", "review"]) {
   assert(body !== null && /Banderas rojas/i.test(body), `/${cmd} tiene tabla de Banderas rojas`);
 }
 
+// --- gate de configuración compartida (§19/§20) ---
+// `.gitignore`, CLAUDE.md, settings.json, CI… no son código de la tarea: son las reglas bajo
+// las que trabaja el equipo. Cambiarlas dentro de un commit de funcionalidad las esconde
+// justo donde nadie las revisa. La regla vive en /implement, y ninguna guía puede saltársela.
+{
+  const implement = read(join(CLAUDE, "commands/implement.md")) || "";
+  assert(
+    /Configuración compartida \(gate propio\)/.test(implement),
+    "/implement declara el gate de configuración compartida"
+  );
+  assert(
+    /`\.gitignore`/.test(implement) && /espera aprobación/.test(implement),
+    "el gate de configuración compartida nombra .gitignore y exige aprobación"
+  );
+
+  // Anti-regresión: la guía de worktrees ordenaba «añádelo al .gitignore y commitea ese
+  // cambio antes de continuar», que es escritura en fichero compartido MÁS commit, las dos
+  // sin gate. Que no vuelva por ninguna puerta.
+  const skillsDir = join(CLAUDE, "skills");
+  const sospechosos = [];
+  for (const g of readdirSync(skillsDir)) {
+    const body = read(join(skillsDir, g, "SKILL.md"));
+    if (!body) continue;
+    if (/a[ñn][áa]delo al `\.gitignore`/i.test(body) || /commitea ese cambio/i.test(body)) {
+      sospechosos.push(g);
+    }
+  }
+  assert(
+    sospechosos.length === 0,
+    `ninguna guía ordena tocar y commitear configuración compartida sin gate — infractoras: ${sospechosos.join(", ") || "ninguna"}`
+  );
+}
+
 // --- 7 agentes: read-only DURO (tools exacto) + modelo por tier ---
 const AGENTS = {
   "revisor-bugs-seguridad": "opus",

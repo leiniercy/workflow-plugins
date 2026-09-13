@@ -153,6 +153,21 @@ o columna, vaciar, borrado masivo— y cualquier ejecución contra un entorno qu
 necesitan aprobación explícita del usuario**, presentada aparte y con lo que se pierde. Es el
 único cambio del flujo que un revert no deshace.
 
+**Configuración compartida (gate propio):** un fichero que cambia el comportamiento de
+**todo el que abra el repo** no se toca de pasada. Entran aquí `.gitignore`, `CLAUDE.md` /
+`AGENTS.md`, `.claude/settings.json`, `.mcp.json`, los workflows de CI, la configuración de
+linter o formateador y los scripts de `package.json`. No son código de la tarea: son las
+reglas bajo las que trabaja el equipo, y cambiarlas dentro de un commit de funcionalidad
+las esconde justo donde nadie las revisa. Si un criterio lo necesita de verdad, **propón el
+cambio aparte, di qué comportamiento cambia para los demás, y espera aprobación**. Nunca lo
+mezcles con el commit del criterio.
+
+La regla sale de medir a otros plugins (§19 y §20 de `docs/referencias.md`): uno se
+registró en la configuración global del usuario y su desinstalador no lo limpió; otro hace
+lo mismo pero **lo documenta, trae el comando inverso y ofrece desactivarlo**. La
+diferencia entre los dos no es técnica, es de aviso. Si escribes fuera de lo tuyo, que se
+vea.
+
 **UI web (opcional):** si el criterio implica interfaz web y tienes instalada la skill
 `frontend-design` (add-on oficial de Anthropic, ver README), aprovéchala en el paso 2 para
 diseñar el componente con intención visual antes de cablear la lógica. Es una recomendación

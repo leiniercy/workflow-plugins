@@ -996,7 +996,7 @@ lo único que el backlog daba por pendiente de ejecución.
 | **Sección «cuándo NO usar esto»** | Su `When to use · when to skip` dice sin adornos dónde no rinde: «prosa y cargas ya densas comprimen muy poco» | Nuestro README no la tenía. Añadida: no uses el flujo para un arreglo de un fichero, un *spike* exploratorio, una emergencia en producción, ni un repo sin `develop` o sin quien revise la PR. Encaja con §2.A: decir cuándo **no** dispararse es parte del disparador | ✅ rama `feat/context-mode-headroom` |
 | **«Corre esto contra tu propio tráfico»** | Acompañan su tabla de ahorros con la negativa a que el titular se lea como universal: los porcentajes dependen de lo repetitiva que sea tu carga | Contraste directo con el «98 %» plano de §19. Añadido al final de la sección nueva del README: nuestros números se midieron en nuestros repos, y `check-activation.mjs` existe para que midas los tuyos. Un número que no has reproducido es una expectativa, no un dato | ✅ misma rama |
 | **Si escribes fuera de tu raíz: dilo, trae el inverso, ofrece el opt-out** | Headroom **también** escribe fuera de su sitio (instala Serena en el `~/.claude.json` del usuario, a *user scope*), pero lo **documenta** en el README («sigue disponible en tus otros proyectos hasta que corras `headroom unwrap`»), **trae el comando inverso** y **ofrece desactivarlo** (`--code-memory none`) | Cierra el patrón que abrió §19 con el contraejemplo. Ya no es una anécdota: hay ejemplo negativo (context-mode: sin documentar, sin inverso) y positivo. Nosotros elegimos la vía más simple —no escribir— y ahora está aseverada en `check-hygiene.mjs`; la regla queda escrita para el día que algo *tenga* que escribir | 📖 (fundamento de §19) |
-| `headroom learn`: destino por defecto *gitignored*, flag explícito para el fichero del equipo | Escribe en `CLAUDE.local.md` por defecto y exige `--target CLAUDE.md` para tocar el fichero compartido | La maquinaria (minería de sesiones) está fuera de alcance, pero la **disciplina de destino** es un gate de los nuestros: lo que cambia el comportamiento de todo el equipo se toca con un flag explícito, nunca por defecto. Candidato a criterio general para cualquier cosa que el agente escriba fuera de `tasks/<id>/` | 🔜 |
+| `headroom learn`: destino por defecto *gitignored*, flag explícito para el fichero del equipo | Escribe en `CLAUDE.local.md` por defecto y exige `--target CLAUDE.md` para tocar el fichero compartido | La maquinaria (minería de sesiones) está fuera de alcance, pero la **disciplina de destino** es un gate de los nuestros: lo que cambia el comportamiento de todo el equipo se toca con un flag explícito, nunca por defecto. Adoptado como **gate de configuración compartida** en `/implement`, con la forma que ya tenía «Esquema y datos (gate propio)». Lo adoptado es el principio —lo que cambia el comportamiento de todo el equipo se toca con aprobación explícita, nunca de pasada—, no su mecánica: no tenemos un `--target` que ofrecer, tenemos un gate humano, que es nuestra versión de lo mismo. Cubre `.gitignore`, `CLAUDE.md`/`AGENTS.md`, `.claude/settings.json`, `.mcp.json`, CI, linter y los scripts de `package.json` | ✅ rama `feat/context-mode-headroom` |
 | Benchmarks sembrados y reproducibles | `--seed 20260902`, «*seeded and offline, so you get the same numbers we did*» | Nuestro eval es no determinista por naturaleza (activación de un modelo) y eso no tiene arreglo, pero la **selección de casos** y el corpus de `routing.json` sí podrían sembrarse. Valor bajo hoy: el corpus es fijo y pequeño | 🟡 |
 | Telemetría anónima **activada por defecto** | Respetan `DO_NOT_TRACK` y `HEADROOM_BEACON=off`, pero el defecto es enviar | El ejemplo concreto de nuestro anti-objetivo `⛔ Telemetría`: un defecto no se compensa con un opt-out. Quien no lee el README, envía | ⛔ |
 | *Verbosity steering* (inyectar «sé breve» al final del *system prompt*) | Recorta tokens de salida moldeando cómo escribe el modelo | Aquí las dos fuentes de esta tanda **se contradicen de frente**: context-mode (§19) se niega explícitamente a moldear la prosa y cita evidencia de que los prompts de brevedad agresiva degradan *benchmarks* de código; headroom lo vende como *feature*. Para nosotros la pregunta está resuelta —no moldeamos salida—, pero la evidencia sirve de freno: **no metas «sé conciso» en las guías** | ⛔ |
@@ -1157,11 +1157,17 @@ La tanda se cerró en la rama `feat/context-mode-headroom`. Lo que entró:
    era sintácticamente perfecto. 42 aserciones en 9 escenarios, validadas reintroduciendo
    el bug. → revisión del 2026-09-13
 
-Queda **uno**, y es de diseño, no de ejecución:
+7. ✅ **Gate de configuración compartida** (§20) — el punto que quedaba de diseño, cerrado
+   con una sorpresa: **sí había superficie**. El supuesto de que «hoy no escribimos nada
+   fuera» era falso. De tres sitios que tocan el `.gitignore` del repo consumidor, dos
+   estaban bien (`grafo-conocimiento` dice «recomienda», `implement` solo diagnostica) pero
+   `espacio-de-trabajo-aislado` ordenaba «añádelo al `.gitignore` y **commitea ese cambio**
+   antes de continuar»: escritura en fichero compartido más commit, las dos saltándose el
+   gate que el propio plugin exige. Reescrito para proponer y esperar aprobación, y la
+   regla declarada en `/implement`. Tres aserciones nuevas en `check-behavior` (252 → 255),
+   incluida una anti-regresión que barre las guías buscando esa orden. → §20
 
-- 🔜 **Disciplina de destino para lo que el agente escribe fuera de `tasks/<id>/`** (§20):
-  destino por defecto local y *gitignored*, flag explícito para tocar el fichero del equipo.
-  Hoy no escribimos nada fuera, así que no urge; merece decidirse antes de que algo lo haga.
+**§19 y §20 consumidos.** No queda nada abierto de estas dos secciones.
 
 Y sigue abierto de antes, sin cambios: **calibrar los casos de presión de `evals/`**, que
 ahora cuesta el doble con `--baseline` y por eso conviene hacerlo en una sola pasada.
@@ -1292,6 +1298,7 @@ añade subsecciones nuevas: el registro de qué se sabía y cuándo es parte del
 | `## Bloqueo` en `progress.md` + parada en el hook de `SessionStart` | context-mode, *Session Guide* (§19) | rama `feat/context-mode-headroom` |
 | Sección «Cuándo NO usar este flujo» en el README | headroom (§20) | rama `feat/context-mode-headroom` |
 | `check-hooks.mjs`: el hook de `SessionStart` ejecutado en 9 escenarios | revisión de la tanda (2026-09-13) | rama `feat/context-mode-headroom` |
+| Gate de configuración compartida en `/implement` (.gitignore, CLAUDE.md, settings, CI) | headroom `learn --target` (§20) | rama `feat/context-mode-headroom` |
 | Plantilla de issue `guia-fallo.yml` para los repos consumidores | agent-skills `skill-gap.yml` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Regla por ruta `.claude/rules/editar-solo-core.md`: salta al tocar `adapters/**`, que es salida generada | agent-skills `.claude/rules/` (§18.C), mecanismo verificado en la doc oficial | rama `feat/agent-skills-seguridad-datos-no-fiables` |
 | Anti-patrón C («ningún comando que orqueste a los demás») escrito en los anti-objetivos de la filosofía | agent-skills `orchestration-patterns` (§18.C) | rama `feat/agent-skills-seguridad-datos-no-fiables` |

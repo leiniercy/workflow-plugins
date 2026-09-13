@@ -51,8 +51,11 @@ que el harness no ve ni sabe limpiar, y acabas con directorios huérfanos.
 git check-ignore -q .worktrees || echo "NO IGNORADO"
 ```
 
-Si no está ignorado, **añádelo al `.gitignore` y commitea ese cambio antes de continuar**. Un
-directorio de worktrees sin ignorar mete el árbol entero del segundo checkout dentro del repo.
+Si no está ignorado, **no lo añadas tú por tu cuenta**: `.gitignore` es configuración
+compartida, y cambiarla altera lo que ve todo el equipo. Propón la línea, di que sin ella el
+worktree mete el árbol entero del segundo checkout dentro del repo, y espera aprobación
+antes de escribirla y commitearla. Es el gate de configuración compartida de `/implement`,
+no una excepción por ser una sola línea.
 
 ```bash
 git worktree add "<ruta>/<rama>" -b "<rama>" develop

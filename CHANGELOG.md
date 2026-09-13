@@ -34,6 +34,16 @@ y de headroom, de su **estadística** y no de su compresor.
   `progress.md`: `spec.md` no se recorta, porque de ahí se cuentan criterios y recortar antes
   de contar daría un número menor que el real. Es salvaguarda del
   contrato «jamás rompe la sesión», no ahorro de tokens.
+- **Gate de configuración compartida en `/implement`** — `.gitignore`, `CLAUDE.md`/`AGENTS.md`,
+  `.claude/settings.json`, `.mcp.json`, CI, linter y los scripts de `package.json` no son
+  código de la tarea: son las reglas bajo las que trabaja el equipo, y cambiarlas dentro de un
+  commit de funcionalidad las esconde justo donde nadie las revisa. Ahora se proponen aparte,
+  diciendo qué comportamiento cambia para los demás, y se espera aprobación.
+
+  Se creía preventivo y no lo era: `espacio-de-trabajo-aislado` ordenaba «añádelo al
+  `.gitignore` y **commitea ese cambio** antes de continuar» — escritura en fichero compartido
+  más commit, las dos sin gate. Reescrito. Tres aserciones nuevas (252 → 255), una de ellas
+  anti-regresión que barre todas las guías buscando esa orden.
 - **`scripts/check-hooks.mjs`** — el hook de `SessionStart` dejó de ser decorativo: decide
   qué comando se sugiere al arrancar, y un fallo suyo no casca, **miente**. Ahora se ejecuta
   contra repos git desechables en 9 escenarios (42 aserciones): la cuenta de criterios con
