@@ -52,21 +52,37 @@ function revisarComando(raw) {
   const flags = (c.match(/\s-([a-zA-Z]+)/g) || []).join("");
 
   // --- git: reescritura y descarte de trabajo -------------------------------
-  if (/\bgit\s+push\b/.test(c) && /(^|\s)(--force(?!-with-lease)|-f)(\s|$)/.test(c)) {
-    if (RAMA_PRINCIPAL.test(c)) {
+  // Push forzado. `--force`/`-f` reescribe el remoto a ciegas; `--force-with-lease`
+  // (y `--force-if-includes`) es la variante segura, que aborta si el remoto se movió
+  // desde tu último fetch. Se tratan distinto: la bruta más dura, y la segura tampoco
+  // pasa gratis sobre una rama principal, porque aun así reescribe historia compartida.
+  if (/\bgit\s+push\b/.test(c)) {
+    const forzadoBruto = /(^|\s)(--force|-f)(\s|$)/.test(c);
+    const forzadoConSeguro = /--force-with-lease\b|--force-if-includes\b/.test(c);
+    if (forzadoBruto) {
+      if (RAMA_PRINCIPAL.test(c)) {
+        return [
+          "deny",
+          "Push forzado sobre una rama principal (main/master/develop): reescribe " +
+            "historia compartida y rompe el trabajo de quien la tenga descargada. Si de " +
+            "verdad hace falta, que lo ejecute el usuario desde su terminal.",
+        ];
+      }
       return [
-        "deny",
-        "Push forzado sobre una rama principal (main/master/develop): reescribe " +
-          "historia compartida y rompe el trabajo de quien la tenga descargada. Si de " +
-          "verdad hace falta, que lo ejecute el usuario desde su terminal.",
+        "ask",
+        "Push forzado: sobrescribe la rama remota y descarta commits que no tengas en " +
+          "local. Confirma con el usuario, o usa `--force-with-lease`, que aborta si el " +
+          "remoto se movió.",
       ];
     }
-    return [
-      "ask",
-      "Push forzado: sobrescribe la rama remota y descarta commits que no tengas en " +
-        "local. Confirma con el usuario, o usa `--force-with-lease`, que aborta si el " +
-        "remoto se movió.",
-    ];
+    if (forzadoConSeguro && RAMA_PRINCIPAL.test(c)) {
+      return [
+        "ask",
+        "`--force-with-lease` es más seguro que `--force` (aborta si el remoto se movió), " +
+          "pero sobre una rama principal (main/master/develop) sigue reescribiendo " +
+          "historia compartida. Confirma con el usuario que el equipo lo espera.",
+      ];
+    }
   }
   if (/\bgit\s+reset\b/.test(c) && /--hard\b/.test(c)) {
     return [

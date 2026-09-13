@@ -1,0 +1,48 @@
+name: Análisis estático (CodeQL)
+
+# Los hooks son el único código nuestro que se ejecuta solo, en cada sesión y en todos
+# los repos del usuario: parsean stdin, hacen regex sobre comandos de shell y tocan el
+# filesystem. CodeQL no está aquí tanto por bugs de hoy como por regresiones — el día que
+# alguien meta un `child_process.exec` con entrada sin sanear en un hook, esto lo marca en
+# la pestaña Security antes de que llegue a la máquina de nadie.
+#
+# JS/TS es interpretado: no hay paso de build, CodeQL analiza el fuente directamente.
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "adapters/claude/hooks/**"
+      - "scripts/**"
+      - ".github/workflows/codeql.yml"
+  pull_request:
+    paths:
+      - "adapters/claude/hooks/**"
+      - "scripts/**"
+      - ".github/workflows/codeql.yml"
+  schedule:
+    # Un pase semanal aunque nadie toque el código: CodeQL amplía sus reglas con el
+    # tiempo, y un fallo latente puede volverse detectable sin que cambie una línea.
+    - cron: "23 5 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write # publicar hallazgos en la pestaña Security
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Inicializar CodeQL
+        uses: github/codeql-action/init@977e6ceaea7361825998245d787fa3b4d6b9e5df # codeql-bundle-v2.27.0
+        with:
+          languages: javascript-typescript
+
+      - name: Analizar
+        uses: github/codeql-action/analyze@977e6ceaea7361825998245d787fa3b4d6b9e5df # codeql-bundle-v2.27.0

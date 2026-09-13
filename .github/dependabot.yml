@@ -1,0 +1,21 @@
+# Dependabot — mantiene al día las GitHub Actions.
+#
+# El código del plugin no trae dependencias npm (los MCP se resuelven vía `npx` en
+# tiempo de ejecución, con versión fijada en scripts/sync.mjs; no hay package.json que
+# vigilar). Lo que SÍ vive versionado y se puede quedar viejo son las actions de CI,
+# que además pinamos por SHA: dependabot es quien sube el SHA y el comentario de versión
+# cuando sale una nueva, para que fijar por SHA no signifique quedarse congelado.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    groups:
+      # Un solo PR por tanda en vez de uno por action: menos ruido, misma cobertura.
+      github-actions:
+        patterns:
+          - "*"

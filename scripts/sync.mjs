@@ -133,11 +133,17 @@ const AGENTS = {
 // cada adaptador a partir de aquí para evitar drift entre herramientas.
 // Las credenciales se leen de variables de entorno: el usuario las exporta una
 // vez (CLICKUP_API_KEY, CLICKUP_TEAM_ID) y NO se versiona ningún secreto.
+//
+// Versión FIJADA a propósito, no `@latest`: `npx -y ...@latest` descarga y ejecuta
+// lo último que haya en npm en el momento de arrancar, en la máquina del usuario y
+// con su token de ClickUp delante. Si ese paquete se compromete, se ejecuta sin que
+// nadie lo haya revisado. Fijar la versión hace que subirla sea una decisión visible
+// (un commit), no un efecto silencioso de instalar el plugin.
 // ---------------------------------------------------------------------------
 const MCP_SERVERS = {
   clickup: {
     command: "npx",
-    args: ["-y", "@taazkareem/clickup-mcp-server@latest"],
+    args: ["-y", "@taazkareem/clickup-mcp-server@0.14.5"],
     env: {
       CLICKUP_API_KEY: "${CLICKUP_API_KEY}",
       CLICKUP_TEAM_ID: "${CLICKUP_TEAM_ID}",
