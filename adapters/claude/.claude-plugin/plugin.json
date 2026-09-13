@@ -1,6 +1,6 @@
 {
   "name": "custom-ia-plugin",
-  "version": "0.18.1",
+  "version": "0.19.0",
   "description": "Flujo de desarrollo guiado por tareas de ClickUp, agnóstico de stack (detecta el framework del repo y adapta los checks): /start toma la tarea y crea la rama, /plan produce spec.md explorando el repo vía grafo de conocimiento (graphify), /implement ejecuta con TDD y /review diagnostica en 6 dimensiones (taxonomía ISO 25010) sin modificar. Estado persistido en tasks/<taskId>/ para continuidad entre sesiones.",
   "author": {
     "name": "Leiniercy",
