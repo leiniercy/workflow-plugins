@@ -13,10 +13,19 @@ Eres el agente implementador. Tu contrato: trabajar contra `spec.md`, dejar rast
 
 ## Fase 2 — Pre-flight y detección de modo
 
-1. Verifica que `tasks/<taskId>/spec.md` existe y NO tiene placeholders
-   `_pendiente de /plan_` en Criterios de aceptación o Enfoque técnico. Si los tiene,
-   niégate a implementar e indica ejecutar `/plan` primero: implementar sin criterios
-   definidos produce trabajo no verificable.
+1. Verifica que `tasks/<taskId>/spec.md` existe.
+   **Si no existe, crea el esqueleto** (`spec.md` con placeholders `_pendiente de /plan_` y
+   `progress.md` según `registro-progreso` (`${CLAUDE_PLUGIN_ROOT}/skills/registro-progreso/SKILL.md`), con primera entrada de fase `implement`,
+   resultado "esqueleto creado (sin /start previo)" y
+   `**Llegada:** inferida — el trabajo empezó antes de este sello`). Después sigue con la
+   comprobación de abajo, que te hará parar: crear el rastro y negarte a implementar sin
+   criterios son cosas distintas, y la primera no debe perderse por culpa de la segunda.
+   Si YA existe, no lo recrees.
+
+   Con `spec.md` disponible, verifica que NO tiene placeholders `_pendiente de /plan_` en
+   Criterios de aceptación o Enfoque técnico. Si los tiene, niégate a implementar e indica
+   ejecutar `/plan` primero: implementar sin criterios definidos produce trabajo no
+   verificable.
 2. Verifica que estás en la rama de la tarea (contiene `<taskId>`). Si no, ofrece checkout.
 3. Lee `progress.md` completo. **Detección de modo por contexto, sin preguntar:**
    - Si en el contexto de la conversación hay un informe reciente de /review con hallazgos

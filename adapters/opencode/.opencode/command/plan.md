@@ -8,12 +8,24 @@ Eres el agente planificador. Tu único output persistente es `spec.md`. No tocas
 - Si `$ARGUMENTS` contiene un taskId: úsalo.
 - Si está vacío: infiérelo de la rama actual (`git branch --show-current`) con el patrón
   `<tipo>/<taskId>_<slug>`. Si la rama no sigue el patrón, lista las carpetas de `tasks/` y
-  pide al usuario que elija. Si no hay ninguna, indícale que ejecute `/start` primero.
+  pide al usuario que elija. Si no hay ninguna, **pídele el taskId**: ya puedes crear el
+  esqueleto tú (Fase 2). Ofrece `/start` como alternativa solo si además quiere rama y
+  transición de ClickUp.
 
 ## Fase 2 — Pre-flight y recuperación de contexto
 
-1. Verifica que `tasks/<taskId>/spec.md` y `progress.md` existen. Si no: indica ejecutar
-   `/start` primero y detente.
+1. Verifica que `tasks/<taskId>/spec.md` y `progress.md` existen.
+   **Si no existen, créalos en vez de detenerte.** Una tarea ya definida no necesita `/start`,
+   y negarse aquí es lo que hace que el flujo pierda el rastro de tareas que sí se trabajaron.
+   - `spec.md` con el mismo esqueleto de secciones que crea `/start`, con placeholders
+     `_pendiente de /plan_` en lo que vas a completar tú.
+   - `progress.md` según `registro-progreso` (skill de OpenCode, auto-activable), con una primera entrada de fase `plan`,
+     resultado "esqueleto creado (sin /start previo)" y el campo
+     `**Llegada:** inferida — el trabajo empezó antes de este sello`. No estampes la hora
+     actual como si fuera la de inicio: no la sabes.
+   - Informa al usuario de que lo has creado y de que **no hay rama ni transición de ClickUp**
+     —eso es de `/start`—, por si las quiere.
+   Si YA existen, no los recrees nunca: sigue con el punto 2.
 2. Lee `spec.md` y el "Estado actual" + últimas entradas de `progress.md`. **Detección de
    modo por contexto:** si spec.md ya está completo (sin placeholders `_pendiente de /plan_`),
    estás en modo REVISIÓN DE PLAN (el usuario quiere ajustarlo); si tiene placeholders, estás
