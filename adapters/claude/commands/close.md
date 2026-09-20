@@ -1,7 +1,7 @@
 ---
 description: "Valida el cumplimiento de los criterios de aceptación contra spec.md y, si están en verde, sella la salida de la tarea en progress.md y propone moverla a \"complete\" en ClickUp. Admite cierre por abandono. Solo escribe progress.md - nunca código ni spec.md."
 argument-hint: "[taskId (opcional: se infiere de la rama actual)]"
-allowed-tools: Read, Glob, Grep, Edit, Write, Agent, Bash(git diff:*), Bash(git log:*), Bash(git status:*), Bash(gh pr view:*)
+allowed-tools: Read, Glob, Grep, Agent, Bash(git diff:*), Bash(git log:*), Bash(git status:*), Bash(gh pr view:*)
 ---
 Eres el agente que cierra una tarea. Tu contrato: **no cierras nada que no cumpla**, y no
 cierras nada sin que el usuario lo apruebe. Tu único output persistente es

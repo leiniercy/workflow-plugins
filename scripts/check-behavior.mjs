@@ -55,17 +55,20 @@ for (const cmd of ["start", "plan", "implement", "review", "close"]) {
   assert(body !== null && /Banderas rojas/i.test(body), `/${cmd} tiene tabla de Banderas rojas`);
 }
 
-// --- /close: escribe (sella la salida) y despacha el revisor de spec ---
-// Solo se asevera el frontmatter, que es contrato legible por máquina. Que el comando respete
-// su ámbito de escritura o contemple el abandono es comportamiento redactado en prosa:
-// aseverarlo con un grep sobre el propio texto solo demostraría que la fuente es la fuente
-// (anti-patrón «test contra el texto fuente» de la guía niveles-y-tipos-de-prueba). Eso lo
-// cubre el eval manual de docs/eval-comportamiento.md.
+// --- /close: la escritura NO se pre-aprueba ---
+// `allowed-tools` es PRE-APROBACIÓN de permisos, no un sandbox: lo que se lista corre sin
+// prompt. Por eso /close pre-aprueba lectura y el despacho del subagente del gate, pero NO
+// Write/Edit — sella `progress.md` pasando por el permiso normal, igual que /start, /plan e
+// /implement, que ni siquiera declaran el campo. Listar Write aquí convertiría al comando que
+// cierra en el ÚNICO del paquete que escribe sin gate, más suelto que /implement, que toca
+// código de producción. El ámbito «solo progress.md» lo sostienen la prosa y las banderas
+// rojas; aseverarlo con un grep sobre el propio texto solo demostraría que la fuente es la
+// fuente (anti-patrón «test contra el texto fuente»). Eso lo cubre el eval manual.
 const closeTools = field(frontmatter(read(join(CLAUDE, "commands/close.md"))), "allowed-tools") || "";
 assert(/\bAgent\b/.test(closeTools),
   "/close allowed-tools incluye Agent (despacha revisor-spec-tests para el gate)");
-assert(/\bWrite\b/.test(closeTools) || /\bEdit\b/.test(closeTools),
-  "/close allowed-tools permite escribir (sella la salida en progress.md)");
+assert(!/\bWrite\b/.test(closeTools) && !/\bEdit\b/.test(closeTools),
+  "/close allowed-tools NO pre-aprueba Write/Edit (el sello pasa por el permiso normal)");
 
 // --- gate de configuración compartida (§19/§20) ---
 // `.gitignore`, CLAUDE.md, settings.json, CI… no son código de la tarea: son las reglas bajo

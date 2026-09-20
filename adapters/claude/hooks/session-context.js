@@ -141,7 +141,10 @@ try {
   const specPath = join(taskDir, "spec.md");
 
   if (!existsSync(progressPath) && !existsSync(specPath)) {
-    // Rama de tarea sin esqueleto: lo habitual es no haber corrido /start.
+    // Rama de tarea sin esqueleto. NO se manda a /start: cualquiera de los tres lo crea, y
+    // exigir /start aquí es lo que hacía que las tareas ya definidas entraran por /implement
+    // y no dejaran rastro. /start solo aporta de más la rama y la transición de ClickUp, y
+    // en esta rama la primera ya existe.
     emit(
       "## custom-ia-plugin\n\n" +
         "Estás en la rama de tarea `" +
@@ -150,9 +153,13 @@ try {
         taskId +
         "`) pero no existe `tasks/" +
         taskId +
-        "/`. Sugerido: `/start " +
+        "/`. Lo crea el comando con el que sigas: `/plan " +
         taskId +
-        "` para crear el esqueleto (spec.md + progress.md) antes de continuar."
+        "` para especificar, o `/implement " +
+        taskId +
+        "` si ya hay criterios en otro sitio. Usa `/start " +
+        taskId +
+        "` solo si además quieres que mueva la tarea en ClickUp."
     );
   }
 
@@ -160,10 +167,14 @@ try {
   let nextStep = null;
 
   let bloqueo = null;
+  let cerrada = false;
   if (existsSync(progressPath)) {
     const progress = readFileSync(progressPath, "utf8");
     const estado = acotar(section(progress, /^estado actual$/i), "progress.md");
     if (estado) parts.push("**Estado actual:** " + estado);
+    // Tarea ya cerrada. Sin esto, el próximo paso seguiría proponiendo /review y /close
+    // sobre algo que ya salió del flujo, en cada arranque de sesión sobre esta rama.
+    cerrada = /^###\s+.*—\s*complete\b/im.test(progress);
     // Un bloqueo es lo primero que hay que saber: sin él, una sesión limpia arranca
     // sugiriendo el próximo comando y empuja contra una pared ya conocida.
     bloqueo = acotar(section(progress, /^bloqueo$/i), "progress.md") || null;
@@ -217,6 +228,14 @@ try {
     }
   } else {
     nextStep = "No existe `spec.md`. Sugerido: `/plan` para crear la especificación.";
+  }
+
+  // Una tarea cerrada manda sobre cualquier sugerencia derivada de spec.md: sus criterios
+  // siguen marcados para siempre, así que sin esto la rama propondría cerrarla una y otra vez.
+  if (cerrada) {
+    nextStep =
+      "Esta tarea está **cerrada** (entrada `complete` en progress.md). Si aparece trabajo " +
+      "nuevo, reábrela en ClickUp antes de seguir.";
   }
 
   // Si no hay ni estado, ni criterios, ni un próximo paso útil: no inyectamos.

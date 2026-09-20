@@ -70,16 +70,16 @@ const COMMANDS = {
     description:
       'Valida el cumplimiento de los criterios de aceptación contra spec.md y, si están en verde, sella la salida de la tarea en progress.md y propone moverla a "complete" en ClickUp. Admite cierre por abandono. Solo escribe progress.md - nunca código ni spec.md.',
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
-    // Pre-autoriza lo justo: lectura, `Agent` para despachar `revisor-spec-tests` (el gate de
-    // cumplimiento) y escritura para sellar la salida. La escritura NO se puede acotar a un
-    // fichero desde aquí —`allowed-tools` pre-aprueba permisos, no es un sandbox—, así que el
-    // ámbito «solo progress.md» lo sostienen la prosa del comando y sus banderas rojas.
+    // Pre-autoriza lectura y el despacho del subagente del gate. **Write/Edit quedan FUERA a
+    // propósito.** `allowed-tools` no es un sandbox: es pre-aprobación, y lo que se lista corre
+    // sin prompt. Listar Write aquí haría del comando que CIERRA el único del paquete que
+    // escribe sin gate —más suelto que /implement, que toca código de producción y ni siquiera
+    // declara el campo—. El sello de `progress.md` pasa por el permiso normal; el ámbito «solo
+    // ese fichero» lo sostienen la prosa del comando y sus banderas rojas.
     allowedTools: [
       "Read",
       "Glob",
       "Grep",
-      "Edit",
-      "Write",
       "Agent",
       "Bash(git diff:*)",
       "Bash(git log:*)",
