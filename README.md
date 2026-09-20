@@ -9,7 +9,7 @@ revisión independiente y continuidad entre sesiones vía `progress.md`.
 ```
 custom-ia-plugin/
 ├── core/                      ← ÚNICA fuente de verdad (editar SOLO aquí)
-│   ├── workflows/             start.md · plan.md · implement.md · review.md
+│   ├── workflows/             start.md · plan.md · implement.md · review.md · close.md
 │   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
 │   │   └── in-progress/      borradores versionados que NO se publican (ver su README)
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo · refutador-decision
@@ -55,8 +55,10 @@ frontmatter propio de cada una. Los ficheros generados se sobrescriben: no los e
 | `/plan [taskId]` | Explora el repo (grafo de graphify si está disponible) y completa `spec.md` con criterios de aceptación, alcance y enfoque | ninguna |
 | `/implement [taskId]` | TDD criterio a criterio contra spec.md; duda en vuelo sobre las decisiones no triviales; commits/push/PR solo con aprobación | `in progress → review` al crear la PR (con aprobación) |
 | `/review [taskId]` | Diagnóstico en 6 dimensiones frente a spec.md (taxonomía ISO 25010; usabilidad/accesibilidad solo si el diff toca UI); **solo informa** | ninguna |
+| `/close [taskId]` | Valida los criterios contra spec.md; si están en verde, sella la salida en `progress.md` y propone el cierre. Admite cierre por abandono | `review → complete` (con aprobación) |
 
-El paso a `complete` es siempre humano. Principios transversales: **nada se afirma sin
+El paso a `complete` lo propone `/close` y lo aprueba siempre una persona. Principios
+transversales: **nada se afirma sin
 comprobarlo** —todo dato escrito es hecho verificado, asunción declarada o dato del usuario, y
 un hueco que cambiaría el trabajo se pregunta en vez de suponerse (guía
 `evidencia-y-preguntas`)—, gates de aprobación para todo lo visible (commits, push, PR,

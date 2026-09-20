@@ -5,6 +5,61 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.20.0] - 2026-09-20
+
+### Añadido
+
+- **Comando `/close`** — cierra la tarea validando primero. Despacha el subagente
+  `revisor-spec-tests` que ya existía y emite un veredicto por cada criterio de aceptación;
+  si alguno está **no cumplido**, no cierra, y ese gate no lo salta ninguna aprobación. Los
+  criterios **no verificables desde el diff** no bloquean pero se listan aparte y exigen que
+  el usuario los reconozca: bloquear por ellos generaría falsos rojos y la gente acabaría
+  cerrando a mano. Después sella la salida en `progress.md` y **propone** la transición a
+  `complete`, que sigue necesitando aprobación explícita.
+
+  No se añadió un `/verify` aparte, aunque se valoró: la validación de cumplimiento ya existe
+  como dimensión 1 de `/review`, y dos comandos que responden la misma pregunta acaban
+  respondiéndola distinto. El cumplimiento es la **puerta** de `/close`, no un comando vecino.
+
+- **Cierre por abandono** — `/close` admite `**Salida:** abandonada — <motivo>`. Una tarea
+  descartada que no se sella cuenta como trabajo en curso indefinidamente y falsea cualquier
+  medida posterior del flujo. Para el estado de destino en ClickUp manda la Regla de oro de
+  `estados-tareas`: no se inventa el mapeo, se pregunta.
+
+### Cambiado
+
+- **`/plan` e `/implement` crean el esqueleto `tasks/<taskId>/` si no existe.** Antes solo lo
+  creaba `/start`, y `/start` se omite cuando la tarea ya viene definida —lo que sobra
+  entonces es la rama y la transición, no el rastro—. Medido sobre 37 tareas de un repo
+  consumidor: 14 sin `progress.md` y solo **2** con par `start`+`review`. Sin llegada
+  registrada no hay nada que medir, por mucha marca de salida que se añada.
+
+  Cuando el esqueleto lo crean ellos, la llegada se marca **inferida** en vez de estamparse
+  con la hora actual: nadie sabe cuándo empezó el trabajo de verdad, y escribirlo como si
+  constara sería inventar un dato. Vale como cota inferior y se puede filtrar después.
+
+- **`review → complete` deja de ser manual y pasa a ser responsabilidad exclusiva de
+  `/close`.** Completa la serie: cada transición tiene un único comando dueño y todas pasan
+  por aprobación explícita, igual que ya hacían `/start` e `/implement`. Lo que no cambia es
+  que ningún comando cierra nada sin que el usuario diga que sí.
+
+- **`registro-progreso`** admite la fase `complete` y define los campos `**Salida:**` y
+  `**Llegada:** inferida`. La creación inicial deja de ser «solo `/start`».
+
+- **El hook de `SessionStart`** sugiere `/close` tras la revisión. Nombra los dos pasos de la
+  secuencia porque deriva su sugerencia del estado de `spec.md` y no puede saber si `/review`
+  ya corrió.
+
+### Notas
+
+`/review` no se toca: su contrato de solo-lectura sigue intacto, y se resolvió por diseño
+sellando **transiciones de estado** en lugar de invocaciones de comando — los estados del
+flujo son los de ClickUp, no los comandos, y `/plan` y `/review` son actividad *dentro* de un
+estado, no transiciones.
+
+El plugin genera los datos; no los grafica. Percentiles, diagramas de dispersión y CFD quedan
+fuera a propósito: con la muestra actual serían teatro.
+
 ## [0.19.0] - 2026-09-13
 
 ### Seguridad
