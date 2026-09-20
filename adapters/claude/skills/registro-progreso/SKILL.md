@@ -50,7 +50,9 @@ La sección entera se borra cuando se resuelve.>
    dentro de un mes se sepa por qué se perdieron tres días). Lo primero es un aviso; lo
    segundo, la trazabilidad.
 5. **Fecha real del sistema** en formato `YYYY-MM-DD HH:MM`. No inventes timestamps.
-6. **`<fase>` ∈ {`start`, `plan`, `implement`, `review`}.** No uses otros valores.
+6. **`<fase>` ∈ {`start`, `plan`, `implement`, `review`, `complete`}.** No uses otros valores.
+   `complete` la escribe únicamente `/close`, y es la última entrada de la tarea: marca su
+   salida del flujo.
 7. **Inputs de una entrada:** `taskId` y ruta (`tasks/<taskId>/progress.md`), `fase`,
    `resultado` (frase concreta y verificable), `notas` (opcional pero recomendado) y la nueva
    línea de Estado actual.
@@ -60,9 +62,21 @@ La sección entera se borra cuando se resuelve.>
    no es el texto viejo, es la razón por la que se tomó, y sin esa razón el siguiente vuelve a
    proponer lo mismo dentro de tres meses. La historia de por qué se descartó algo vale tanto
    como la decisión vigente.
-9. **Creación inicial (solo /start):** si el fichero no existe, créalo completo con Estado
-   actual "Rama creada, pendiente de planificación" y la primera entrada de fase `start`. Si
-   YA existe, jamás lo recrees: añade entradas según el proceso.
+9. **Creación inicial:** si el fichero no existe, créalo completo con su Estado actual y una
+   primera entrada. Lo hace el comando que llegue primero —`/start` normalmente, pero también
+   `/plan` o `/implement` cuando se entra al flujo con la tarea ya definida— y cada uno pone
+   su propia fase. Si YA existe, jamás lo recrees: añade entradas según el proceso.
+
+10. **La entrada `complete` lleva `**Salida:**`.** Dos valores posibles: `completada`, o
+    `abandonada — <motivo en una línea>`. El motivo no es adorno: una tarea que se abandona
+    sin registrar su salida queda como trabajo en curso eterno y falsea cualquier medida
+    posterior del flujo. Se etiqueta para poder filtrarla, no se borra.
+
+11. **Una llegada que no consta se marca, no se inventa.** Si el esqueleto lo crea `/plan` o
+    `/implement` porque no hubo `/start`, nadie sabe cuándo empezó el trabajo de verdad.
+    Escribir la hora actual como si fuera la de inicio es inventar un dato. La entrada lo
+    declara con un campo `**Llegada:** inferida — <explicación>`, que vale como cota inferior
+    y se puede descartar después.
 
 ## Anti-patrones (nómbralos para no caer en ellos)
 
@@ -83,6 +97,12 @@ La sección entera se borra cuando se resuelve.>
 - **Recrear un fichero existente** — destruye el historial acumulado.
 - **Reescribir una decisión que cambió** — deja la vieja y añade la nueva diciendo a cuál
   sustituye. Borrarla borra el porqué, y el porqué es lo que evita repetir el error.
+- **Tarea abandonada sin cerrar** — dejarla sin entrada `complete` porque "ya no se hace". Sin
+  sello de salida sigue contando como trabajo en curso para siempre.
+- **Llegada inventada** — estampar la hora de creación del esqueleto como si fuera la de inicio
+  cuando no hubo `/start`. Es un dato no comprobado escrito como si constara: márcalo inferido.
+- **Entrada `complete` sin motivo de salida** — "cerrada" a secas no distingue una tarea
+  terminada de una descartada, y son cosas distintas al mirar atrás.
 
 ## Autocrítica antes de cerrar
 
