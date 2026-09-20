@@ -48,12 +48,24 @@ assert(/\bAgent\b/.test(allowed), "/review allowed-tools incluye Agent (despacho
 assert(!/\bEdit\b/.test(allowed) && !/\bWrite\b/.test(allowed),
   "/review allowed-tools NO incluye Edit/Write (contrato read-only)");
 
-// --- los 4 comandos existen y llevan Banderas rojas ---
-for (const cmd of ["start", "plan", "implement", "review"]) {
+// --- los 5 comandos existen y llevan Banderas rojas ---
+for (const cmd of ["start", "plan", "implement", "review", "close"]) {
   const body = read(join(CLAUDE, "commands", cmd + ".md"));
   assert(body !== null, `comando /${cmd} existe`);
   assert(body !== null && /Banderas rojas/i.test(body), `/${cmd} tiene tabla de Banderas rojas`);
 }
+
+// --- /close: escribe (sella la salida) y despacha el revisor de spec ---
+// Solo se asevera el frontmatter, que es contrato legible por máquina. Que el comando respete
+// su ámbito de escritura o contemple el abandono es comportamiento redactado en prosa:
+// aseverarlo con un grep sobre el propio texto solo demostraría que la fuente es la fuente
+// (anti-patrón «test contra el texto fuente» de la guía niveles-y-tipos-de-prueba). Eso lo
+// cubre el eval manual de docs/eval-comportamiento.md.
+const closeTools = field(frontmatter(read(join(CLAUDE, "commands/close.md"))), "allowed-tools") || "";
+assert(/\bAgent\b/.test(closeTools),
+  "/close allowed-tools incluye Agent (despacha revisor-spec-tests para el gate)");
+assert(/\bWrite\b/.test(closeTools) || /\bEdit\b/.test(closeTools),
+  "/close allowed-tools permite escribir (sella la salida en progress.md)");
 
 // --- gate de configuración compartida (§19/§20) ---
 // `.gitignore`, CLAUDE.md, settings.json, CI… no son código de la tarea: son las reglas bajo

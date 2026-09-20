@@ -66,6 +66,27 @@ const COMMANDS = {
       "Bash(graphify --version:*)",
     ],
   },
+  close: {
+    description:
+      'Valida el cumplimiento de los criterios de aceptación contra spec.md y, si están en verde, sella la salida de la tarea en progress.md y propone moverla a "complete" en ClickUp. Admite cierre por abandono. Solo escribe progress.md - nunca código ni spec.md.',
+    argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+    // Pre-autoriza lo justo: lectura, `Agent` para despachar `revisor-spec-tests` (el gate de
+    // cumplimiento) y escritura para sellar la salida. La escritura NO se puede acotar a un
+    // fichero desde aquí —`allowed-tools` pre-aprueba permisos, no es un sandbox—, así que el
+    // ámbito «solo progress.md» lo sostienen la prosa del comando y sus banderas rojas.
+    allowedTools: [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit",
+      "Write",
+      "Agent",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(gh pr view:*)",
+    ],
+  },
 };
 
 // ---------------------------------------------------------------------------
