@@ -208,9 +208,12 @@ try {
       nextStep =
         "Sugerido: `/implement` para continuar criterio a criterio con TDD.";
     } else if (items.length) {
+      // Se nombran los dos pasos a propósito: la sugerencia se deriva del estado de spec.md,
+      // y desde ahí no hay forma de saber si /review ya corrió. Mejor nombrar la secuencia
+      // que adivinar en qué punto de ella está el usuario.
       nextStep =
         "Todos los criterios están marcados. Sugerido: `/review` para un diagnóstico " +
-        "independiente antes de pedir revisión humana.";
+        "independiente y, si sale limpio, `/close` para validar y cerrar.";
     }
   } else {
     nextStep = "No existe `spec.md`. Sugerido: `/plan` para crear la especificación.";
