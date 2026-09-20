@@ -42,29 +42,29 @@ cierra tareas. Sin marca de salida no hay cycle time, aunque la llegada esté re
 
 ## Criterios de aceptación
 
-- [ ] **A1** — `/plan` crea `tasks/<taskId>/` si no existe, sin recrear nada si ya existe.
-- [ ] **A2** — `/implement` hace lo mismo que A1.
-- [ ] **A3** — Cuando `/plan` o `/implement` crean el esqueleto sin `/start` previo, la primera
+- [x] **A1** — `/plan` crea `tasks/<taskId>/` si no existe, sin recrear nada si ya existe.
+- [x] **A2** — `/implement` hace lo mismo que A1.
+- [x] **A3** — Cuando `/plan` o `/implement` crean el esqueleto sin `/start` previo, la primera
       entrada marca la llegada como **inferida**, sin inventar la hora de inicio real.
-- [ ] **A4** — `registro-progreso.md` admite la fase `complete` y define los campos
+- [x] **A4** — `registro-progreso.md` admite la fase `complete` y define los campos
       `**Salida:**` (motivo) y la marca de llegada inferida.
-- [ ] **A5** — Existe `/close` y su tabla de «Banderas rojas» (exigida por `check-behavior`).
-- [ ] **A6** — `/close` rechaza cerrar si algún criterio está **no cumplido**, sin que ninguna
+- [x] **A5** — Existe `/close` y su tabla de «Banderas rojas» (exigida por `check-behavior`).
+- [x] **A6** — `/close` rechaza cerrar si algún criterio está **no cumplido**, sin que ninguna
       aprobación humana pueda saltarse ese gate. Un criterio **no verificable desde el diff**
       no bloquea: se lista aparte y exige que el usuario lo reconozca explícitamente antes de
       seguir.
-- [ ] **A7** — `/close` escribe la entrada de fase `complete` con la fecha real del sistema y
+- [x] **A7** — `/close` escribe la entrada de fase `complete` con la fecha real del sistema y
       el motivo de salida.
-- [ ] **A8** — `/close` propone la transición `review → complete` y la ejecuta **solo** tras
+- [x] **A8** — `/close` propone la transición `review → complete` y la ejecuta **solo** tras
       aprobación explícita; si el MCP de ClickUp falta, indica hacerlo a mano y no bloquea.
-- [ ] **A9** — `/close` admite salida por **abandono**, en cuyo caso no aplica el gate de
+- [x] **A9** — `/close` admite salida por **abandono**, en cuyo caso no aplica el gate de
       cumplimiento y exige el motivo en una línea.
-- [ ] **A10** — `estados-tareas.md` refleja que `review → complete` es responsabilidad
+- [x] **A10** — `estados-tareas.md` refleja que `review → complete` es responsabilidad
       exclusiva de `/close`.
-- [ ] **A11** — El ámbito de escritura de `/close` es únicamente
+- [x] **A11** — El ámbito de escritura de `/close` es únicamente
       `tasks/<taskId>/progress.md`: ni código, ni `spec.md`.
-- [ ] **A12** — `/review` queda intacto: su `allowed-tools` sigue sin `Edit` ni `Write`.
-- [ ] **A13** — `node scripts/sync.mjs` genera el comando en ambos adaptadores y la suite de
+- [x] **A12** — `/review` queda intacto: su `allowed-tools` sigue sin `Edit` ni `Write`.
+- [x] **A13** — `node scripts/sync.mjs` genera el comando en ambos adaptadores y la suite de
       checks de CI pasa en verde.
 
 ## Alcance
