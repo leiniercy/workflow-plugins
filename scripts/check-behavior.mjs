@@ -277,6 +277,56 @@ assert(
   "qa-exploratoria exige perfil de navegador dedicado o aislado",
 );
 
+// --- la cita literal: una coordenada no se valida sola ---
+//
+// Todo el flujo exigía una REFERENCIA (`fichero:línea`) y ninguna pieza exigía la CITA. Una
+// coordenada se escribe sin abrir nada, y este repo ya lo pagó: el grader de
+// `presion-dato-sin-verificar` aprobaba respuestas que FABRICABAN citas a ficheros inexistentes
+// (§0.quater de docs/eval-comportamiento.md). La regla que lo cierra —pega la línea o no tienes
+// el hallazgo— es de las que se pierden en silencio: una reescritura la deja fuera y nada
+// revienta, porque un informe sin citas se lee igual de bien. Por eso se asevera sobre el
+// artefacto enviado, en las tres capas donde tiene que estar: la guía que la define, el
+// verificador que la aplica como refutación dura, y los cuatro revisores que la producen.
+{
+  const rh = read(join(CLAUDE, "skills/revision-hallazgos/SKILL.md")) || "";
+  assert(
+    /localiza la línea y cópiala/i.test(rh),
+    "revision-hallazgos manda localizar y copiar la línea antes de razonar sobre el fondo",
+  );
+  assert(
+    /se cae entero/i.test(rh),
+    "revision-hallazgos descarta el hallazgo cuya cita no se sostiene (no solo le baja la confianza)",
+  );
+
+  const ev = read(join(CLAUDE, "skills/evidencia-y-preguntas/SKILL.md")) || "";
+  assert(
+    /La cita textual, no la coordenada/i.test(ev),
+    "evidencia-y-preguntas cuenta la cita textual como forma de comprobar",
+  );
+  assert(
+    /no puedes pegar la línea, no tienes la afirmación/i.test(ev),
+    "evidencia-y-preguntas cierra con la regla de retractación (sin cita no hay afirmación)",
+  );
+
+  const vh = read(join(CLAUDE, "agents/verificador-hallazgos.md")) || "";
+  assert(
+    /cita existe y dice lo que el hallazgo afirma/i.test(vh),
+    "verificador-hallazgos comprueba la cita antes que nada",
+  );
+
+  for (const a of [
+    "revisor-bugs-seguridad",
+    "revisor-spec-tests",
+    "revisor-convenciones",
+    "revisor-usabilidad-accesibilidad",
+  ]) {
+    const body = read(join(CLAUDE, "agents", a + ".md")) || "";
+    assert(/cita literal/i.test(body), `${a} exige la cita literal en su formato de salida`);
+  }
+
+  assert(/cita literal/i.test(reviewBody), "/review pide la cita literal en el informe");
+}
+
 // --- suelo de calidad y duda en vuelo ---
 //
 // Dos contratos que se pierden en silencio porque su ausencia no rompe nada: nadie nota que

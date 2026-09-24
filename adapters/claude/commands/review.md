@@ -241,8 +241,9 @@ Además, resuelve estas tres cosas antes de pasar a la refutación:
 **Si dispones del agente `verificador-hallazgos`**: despáchalo UNA vez con la lista de
 hallazgos candidatos sintetizados —esa sí va inline, es tu síntesis y es corta— y las **rutas**
 del paquete de revisión y de `spec.md`, por lo mismo que en la Fase 3. Es un revisor independiente que NO los
-encontró y cuyo trabajo es intentar REFUTARLOS (¿preexistente?, ¿correcto en su contexto
-completo?, ¿ya cubierto por un test?, ¿contradice a otro hallazgo?). Quédate solo con los que
+encontró y cuyo trabajo es intentar REFUTARLOS (¿la cita existe y dice lo que el hallazgo
+afirma?, ¿preexistente?, ¿correcto en su contexto completo?, ¿ya cubierto por un test?,
+¿contradice a otro hallazgo?). Quédate solo con los que
 marque `confirmado`; descarta los `refutado` y reubica los `dudoso` en la nota de baja
 confianza. Es la validación adversarial del plugin oficial `code-review`: un agente distinto,
 con contexto fresco, intenta tumbar lo que otro afirmó.
@@ -254,7 +255,8 @@ sobre cada hallazgo superviviente, con la misma intención de refutarlo, antes d
 
 Presenta los hallazgos supervivientes (confianza ≥ 75) clasificados por severidad (Crítico /
 Alto / Medio / Bajo, según la guía `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`)). Cada hallazgo: fichero y
-línea, descripción, **confianza**, severidad, la **característica ISO 25010** afectada (según
+línea, la **cita literal** de esa línea —copiada del fichero; sin ella el hallazgo no entra—,
+descripción, **confianza**, severidad, la **característica ISO 25010** afectada (según
 `calidad-producto` (`${CLAUDE_PLUGIN_ROOT}/skills/calidad-producto/SKILL.md`); p. ej. «Seguridad → autenticidad», «Mantenibilidad») y sugerencia
 de corrección (descrita, NO aplicada). Los marcados `exigido-por-spec` van en un apartado
 propio, cada uno con el texto de la spec que lo obliga y la pregunta explícita de qué manda

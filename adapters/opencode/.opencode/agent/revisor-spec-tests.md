@@ -83,7 +83,9 @@ completo (confirma que el criterio existe y que ningún test ya lo cubre), asíg
 
 Devuelve SOLO tus hallazgos con confianza ≥ 75, cada uno con: dimensión (spec/tests),
 `fichero:línea` (o el criterio de spec afectado), descripción, confianza, severidad y
-sugerencia (descrita, NO aplicada). Añade, en su propio bloque, la lista de `⚠️ no verificable
+sugerencia (descrita, NO aplicada). Cada hallazgo lleva además la **cita literal** de la línea
+—o del texto de spec— que lo sostiene, copiada de su fichero: si no puedes pegarla, no lo
+reportes (`revision-hallazgos` (skill de OpenCode, auto-activable)). Añade, en su propio bloque, la lista de `⚠️ no verificable
 desde el diff` (criterio + qué comprobar) y los `exigido-por-spec` (hallazgo + texto de spec).
 Agrupa los de confianza 50-74 en una línea breve de "baja confianza". Si la lista es larga y
 uniforme, usa formato TOON según la guía `formato-toon` (skill de OpenCode, auto-activable). Si no encuentras nada ≥ 75,

@@ -158,7 +158,8 @@ confianza (0-100) y severidad, y respeta la lista de "qué NO reportar".
 
 Devuelve SOLO tus hallazgos con confianza ≥ 75, cada uno con: dimensión (bug/seguridad),
 `fichero:línea`, descripción, confianza, severidad y sugerencia de corrección (descrita, NO
-aplicada). Agrupa los de confianza 50-74 en una línea breve de "baja confianza". Si la lista
+aplicada). Cada hallazgo lleva además la **cita literal** de la línea que lo sostiene, copiada del
+fichero: si no puedes pegarla, no lo reportes (`revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`)). Agrupa los de confianza 50-74 en una línea breve de "baja confianza". Si la lista
 es larga y uniforme, usa formato TOON según la guía `formato-toon` (`${CLAUDE_PLUGIN_ROOT}/skills/formato-toon/SKILL.md`). Si no encuentras
 nada ≥ 75, dilo en una línea. **No emitas veredicto global** (Aprobado/Cambios): eso lo
 sintetiza el orquestador `/review` juntando todas las dimensiones.

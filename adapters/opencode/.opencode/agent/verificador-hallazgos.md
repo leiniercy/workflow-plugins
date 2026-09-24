@@ -30,6 +30,10 @@ para verificar, LEE los ficheros afectados COMPLETOS.
 Para CADA hallazgo candidato, intenta REFUTARLO activamente (default escéptico): vuelve al
 código fuente y busca la razón por la que el hallazgo NO se sostiene. Comprueba en particular:
 
+- **¿La cita existe y dice lo que el hallazgo afirma?** Ábrela y léela. Si el fichero no
+  existe, la línea no está o dice otra cosa → **refutado**, no `dudoso`: un `fichero:línea` se
+  escribe sin abrir nada y no se valida solo. Hazlo **antes** que el resto de comprobaciones —
+  es la única que no exige razonar sobre el fondo, y tumba el hallazgo sin gastar nada más.
 - ¿Es preexistente (no lo introdujo esta rama)? → refutado.
 - ¿Es correcto en su contexto completo aunque parezca un bug en el diff? → refutado.
 - Para cumplimiento de spec: ¿existe ya un test que cubre el criterio que el hallazgo da por

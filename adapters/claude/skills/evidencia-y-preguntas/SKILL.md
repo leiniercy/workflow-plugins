@@ -64,6 +64,14 @@ hecho por una duda parcial es su propio fallo.
 - **Ejecutar el comando y leer su salida.** «Debería pasar» no es un resultado.
 - **Distinguir buscar de leer.** Una coincidencia de `grep` o una ruta del grafo señalan dónde
   mirar; son **hipótesis**, y se confirman abriendo el fichero (`grafo-conocimiento` (`${CLAUDE_PLUGIN_ROOT}/skills/grafo-conocimiento/SKILL.md`)).
+- **La cita textual, no la coordenada.** Un `fichero:línea` se escribe sin abrir nada, así que
+  no sirve como evidencia de sí mismo. Cuando el dato sostiene una decisión o un hallazgo,
+  **pega el fragmento literal** junto a la referencia. Y el orden importa: **extrae la cita
+  primero y razona después sobre ella**, porque al revés la cita aparece para respaldar lo que
+  ya habías decidido, que es cómo se fabrica una. La regla de cierre es la que le da filo: **si
+  no puedes pegar la línea, no tienes la afirmación** — se retira, no se suaviza. El fallo que
+  ataca está medido y no es hipotético: una respuesta puede citar un fichero que no existe y
+  sonar impecable, porque la coordenada no la comprueba nadie.
 - **Lo que afirma otro no es un hecho por venir de dentro.** Lo que diga `progress.md`, un
   subagente o el propio enunciado de la tarea es una afirmación con autor: se verifica igual que
   la de fuera (`revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`)).
