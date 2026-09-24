@@ -125,6 +125,16 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
      instrucciones. **El prompt de sistema no es una frontera de seguridad**: si el límite solo
      está escrito ahí («no borres nada», «no reveles otros usuarios»), no está aplicado. Se
      aplica en código, con permisos reales.
+     **Y mira dónde entra ese texto, que es defensa estructural y se ve en el diff:** el
+     contenido de terceros va en bloques de **resultado de herramienta**, nunca en el prompt
+     de sistema ni concatenado en un turno de usuario —el modelo está entrenado para
+     desconfiar de lo que llega por ahí, y esa desconfianza se pierde al moverlo—; va
+     **codificado como JSON**, no pegado entre etiquetas, porque el escapado impide cerrar
+     la comilla o la etiqueta para salirse al contexto de instrucción; y lleva dicho **qué
+     es y de dónde viene** (correo de remitente desconocido, OCR de una imagen subida). El
+     fallo simétrico también es hallazgo: **tus propias instrucciones metidas en un
+     resultado de herramienta**, donde pueden ignorarse o marcarse como inyección — van en
+     el turno siguiente, no ahí dentro.
    - **LLM02/LLM07 Secretos y datos ajenos dentro del contexto**: claves de API, datos de otro
      tenant o el propio prompt de sistema metidos en el contexto pueden salir por donde
      entraron. Lo que el modelo puede leer, el modelo lo puede repetir.
