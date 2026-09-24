@@ -211,6 +211,34 @@ no tiene mecanismo de *fixtures* —`agent-skills` monta un repo desechable por 
 un caso que exige un esquema concreto siempre medirá algo mezclado.
 
 
+### Caso de conocimiento añadido el 2026-09-24 (PENDIENTE de calibrar)
+
+| Caso | Guía | Qué mide |
+|---|---|---|
+| `herramienta-que-no-se-ejecuta` | `llamadas-a-modelos` | Que al desactivar el pensamiento para ahorrar avise de que la llamada a la herramienta puede salir en el **texto visible** en vez de en un bloque de uso de herramienta —la petición termina bien y no hay excepción que capturar— y de que el arreglo es bajar el esfuerzo, no apagar el razonamiento |
+
+**Incumple el listón de la sección anterior, y se declara en vez de disimularlo.** La regla es
+correrlo con `--baseline` ANTES de commitearlo; este se commiteó sin medir el delta. Lo que sí
+está hecho es lo que no cuesta cuota: el grader pasa `check-graders.mjs` con dos sondas de
+falso positivo —una respuesta que culpa al bucle de herramientas, que es justo el diagnóstico
+equivocado que el caso mide, y otra que da la cura sin el mecanismo—. Hasta calibrarlo va con
+`calibrado: false`, y `check-activation.mjs` ya lo marca como no certificado cuando se corre
+sin `--baseline`.
+
+**La sospecha, declarada antes de medir** (para poder ver si sale al revés, como pasó con los
+casos de presión): la línea base atribuirá el fallo al bucle de herramientas o al manejo de
+`stop_reason`, y no al pensamiento desactivado, que es el mecanismo real.
+
+Es un caso de **conocimiento**, no de presión, así que no necesita varias muestras: con
+`--runs 1` son `2 × 1` = **2 sesiones**, del orden de **0,65–1,00 USD equivalentes** al ritmo
+medido en la sección 0. Si la línea base acierta, el caso se borra — esa regla no tiene
+excepción aquí.
+
+```bash
+node scripts/check-activation.mjs --baseline --case herramienta-que-no-se-ejecuta        # en seco
+node scripts/check-activation.mjs --baseline --case herramienta-que-no-se-ejecuta --yes  # de verdad
+```
+
 ## 0.bis Eval de enrutado del catálogo (`check-routing.mjs`)
 
 TF-IDF sobre las `description` **enviadas** + coseno, contra el corpus de

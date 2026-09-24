@@ -33,8 +33,10 @@ Versionado [SemVer](https://semver.org/lang/es/).
   `description` con el resto del catálogo es del 5,8 % y **ninguna guía existente pierde
   rango**. Las dos primeras redacciones sí desplazaban una —a `codigo-limpio` por «mismo», a
   `formato-toon` por «entero»—: palabras de relleno que no aportaban disparo, quitadas de la
-  `description` en vez de retocar los prompts del corpus. Agregado del corpus: top-3 77,3 %
-  (suelo 70 %), rank-1 51,5 %.
+  `description` en vez de retocar los prompts del corpus. Agregado del corpus: top-3 **78,8 %**
+  frente al 77,8 % que había con 21 guías (suelo 70 %), rank-1 51,5 %. La colisión máxima global
+  sube de 16,7 % a 17,1 % —sigue siendo `coste-y-estructuras` ~ `rendimiento`—, que es efecto de
+  recalcular el IDF con una guía más, no un acercamiento entre esas dos descripciones.
 
 - **Dos firmas nuevas de `/review` para código que llama a un modelo de lenguaje:**
 

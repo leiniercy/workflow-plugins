@@ -54,8 +54,8 @@ Es **¿la tarea tiene una respuesta verificable?** Si la tiene, el modelo grande
 token.** Un modelo pequeño en trabajo multi-turno —leer varios ficheros para deducir el patrón
 vigente, iterar sobre un fallo, encadenar herramientas— gasta 2-3× turnos y acaba costando
 **más** que el mediano que lo resuelve a la primera. La tabla vale para trabajo **de un turno**;
-en cuanto la tarea es un bucle con herramientas, el suelo es el tier medio. Es la razón por la
-que `revisor-convenciones` va en sonnet y no en el tier más barato.
+en cuanto la tarea es un bucle con herramientas, el suelo es el tier medio, por mucho que la
+tarea parezca transcripción.
 
 ### La palanca que no degrada el modelo
 
