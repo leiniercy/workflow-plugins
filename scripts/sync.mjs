@@ -239,6 +239,10 @@ const GUIDES = {
     description:
       "Úsala al derivar de un volumen la complejidad admisible en /plan, al elegir la estructura de datos de código nuevo en /implement, y al juzgar la clase de coste de un cambio en /review. Síntomas: un bucle dentro de otro sobre dos colecciones que crecen, una búsqueda lineal repetida donde cabía un índice por clave, no sabes cuánto aguanta antes de ponerse lento ni si algo es O(n) o O(n²), vas a escribir a mano una estructura que el motor de datos ya hace, o un umbral sin volumen detrás.",
   },
+  "llamadas-a-modelos": {
+    description:
+      "Úsala cuando el código que escribes o revisas llame a un modelo de lenguaje: qué modelo para cada tarea, cómo ordenar el prompt para que el caché acierte, y si alguien espera la respuesta o puede irse a un lote. Síntomas: la factura de la API sube y no sabes por qué llamada; reenvías el documento en cada pregunta; dudas entre el modelo barato y el bueno; el caché nunca acierta; vas a apagar el pensamiento para ahorrar; vas a escribir de memoria un precio o un nombre de modelo.",
+  },
   "usabilidad-accesibilidad": {
     description:
       "Úsala cuando el trabajo toque interfaz o una ruta pública: criterios de aceptación de UI en /plan, tests de componente en /implement y la dimensión 6 de /review. Síntomas: formularios sin validación o sin mensajes útiles, imágenes sin alt, controles no alcanzables por teclado, texto en duro en un repo traducido, una ruta nueva sin metadatos propios, o una URL publicada que se mueve sin redirección. Nielsen + WCAG 2.2 + SEO técnico.",

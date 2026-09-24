@@ -115,7 +115,10 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
    `migraciones-de-datos` (`${CLAUDE_PLUGIN_ROOT}/skills/migraciones-de-datos/SKILL.md`): falta de reverso, operación destructiva sin registro,
    columna obligatoria sobre tabla con filas, borrado o actualización sin condición, o retirada
    de lo viejo en la misma migración que añade lo nuevo (rompe el despliegue en curso). Ahí la
-   severidad es **Alta**: el impacto no es un fallo, es pérdida de datos.
+   severidad es **Alta**: el impacto no es un fallo, es pérdida de datos. **Y si el cambio
+   llama a un modelo de lenguaje**, mira el fallo que no levanta error: el pensamiento
+   desactivado en una petición con herramientas (`llamadas-a-modelos` (`${CLAUDE_PLUGIN_ROOT}/skills/llamadas-a-modelos/SKILL.md`)) hace que la
+   llamada pueda salir en el texto visible y no ejecutarse nunca.
 3. **Tests**: cobertura de los criterios, calidad de las aserciones, casos límite ausentes,
    tests que pasan por razones incorrectas.
 4. **Convenciones y deuda técnica**: coherencia con los patrones del repo (estructura,
@@ -133,6 +136,12 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
    independientes en serie, filtrado en memoria de lo que haría el motor de datos—: son
    defectos de diseño que empeoran con el volumen, no opiniones sobre velocidad. Lo que exija
    medición (cachés, estructuras de datos, micro-optimizaciones) **no es un hallazgo**.
+   **Y si el cambio llama a un modelo de lenguaje**, el prefijo del prompt según
+   `llamadas-a-modelos` (`${CLAUDE_PLUGIN_ROOT}/skills/llamadas-a-modelos/SKILL.md`): fecha, UUID o identificador de usuario dentro del prompt de
+   sistema, secciones montadas según un flag, serialización sin orden determinista,
+   herramientas construidas por usuario, o un subagente que rehace el prefijo del padre en vez
+   de copiarlo. Dejan el caché a cero **sin dar error** y el prompt entero se paga en cada
+   petición: eso sí es defecto de forma conocida, a diferencia de decidir si conviene cachear.
 5. **Seguridad**: recorre el diff con el **OWASP Top 10** como checklist, adaptado al stack
    detectado — control de acceso (endpoints/handlers sin authz, IDOR), exposición de datos al
    cliente (variables públicas del framework, filtraciones servidor→cliente), inyección

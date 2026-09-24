@@ -5,6 +5,71 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Guía `llamadas-a-modelos`** — el catálogo pasa de 21 a 22. Cubre el coste que ni
+  `rendimiento` ni `coste-y-estructuras` alcanzan: cuando el código llama a un modelo de
+  lenguaje, cada petición tiene **precio de catálogo**, y eso no se perfila ni se deduce del
+  algoritmo. Tres palancas, en este orden —qué modelo por tarea, cómo está ordenado el prompt,
+  y si hay alguien esperando la respuesta—, más la verificación que va delante de todas
+  (contar tokens antes de mandar, registrar el consumo unos días para saber cuál es la llamada
+  cara).
+
+  **La guía no tiene ni una cifra, y esa es su decisión de diseño.** Precios, mínimos de caché
+  y límites de lote se mueven entre generaciones de modelo, y **no de forma monótona**: el
+  mínimo de tokens para que un prompt llegue a cachearse difiere por familia, y hay modelos
+  recientes cuyo mínimo multiplica varias veces el de otro de su misma generación — así que
+  «me suena que era X» falla justo donde parecía más seguro. Una tabla congelada en `core/` no
+  envejece hacia «no lo sé»: envejece hacia una respuesta equivocada con la autoridad de una
+  guía. La Regla 0 manda cargar la skill `claude-api` que trae Claude Code —que se actualiza
+  con cada release y ya cubre ese material— antes de escribir un número o un nombre de modelo.
+  Lo que se institucionaliza aquí es el criterio, que sí sobrevive a los cambios de modelo.
+
+  Se descartó a propósito meter el material de referencia entero: habría duplicado una skill
+  versionada y creado un **segundo candidato de activación** para las mismas preguntas, con la
+  copia vieja compitiendo contra la viva.
+
+  Enrutado medido: los tres positivos entran en top-3 (#3, #1, #2), la colisión máxima de su
+  `description` con el resto del catálogo es del 5,8 % y **ninguna guía existente pierde
+  rango**. Las dos primeras redacciones sí desplazaban una —a `codigo-limpio` por «mismo», a
+  `formato-toon` por «entero»—: palabras de relleno que no aportaban disparo, quitadas de la
+  `description` en vez de retocar los prompts del corpus. Agregado del corpus: top-3 77,3 %
+  (suelo 70 %), rank-1 51,5 %.
+
+- **Dos firmas nuevas de `/review` para código que llama a un modelo de lenguaje:**
+
+  - **Invalidador silencioso del prefijo del prompt** (dimensión 4, `revisor-convenciones`):
+    fecha, reloj, UUID, `requestId` o identificador de usuario/sesión/tenant dentro del prompt
+    de sistema; secciones del sistema montadas según un flag; serialización sin orden
+    determinista de claves; definiciones de herramientas construidas por usuario; y la que más
+    cuesta en este flujo, **un fork —subagente, resumen, compactación— que rehace el prefijo
+    del padre** en vez de copiarlo tal cual. Todas dejan el caché a cero **sin dar ningún
+    error**: la petición funciona y el prompt entero se paga en cada llamada. Es defecto de
+    forma conocida, del mismo perfil que la consulta dentro del bucle, así que entra donde ya
+    vivía el coste de ejecución — y se distingue de forma explícita de decidir *si* conviene
+    cachear algo, que sigue exigiendo medición y sigue fuera.
+
+  - **Pensamiento desactivado en una petición con herramientas** (dimensión 2,
+    `revisor-bugs-seguridad`): con el razonamiento apagado, la llamada puede salir en el
+    **texto visible** en vez de en un bloque de uso de herramienta; la petición termina bien,
+    la herramienta **nunca se ejecuta**, no hay excepción que capturar, y en un bucle de agente
+    ese texto contamina los turnos siguientes. Eso no es coste, es un **bug**: severidad Alta
+    si la herramienta que se pierde tiene efecto (escribe, cobra, envía). El arreglo tampoco es
+    reactivar y pagar más, es bajar el esfuerzo de razonamiento.
+
+- **Caso de activación `herramienta-que-no-se-ejecuta`** — mide la segunda firma. Su grader
+  está probado contra muestras (`check-graders`: 6 casos, 56 comprobaciones) e incluye dos
+  sondas de falso positivo: una respuesta que culpa al bucle de herramientas —el diagnóstico
+  equivocado que el caso mide— y otra que da la cura sin el mecanismo. **Sin certificar contra
+  la línea base**: ese delta exige sesiones reales y gasta cuota, y hasta medirlo el caso va
+  con `calibrado: false`.
+
+### Cambiado
+
+- **`revisor-convenciones` pasa de tres frentes a cuatro**, y su cierre dice «en todos los
+  frentes» en vez de «en ambos» — llevaba desactualizado desde que se le añadió el coste de
+  ejecución como frente (c).
+
 ## [0.20.0] - 2026-09-20
 
 ### Añadido

@@ -46,6 +46,15 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
    nuevo (rompe el código de la versión anterior durante el despliegue); migración ya aplicada
    que se edita en vez de corregirse con otra. Severidad **Alta**: el impacto no es un fallo,
    es pérdida de datos.
+   **Si el cambio llama a un modelo de lenguaje**, busca además el modo de fallo que no
+   levanta ningún error: **el pensamiento desactivado en una petición que declara
+   herramientas** (`llamadas-a-modelos` (skill de OpenCode, auto-activable)). Con el razonamiento apagado, el modelo
+   puede escribir la llamada a la herramienta en el **texto visible** en vez de en un bloque
+   de uso de herramienta: la petición termina bien, la herramienta **nunca se ejecuta**, no
+   hay excepción que capturar, y en un bucle de agente ese texto contamina los turnos
+   siguientes. Severidad **Alta** si la herramienta que se pierde tiene efecto (escribe,
+   cobra, envía); Media si solo lee. El arreglo no es reactivar y pagar más: es bajar el
+   esfuerzo de razonamiento, que ahorra lo mismo sin el fallo silencioso.
 2. **Seguridad**: recorre el diff con el **OWASP Top 10 (2021)** como checklist, quedándote
    solo con lo que el cambio realmente introduce, traducido al stack detectado:
    - **A01 Control de acceso roto**: endpoints, handlers, acciones de servidor o vistas que no

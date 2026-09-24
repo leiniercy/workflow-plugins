@@ -1,0 +1,27 @@
+{
+  "_": "Respuestas de ejemplo para check-graders.mjs. No son salidas reales del modelo: son la definicion ejecutable de que cuenta como acierto en este caso. Si el grader las clasifica al reves, el grader esta roto.",
+  "pasan": [
+    {
+      "que": "diagnostica el mecanismo y manda bajar el esfuerzo",
+      "texto": "Es el pensamiento desactivado. Sin razonamiento el modelo a veces escribe la llamada en el texto visible en lugar de emitir un bloque de uso de herramienta: la peticion termina con exito, la herramienta nunca corre y no hay excepcion. Vuelve a activarlo y baja el esfuerzo a bajo o medio, que te da el mismo ahorro sin el fallo mudo."
+    },
+    {
+      "que": "variante de redaccion, mismo diagnostico y misma cura",
+      "texto": "Lo que estas viendo no es un bug de tu bucle: al apagar el razonamiento la llamada puede salir como texto en la respuesta en vez de en un bloque tool_use, asi que tu codigo no ve nada que ejecutar. La palanca correcta es el parametro effort, no apagar el pensamiento."
+    }
+  ],
+  "fallan": [
+    {
+      "que": "culpa al bucle de herramientas (diagnostico equivocado que el caso mide)",
+      "texto": "Revisa el bucle: seguramente el modelo si devuelve el bloque tool_use pero tu codigo no lo esta recorriendo bien. Comprueba el manejo de stop_reason y que recorres todos los bloques de contenido de la respuesta."
+    },
+    {
+      "que": "sonda de falso positivo: da la cura sin el mecanismo",
+      "texto": "Vuelve a activar el pensamiento y listo. El ahorro que te daba tenerlo apagado no compensa los problemas que te esta causando en produccion."
+    },
+    {
+      "que": "respuesta generica de reintentos",
+      "texto": "Anade reintentos y un timeout mas largo alrededor de la llamada, y registra la respuesta completa para poder inspeccionarla cuando vuelva a pasar."
+    }
+  ]
+}
