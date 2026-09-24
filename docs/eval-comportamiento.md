@@ -211,33 +211,33 @@ no tiene mecanismo de *fixtures* —`agent-skills` monta un repo desechable por 
 un caso que exige un esquema concreto siempre medirá algo mezclado.
 
 
-### Caso de conocimiento añadido el 2026-09-24 (PENDIENTE de calibrar)
+### Caso de conocimiento medido el 2026-09-24: sin delta, borrado
 
-| Caso | Guía | Qué mide |
-|---|---|---|
-| `herramienta-que-no-se-ejecuta` | `llamadas-a-modelos` | Que al desactivar el pensamiento para ahorrar avise de que la llamada a la herramienta puede salir en el **texto visible** en vez de en un bloque de uso de herramienta —la petición termina bien y no hay excepción que capturar— y de que el arreglo es bajar el esfuerzo, no apagar el razonamiento |
+| Caso | Guía | Resultado | Veredicto |
+|---|---|---|---|
+| `herramienta-que-no-se-ejecuta` | `llamadas-a-modelos` | ✅ activó · línea base ✅ acierta 1/1 | ⚠ sin delta — **borrado** |
 
-**Incumple el listón de la sección anterior, y se declara en vez de disimularlo.** La regla es
-correrlo con `--baseline` ANTES de commitearlo; este se commiteó sin medir el delta. Lo que sí
-está hecho es lo que no cuesta cuota: el grader pasa `check-graders.mjs` con dos sondas de
-falso positivo —una respuesta que culpa al bucle de herramientas, que es justo el diagnóstico
-equivocado que el caso mide, y otra que da la cura sin el mecanismo—. Hasta calibrarlo va con
-`calibrado: false`, y `check-activation.mjs` ya lo marca como no certificado cuando se corre
-sin `--baseline`.
+Medía que, al desactivar el pensamiento para ahorrar, se avisara de que la llamada a la
+herramienta puede salir en el **texto visible** en vez de en un bloque de uso de herramienta
+—la petición termina bien y no hay excepción que capturar— y de que el arreglo es bajar el
+esfuerzo, no apagar el razonamiento.
 
-**La sospecha, declarada antes de medir** (para poder ver si sale al revés, como pasó con los
-casos de presión): la línea base atribuirá el fallo al bucle de herramientas o al manejo de
-`stop_reason`, y no al pensamiento desactivado, que es el mecanismo real.
+**La sospecha declarada antes de medir volvió a salir al revés.** Se apostaba a que la línea
+base atribuiría el fallo al bucle de herramientas o al manejo de `stop_reason`; lo diagnostica
+bien sin el plugin. Es el sexto caso de **conocimiento** que cae por lo mismo —cinco de siete
+en la tanda del 2026-09-06, y este—, y a estas alturas el patrón ya no es anecdótico: lo que el
+modelo ya sabe no se puede presentar como aporte de una guía.
 
-Es un caso de **conocimiento**, no de presión, así que no necesita varias muestras: con
-`--runs 1` son `2 × 1` = **2 sesiones**, del orden de **0,65–1,00 USD equivalentes** al ritmo
-medido en la sección 0. Si la línea base acierta, el caso se borra — esa regla no tiene
-excepción aquí.
+**Lo que esto NO dice** es que la guía sobre. `llamadas-a-modelos` sigue fijando severidad,
+encuadre y vocabulario, y sobre todo convierte ese fallo en una **firma de `/review`** —algo
+que se busca en cada diff, se puntúa y se reporta—, que es cosa distinta de saber el dato
+cuando te preguntan. Lo que sí dice es que su aporte ahí es **consistencia, no conocimiento**, y
+que no se puede demostrar con un caso de activación.
 
-```bash
-node scripts/check-activation.mjs --baseline --case herramienta-que-no-se-ejecuta        # en seco
-node scripts/check-activation.mjs --baseline --case herramienta-que-no-se-ejecuta --yes  # de verdad
-```
+También queda medido, y es el único resultado positivo de la tanda: **la guía se activó**. El
+disparador funciona; lo que no discrimina es el caso.
+
+Coste: 2 sesiones (`--runs 1` con `--baseline`).
 
 ## 0.bis Eval de enrutado del catálogo (`check-routing.mjs`)
 

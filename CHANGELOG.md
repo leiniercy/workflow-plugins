@@ -59,12 +59,14 @@ Versionado [SemVer](https://semver.org/lang/es/).
     si la herramienta que se pierde tiene efecto (escribe, cobra, envía). El arreglo tampoco es
     reactivar y pagar más, es bajar el esfuerzo de razonamiento.
 
-- **Caso de activación `herramienta-que-no-se-ejecuta`** — mide la segunda firma. Su grader
-  está probado contra muestras (`check-graders`: 6 casos, 56 comprobaciones) e incluye dos
-  sondas de falso positivo: una respuesta que culpa al bucle de herramientas —el diagnóstico
-  equivocado que el caso mide— y otra que da la cura sin el mecanismo. **Sin certificar contra
-  la línea base**: ese delta exige sesiones reales y gasta cuota, y hasta medirlo el caso va
-  con `calibrado: false`.
+- **Caso de activación `herramienta-que-no-se-ejecuta`: escrito, medido y borrado.** Medía la
+  segunda firma. Calibrado el 2026-09-24 con `--baseline` (2 sesiones): la guía **se activa**,
+  pero la **línea base también acierta 1/1**, así que el caso no discrimina y se borra — es la
+  regla del repo para un caso sin delta, y no admite excepción por ser el nuestro. La sospecha
+  declarada antes de medir (que el modelo sin plugin culparía al bucle de herramientas o al
+  manejo de `stop_reason`) salió al revés. El registro queda en `docs/eval-comportamiento.md`.
+  Lectura honesta: en ese punto la guía aporta **consistencia** —una firma que se busca en cada
+  diff— y no conocimiento, y eso no se puede demostrar con un caso de activación.
 
 ### Cambiado
 
