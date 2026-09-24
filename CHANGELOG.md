@@ -59,14 +59,23 @@ Versionado [SemVer](https://semver.org/lang/es/).
     si la herramienta que se pierde tiene efecto (escribe, cobra, envía). El arreglo tampoco es
     reactivar y pagar más, es bajar el esfuerzo de razonamiento.
 
-- **Caso de activación `herramienta-que-no-se-ejecuta`: escrito, medido y borrado.** Medía la
-  segunda firma. Calibrado el 2026-09-24 con `--baseline` (2 sesiones): la guía **se activa**,
-  pero la **línea base también acierta 1/1**, así que el caso no discrimina y se borra — es la
-  regla del repo para un caso sin delta, y no admite excepción por ser el nuestro. La sospecha
-  declarada antes de medir (que el modelo sin plugin culparía al bucle de herramientas o al
-  manejo de `stop_reason`) salió al revés. El registro queda en `docs/eval-comportamiento.md`.
-  Lectura honesta: en ese punto la guía aporta **consistencia** —una firma que se busca en cada
-  diff— y no conocimiento, y eso no se puede demostrar con un caso de activación.
+- **Tres casos de activación escritos, medidos y borrados.** `herramienta-que-no-se-ejecuta`,
+  `fork-que-rehace-el-prefijo` y `concurrencia-sin-cache` medían los tres mecanismos más
+  específicos que documenta la guía. Calibrados con `--baseline` (6 sesiones en tres intentos,
+  uno INCONCLUSO que hubo que repetir): **la línea base acierta los tres 1/1**. Las tres
+  sospechas se declararon antes de medir y las tres salieron al revés. De esta guía **no se
+  puede demostrar aporte de conocimiento**; lo que aporta es consistencia —el criterio de
+  reparto y las dos firmas de `/review`—, y eso no se demuestra con un caso de activación.
+
+  **Y un hallazgo que vale más que los tres veredictos:** `concurrencia-sin-cache` no activó
+  `llamadas-a-modelos`, activó **`claude-api`**. Ante una pregunta concreta de mecánica de
+  caché, la skill empaquetada de Claude Code le gana el disparo a la guía. Era el riesgo
+  declarado al diseñarla y se dio por resuelto quitándole las cifras: medido, la resolución es
+  parcial. En el resultado el sistema funciona —gana la fuente viva y correcta, que es lo que
+  ordena la Regla 0—; en la premisa no, porque la guía no posee el territorio de la mecánica de
+  API. Posee el criterio. No se le mete vocabulario de caché a la `description` para ganar ese
+  disparo: sería pelear por un territorio donde la otra skill es la respuesta correcta.
+  Registro completo en `docs/eval-comportamiento.md`.
 
 ### Cambiado
 

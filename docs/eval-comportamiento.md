@@ -211,33 +211,53 @@ no tiene mecanismo de *fixtures* —`agent-skills` monta un repo desechable por 
 un caso que exige un esquema concreto siempre medirá algo mezclado.
 
 
-### Caso de conocimiento medido el 2026-09-24: sin delta, borrado
+### Tanda del 2026-09-24 sobre `llamadas-a-modelos`: tres casos, tres borrados
 
-| Caso | Guía | Resultado | Veredicto |
+| Caso | Activó | Línea base | Veredicto |
 |---|---|---|---|
-| `herramienta-que-no-se-ejecuta` | `llamadas-a-modelos` | ✅ activó · línea base ✅ acierta 1/1 | ⚠ sin delta — **borrado** |
+| `herramienta-que-no-se-ejecuta` | ✅ | ✅ acierta 1/1 | ⚠ sin delta — **borrado** |
+| `fork-que-rehace-el-prefijo` | ✅ | ✅ acierta 1/1 | ⚠ sin delta — **borrado** |
+| `concurrencia-sin-cache` | ❌ **disparó `claude-api`** | ✅ acierta 1/1 | ⚠ sin delta — **borrado** |
 
-Medía que, al desactivar el pensamiento para ahorrar, se avisara de que la llamada a la
-herramienta puede salir en el **texto visible** en vez de en un bloque de uso de herramienta
-—la petición termina bien y no hay excepción que capturar— y de que el arreglo es bajar el
-esfuerzo, no apagar el razonamiento.
+Los tres medían mecanismos que la guía documenta y que parecían oscuros: la llamada a herramienta
+que sale en el texto visible con el pensamiento apagado; el fork que rehace el prefijo del padre
+y pierde su caché; y la ventana de escritura que hace que N peticiones concurrentes con el mismo
+prefijo paguen todas completo. **Las tres sospechas se declararon antes de medir y las tres
+salieron al revés:** el modelo sin plugin las diagnostica bien.
 
-**La sospecha declarada antes de medir volvió a salir al revés.** Se apostaba a que la línea
-base atribuiría el fallo al bucle de herramientas o al manejo de `stop_reason`; lo diagnostica
-bien sin el plugin. Es el sexto caso de **conocimiento** que cae por lo mismo —cinco de siete
-en la tanda del 2026-09-06, y este—, y a estas alturas el patrón ya no es anecdótico: lo que el
-modelo ya sabe no se puede presentar como aporte de una guía.
+Coste de la tanda: 6 sesiones en tres intentos (una tanda intermedia salió INCONCLUSO por fallos
+transitorios y hubo que repetirla).
 
-**Lo que esto NO dice** es que la guía sobre. `llamadas-a-modelos` sigue fijando severidad,
-encuadre y vocabulario, y sobre todo convierte ese fallo en una **firma de `/review`** —algo
-que se busca en cada diff, se puntúa y se reporta—, que es cosa distinta de saber el dato
-cuando te preguntan. Lo que sí dice es que su aporte ahí es **consistencia, no conocimiento**, y
-que no se puede demostrar con un caso de activación.
+**La conclusión, que es más dura que «tres casos malos»:** de esta guía **no se puede demostrar
+aporte de conocimiento**. Tres intentos sobre los tres mecanismos más específicos que documenta,
+tres veces que la línea base llega sola. Lo que aporta es consistencia —criterio de reparto de
+modelo, la pregunta de quién espera, y dos firmas que `/review` busca en cada diff— y eso, por
+definición, no se demuestra con un caso de activación.
 
-También queda medido, y es el único resultado positivo de la tanda: **la guía se activó**. El
-disparador funciona; lo que no discrimina es el caso.
+#### El hallazgo del disparo, que vale más que los tres veredictos
 
-Coste: 2 sesiones (`--runs 1` con `--baseline`).
+`concurrencia-sin-cache` **no activó `llamadas-a-modelos`: activó `claude-api`**, la skill que
+Claude Code trae de serie. Ante una pregunta concreta de mecánica de caché, la skill empaquetada
+le gana el disparo a la guía del plugin.
+
+Era el riesgo que se declaró al diseñar la guía —dos candidatos compitiendo por las mismas
+preguntas— y que se dio por resuelto quitándole todas las cifras y delegando en `claude-api`.
+Medido, la resolución es parcial:
+
+- **En el resultado, el sistema funciona.** Ganó la fuente viva, versionada y correcta, que es
+  literalmente lo que ordena la Regla 0 de la guía. El usuario obtuvo la respuesta buena.
+- **En la premisa, no.** La guía no posee el territorio de la mecánica de API. Lo que posee es
+  el criterio (qué modelo para qué tarea, quién espera la respuesta, la trampa de los turnos) y
+  las dos firmas de revisión.
+
+**Lo que NO se hace con esto:** meterle vocabulario de caché a la `description` para ganarle el
+disparo a `claude-api`. Sería pelear por un territorio donde la otra skill es la respuesta
+correcta y además se actualiza con cada release. El disparador se queda donde está.
+
+Consecuencia para futuros casos de esta guía: si se vuelve a intentar, el caso tiene que medir
+**criterio**, no mecánica — una decisión de reparto de modelo o de online/offline, donde
+`claude-api` no compite. Y conviene saber de antemano que ese tipo de caso es más difícil de
+calificar con un grader de subcadenas.
 
 ## 0.bis Eval de enrutado del catálogo (`check-routing.mjs`)
 
