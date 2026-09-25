@@ -100,6 +100,40 @@ puede refutar de un vistazo.
 > equipo interno y no hay importación masiva. No he encontrado dónde se acota. Si crece sin
 > techo, el listado sin paginar de `SedesPanel` pasa a ser un defecto de rendimiento.*
 
+## El hueco admitido y rellenado igual
+
+De las dos formas de fallar del principio, **inventar** tiene una variante que se cuela por
+donde no miras, porque viene con su propia coartada. El movimiento tiene dos tiempos: primero
+se admite el límite, después se rellena el hueco de todas formas.
+
+> ✗ *«No he encontrado dónde se configura el timeout, pero lo habitual en este stack son 30 s,
+> así que el reintento entra dentro del margen.»*
+
+La primera mitad es cierta y la segunda es inventada, y es la primera la que hace colar a la
+segunda. Comparada con la suposición con voz de hecho, esta es peor: aquella se cae en cuanto
+alguien comprueba, y esta **ya avisó de que no había comprobado**, así que quien la lee cree
+estar leyendo una asunción declarada cuando está leyendo un dato.
+
+**Las firmas.** Cuando escribas una de estas, mira qué va detrás:
+
+| Se admite el límite | …y detrás viene |
+|---|---|
+| «no está documentado en el repo, pero…» | lo que se cree recordar |
+| «no he encontrado dónde se configura, aunque lo normal es…» | una costumbre general puesta como dato de este proyecto |
+| «con la información disponible», «hasta donde alcanza mi conocimiento» | una conclusión que no sale de ahí |
+| «probablemente se añadió para», «todo apunta a que», «cabe suponer que» | una causa que nadie ha comprobado |
+| «la última versión que conozco es la X» | un patrón de esa versión recordada, no de la instalada |
+
+**El discriminador es cómo acaba la frase, no cómo empieza.** Admitir el límite y acabar en
+una **asunción declarada con su consecuencia** es lo que pide la sección anterior, y está
+bien. Admitir el límite y acabar en un **dato** es el fallo, por prudente que suene el tono.
+La prueba es la de la asunción: si no puedes escribir «y si es falsa, se rompe X», no tenías
+una asunción, tenías una conjetura con prólogo.
+
+> ✓ *«No he encontrado dónde se configura el timeout. Asumo el default del cliente HTTP
+> porque nadie lo sobreescribe en `config/`. Si hubiera un override en infraestructura, el
+> cálculo del reintento cambia y hay que rehacerlo.»*
+
 ## Cómo se pregunta, cuando toca
 
 - **Una pregunta cada vez**, con tu respuesta recomendada y en orden de dependencia: un bloque
@@ -125,6 +159,8 @@ puede refutar de un vistazo.
   otro. Si el test dice escalón 2, se asume y se declara.
 - **Escribir el patrón del framework de memoria** — «así se hace en React». ¿En qué versión?
   Léela en el manifiesto y busca la documentación de esa versión, con la URL al lado.
+- **La conjetura con prólogo** — admitir que no se ha comprobado y escribir el dato igual. La
+  advertencia no es un descargo: es lo que hace que nadie mire lo que viene detrás.
 
 ## Banderas rojas
 
@@ -141,6 +177,7 @@ puedes sostener.
 | "Lo dice progress.md, es del propio flujo" | Es una afirmación con autor, no un hecho. Verifícala como cualquier otra. |
 | "Debería pasar, el cambio es evidente" | Ejecuta y lee la salida. Sin ella no puedes afirmarlo. |
 | "Lo vi en un artículo / en el PDF ese" | Contrasta con la fuente primaria del tema antes de meterlo en una decisión. |
+| "Digo que no lo he podido comprobar, así quedo cubierto" | Cubierto no: si detrás va un dato, la advertencia solo sirve para que nadie lo revise. Acaba en asunción declarada con su consecuencia, o no lo escribas. |
 | "He probado cinco casos y sale bien" | Cinco casos a favor no comprueban una regla. Busca el que la rompería; una regla que casi siempre acierta se comporta igual que una correcta hasta que no. |
 
 ## Autocrítica antes de cerrar
@@ -148,7 +185,7 @@ puedes sostener.
 Antes de escribir en `spec.md`, registrar en `progress.md` o emitir un informe, pregúntate:
 **¿cada afirmación que he escrito es un hecho comprobado, una asunción declarada o un dato del
 usuario? ¿hay alguna que no sepa clasificar? ¿alguna regla que doy por buena la he confirmado
-juntando ejemplos a favor en vez de buscarle el contraejemplo? ¿pregunté algo que estaba en el
-repo? ¿me callé
-una duda cuya otra respuesta habría cambiado el trabajo? ¿bloqueé cosas que no dependían de la
-pregunta?** Si algo falla, corrígelo antes de seguir.
+juntando ejemplos a favor en vez de buscarle el contraejemplo? ¿alguna frase admite que no lo
+he comprobado y acaba igualmente en un dato, en vez de en una asunción con su consecuencia?
+¿pregunté algo que estaba en el repo? ¿me callé una duda cuya otra respuesta habría cambiado el
+trabajo? ¿bloqueé cosas que no dependían de la pregunta?** Si algo falla, corrígelo antes de seguir.

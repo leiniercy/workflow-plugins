@@ -82,6 +82,35 @@ Si no puedes responder, todavía no estás en condiciones de quitarlo: lee más 
 razón resulta seguir viva, lo que falta no es borrar el código: es **escribir el porqué al
 lado**, que es lo que evita que el siguiente lo intente otra vez.
 
+## El código cuenta lo que hace, no lo que dejó de hacer
+
+La valla de arriba dice que la historia **se lee**. Esta dice que la historia **no se escribe
+en el código**: git ya guarda el diff, y un comentario que lo repite envejece en el cambio
+siguiente y pasa a describir código que ya no está.
+
+```js
+// ✗ Solo se entiende con el diff delante
+// Antes recorríamos todo el array; ahora usamos un Map para evitar el O(n²).
+
+// ✓ Se entiende dentro de seis meses, que es cuando hace falta
+// Índice por id: las búsquedas del bucle de conciliación son O(1).
+```
+
+Es el olor más frecuente en código escrito por un agente, y el mecanismo lo explica: **el
+cambio que acaba de hacer es lo más presente que tiene**, así que escribe sobre eso en vez de
+sobre lo que el lector se va a encontrar. El lector no tiene el diff; tiene el fichero. Aplica
+igual a los nombres (`procesarPedidoNuevo` cuando ya no queda uno viejo), a los ficheros
+(`utils-v2.ts`) y a la documentación de un módulo que arranca explicando lo que sustituyó.
+
+**Dónde sí va la versión anterior**, porque es documentación legítima y hace falta: el mensaje
+del commit, el CHANGELOG, las notas de versión, la guía de migración y `progress.md`
+(`registro-progreso` (skill de OpenCode, auto-activable)). Son documentos *sobre el cambio*; el código no lo es.
+
+**La excepción** es cuando el pasado sigue vivo y explica el presente: un rodeo que sigue ahí
+por un bug de un tercero, un formato que se mantiene por compatibilidad, una constante rara que
+viene de una limitación real. Eso no es contar la versión anterior: es el **porqué al lado** que
+pide la valla de Chesterton, y va con el enlace a la incidencia si lo hay.
+
 ## Catálogo de olores de código (qué buscar → cómo curarlo)
 
 Los olores son **síntomas**, no siempre defectos: indican dónde mirar. Se acumulan con el tiempo.
@@ -164,10 +193,13 @@ extensible», no es una cascada.
 - **Reportar olores preexistentes en `/review`** — solo cuenta lo que el diff introduce o
   empeora, y solo si supera el umbral de `revision-hallazgos` (skill de OpenCode, auto-activable); nada de nitpicks ni del
   trabajo del linter.
+- **Comentario que narra el diff** — «antes esto era X, ahora es Y». Envejece en el cambio
+  siguiente y el que lo lee no tiene el diff delante. Lo que cambió va al commit y al CHANGELOG.
 
 ## Autocrítica antes de cerrar
 
 Con la suite en verde, pregúntate: **¿introduje algún olor de la tabla? ¿el nombre dice la
 intención? ¿hay duplicación que extraer? ¿alguna abstracción que metí no tiene aún un problema
-que la justifique?** Si algo falla, aplica la refactorización que lo cura —en pasos pequeños,
+que la justifique? ¿algún comentario o nombre que he escrito solo se entiende con el diff
+delante?** Si algo falla, aplica la refactorización que lo cura —en pasos pequeños,
 manteniendo los tests verdes— antes de registrar el criterio como completado.
