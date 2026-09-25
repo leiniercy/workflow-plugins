@@ -105,5 +105,9 @@ queda registrado en «Decisiones tomadas».
 
 ## Autocrítica antes de aplicar un hallazgo
 
-Pregúntate: **¿he abierto el fichero y confirmado que esto es cierto aquí?** Si vas a corregir
-solo porque alguien lo escribió con seguridad, todavía no lo has verificado.
+Pregúntate: **¿he abierto el fichero y confirmado que esto es cierto aquí? ¿entiendo todos
+los hallazgos, o voy a implementar los que entiendo y preguntar después por el resto?
+¿alguno rompe algo que ya funciona, y lo he comprobado en vez de suponerlo? ¿los que rebato
+llevan su razón técnica y su evidencia escritas, o los estoy dejando caer en silencio? ¿abrí
+con un acuerdo performativo en vez de con la comprobación?** Si vas a corregir solo porque
+alguien lo escribió con seguridad, todavía no lo has verificado.

@@ -166,7 +166,8 @@ for (const g of GUIDES) {
     `${g} description redactada como disparador ("Úsala cuando/al/en…")`);
   // Techo de líneas: una skill se carga ENTERA en cuanto dispara, así que su tamaño es
   // contexto que se paga en cada activación. 500 es el listón de la comunidad (agent-skills
-  // §18.C) y hoy sobra margen — el máximo son 255 líneas. Está aquí como freno: el día que
+  // §18.C). El máximo real lo imprime este script al terminar, para que no envejezca dentro
+// de un comentario (es justo el olor que nombra codigo-limpio). Está aquí como freno: el día que
   // una guía se acerque, lo que toca es partir el material a un fichero de apoyo, no subir
   // el número.
   const lineas = body === null ? 0 : body.split(/\n/).length;
@@ -176,6 +177,137 @@ for (const g of GUIDES) {
   );
   assert(fm.length <= FRONTMATTER_MAX,
     `${g} frontmatter ≤ ${FRONTMATTER_MAX} chars (techo del formato) — actual: ${fm.length}`);
+}
+
+/**
+ * Quita los bloques de codigo cercados antes de buscar cabeceras.
+ *
+ * Un `## Anti-patrones` dentro de una valla es un EJEMPLO de markdown, no la seccion. Sin
+ * esto, la guia que documentase esta misma convencion pasaria en verde sin tener ninguna de
+ * las dos secciones. Medido en la revision del 2026-09-25.
+ */
+function sinVallas(md) {
+  return md.replace(/^ {0,3}(`{3,}|~{3,})[\s\S]*?^ {0,3}\1[^\n]*$/gm, "");
+}
+
+/**
+ * Lineas CON CONTENIDO bajo una cabecera, hasta la siguiente de nivel 1 o 2. `null` si la
+ * seccion no existe.
+ *
+ * Mide contenido y no solo el rotulo, porque el rotulo solo no es el cierre: un
+ * `## Anti-patrones` con la lista vacia debajo cumple la letra del invariante y pierde entero
+ * lo que el invariante protege. Y vaciar es justo lo que pasa cuando alguien recorta una guia
+ * para bajar del techo de lineas.
+ */
+function cuerpoDeSeccion(md, reCabecera) {
+  const lineas = sinVallas(md).split("\n");
+  const i = lineas.findIndex((l) => reCabecera.test(l));
+  if (i === -1) return null;
+  const resto = lineas.slice(i + 1);
+  const fin = resto.findIndex((l) => /^#{1,2} /.test(l));
+  return (fin === -1 ? resto : resto.slice(0, fin)).filter((l) => l.trim() !== "");
+}
+
+// Minimo con margen: hoy ninguna seccion baja de 8 lineas bajo anti-patrones ni de 2 bajo
+// autocritica. 3 caza el vaciado sin obligar a rellenar nada. Contar BULLETS no serviria:
+// cuatro guias escriben sus anti-patrones como tabla.
+const MIN_LINEAS_SECCION = 3;
+
+function aseveraEsqueleto(dueno, body, secciones) {
+  for (const [etiqueta, re] of secciones) {
+    const cuerpo = cuerpoDeSeccion(body, re);
+    assert(cuerpo !== null, `${dueno} tiene seccion «${etiqueta}»`);
+    assert(
+      cuerpo === null || cuerpo.length >= MIN_LINEAS_SECCION,
+      `${dueno}: «${etiqueta}» tiene ${cuerpo ? cuerpo.length : 0} linea(s) con contenido ` +
+        `(minimo ${MIN_LINEAS_SECCION}) — el rotulo sin nada debajo no es el cierre`,
+    );
+  }
+}
+
+// --- esqueleto de guia: anti-patrones y autocritica ---
+//
+// No son formato: son las dos secciones que el agente USA al final. Los anti-patrones le
+// dan el NOMBRE del error mientras lo esta cometiendo —nombrarlo es lo que lo frena—, y la
+// autocritica es el ultimo gate antes de dar algo por bueno. Las dos se pierden en silencio:
+// una reescritura que reordena la guia las deja fuera y nada revienta, porque una guia sin
+// ellas se lee igual de bien. Lo que desaparece es el cierre, y no hay sintoma.
+//
+// El sufijo de la autocritica varia A PROPOSITO («antes de cerrar», «antes de reportar»,
+// «antes de proponer un patron»): nombra el momento en que se aplica, que no es el mismo en
+// una guia de diseno que en una de revision. Se asevera el prefijo y que LLEVE sufijo, no la
+// frase entera. Igual con los anti-patrones, cuyo parentesis acota el alcance en dos guias.
+//
+// Exentas las que son TABLA DE REFERENCIA y no guia de proceso: no tienen un momento de
+// cierre que auditar ni un error recurrente que nombrar. La lista es corta y explicita para
+// que meter una guia nueva ahi sea una decision escrita, no un olvido que pasa en verde.
+const SECCIONES_GUIA = [
+  ["## Anti-patrones", /^## Anti-patrones/],
+  ["## Autocritica antes de <momento>", /^## Autocrítica \S/],
+];
+const SIN_ESQUELETO = new Set(["estados-tareas", "formato-toon"]);
+for (const g of GUIDES) {
+  if (SIN_ESQUELETO.has(g)) continue;
+  const body = read(join(CLAUDE, "skills", g, "SKILL.md"));
+  if (body === null) continue; // la ausencia de la skill ya la reporta el bucle de arriba
+  aseveraEsqueleto(g, body, SECCIONES_GUIA);
+}
+// Una exencion que deja de hacer falta es deuda silenciosa: la guia gana su esqueleto y la
+// lista sigue eximiendola para siempre. Se asevera en los dos sentidos y para LAS DOS
+// secciones: cubrir solo una deja media exencion muerta, que es igual de silenciosa.
+for (const g of SIN_ESQUELETO) {
+  assert(GUIDES.includes(g), `la exencion de esqueleto para ${g} apunta a una guia que existe`);
+  const body = read(join(CLAUDE, "skills", g, "SKILL.md")) || "";
+  for (const [etiqueta, re] of SECCIONES_GUIA) {
+    assert(
+      cuerpoDeSeccion(body, re) === null,
+      `${g} ya tiene «${etiqueta}»: sacala de SIN_ESQUELETO en vez de dejar la exencion muerta`,
+    );
+  }
+}
+
+// --- esqueleto de agente: que recibe y que devuelve ---
+//
+// Los siete agentes comparten estas dos secciones y ninguna estaba aseverada, mientras los
+// comandos si tenian la suya («Banderas rojas») y las guias acaban de ganar la suya. La
+// asimetria no tenia motivo escrito. `## Formato de salida` es lo que la Fase 4.1 de /review
+// sintetiza —confianza, severidad y cita literal—, y `## Lo que recibes` es lo que impide que
+// el subagente se ponga a rastrear el repo por su cuenta. Mismo modo de fallo silencioso.
+const SECCIONES_AGENTE = [
+  ["## Lo que recibes", /^## Lo que recibes/],
+  ["## Formato de salida", /^## Formato de salida/],
+];
+for (const name of Object.keys(AGENTS)) {
+  const body = read(join(CLAUDE, "agents", name + ".md"));
+  if (body === null) continue; // la ausencia ya la reporta el bucle de agentes
+  aseveraEsqueleto(`agente ${name}`, body, SECCIONES_AGENTE);
+}
+
+// --- ninguna guia publicada queda huerfana ---
+//
+// Una guia a la que nada enlaza solo se alcanza si su `description` gana el enrutado. Paso con
+// `consultas-correctas`: 249 lineas, ocho enlaces salientes y CERO entrantes, asi que nada del
+// flujo llevaba hasta ella, y el hueco no lo vio nadie hasta que un grafo del repo lo ensenó
+// (2026-09-25). No es un problema de estilo: es material escrito que el sistema no alcanza.
+{
+  const fuentes = [];
+  for (const dir of ["core/guides", "core/workflows", "core/agents"]) {
+    for (const f of readdirSync(join(ROOT, dir)).filter((x) => x.endsWith(".md"))) {
+      fuentes.push([dir + "/" + f, read(join(ROOT, dir, f)) || ""]);
+    }
+  }
+  for (const g of GUIDES) {
+    // Excluye la autorreferencia: una guia que se cita a si misma no se alcanza por ello.
+    const propio = "core/guides/" + g + ".md";
+    const entrantes = fuentes.filter(
+      ([ruta, txt]) => ruta !== propio && txt.includes("{{guide:" + g + "}}"),
+    ).length;
+    assert(
+      entrantes >= 1,
+      `la guia ${g} no tiene ningun {{guide:${g}}} entrante desde core/: solo se alcanza si su ` +
+        `description gana el enrutado, y nada del flujo lleva hasta ella`,
+    );
+  }
 }
 
 // --- paquete de revisión por fichero: el diff NO viaja en los prompts ---
@@ -390,4 +522,10 @@ if (failures.length) {
   console.error("  (los contratos de los prompts cambiaron: revisa core/ y sync.mjs)");
   process.exit(1);
 }
-console.log(`✓ ${total} aserciones de comportamiento OK (contratos de los prompts intactos).`);
+const maxLineas = Math.max(
+  ...GUIDES.map((g) => (read(join(CLAUDE, "skills", g, "SKILL.md")) || "").split(/\n/).length),
+);
+console.log(
+  `✓ ${total} aserciones de comportamiento OK (contratos de los prompts intactos). ` +
+    `Skill mas larga: ${maxLineas} lineas de ${SKILL_LINES_MAX}.`,
+);
