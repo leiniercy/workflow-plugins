@@ -1012,6 +1012,46 @@ su portada.
 
 ---
 
+## 21. humanizer — `blader/humanizer`
+
+**Qué es:** una skill de un solo fichero (`SKILL.md`, 374 líneas) que reescribe texto con pinta
+de IA para que suene a la persona que lo firma, sin cambiar lo que dice. MIT. Todo el producto
+es ese prompt: el repo entero son 9 ficheros y el único código es un validador de 87 líneas en
+Python sin dependencias. Se distribuye por tres canales desde el mismo byte —CLI de skills,
+plugin de Claude Code y copia manual— con el truco de apuntar `"skills": ["./"]` a la raíz para
+que exista **un solo** `SKILL.md`, sin symlinks ni copias.
+
+**Relación con nosotros:** su contenido es en su mayoría **fuera de alcance** — las listas de
+vocabulario son inglesas y no transfieren, y el trabajo de humanizar prosa ya lo cubre mejor la
+skill `escritura-natural`, que además es consciente del canal de destino. Lo valioso está, otra
+vez, donde no lo anuncia: no en los 25 patrones sino en **cómo gradúa la confianza de cada
+uno**. Es el mejor ejemplo analizado de un prompt que dice de qué depende su propio umbral en
+vez de dejarlo al criterio del que lo aplica.
+
+| Patrón | Qué es | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **La fuerza de la señal es propiedad del catálogo, no juicio del revisor** (marca `weak alone`) | Cada patrón declara si justifica actuar **con un solo avistamiento** o si necesita compañía de otras señales en el mismo pasaje. No es la gravedad del defecto: es cuántas veces de diez hay defecto detrás de esa señal | Hueco real y medido en `revision-hallazgos`: el paso 2 mandaba asignar confianza 0-100 y **no decía de qué depende**, así que a ojo casi todo acababa en 75. Adoptado como eje propio, separado de la severidad (paso 3), con la regla de que una señal débil no llega a 75 sin una segunda señal independiente o la consecuencia concreta. Aplicado ya en `consultas-correctas` (4 bastan solas, 3 débiles) y en la cláusula SQL de `revisor-bugs-seguridad`. **Matiz de nuestra adopción, que Humanizer no necesita:** nuestro umbral está aguas arriba de la severidad, así que un hallazgo degradado desaparece del informe en vez de llegar con menos peso. Por eso la regla lleva su freno: en seguridad, el camino de ataque descrito **es** la consecuencia concreta, y ante duda se sube | ✅ |
+| **Los descargos de límite de conocimiento, y la conjetura que viene detrás** (su §23) | Enumera las firmas textuales del movimiento de dos tiempos: se admite que no se ha comprobado y se rellena el hueco igual. La admisión es lo que hace colar la conjetura | `evidencia-y-preguntas` tenía la doctrina completa (las tres procedencias, «si no puedes pegar la línea, no tienes la afirmación») y **ninguna firma textual**: la regla sin el detector. Adoptado como sección propia, con el discriminador adaptado a nuestro terreno —importa cómo **acaba** la frase, en un dato o en una asunción con su consecuencia—, más tres sondas en el grader de `presion-dato-sin-verificar`, que antes aprobaba las tres | ✅ |
+| **El código cuenta lo que hace, no lo que dejó de hacer** (su §25) | Documentación y comentarios que describen lo que reemplazaron en vez del comportamiento actual. La versión anterior va al changelog, a las notas de versión o a la guía de migración | No lo cubría ninguna guía. Adoptado en `codigo-limpio`, junto a la valla de Chesterton, que es su complemento: la historia se lee, no se escribe en el código. **No** se metió en el catálogo de olores, que es de Fowler y es trazable a su fuente | ✅ |
+| **El validador asevera el esqueleto del prompt, no su contenido** | Su `validate-package.py` exige numeración sin huecos, que las tablas del README reflejen exactamente las cabeceras del SKILL, y un techo de líneas. Estructura, que es lo que se desincroniza al editar un prompt largo | Adoptado con nuestra forma: `check-behavior` asevera que toda guía publicada lleva anti-patrones y autocrítica **con contenido** (no solo el rótulo), lo mismo para las dos secciones de los siete agentes, y que ninguna guía queda sin enlaces entrantes. No tenemos su tabla espejo en el README, así que esa mitad no aplica | ✅ |
+| **Una tesis causal única de la que los patrones son corolarios** | Abre explicando **por qué** existe el modo de fallo (el modelo elige lo más probable, que es lo que sirve al rango más amplio de lectores) y cada patrón cae de ahí. Eso hace que el agente generalice a señales que no están en la lista | Varias guías nuestras ya lo hacen bien —`consultas-correctas` abre con «una consulta lenta se nota; una incorrecta, no»— y otras arrancan directamente en las reglas. Merece una pasada por las 23, pero es trabajo de redacción, no un mecanismo | 🟡 |
+| Tabla de mapeo viejo→nuevo al renumerar patrones | Al pasar de 35 a 25 patrones publicaron la correspondencia entera en el changelog | Detalle de mantenimiento admirable y sin uso aquí: nuestras guías no numeran patrones | 📖 |
+| Guardas de falso positivo **dentro** de cada patrón | Su changelog 3.0.0 cuenta que movieron cada guarda al patrón que la necesita, en vez de tenerlas centralizadas | Convergencia, no adopción: es lo que ya hacíamos (la excepción del anti-join vive dentro de la sección del `LEFT JOIN`). Sirve como confirmación externa de la forma | 📖 |
+| Techo de líneas del prompt aseverado en CI | 400 líneas, con el argumento de que la skill se carga entera al dispararse | Ya lo teníamos en 500 y aseverado. Lo único que se cambió tras compararlos: el máximo real ya no vive en un comentario que envejece, lo imprime el propio check | 📖 |
+| **Cero evals** | Su validador comprueba estructura y jamás comportamiento. No hay un solo caso de «este texto entra, esto debería salir» | Es nuestro anti-objetivo exacto y el contraste más útil del análisis: un prompt de 4.600 palabras cuyo efecto nadie ha medido. Sirve para recordar por qué existen las cuatro capas del eval | ⛔ |
+| Un solo fichero de 28,7 KB sin *progressive disclosure* | Todo el prompt entra en contexto en cada activación; no hay `references/` que se cargue bajo demanda | No adoptable, y de hecho es un problema que compartimos: nuestras skills también son un `SKILL.md` único. El techo de líneas es un freno, no una arquitectura. Queda anotado como deuda, no como patrón | ⛔ |
+| Listas de vocabulario, muestra de voz, modos de salida | El grueso de su contenido: palabras inglesas sobreusadas, emparejar el estilo con una muestra del usuario, tres formatos de respuesta | Fuera de alcance. No escribimos prosa de usuario, y `escritura-natural` ya cubre ese trabajo en español y por canal | ⛔ |
+
+### Nota de método
+
+Tercera vez que se repite el patrón de §2, §19 y §20: lo aprovechable de un repo casi nunca es
+lo que anuncia en su portada. Aquí el titular son 25 patrones de estilo en inglés, que no nos
+sirven; lo que sí sirve es la **marca de dos caracteres** con la que gradúa cada uno. Y el
+contraste que más enseñó no fue un patrón suyo sino su ausencia: es el repo mejor escrito de los
+analizados y no mide nada de lo que afirma.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:

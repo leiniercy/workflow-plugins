@@ -5,6 +5,109 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **Fuerza de la señal como eje propio en `revision-hallazgos`** — el paso 2 mandaba asignar
+  confianza 0-100 y no decía de qué depende, así que a ojo casi todo acababa en 75. Ahora se
+  separa la **fuerza de la señal** («al verla, ¿cuántas veces de diez hay defecto detrás?», la
+  decide el catálogo que la define) de la **severidad** («si hay defecto, ¿cuánto daño hace?»,
+  paso 3). Una señal **débil en solitario** no llega a 75 por sí sola: necesita otra señal
+  independiente en el mismo trozo de código, o la consecuencia concreta que encuentre la
+  auto-refutación. Y tres señales débiles del mismo tipo no suman una fuerte — eso es el paso 4,
+  un hallazgo con varias manifestaciones. El mecanismo está tomado de la marca `weak alone` de
+  `blader/humanizer` (§21 de `docs/referencias.md`).
+- **Primera aplicación del eje, en `consultas-correctas`** — la lista de señales de `/review`
+  pasa a tabla con la fuerza marcada. Cuatro bastan solas (`NOT IN` contra subconsulta con
+  nulos, condición de la tabla derecha en el `WHERE` de un `LEFT JOIN`, escritura que depende de
+  una lectura previa sin protección, efecto irreversible dentro de la transacción) y tres son
+  débiles en solitario (agregación sobre join uno-a-muchos, `COUNT(columna)`, `SELECT *`).
+- **`evidencia-y-preguntas`: el hueco admitido y rellenado igual** — una variante de *inventar*
+  que venía con su propia coartada y no estaba nombrada. Tiene dos tiempos: se admite el límite
+  y se rellena el hueco de todas formas, y es la admisión lo que hace colar la conjetura, porque
+  quien lee cree estar viendo una asunción declarada. Trae la tabla de firmas («no está
+  documentado en el repo, pero…», «todo apunta a que…», «con la información disponible») y el
+  discriminador: importa cómo **acaba** la frase, no cómo empieza. Si no puedes escribir «y si es
+  falsa, se rompe X», no tenías una asunción sino una conjetura con prólogo.
+- **`codigo-limpio`: el código cuenta lo que hace, no lo que dejó de hacer** — comentarios,
+  nombres y documentación que narran el diff en vez del estado actual. Es el olor más frecuente
+  en código escrito por un agente, y el mecanismo lo explica: el cambio recién hecho es lo más
+  presente que tiene, y el que lee no tiene el diff, tiene el fichero. Dice dónde SÍ va la
+  versión anterior (commit, CHANGELOG, notas de versión, guía de migración, `progress.md`) y cuál
+  es la excepción: el pasado que sigue vivo y explica el presente, que es la valla de Chesterton.
+- **Esqueleto de guía aseverado en CI (`check-behavior`)** — toda guía publicada lleva
+  `## Anti-patrones` y `## Autocrítica antes de <momento>`. Son las dos secciones que el agente
+  usa al cerrar y las dos que una reescritura deja fuera sin que nada reviente, porque una guía
+  sin ellas se lee igual de bien. El sufijo de la autocrítica sigue siendo libre a propósito:
+  nombra el momento en que se aplica. `estados-tareas` y `formato-toon` quedan exentas por ser
+  tablas de referencia, y la exención se asevera en los dos sentidos: si una exenta gana su
+  autocrítica, el check pide sacarla de la lista en vez de dejar la exención muerta. 333
+  aserciones.
+
+### Corregido
+
+- **La regla de fuerza de señal podía silenciar un hallazgo de seguridad** — el umbral de
+  confianza está **aguas arriba** de la severidad («severidad del que pasa el umbral»), y la
+  tubería de `/review` solo refuta, nunca rescata: un hallazgo Crítico clasificado como señal
+  débil desaparece del informe sin llegar al paso de severidad. Agravado porque los tres
+  ejemplos de la vía de escape eran todos de corrección («la fila que se pierde, la petición
+  que se cuelga, el dato que sale mal») y `revisor-bugs-seguridad` no marca la fuerza de
+  ninguna de sus ~40 señales OWASP, casi todas con usos legítimos frecuentes. Añadido un cuarto
+  ejemplo de consecuencia, la regla de que **en seguridad el camino de ataque descrito ES la
+  consecuencia concreta**, y el freno explícito de que ante duda se sube.
+- **La guía de consultas no llegaba al agente que ejecuta la dimensión 2** — `/review` delega
+  bugs y seguridad en `revisor-bugs-seguridad`, y la cláusula se había escrito solo en el
+  workflow, que es donde se **reparte**, no donde se **aplica**. En la ruta por defecto de
+  Claude la guía no se usaba. Replicada en el agente, junto a las dos cláusulas hermanas
+  (migraciones y llamadas a modelos), con la tabla de fuerza incluida.
+- **El check del esqueleto aprobaba las secciones vacías** — aseveraba el rótulo, no el cierre:
+  dejando solo los dos encabezados sin una línea debajo daba verde, que es justo lo que pasa
+  cuando alguien recorta una guía para bajar del techo. Ahora exige **3 líneas con contenido**
+  por sección (ninguna guía baja hoy de 8 en anti-patrones ni de 2 en autocrítica, así que solo
+  hubo que ampliar la de `recepcion-de-revision`, la única con 2). Y el regex ya no casa dentro
+  de un bloque de código cercado, donde un `## Anti-patrones` es un ejemplo, no una sección.
+- **La regla nueva de `evidencia-y-preguntas` no la medía nadie, y el grader más cercano
+  aprobaba justo lo que prohíbe** — medido con `check-graders` antes de tocar nada: las tres
+  sondas de «conjetura con prólogo» pasaban exactamente igual que el control correcto, porque
+  «no puedo comprobar» + «asumo» satisface los dos grupos y la conjetura lleva las dos.
+  Añadidas las tres sondas a `presion-dato-sin-verificar` y seis firmas a `no_debe_incluir`. El
+  límite conocido queda escrito en `nota_calibracion`: el discriminador real es estructural y un
+  casador de subcadenas no ve estructura.
+- **La tabla de confianza medía severidad** — `50 real pero menor` / `75 real e importante` es
+  daño, que es el paso 3, mientras el texto nuevo declaraba los dos ejes separados. Reescrita en
+  términos de cuán sostenible es el hallazgo.
+- **La presión nueva era unidireccional** — se añadió el pecado de promover una señal débil y
+  no el de degradar una fuerte, en un sistema donde lo que no llega al umbral no aparece en el
+  informe y por tanto nadie puede discutirlo. Añadido el anti-patrón simétrico y su pregunta en
+  la autocrítica.
+- **`consultas-correctas` estaba huérfana en el grafo de referencias cruzadas** — enlazaba hacia
+  ocho guías y ninguna le devolvía el enlace, así que, fuera de su propia `description`, nada del
+  flujo llevaba hasta ella. Detectado con el grafo de `graphify` sobre el propio repo. Ahora la
+  nombran `/review` y `revisor-bugs-seguridad`, y **el caso queda aseverado**: `check-behavior`
+  falla si cualquier guía publicada se queda sin enlaces entrantes desde `core/`.
+- **Los siete agentes no tenían ningún esqueleto aseverado** — comparten `## Lo que recibes` y
+  `## Formato de salida` (7/7), y mutarlos daba verde, mientras los comandos sí tenían su
+  «Banderas rojas». `## Formato de salida` es lo que sintetiza la Fase 4.1 de `/review`.
+- **Deuda de forma y de coste** — el mal ejemplo de `evidencia-y-preguntas` iba sin `✗` frente
+  al bueno con `✓` (dos revisores independientes lo marcaron); el par malo/bueno de
+  `codigo-limpio` usaba una tabla con cabecera vacía en vez del bloque de código que usan las
+  otras tres guías; `/review` repetía la lista de señales de `consultas-correctas`, que
+  divergía ya en la excepción del anti-join; la tabla de fuerza iba anidada dentro de un bullet,
+  forma que no existe en ningún otro sitio de `core/`; la frontera recíproca de `rendimiento`
+  repetía casi literal la cabecera de `consultas-correctas`; y el comentario del techo de líneas
+  llevaba un número que este mismo cambio dejaba falso, que es el olor que añade la sección
+  nueva de `codigo-limpio`. El máximo ahora lo imprime el propio check.
+- **Procedencia sin registrar** — `docs/referencias.md` fija que un repo analizado entra como
+  sección `## N`, y `humanizer` solo aparecía enlazado desde el CHANGELOG. Añadida la **§21**,
+  con los tres patrones adoptados, los tres que ya teníamos por convergencia y los cuatro
+  descartados (entre ellos su ausencia total de evals, que es nuestro anti-objetivo exacto).
+
+
+- **`consultas-correctas` estaba huérfana en el grafo de referencias cruzadas** — enlazaba hacia
+  ocho guías y ninguna le devolvía el enlace, así que, fuera de su propia `description`, nada del
+  flujo llevaba hasta ella. Ahora la nombra `/review` en la dimensión de bugs, que es donde se
+  aplica, y `rendimiento` en la cabecera con la frontera recíproca: aquí la consulta cara, allí
+  la incorrecta. Detectado con el grafo de `graphify` sobre el propio repo.
+
 ## [0.21.0] - 2026-09-25
 
 ### Añadido
