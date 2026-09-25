@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.21.0] - 2026-09-25
+
 ### Añadido
 
 - **Guía `llamadas-a-modelos`** — el catálogo pasa de 21 a 22. Cubre el coste que ni
