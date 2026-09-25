@@ -80,8 +80,17 @@ desaparece.
 **Tres señales débiles del mismo tipo no suman una fuerte.** Eso es contar el mismo síntoma
 tres veces, y lo que toca es el paso 4: un hallazgo con varias manifestaciones.
 
-Cuando la guía que define la señal no marca su fuerza, decídelo con la pregunta de la tabla
-**antes** de puntuar. Al revés —puntuar y justificar después— es como un 50 se convierte en 75.
+**Cuando la guía que define la señal no marca su fuerza, trátala como débil en solitario.** No
+es «bájala»: es que te toca **escribir la consecuencia concreta** —abre el fichero y di qué se
+rompe, quién lo nota y cuándo—, que es trabajo que de todas formas tenías que hacer para
+sostener el hallazgo. Si la escribes, la señal llega a 75 igual.
+
+El default va a lo conservador a propósito. Un catálogo sin marcar es un hueco del catálogo, no
+permiso para puntuar a ojo, y «decídelo tú» acaba siendo 75 por inercia, que es de donde viene
+todo esto. Cada guía que marca sus señales **relaja** este default para su terreno, así que
+marcar catálogos es una mejora incremental y no un requisito previo.
+
+La excepción es la de siempre y va al revés: en seguridad, ante duda, se sube.
 
 ## Tres reglas de independencia del revisor
 

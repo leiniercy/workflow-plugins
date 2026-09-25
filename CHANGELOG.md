@@ -16,6 +16,22 @@ Versionado [SemVer](https://semver.org/lang/es/).
   auto-refutación. Y tres señales débiles del mismo tipo no suman una fuerte — eso es el paso 4,
   un hallazgo con varias manifestaciones. El mecanismo está tomado de la marca `weak alone` de
   `blader/humanizer` (§21 de `docs/referencias.md`).
+- **Sin catálogo que marque la fuerza, la señal se trata como débil en solitario** — el
+  fallback anterior («decídelo con la pregunta de la tabla antes de puntuar») delegaba en el
+  criterio del momento, que es justo de donde venía el problema: a ojo casi todo acaba en 75.
+  Ahora el hueco es conservador por defecto, y la carga que impone no es bajar la confianza sino
+  **escribir la consecuencia concreta** —qué se rompe, quién lo nota y cuándo—, que es trabajo
+  que hacía falta igualmente para sostener el hallazgo; escrita, la señal llega a 75. La
+  consecuencia de diseño importa: marcar un catálogo pasa a ser una mejora **incremental** que
+  relaja el default para su terreno, no un requisito previo para que la regla funcione. La
+  excepción sigue siendo seguridad, que va al revés: ante duda, se sube.
+- **`rendimiento` marca la fuerza de sus trece señales** — seis bastan solas (consulta en bucle,
+  trabajo cuadrático, llamadas independientes en serie, consulta sin techo, clave foránea sin
+  índice, y cargar el conjunto entero para contar) y el resto son débiles en solitario. La que
+  más cambia en la práctica es **el índice ausente**: puede existir desde una migración que el
+  diff no trae, así que «no lo encuentro» no es «no está» — era una vía de falso positivo con
+  severidad Media abierta de par en par. `arquitectura` y `usabilidad-accesibilidad` quedan
+  cubiertas por el default nuevo y se marcarán cuando toque tocarlas.
 - **Primera aplicación del eje, en `consultas-correctas`** — la lista de señales de `/review`
   pasa a tabla con la fuerza marcada. Cuatro bastan solas (`NOT IN` contra subconsulta con
   nulos, condición de la tabla derecha en el `WHERE` de un `LEFT JOIN`, escritura que depende de

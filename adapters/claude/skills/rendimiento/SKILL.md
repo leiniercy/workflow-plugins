@@ -64,6 +64,17 @@ volumen**, de forma no lineal.
   caliente; y trabajo pesado que bloquea el hilo que debía responder.
 - **Importar un módulo entero** para usar una función, en código que viaja al cliente.
 
+**La fuerza de cada señal, antes de puntuarla.** **Bastan solas**, porque casi nadie las
+escribe a propósito: la consulta dentro de un bucle, el trabajo cuadrático, las llamadas
+independientes en serie, la consulta sin techo, la clave foránea sin índice, y cargar el
+conjunto entero para contar o para comprobar si algo existe. **Débiles en solitario** —piden la
+consecuencia concreta o una segunda señal— porque tienen usos legítimos frecuentes: paginar por
+`OFFSET`, filtrar u ordenar en memoria, traer más de lo que se usa, el recálculo por pasada, el
+módulo entero importado (el empaquetador quizá ya lo recorte) y, sobre todo, **el índice que no
+ves**: puede existir desde una migración que el diff no trae, y «no lo encuentro» no es «no
+está». Bloquear el hilo que debía responder sí basta solo, aunque comparta viñeta con el
+recálculo.
+
 Repórtalos con la disciplina de `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`): severidad normalmente Media, y
 Alta si el crecimiento es previsible y el camino es de uso frecuente. Si el volumen está
 acotado de verdad por el dominio (una lista de países, los roles del sistema), **no es un
