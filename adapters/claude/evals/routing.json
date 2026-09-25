@@ -85,6 +85,20 @@
         "La tarea dice mejorar el buscador y poco mas"
       ]
     },
+    "ingenieria-de-prompts": {
+      "positivos": [
+        "El modelo no me hace caso y voy cambiando la redaccion a ver si suena mejor",
+        "Le pego el texto del usuario justo detras de mis instrucciones, esta bien asi",
+        "Cuantos ejemplos le pongo para que me devuelva el formato que quiero"
+      ]
+    },
+    "llamadas-a-modelos": {
+      "positivos": [
+        "Le mando el manual entero en cada pregunta y lo paga otra vez todas las veces",
+        "Para clasificar tickets hace falta el modelo bueno o vale con uno mas barato",
+        "Son cinco mil fichas de producto y nadie espera el resultado en pantalla"
+      ]
+    },
     "migraciones-de-datos": {
       "positivos": [
         "Quiero quitar la tabla vieja de sesiones que ya no usa nadie",
@@ -189,6 +203,16 @@
       "prompt": "Este dato no lo he comprobado, lo escribo en la spec igualmente",
       "dueno": "evidencia-y-preguntas",
       "no_debe_ganar": "registro-progreso"
+    },
+    {
+      "prompt": "Como monto el prompt para que no lo reprocese entero en cada llamada",
+      "dueno": "llamadas-a-modelos",
+      "no_debe_ganar": "rendimiento"
+    },
+    {
+      "prompt": "Que le tengo que escribir al modelo para que me devuelva siempre el mismo formato",
+      "dueno": "ingenieria-de-prompts",
+      "no_debe_ganar": "llamadas-a-modelos"
     }
   ]
 }

@@ -114,7 +114,10 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
    `migraciones-de-datos` (skill de OpenCode, auto-activable): falta de reverso, operación destructiva sin registro,
    columna obligatoria sobre tabla con filas, borrado o actualización sin condición, o retirada
    de lo viejo en la misma migración que añade lo nuevo (rompe el despliegue en curso). Ahí la
-   severidad es **Alta**: el impacto no es un fallo, es pérdida de datos.
+   severidad es **Alta**: el impacto no es un fallo, es pérdida de datos. **Y si el cambio
+   llama a un modelo de lenguaje**, mira el fallo que no levanta error: el pensamiento
+   desactivado en una petición con herramientas (`llamadas-a-modelos` (skill de OpenCode, auto-activable)) hace que la
+   llamada pueda salir en el texto visible y no ejecutarse nunca.
 3. **Tests**: cobertura de los criterios, calidad de las aserciones, casos límite ausentes,
    tests que pasan por razones incorrectas.
 4. **Convenciones y deuda técnica**: coherencia con los patrones del repo (estructura,
@@ -132,6 +135,12 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
    independientes en serie, filtrado en memoria de lo que haría el motor de datos—: son
    defectos de diseño que empeoran con el volumen, no opiniones sobre velocidad. Lo que exija
    medición (cachés, estructuras de datos, micro-optimizaciones) **no es un hallazgo**.
+   **Y si el cambio llama a un modelo de lenguaje**, el prefijo del prompt según
+   `llamadas-a-modelos` (skill de OpenCode, auto-activable): fecha, UUID o identificador de usuario dentro del prompt de
+   sistema, secciones montadas según un flag, serialización sin orden determinista,
+   herramientas construidas por usuario, o un subagente que rehace el prefijo del padre en vez
+   de copiarlo. Dejan el caché a cero **sin dar error** y el prompt entero se paga en cada
+   petición: eso sí es defecto de forma conocida, a diferencia de decidir si conviene cachear.
 5. **Seguridad**: recorre el diff con el **OWASP Top 10** como checklist, adaptado al stack
    detectado — control de acceso (endpoints/handlers sin authz, IDOR), exposición de datos al
    cliente (variables públicas del framework, filtraciones servidor→cliente), inyección
@@ -231,8 +240,9 @@ Además, resuelve estas tres cosas antes de pasar a la refutación:
 **Si dispones del agente `verificador-hallazgos`**: despáchalo UNA vez con la lista de
 hallazgos candidatos sintetizados —esa sí va inline, es tu síntesis y es corta— y las **rutas**
 del paquete de revisión y de `spec.md`, por lo mismo que en la Fase 3. Es un revisor independiente que NO los
-encontró y cuyo trabajo es intentar REFUTARLOS (¿preexistente?, ¿correcto en su contexto
-completo?, ¿ya cubierto por un test?, ¿contradice a otro hallazgo?). Quédate solo con los que
+encontró y cuyo trabajo es intentar REFUTARLOS (¿la cita existe y dice lo que el hallazgo
+afirma?, ¿preexistente?, ¿correcto en su contexto completo?, ¿ya cubierto por un test?,
+¿contradice a otro hallazgo?). Quédate solo con los que
 marque `confirmado`; descarta los `refutado` y reubica los `dudoso` en la nota de baja
 confianza. Es la validación adversarial del plugin oficial `code-review`: un agente distinto,
 con contexto fresco, intenta tumbar lo que otro afirmó.
@@ -244,7 +254,8 @@ sobre cada hallazgo superviviente, con la misma intención de refutarlo, antes d
 
 Presenta los hallazgos supervivientes (confianza ≥ 75) clasificados por severidad (Crítico /
 Alto / Medio / Bajo, según la guía `revision-hallazgos` (skill de OpenCode, auto-activable)). Cada hallazgo: fichero y
-línea, descripción, **confianza**, severidad, la **característica ISO 25010** afectada (según
+línea, la **cita literal** de esa línea —copiada del fichero; sin ella el hallazgo no entra—,
+descripción, **confianza**, severidad, la **característica ISO 25010** afectada (según
 `calidad-producto` (skill de OpenCode, auto-activable); p. ej. «Seguridad → autenticidad», «Mantenibilidad») y sugerencia
 de corrección (descrita, NO aplicada). Los marcados `exigido-por-spec` van en un apartado
 propio, cada uno con el texto de la spec que lo obliga y la pregunta explícita de qué manda

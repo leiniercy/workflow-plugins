@@ -6,7 +6,7 @@
  * redactado como «Úsala cuando…»). `check-activation.mjs` comprueba que dispara DE VERDAD,
  * pero lanza sesiones reales: gasta cuota y por eso no corre en CI.
  *
- * Falta la capa de en medio, y es la que este script cubre: con 21 guías cuyos dominios se
+ * Falta la capa de en medio, y es la que este script cubre: con 22 guías cuyos dominios se
  * rozan —`rendimiento` con `coste-y-estructuras`, `revision-hallazgos` con
  * `recepcion-de-revision`—, la pregunta «¿se están acercando dos descripciones?» no la
  * responde ningún check por guía. Se mide sobre el corpus entero, es determinista y cuesta

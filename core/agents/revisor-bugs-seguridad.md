@@ -36,6 +36,15 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
    nuevo (rompe el código de la versión anterior durante el despliegue); migración ya aplicada
    que se edita en vez de corregirse con otra. Severidad **Alta**: el impacto no es un fallo,
    es pérdida de datos.
+   **Si el cambio llama a un modelo de lenguaje**, busca además el modo de fallo que no
+   levanta ningún error: **el pensamiento desactivado en una petición que declara
+   herramientas** ({{guide:llamadas-a-modelos}}). Con el razonamiento apagado, el modelo
+   puede escribir la llamada a la herramienta en el **texto visible** en vez de en un bloque
+   de uso de herramienta: la petición termina bien, la herramienta **nunca se ejecuta**, no
+   hay excepción que capturar, y en un bucle de agente ese texto contamina los turnos
+   siguientes. Severidad **Alta** si la herramienta que se pierde tiene efecto (escribe,
+   cobra, envía); Media si solo lee. El arreglo no es reactivar y pagar más: es bajar el
+   esfuerzo de razonamiento, que ahorra lo mismo sin el fallo silencioso.
 2. **Seguridad**: recorre el diff con el **OWASP Top 10 (2021)** como checklist, quedándote
    solo con lo que el cambio realmente introduce, traducido al stack detectado:
    - **A01 Control de acceso roto**: endpoints, handlers, acciones de servidor o vistas que no
@@ -116,6 +125,16 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
      instrucciones. **El prompt de sistema no es una frontera de seguridad**: si el límite solo
      está escrito ahí («no borres nada», «no reveles otros usuarios»), no está aplicado. Se
      aplica en código, con permisos reales.
+     **Y mira dónde entra ese texto, que es defensa estructural y se ve en el diff:** el
+     contenido de terceros va en bloques de **resultado de herramienta**, nunca en el prompt
+     de sistema ni concatenado en un turno de usuario —el modelo está entrenado para
+     desconfiar de lo que llega por ahí, y esa desconfianza se pierde al moverlo—; va
+     **codificado como JSON**, no pegado entre etiquetas, porque el escapado impide cerrar
+     la comilla o la etiqueta para salirse al contexto de instrucción; y lleva dicho **qué
+     es y de dónde viene** (correo de remitente desconocido, OCR de una imagen subida). El
+     fallo simétrico también es hallazgo: **tus propias instrucciones metidas en un
+     resultado de herramienta**, donde pueden ignorarse o marcarse como inyección — van en
+     el turno siguiente, no ahí dentro.
    - **LLM02/LLM07 Secretos y datos ajenos dentro del contexto**: claves de API, datos de otro
      tenant o el propio prompt de sistema metidos en el contexto pueden salir por donde
      entraron. Lo que el modelo puede leer, el modelo lo puede repetir.
@@ -143,7 +162,8 @@ confianza (0-100) y severidad, y respeta la lista de "qué NO reportar".
 
 Devuelve SOLO tus hallazgos con confianza ≥ 75, cada uno con: dimensión (bug/seguridad),
 `fichero:línea`, descripción, confianza, severidad y sugerencia de corrección (descrita, NO
-aplicada). Agrupa los de confianza 50-74 en una línea breve de "baja confianza". Si la lista
+aplicada). Cada hallazgo lleva además la **cita literal** de la línea que lo sostiene, copiada del
+fichero: si no puedes pegarla, no lo reportes ({{guide:revision-hallazgos}}). Agrupa los de confianza 50-74 en una línea breve de "baja confianza". Si la lista
 es larga y uniforme, usa formato TOON según la guía {{guide:formato-toon}}. Si no encuentras
 nada ≥ 75, dilo en una línea. **No emitas veredicto global** (Aprobado/Cambios): eso lo
 sintetiza el orquestador `/review` juntando todas las dimensiones.

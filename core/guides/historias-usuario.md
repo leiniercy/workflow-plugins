@@ -112,11 +112,13 @@ del CA y combínalas cuando haga falta. Basado en ISTQB (Foundation Level) e ISO
 | **Tabla de decisión** | El resultado depende de combinar varias condiciones o reglas de negocio | Un EC por regla (combinación de condiciones → acción). La matriz V/I/N/A ES una tabla de decisión |
 | **Transición de estados** | La entidad tiene estados y transiciones (borrador→enviado→aprobado; sesión, carrito) | Un EC por transición válida + los intentos de transición inválida (evento no permitido en ese estado) |
 | **Pruebas por pares (pairwise)** | Varios campos independientes cuyas combinaciones explotan | Cubre todos los pares de valores en vez del producto cartesiano; corta la explosión combinatoria |
+| **Familias de ruido** (campo de texto libre) | El campo admite prosa escrita por una persona: una consulta, una descripción, o lo que entra a un modelo de lenguaje | Un EC por familia de ruido: sarcasmo, erratas, divagación, ruido irrelevante inyectado, varios temas a la vez, encabezado que engaña sobre el contenido, carga emocional, enunciado hipotético, referencia indirecta a la entidad, dependencia de algo dicho mucho antes, cambio brusco de tema. Aquí `mín-1/mín/máx/máx+1` no dice nada |
 | **Basadas en experiencia** (error guessing, exploratoria) | Complemento de las anteriores, para huecos que no ven | EC extra para entradas hostiles conocidas: vacío, null, unicode, negativos, intentos de inyección |
 
 **Regla práctica:** por cada campo con reglas aplica partición de equivalencia (V/I) **y**, si
 tiene rango, valores límite; por cada CA con condiciones combinadas, una tabla de decisión; por
-cada entidad con ciclo de vida, transición de estados. La cobertura de caja blanca (sentencias,
+cada entidad con ciclo de vida, transición de estados; y por cada campo de texto libre —sobre todo
+si lo consume un modelo de lenguaje ({{guide:ingenieria-de-prompts}})—, un EC por familia de ruido. La cobertura de caja blanca (sentencias,
 ramas) NO va aquí: es responsabilidad del runner en `/implement`, no del diseño de la spec.
 
 ## Patrón CRUD (Incluir, Editar, Eliminar, Ver, Listar, Filtrar)

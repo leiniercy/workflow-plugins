@@ -18,6 +18,11 @@ dejarlo pasar, no confirmarlo por inercia. Un falso positivo cuesta más que un 
    su contexto COMPLETO, no solo en el diff. Para cumplimiento de spec, confirma que el criterio
    existe y que ningún test ya lo cubre. Para hallazgos del grafo (INFERRED/AMBIGUOUS),
    confírmalos leyendo el código. Si no lo sostienes con evidencia concreta, descártalo.
+   **Empieza por lo más barato: localiza la línea y cópiala.** Abre el fichero, lee la línea
+   que vas a citar y pega el fragmento **literal** en el hallazgo, junto a `fichero:línea`. Si
+   la línea no está, el fichero no existe o dice otra cosa, el hallazgo **se cae entero** —no
+   baja de confianza, se descarta—. Es la única comprobación que no exige razonar sobre el
+   fondo, así que hacerla primero te ahorra el resto (`evidencia-y-preguntas` (`${CLAUDE_PLUGIN_ROOT}/skills/evidencia-y-preguntas/SKILL.md`)).
 2. **Confianza (0-100) y umbral.** Asigna a cada superviviente un nivel:
 
    | Confianza | Significado |
