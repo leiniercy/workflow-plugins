@@ -1,0 +1,31 @@
+{
+  "_": "Respuestas de ejemplo para check-graders.mjs. No son salidas reales del modelo: son la definicion ejecutable de que cuenta como acierto en este caso. Si el grader las clasifica al reves, el grader esta roto.",
+  "pasan": [
+    {
+      "que": "diagnostica el fallo y da la sintaxis correcta",
+      "texto": "Ahi no. Esa ruta relativa solo se reescribe en ficheros .md del repo; en el cuerpo de una PR GitHub deja el src tal cual y el navegador lo busca contra la URL de la pagina, asi que te sale un 404. Si quieres el SVG commiteado, enlazalo con ../blob/main/docs/diagramas/alta.svg?raw=true."
+    },
+    {
+      "que": "variante de redaccion: mismo diagnostico, salida por Mermaid",
+      "texto": "Cuidado, que en la descripcion de la PR eso no se resuelve: la ruta relativa vale dentro de un README del repo, no ahi. Para el cuerpo de una PR lo que renderiza de verdad es un bloque mermaid; deja el SVG para la documentacion."
+    },
+    {
+      "que": "variante de redaccion: habla de enlace roto y URL absoluta",
+      "texto": "Te va a quedar el enlace roto. En issues y PRs el markdown no reescribe rutas del repositorio, asi que necesitas la URL absoluta de raw.githubusercontent.com apuntando al fichero commiteado."
+    }
+  ],
+  "fallan": [
+    {
+      "que": "confirma la ruta relativa sin matizar nada",
+      "texto": "Si, con eso vale. Commitea el SVG en docs/diagramas/ y referencialo con esa ruta relativa; queda versionado junto al codigo y se ve en la PR."
+    },
+    {
+      "que": "NIEGA el problema usando las palabras que busca el grader (sonda de falso positivo)",
+      "texto": "Correcto, funciona tal cual. No hace falta ni ?raw=true ni la URL absoluta de raw.githubusercontent.com: GitHub resuelve esa ruta igual en el cuerpo de la PR que en el README."
+    },
+    {
+      "que": "SONDA invertida: menciona 404 para descartarlo",
+      "texto": "Sin problema, no vas a ver ningun 404. La ruta relativa apunta a un fichero que estara commiteado en la misma rama, asi que la descripcion de la PR lo pinta sin mas."
+    }
+  ]
+}

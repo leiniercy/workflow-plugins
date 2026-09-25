@@ -39,6 +39,12 @@ Versionado [SemVer](https://semver.org/lang/es/).
   turnos y no por precio por token**, que es el motivo de que `revisor-convenciones` sea `sonnet`
   y no `haiku`. El 0002 pasa a `superseded` por el 0003: su única política era la tesis de aquel,
   y el mecanismo YAML lo explica el código. Patrón tomado de `cathrynlavery/diagram-design`.
+- **Caso de eval `svg-en-cuerpo-de-pr` para la guía `diagramas`** — la guía entró sin ningún
+  caso que la ejerciera. Mide lo menos obvio de la regla de canal: que una ruta relativa a un
+  `.svg` se reescribe en un fichero `.md` del repo pero **no** en el cuerpo de una PR, donde
+  GitHub deja el `src` intacto y sale un 404. Queda `calibrado: false` con la hipótesis del
+  delta escrita antes de medir, según el ADR 0004: certificarlo son 2 sesiones con
+  `--baseline`, y si la línea base también acierta, el fallo es del caso.
 - **La trazabilidad de los graders pasa de convención a política** — `check-graders.mjs` ahora
   exige que cada caso lleve `nota_calibracion` y que su última entrada tenga fecha `AAAA-MM-DD`.
   Antes era disciplina: se cumplía en los cinco casos, pero si se perdía, se perdía en silencio,

@@ -259,6 +259,35 @@ Consecuencia para futuros casos de esta guía: si se vuelve a intentar, el caso 
 `claude-api` no compite. Y conviene saber de antemano que ese tipo de caso es más difícil de
 calificar con un grader de subcadenas.
 
+### Caso del 2026-09-25 sobre `diagramas`: escrito, PENDIENTE de calibrar
+
+La guía `diagramas` entró sin ningún caso que la ejerciera. Se añade
+`svg-en-cuerpo-de-pr`, y se deja declarado que **no está certificado**: `calibrado: false`
+hasta que alguien gaste las 2 sesiones de `--baseline`.
+
+| Caso | Qué mide | Estado |
+|---|---|---|
+| `svg-en-cuerpo-de-pr` | Que avise de que una ruta relativa a un `.svg` no se resuelve en el cuerpo de una PR, a diferencia de un fichero `.md` del repo | ⏳ sin calibrar |
+
+**La hipótesis del delta, escrita antes de medir** — que es lo que permite equivocarse de
+forma útil. El modelo desnudo confirma la ruta relativa, porque es lo que funciona en un
+README y es donde más la ha visto. Lo que aporta la guía es la distinción: GitHub reescribe
+esa ruta en los ficheros `.md` del repo, y en el cuerpo de una PR deja el `src` intacto, así
+que el navegador lo resuelve contra la URL de la página y sale un 404. El comportamiento se
+verificó contra el renderizador real de GitHub al revisar la guía; lo que no se ha medido es
+si el modelo sin plugin ya lo sabe.
+
+**Riesgo conocido del caso.** Los dos grupos de `debe_incluir` son un AND: exigen el
+diagnóstico **y** una salida. La salida admite tanto la sintaxis correcta (`?raw=true`, URL
+absoluta) como redirigir a Mermaid, que es lo que la regla de canal manda para un cuerpo de
+PR. Si al calibrar aparece que una respuesta buena suspende por no decir ninguna de las dos
+cosas, el arreglo es el grupo, no la muestra.
+
+```bash
+node scripts/check-activation.mjs --baseline --case svg-en-cuerpo-de-pr          # en seco
+node scripts/check-activation.mjs --baseline --case svg-en-cuerpo-de-pr --yes    # de verdad
+```
+
 ## 0.bis Eval de enrutado del catálogo (`check-routing.mjs`)
 
 TF-IDF sobre las `description` **enviadas** + coseno, contra el corpus de

@@ -1,0 +1,32 @@
+{
+  "guia": "diagramas",
+  "mide": "Que avise de que una ruta relativa a un .svg no se resuelve en el cuerpo de una PR, a diferencia de un fichero .md del repo.",
+  "debe_incluir": [
+    [
+      "no se reescribe",
+      "no se resuelve",
+      "no funciona en el cuerpo",
+      "no funciona en la descripcion",
+      "solo se reescribe en",
+      "solo funciona en",
+      "solo vale en",
+      "sale 404",
+      "da 404",
+      "daria 404",
+      "devuelve 404",
+      "enlace roto",
+      "se rompe el enlace"
+    ],
+    [
+      "?raw=true",
+      "raw.githubusercontent",
+      "url absoluta",
+      "ruta absoluta",
+      "enlace absoluto",
+      "mermaid"
+    ]
+  ],
+  "linea_base_debe_fallar": true,
+  "calibrado": false,
+  "nota_calibracion": "2026-09-25, CASO NUEVO SIN CERTIFICAR. Escrito junto a la guia diagramas; la linea base no se ha medido, asi que calibrado queda en false hasta pasar check-activation.mjs --baseline (2 sesiones). Hipotesis del delta: el modelo desnudo confirma la ruta relativa porque es lo que funciona en un README, que es donde mas la ha visto; lo que ensena la guia es distinguir el fichero .md del repo —donde GitHub la reescribe— del cuerpo de una PR, donde deja el src intacto y el navegador lo resuelve contra la URL de la pagina. Comportamiento verificado contra el renderizador de GitHub durante la revision de la guia. Los dos grupos de debe_incluir son un AND: se exige el diagnostico Y una salida, que vale tanto la sintaxis correcta (?raw=true, URL absoluta) como redirigir a Mermaid, que es lo que la regla de canal manda para un cuerpo de PR."
+}
