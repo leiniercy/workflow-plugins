@@ -46,6 +46,18 @@ entre paréntesis son ilustrativos de stacks concretos, no el contrato.
    nuevo (rompe el código de la versión anterior durante el despliegue); migración ya aplicada
    que se edita en vez de corregirse con otra. Severidad **Alta**: el impacto no es un fallo,
    es pérdida de datos.
+   **Si el diff trae consultas a base de datos**, recórrelas contra
+   `consultas-correctas` (skill de OpenCode, auto-activable). El defecto que buscas no es lento ni inseguro: es
+   sintácticamente válido, pasa los tests con los datos de ejemplo y devuelve otro número.
+   Cuatro señales bastan por sí solas: `NOT IN` contra una subconsulta que admite nulos (no
+   falla, devuelve vacío); condición sobre la tabla derecha en el `WHERE` de un `LEFT JOIN`
+   (lo convierte en `INNER`), **salvo que la condición sea `IS NULL`, que es el patrón
+   anti-join y es intención**; escritura que depende de una lectura previa sin protección; y
+   efecto irreversible dentro de una transacción. Otras tres son **débiles en solitario** y
+   piden una segunda señal o la consecuencia concreta antes de llegar al umbral: agregación
+   sobre un join uno-a-muchos, `COUNT(columna)` donde se querían contar filas, y `SELECT *`.
+   Severidad **Alta** cuando el resultado alimenta una decisión o un importe: es un defecto
+   de corrección, no de estilo.
    **Si el cambio llama a un modelo de lenguaje**, busca además el modo de fallo que no
    levanta ningún error: **el pensamiento desactivado en una petición que declara
    herramientas** (`llamadas-a-modelos` (skill de OpenCode, auto-activable)). Con el razonamiento apagado, el modelo

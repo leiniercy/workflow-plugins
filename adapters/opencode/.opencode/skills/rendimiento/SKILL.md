@@ -17,6 +17,9 @@ se trabaja. La guía tiene dos filos y hay que sostener los dos a la vez:
 
 La frontera entre ambos es lo que resuelve esta guía.
 
+Hay además una frontera de tema: aquí vive la consulta **cara**; la **incorrecta**, la que
+devuelve otro número y pasa los tests igual, es `consultas-correctas` (skill de OpenCode, auto-activable).
+
 ## Lo que SÍ es un hallazgo desde el código (no requiere medición)
 
 Todos comparten la misma firma: **funcionan con los datos de hoy y se degradan con el

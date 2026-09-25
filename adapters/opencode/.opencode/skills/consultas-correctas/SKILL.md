@@ -214,12 +214,15 @@ los datos.
   columna nula** (¿la cuenta o la ignora?), **el conjunto vacío** (¿devuelve `0` o `NULL`?) y
   **el lado muchos con dos filas** (¿suma una vez o dos?). Cuatro casos, y son casi siempre los
   mismos (`niveles-y-tipos-de-prueba` (skill de OpenCode, auto-activable)).
-- **En `/review`:** recorre sobre lo que el diff **introduce o cambia**: condición de la tabla
-  derecha en el `WHERE` de un `LEFT JOIN`; agregación sobre un join uno-a-muchos; `NOT IN` contra
-  una subconsulta que admite nulos; `COUNT(columna)` donde se quería contar filas; escritura
-  dependiente de una lectura previa sin protección; efecto irreversible dentro de una
-  transacción. Severidad **Alta** cuando el resultado alimenta una decisión o un importe: es un
-  defecto de corrección, no de estilo (`revision-hallazgos` (skill de OpenCode, auto-activable)).
+- **En `/review`:** recorre sobre lo que el diff **introduce o cambia**, y decide la fuerza de
+  cada señal **antes** de puntuarla (`revision-hallazgos` (skill de OpenCode, auto-activable)). **Bastan solas:** `NOT IN`
+  contra una subconsulta que admite nulos; condición de la tabla derecha en el `WHERE` de un
+  `LEFT JOIN` —salvo que sea `IS NULL`, que es el anti-join y es intención—; escritura que
+  depende de una lectura previa sin protección; y efecto irreversible dentro de la transacción.
+  **Débiles en solitario**, que piden una segunda señal o la consecuencia concreta: agregación
+  sobre un join uno-a-muchos, `COUNT(columna)` donde se querían contar filas, y `SELECT *`.
+  Severidad **Alta** cuando el resultado alimenta una decisión o un importe: es un defecto de
+  corrección, no de estilo.
 
 ## Anti-patrones (nómbralos para no caer en ellos)
 

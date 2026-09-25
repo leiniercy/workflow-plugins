@@ -21,15 +21,20 @@ dejarlo pasar, no confirmarlo por inercia. Un falso positivo cuesta más que un 
    la línea no está, el fichero no existe o dice otra cosa, el hallazgo **se cae entero** —no
    baja de confianza, se descarta—. Es la única comprobación que no exige razonar sobre el
    fondo, así que hacerla primero te ahorra el resto (`evidencia-y-preguntas` (skill de OpenCode, auto-activable)).
-2. **Confianza (0-100) y umbral.** Asigna a cada superviviente un nivel:
+2. **Confianza (0-100) y umbral.** Asigna a cada superviviente un nivel, según la fuerza
+   de la señal que lo levantó (sección siguiente):
 
    | Confianza | Significado |
    |---|---|
    | 0 | falso positivo / no sostenible |
-   | 25 | quizá real |
-   | 50 | real pero menor |
-   | 75 | real e importante |
+   | 25 | quizá real, sin evidencia que lo sostenga |
+   | 50 | probable, pero la evidencia admite otra lectura |
+   | 75 | sostenible con evidencia concreta ante el autor |
    | 100 | certero |
+
+   La escala mide **cuán sostenible es el hallazgo**, no cuánto daño hace: el daño es el paso
+   3. Un defecto pequeño y seguro es 100 de confianza y severidad Baja; uno grave del que no
+   estás seguro es Crítico si se confirma, pero hoy no pasa el umbral.
 
    Solo cuentan los de **confianza ≥ 75**. Los de 50-74 van a una nota breve ("posibles, baja
    confianza", una línea cada uno); por debajo de 50 se descartan.
@@ -40,6 +45,47 @@ dejarlo pasar, no confirmarlo por inercia. Un falso positivo cuesta más que un 
    pantallas o dimensiones: es **un** hallazgo con varias manifestaciones, no varios hallazgos.
    Agrúpalos bajo la causa común y enumera dónde se manifiesta. Contar síntomas infla el informe
    y provoca lo peor: que se parchee cada aparición y la causa siga viva.
+
+## De qué depende la confianza del paso 2
+
+Si nadie dice de qué depende, la confianza se asigna a ojo, y a ojo casi todo acaba en 75.
+
+Cada señal que levanta un hallazgo tiene una **fuerza propia**, y es un eje distinto de la
+gravedad del defecto que anuncia. Confundirlos es lo que llena los informes de ruido:
+
+| Eje | La pregunta | Dónde se decide |
+|---|---|---|
+| **Fuerza de la señal** | Al verla, ¿cuántas veces de diez hay defecto detrás? | En el catálogo de la guía que la define |
+| **Severidad** | Si hay defecto, ¿cuánto daño hace? | Paso 3 |
+
+Una señal **basta sola** cuando un profesional no la produce a propósito casi nunca: una
+escritura que depende de una lectura previa sin protección, un secreto en el diff, un criterio
+de aceptación sin ningún test que lo toque. Vista una vez, ya hay hallazgo.
+
+Una señal es **débil en solitario** cuando tiene usos legítimos frecuentes: lo que también es
+una decisión de estilo, una elección de diseño defendible o el resultado normal de una
+herramienta. Vista una vez, lo que tienes es **dónde mirar**, no un hallazgo.
+
+**La regla.** Una señal débil en solitario no llega a 75 por sí misma. Llega si en el mismo
+trozo de código la acompaña **otra señal independiente**, o si la auto-refutación encuentra la
+**consecuencia concreta** —la fila que se pierde, la petición que se cuelga, el dato que sale
+mal, el dato que lee quien no debería—. Sin una cosa o la otra, es nota de baja confianza o no
+es nada.
+
+**En seguridad, el camino de ataque descrito ES la consecuencia concreta.** No hace falta
+explotarlo ni medirlo: basta con poder escribir quién llega, por dónde y qué se lleva. Y la
+regla no se usa nunca al revés: casi toda señal de seguridad tiene un uso legítimo en algún
+sitio —la autorización suele vivir en el middleware, `dangerouslySetInnerHTML` es válido con
+saneador, un CORS abierto es correcto en una API pública—, así que clasificarlas como débiles
+por eso vaciaría la dimensión entera. Si dudas con una señal de seguridad, **sube**: el umbral
+está aguas arriba de la severidad, y lo que no llega a 75 no se puntúa como Crítico después,
+desaparece.
+
+**Tres señales débiles del mismo tipo no suman una fuerte.** Eso es contar el mismo síntoma
+tres veces, y lo que toca es el paso 4: un hallazgo con varias manifestaciones.
+
+Cuando la guía que define la señal no marca su fuerza, decídelo con la pregunta de la tabla
+**antes** de puntuar. Al revés —puntuar y justificar después— es como un 50 se convierte en 75.
 
 ## Tres reglas de independencia del revisor
 
@@ -114,9 +160,19 @@ acaba desconfiando de la siguiente revisión.
   exija.
 - **El "por si acaso"** — reportar algo de lo que no estás seguro. Si no pasa la auto-refutación
   con evidencia, no entra.
+- **La señal débil promovida sola** — puntuar 75 algo que tiene usos legítimos frecuentes sin
+  una segunda señal ni la consecuencia concreta. Es la vía por la que entra casi todo el ruido.
+- **La señal fuerte degradada por comodidad** — llamar «débil en solitario» a lo que el
+  catálogo marca como suficiente, o a una señal de seguridad cuyo camino de ataque sabrías
+  escribir. Sale más barato que sostener el hallazgo y no deja rastro: lo que no llega a 75 no
+  aparece en el informe, así que nadie puede discutirlo. Es el fallo simétrico del anterior y
+  el más caro de los dos.
 
 ## Autocrítica antes de reportar
 
-Por cada hallazgo, pregúntate: **¿lo sostendría ante el autor con el código delante?** Si la
+Por cada hallazgo, pregúntate: **¿lo sostendría ante el autor con el código delante? ¿la señal
+que lo levantó basta sola, o le he dado 75 sin segunda señal ni consecuencia concreta? ¿y al
+revés: he bajado alguna de 75 porque sostenerla daba trabajo? ¿alguno de los que he dejado
+fuera es de seguridad y sabría escribir su camino de ataque?** Si la
 respuesta titubea, baja su confianza o descártalo. La revisión vale por lo que confirma, no por
 lo que enumera.

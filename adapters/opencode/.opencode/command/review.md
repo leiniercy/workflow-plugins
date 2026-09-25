@@ -114,7 +114,11 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
    `migraciones-de-datos` (skill de OpenCode, auto-activable): falta de reverso, operación destructiva sin registro,
    columna obligatoria sobre tabla con filas, borrado o actualización sin condición, o retirada
    de lo viejo en la misma migración que añade lo nuevo (rompe el despliegue en curso). Ahí la
-   severidad es **Alta**: el impacto no es un fallo, es pérdida de datos. **Y si el cambio
+   severidad es **Alta**: el impacto no es un fallo, es pérdida de datos. **Y si el diff trae
+   consultas a base de datos**, recórrelas contra `consultas-correctas` (skill de OpenCode, auto-activable), que trae la
+   tabla de señales con su fuerza: la consulta que devuelve otro número es sintácticamente
+   válida, pasa los tests con los datos de ejemplo y no se descubre al desplegar. Severidad
+   **Alta** cuando el resultado alimenta una decisión o un importe. **Y si el cambio
    llama a un modelo de lenguaje**, mira el fallo que no levanta error: el pensamiento
    desactivado en una petición con herramientas (`llamadas-a-modelos` (skill de OpenCode, auto-activable)) hace que la
    llamada pueda salir en el texto visible y no ejecutarse nunca.
