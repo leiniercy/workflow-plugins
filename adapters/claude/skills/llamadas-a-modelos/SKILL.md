@@ -155,7 +155,29 @@ en producción.
 
 ---
 
-## 4. Antes de optimizar nada: mide cuál es la llamada cara
+## 4. Antes de fiarte de la respuesta: mira por qué paró
+
+Una petición que devuelve 200 no garantiza que dentro haya una respuesta. El campo que dice **por
+qué paró el modelo** es lo primero que hay que leer, y tiene tres formas de arruinarte el día sin
+lanzar una sola excepción:
+
+- **El modelo declinó.** Llega como respuesta correcta —200, con el motivo de parada puesto a
+  «rechazo»—, así que **la monitorización montada sobre tasas de error no la ve nunca**. Y se
+  ramifica por el motivo de parada, nunca por la categoría ni por el texto explicativo: esos
+  pueden venir vacíos de forma normal y permanente.
+- **La respuesta se cortó por el tope de tokens.** El corte es a mitad de palabra y el 200 es el
+  mismo. Si no miras por qué paró, guardas una respuesta truncada como si estuviera completa.
+- **En un lote, el rechazo llega como resultado correcto**, no como error. Un proceso que filtre
+  por los fallidos lo cuela entero. Es el hermano del fallo de emparejar por posición: el lote no
+  avisa, devuelve algo con la forma correcta.
+
+La regla es una: **ramifica por el motivo de parada antes de leer el contenido**, y trata «se
+cortó» y «declinó» como caminos propios, no como el camino feliz. Reintentar un rechazo en el
+mismo modelo suele dar otro rechazo.
+
+---
+
+## 5. Antes de optimizar nada: mide cuál es la llamada cara
 
 Si no sabes qué llamada se come el presupuesto, vas a optimizar la que no es. Dos cosas, las dos
 baratas:

@@ -59,6 +59,65 @@ Versionado [SemVer](https://semver.org/lang/es/).
     si la herramienta que se pierde tiene efecto (escribe, cobra, envía). El arreglo tampoco es
     reactivar y pagar más, es bajar el esfuerzo de razonamiento.
 
+- **Guía `ingenieria-de-prompts`** — el catálogo pasa de 22 a 23. Cubría cero el plugin: ni un
+  `grep` en `core/` para few-shot, cadena de pensamiento o etiquetas. Y la skill empaquetada
+  `claude-api` tampoco lo trae —sus 26 ficheros son superficie de API, caching y managed agents;
+  `prompt-audit.md` audita prompts viejos, no enseña a escribirlos—, así que aquí **no hay
+  duplicación con nada empaquetado**, a diferencia de lo que sí pasaba con las cifras de API.
+
+  Hereda la Regla 0 de {{guide:llamadas-a-modelos}}, y no por simetría: la propia documentación
+  de Anthropic declara su guía general **subordinada** a la de cada modelo («lee primero la de tu
+  modelo»). Lo que cambia por generación —verbosidad, si el pensamiento viene encendido, cuánto
+  formatea, si sobre-delega— se consulta, no se escribe. Queda el oficio: claridad con el listón
+  del compañero sin contexto, la motivación además de la orden, ejemplos (empezando por uno) y el
+  patrón accidental que enseñan sin querer, estructura que separa instrucción de dato, rol de una
+  frase, documento largo arriba y pregunta al final, y razonamiento general antes que prescriptivo.
+  Más una tabla de lo que ya no se hace y sigue circulando: prellenado del último turno, techo fijo
+  de razonamiento y lenguaje anti-pereza heredado.
+
+  Enrutado medido: los tres positivos en **rango 1**, colisión máxima de su `description` 13,7 %
+  (contra `llamadas-a-modelos`), ninguna guía existente pierde rango, y el agregado sube de
+  78,8 % a **79,7 %** de top-3. La primera redacción **rompía su propio par confundible** —
+  `llamadas-a-modelos` le ganaba en «qué le escribo para que me devuelva siempre el mismo formato»
+  — porque el caso de uso más común de la guía no estaba en su disparador. Arreglado en la
+  `description`, nunca en el caso.
+
+- **`llamadas-a-modelos`: sección nueva sobre por qué paró el modelo.** Un 200 no garantiza que
+  dentro haya una respuesta, y hay tres formas de perderlo sin excepción: el rechazo llega como
+  respuesta correcta y **la monitorización montada sobre tasas de error no lo ve nunca**; el corte
+  por tope de tokens parte a mitad de palabra con el mismo 200; y en un lote el rechazo vuelve como
+  resultado **correcto**, no como error, así que un proceso que filtre por los fallidos lo cuela
+  entero. La regla: ramificar por el motivo de parada antes de leer el contenido.
+
+- **`historias-usuario`: técnica nueva para campos de texto libre.** La tabla de caja negra tenía
+  partición de equivalencia, valores límite, tabla de decisión, transición de estados y pares —
+  **todas asumen un campo tipado con rango**. Para prosa escrita por una persona no había nada, y
+  esa es exactamente la forma de la entrada de cualquier función que llame a un modelo: contra un
+  prompt de usuario, `mín-1/mín/máx/máx+1` no dice nada. Se añade un EC por familia de ruido:
+  sarcasmo, erratas, divagación, ruido irrelevante inyectado, multi-tema, encabezado engañoso,
+  carga emocional, enunciado hipotético, referencia indirecta, dependencia de contexto lejano y
+  cambio brusco de tema.
+
+### Medido y descartado
+
+- **Auditoría de sobre-prompteo: no nos aplica.** La documentación avisa de que el lenguaje
+  agresivo que hacía falta para modelos anteriores hoy provoca **sobre-disparo** («CRÍTICO: DEBES
+  usar esta herramienta» → «usa esta herramienta cuando…»). `core/` tiene 55 `NUNCA`, 50 `SIEMPRE`
+  y 7 `CRÍTICO`, así que la hipótesis parecía sólida. Medida donde el aviso aplica —los
+  disparadores, no los cuerpos—: **2 de 23 descriptions** usan mayúscula imperativa, una de ellas
+  es una palabra de secuencia, y las definiciones de agente usan `SOLO` tres veces, que *restringe*
+  el disparo en vez de forzarlo. El resto vive en cuerpos de guía como gates de comportamiento, que
+  es otra función. Hipótesis planteada, medida y descartada; queda escrito para no volver a
+  levantarla.
+
+- **Metodología de evaluación: el plugin va por delante.** El barrido de `test-and-evaluate` no
+  dejó nada que importar. La documentación **no menciona el no-determinismo** (aquí hay `--runs N`,
+  RUIDO y VARIANZA), no contempla medir contra un **control** (aquí `--baseline` y el veredicto
+  SIN DELTA), dice «prueba la fiabilidad del juez» **sin dar procedimiento** (aquí
+  `check-graders.mjs` con sondas de falso positivo), no contempla que un brazo pueda **no
+  ejecutarse** (aquí INCONCLUSO), y tiene **cero integración con CI** (aquí seis checks). Lo único
+  aprovechable fue su repertorio de edge cases, que es la fila nueva de `historias-usuario`.
+
 - **Tres casos de activación escritos, medidos y borrados.** `herramienta-que-no-se-ejecuta`,
   `fork-que-rehace-el-prefijo` y `concurrencia-sin-cache` medían los tres mecanismos más
   específicos que documenta la guía. Calibrados con `--baseline` (6 sesiones en tres intentos,
