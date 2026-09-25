@@ -194,9 +194,10 @@ Generado por `scripts/sync.mjs` desde `core/`:
 
 ## 3. Brecha frente al adaptador de Claude
 
-El adaptador de Claude genera, además de comandos y skills: **5 subagentes read-only con
-tiering** (`revisor-bugs-seguridad`=opus, `revisor-spec-tests`=sonnet,
-`revisor-convenciones`=haiku, `verificador-hallazgos`=opus, `explorador-repo`=sonnet),
+El adaptador de Claude genera, además de comandos y skills: **7 subagentes read-only con
+tiering** (`revisor-bugs-seguridad`=opus, `verificador-hallazgos`=opus,
+`refutador-decision`=opus, `revisor-spec-tests`=sonnet, `revisor-convenciones`=sonnet,
+`revisor-usabilidad-accesibilidad`=sonnet, `explorador-repo`=sonnet),
 un **`.mcp.json` generado**, y **hooks** (`SessionStart` inyecta el estado de `progress.md`;
 `Stop` notifica con sonido). De todo eso, OpenCode hoy solo recibe los comandos y las guías.
 
@@ -267,7 +268,7 @@ del proveedor del usuario. Dos opciones:
     "agent": {
       "revisor-bugs-seguridad": { "model": "anthropic/claude-opus-4-1" },
       "revisor-spec-tests":     { "model": "anthropic/claude-sonnet-4-5" },
-      "revisor-convenciones":   { "model": "anthropic/claude-haiku-4-5" }
+      "revisor-convenciones":   { "model": "anthropic/claude-sonnet-4-5" }
     }
   }
   ```

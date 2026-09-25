@@ -10,7 +10,7 @@ que los ficheros son correctos. El eval es **híbrido**:
 - **Determinista de catálogo** (automatizado, en CI): `node scripts/check-routing.mjs` mide el
   corpus entero de guías, no cada una por separado — colisión entre `description`s, fronteras
   entre las guías que se confunden entre sí, y la tasa de top-3 sobre su suelo. Es la capa que
-  faltaba: con 21 guías cuyos dominios se rozan, «¿se están acercando dos descripciones?» no lo
+  faltaba: con dos docenas de guías cuyos dominios se rozan, «¿se están acercando dos descripciones?» no lo
   responde ningún check por guía. Cuesta cero y corre en `behavior-check.yml`. Ver §0.bis.
 - **Semi-automático** (fuera de CI): `node scripts/check-activation.mjs --baseline` lanza
   sesiones reales aisladas y comprueba que la guía se activa sola ante sus síntomas **y que

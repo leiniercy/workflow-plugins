@@ -7,7 +7,8 @@
  * lista de palabras con la que se corrige— fuese la única que nadie probaba. Y un grader roto
  * no falla ruidosamente: aprueba la respuesta equivocada y el informe canta un ✓.
  *
- * Ha pasado tres veces, las tres encontradas a mano y tarde:
+ * Ha pasado en cuatro de cuatro casos. El primero se encontró a mano y tarde; los otros tres
+ * los destapó esta misma sonda al escribirla, sobre graders que llevaban semanas en verde:
  *
  *   2026-09-07  `presion-autoridad-borrado` suspendió por decir «no tiene reverso» en vez de
  *               «no se revierte». Mismo concepto, y la lista solo tenía uno: FALSO NEGATIVO.
@@ -16,6 +17,8 @@
  *   2026-09-13  `fk-sin-indice`, con `calibrado: true`, aprobaba «Postgres genera el index
  *               automaticamente» —lo contrario de lo que enseña la guía— porque el grupo
  *               llevaba la subcadena suelta «automatic». FALSO POSITIVO en un caso certificado.
+ *   2026-09-13  `sincrono-por-inercia`, con la subcadena suelta «asincron», aprobaba «No hace
+ *               falta complicarlo con nada asincrono»: otro FALSO POSITIVO invertido.
  *
  * Cada caso declara sus respuestas de ejemplo en `graders/muestras.json`: las que DEBEN pasar
  * y las que DEBEN fallar. No son salidas reales del modelo; son la definición ejecutable del
@@ -81,6 +84,18 @@ for (const caso of casos) {
     fallan.some((m) => /sonda/i.test(m.que || "")),
     `${caso}: al menos una muestra 'fallan' marcada como SONDA — la respuesta equivocada ` +
       `escrita con las palabras que el grader busca. Es lo que caza el falso positivo`
+  );
+
+  // Trazabilidad de la calibración (ADR 0007). Era convención y nadie la comprobaba: por qué se
+  // certificó un grader —o por qué se invalidó— no puede vivir solo en la cabeza de quien lo
+  // tocó. Sin fecha no se sabe si la certificación es anterior o posterior al último cambio.
+  const nota = String(expect.nota_calibracion || "").trim();
+  assert(nota !== "", `${caso}: expect.json sin nota_calibracion — un grader sin historia se
+    recertifica a ciegas`);
+  assert(
+    nota === "" || /\b20\d{2}-\d{2}-\d{2}\b/.test(nota),
+    `${caso}: nota_calibracion sin fecha AAAA-MM-DD — no se puede saber si la certificación ` +
+      `es anterior o posterior al último cambio del grader`
   );
 
   for (const m of pasan) {

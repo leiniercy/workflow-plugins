@@ -241,7 +241,19 @@ Cuando todos los criterios estén completados y la suite en verde:
 2. Presenta un resumen de todos los cambios (`git diff develop --stat` + descripción).
 3. Propón el push de la rama. Ejecuta SOLO tras aprobación.
 4. Propón la PR contra `develop` con: título `[<taskId>] <título de la tarea>`, cuerpo con
-   enlace a la tarea de ClickUp, resumen de cambios y checklist de criterios de spec.md.
+   enlace a la tarea de ClickUp, resumen de cambios, checklist de criterios de spec.md y
+   **prueba visual del cambio**. La prueba visual aplica cuando el cambio altera un flujo que
+   recorre una persona (alta, login, pago, búsqueda…), cambia una pantalla, o modifica el
+   camino que siguen los datos entre piezas; no aplica a cambios internos que no cambian
+   ningún recorrido. No es un gate: es contenido del cuerpo y no bloquea el push.
+   - **Interfaz:** adjunta las capturas que ya produjo la QA exploratoria del paso 1. No
+     generes material nuevo; se reutiliza el que hay.
+   - **Flujo o estructura, sin pantalla que capturar:** pasa por el gate de
+     `diagramas` (skill de OpenCode, auto-activable). Si sale que sí, un diagrama Mermaid en el cuerpo de la PR; si sale
+     que no, el párrafo o la tabla que lo cuenta mejor.
+   - **No aplica:** escríbelo, «sin cambios visuales». Un hueco en blanco no distingue «no
+     aplica» de «se me olvidó».
+
    Usa `gh pr create` si la CLI está disponible; si no, da las instrucciones manuales.
    Ejecuta SOLO tras aprobación.
 5. **Transición de estado (responsabilidad exclusiva de /implement):** tras crear la PR,
@@ -305,3 +317,4 @@ saltarte el contrato.
 | "Es un DROP/DELETE pequeño, lo ejecuto y sigo" | Un revert no devuelve los datos. Toda operación destructiva o irreversible se presenta aparte y solo se ejecuta con aprobación explícita. |
 | "La migración funciona, la he probado en local con la tabla vacía" | Todas las migraciones funcionan sin datos: el riesgo vive en los existentes (nulos, duplicados, valores fuera del nuevo dominio). |
 | "De paso lo optimizo, que así va más rápido" | El refactor del TDD es de diseño, no de velocidad. Sin medición, el código simple gana (guía rendimiento). |
+| "El diff ya enseña el cambio, quien revise que lo lea" | Quien revisa no recorrió el flujo: lee trozos sueltos y reconstruye a mano. El recorrido se enseña —capturas de la QA o diagrama—, no se deduce del diff. Y si no hay nada visual, se dice (Fase 4, paso 4). |

@@ -10,7 +10,7 @@ revisión independiente y continuidad entre sesiones vía `progress.md`.
 custom-ia-plugin/
 ├── core/                      ← ÚNICA fuente de verdad (editar SOLO aquí)
 │   ├── workflows/             start.md · plan.md · implement.md · review.md · close.md
-│   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · llamadas-a-modelos · ingenieria-de-prompts · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado
+│   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · llamadas-a-modelos · ingenieria-de-prompts · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado · diagramas
 │   │   └── in-progress/      borradores versionados que NO se publican (ver su README)
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo · refutador-decision
 ├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-hygiene (los hooks no escriben fuera, CI) · check-hooks (el hook de SessionStart, ejecutado, CI) · check-graders (que los graders distingan, CI) · check-activation (activación con modelo, manual)
@@ -28,6 +28,7 @@ custom-ia-plugin/
 │           ├── command/       (generado por sync.mjs — no editar a mano)
 │           └── guides/        (generado por sync.mjs — no editar a mano)
 ├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a adapters/claude)
+├── docs/adr/                  decisiones de arquitectura del plugin (léelas antes de re-litigar una)
 ├── .github/workflows/         review.yml (CI de PRs) · sync-check · version-check · behavior-check · manifest-check · hygiene-check
 └── examples/                  plantillas para repos consumidores
 ```
@@ -126,6 +127,13 @@ está, el flujo degrada sin problema.
   y tu `TEAM_ID` (el número en la URL `app.clickup.com/<TEAM_ID>/...`).
 - **graphify** (opcional): `uv install graphifyy` (con doble *y*; el comando CLI es
   `graphify`). Añade `graphify-out/` al `.gitignore` del repo consumidor.
+- **diagram-design** (opcional): plugin de terceros para los diagramas que van a
+  documentación del repo, material de cliente o diapositivas — genera HTML/SVG editorial.
+  `/plugin marketplace add https://github.com/cathrynlavery/diagram-design.git` y
+  `/plugin install diagram-design@diagram-design` (ámbito *user*). Usa la URL HTTPS: con el
+  atajo `owner/repo` Claude Code resuelve a SSH y falla si no tienes la host key de GitHub.
+  Para exportar a PNG hace falta además `pip install playwright` y
+  `python -m playwright install chromium`. Sin él, la guía `diagramas` degrada a Mermaid.
 
 ## Instalación graphifyy en windows
 - python-3.13.14-amd64.exe from https://www.python.org/downloads/

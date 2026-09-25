@@ -7,6 +7,50 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **Guía `diagramas`, y la regla de canal que resuelve el fallo que no se ve** — un diagrama en
+  el formato que el destino no pinta es un hueco en blanco, y el que lo descubre es quien lo
+  lee, no quien lo hizo. La guía fija tres cosas: el gate de entrada (¿aprendería el lector más
+  de un párrafo o de una tabla de tres columnas?), el presupuesto de 9 nodos / 12 flechas / 2
+  destacados con la regla de partir en dos en vez de apretar, y el formato según dónde acaba —
+  **Mermaid** en cuerpos de PR, comentarios y ficheros `.md` del repo, que es lo que GitHub
+  renderiza nativo; **PNG adjunta a la tarea** en ClickUp, que no renderiza ni HTML ni Mermaid;
+  y **HTML/SVG** de `diagram-design` para cliente y diapositivas. Los motivos van escritos al
+  lado, incluida la trampa de que GitHub sanea el `<svg>` inline y no reescribe la ruta relativa
+  fuera de los `.md`. Trata `diagram-design` como herramienta externa opcional con el patrón de
+  `grafo-conocimiento`: detección, degradación y cómo instalarlo.
+- **Prueba visual en el cuerpo de la PR (`/implement`, Fase 4)** — quien revisa no recorrió el
+  flujo: lee trozos sueltos del diff y lo reconstruye a mano. Ahora la PR lleva las capturas que
+  ya produjo la QA exploratoria si el cambio es de interfaz, o pasa por el gate de
+  `{{guide:diagramas}}` si es de flujo y no hay pantalla que capturar — y cuando el gate dice
+  que no se dibuje, el párrafo que lo cuenta mejor. Si no aplica, se escribe «sin cambios
+  visuales»: un hueco en blanco no distingue «no aplica» de «se me olvidó». No es un gate nuevo,
+  no bloquea el push.
+- **`docs/adr/` — diez decisiones de arquitectura del plugin, con la regla de no re-litigar** —
+  las políticas que más riesgo tenían de que alguien las deshiciera sin saber por qué vivían en
+  comentarios de los generadores: por qué `adapters/` es salida generada, por qué las
+  `description` van entrecomilladas en YAML, por qué `check-behavior` re-declara en vez de
+  derivar de `sync.mjs`, por qué un caso de eval sin línea base que falle no vale, por qué el
+  corpus de enrutado no copia el vocabulario del disparador, las dos capas del gate humano y por
+  qué el grader se prueba con sondas. Si un ADR deja de valer, pasa a `superseded` y se escribe
+  otro: el original no se edita. Se suman tres que vivían solo en comentarios del generador y
+  que alguien podría deshacer sin saberlo: `allowed-tools` es **pre-aprobación y no un sandbox**
+  —por eso `/close` no lista `Write` pese a escribir `progress.md`—, las acciones de CI van
+  **pineadas por SHA** con los permisos recortados, y el **modelo de cada agente se elige por
+  turnos y no por precio por token**, que es el motivo de que `revisor-convenciones` sea `sonnet`
+  y no `haiku`. El 0002 pasa a `superseded` por el 0003: su única política era la tesis de aquel,
+  y el mecanismo YAML lo explica el código. Patrón tomado de `cathrynlavery/diagram-design`.
+- **La trazabilidad de los graders pasa de convención a política** — `check-graders.mjs` ahora
+  exige que cada caso lleve `nota_calibracion` y que su última entrada tenga fecha `AAAA-MM-DD`.
+  Antes era disciplina: se cumplía en los cinco casos, pero si se perdía, se perdía en silencio,
+  y un grader sin historia se recertifica a ciegas. Diez comprobaciones más, sin gastar sesión.
+- **Arreglos de datos encontrados al escribir los ADRs** — `check-graders.mjs` decía «tres
+  veces, las tres encontradas a mano» cuando fueron cuatro de cuatro casos y tres las destapó la
+  propia sonda (commit `4f2c92c`); faltaba además el incidente de `sincrono-por-inercia`.
+  `check-activation.mjs` tenía congelado «los siete casos» de cuando había siete directorios, y
+  hoy son cinco. Los dos comentarios llevaban el número de guías desactualizado. Y
+  `docs/opencode-integracion.md` contaba 5 subagentes cuando son 7, con
+  `revisor-convenciones = haiku` cuando es `sonnet` desde hace tiempo.
+
 - **Fuerza de la señal como eje propio en `revision-hallazgos`** — el paso 2 mandaba asignar
   confianza 0-100 y no decía de qué depende, así que a ojo casi todo acababa en 75. Ahora se
   separa la **fuerza de la señal** («al verla, ¿cuántas veces de diez hay defecto detrás?», la

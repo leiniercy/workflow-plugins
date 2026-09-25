@@ -48,8 +48,8 @@
  *
  * Cada caso son `--runs N` sesiones, el doble con --baseline. Medido: ~0,32–0,49 USD equivalentes por
  * sesión (unos 60k tokens leídos de caché con el plugin cargado; más en el brazo sin
- * plugin, que arrastra el entorno completo del usuario). Los siete casos con
- * --baseline rondan los 5–6 USD equivalentes y varios minutos de reloj; con --runs 3,
+ * plugin, que arrastra el entorno completo del usuario). Los casos que haya, con
+ * --baseline, cuestan el doble de sesiones y varios minutos de reloj; con --runs 3,
  * el triple. El freno de --yes calcula el número exacto antes de gastar nada.
  *
  * En local, con sesión OAuth, eso NO es facturación: consume límite de uso. En CI sí

@@ -120,7 +120,7 @@ si la skill enseña lo correcto.
 | Presupuesto de tokens (<150 bootstrap / <200 muy cargadas / <500 resto) verificado con `wc -w` | Toda skill frecuente compite por contexto | Nuestras guías son de 2-10 KB; algunas son referencia densa a propósito. Aplicado al **frontmatter** (que sí se carga siempre), no al cuerpo | 🟡 (deliberado) |
 | Sin enlaces `@` en skills | `@ruta` fuerza la carga inmediata y quema contexto antes de necesitarlo | ✅ **Verificado:** nuestro `{{guide:x}}` expande a referencia textual, no fuerza carga. Cumplíamos sin saberlo | ✅ (validado) |
 | Nombres verbo-primero, en gerundio | `condition-based-waiting` > `async-test-helpers` | ⛔ **Decisión consciente:** nuestras guías son sustantivas (`codigo-limpio`, `arquitectura`) porque la mayoría son catálogos de referencia, no procedimientos | ⛔ |
-| Diagramas solo para decisiones no obvias | Nunca para referencia (→ tablas), código (→ bloques) ni pasos lineales (→ listas) | Cumplido por omisión: apenas usamos diagramas | ✅ (validado) |
+| Diagramas solo para decisiones no obvias | Nunca para referencia (→ tablas), código (→ bloques) ni pasos lineales (→ listas) | ✅ **Aplicado:** es el gate de entrada de `core/guides/diagramas.md` — «¿aprendería el lector más de esto que de un párrafo o una tabla de tres columnas?». Antes se cumplía por omisión, porque apenas dibujábamos | ✅ (validado) |
 | `persuasion-principles.md` | Base investigadora (Cialdini 2021; Meincke et al. 2025) de por qué autoridad/compromiso/escasez funcionan en un prompt | Fuente al mantener las guías de disciplina | 📖 referencia |
 
 ### 2.B — `subagent-driven-development`: la disciplina, no la maquinaria

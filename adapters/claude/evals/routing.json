@@ -43,6 +43,13 @@
         "Cada vez que arreglo una cosa se me rompe otra distinta"
       ]
     },
+    "diagramas": {
+      "positivos": [
+        "Llevo veinte cajas en el esquema y ya nadie entiende nada",
+        "Lo pegue en el comentario de la pull request y sale un hueco en blanco",
+        "Como le enseno al equipo el recorrido que hace un alta hasta que se crea el usuario"
+      ]
+    },
     "espacio-de-trabajo-aislado": {
       "positivos": [
         "Tengo cosas a medias en otra rama y me piden mirar una PR urgente",
