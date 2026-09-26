@@ -195,6 +195,10 @@ const GUIDES = {
     description:
       "Úsala SIEMPRE que vayas a registrar el avance de una tarea, apuntar dónde te has quedado, crear su fichero de estado inicial o actualizar su estado actual — al cerrar cualquier fase del flujo (plan, implement, corrección, review). Es lo que permite que un agente en sesión limpia recupere el contexto.",
   },
+  "escritura-natural": {
+    description:
+      "Úsala al redactar un texto que va a leer una persona — el cuerpo de una PR, un hilo de code review, el comentario de ClickUp, el resumen de cierre, el changelog o un mensaje de Slack. Síntomas: el borrador arranca con un preámbulo, suena a robot, se alarga sin decidir nada, o junta dos asuntos que se contestan por separado. También al señalar el trabajo de otra persona.",
+  },
   "grafo-conocimiento": {
     description:
       "Úsala cuando necesites entender la estructura de un repo que no conoces, localizar las áreas que una tarea va a tocar, o analizar el impacto de un cambio sobre sus consumidores, antes de ponerte a leer ficheros crudos. Síntoma extra: vas a pedir el contenido completo de una lista (nodos, tareas, ficheros) sin haberla filtrado antes.",

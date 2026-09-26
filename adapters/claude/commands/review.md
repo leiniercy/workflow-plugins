@@ -328,6 +328,10 @@ TOON según la guía `formato-toon` (`${CLAUDE_PLUGIN_ROOT}/skills/formato-toon/
 **Cambios requeridos**. Si no hay hallazgos ≥ 75, dilo en una línea (p. ej. "Sin hallazgos de
 alta confianza; revisadas las seis dimensiones").
 
+Cada hallazgo lo lee la persona que escribió ese código: redáctalo con
+`escritura-natural` (`${CLAUDE_PLUGIN_ROOT}/skills/escritura-natural/SKILL.md`) —hecho, impacto y acción, sobre el trabajo y nunca sobre quien
+lo hizo—.
+
 ## Fase 5 — Cierre
 
 Resume el veredicto en 2-3 líneas. Si hay hallazgos Críticos o Altos: recomienda `/implement`,

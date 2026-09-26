@@ -50,6 +50,13 @@
         "Como le enseno al equipo el recorrido que hace un alta hasta que se crea el usuario"
       ]
     },
+    "escritura-natural": {
+      "positivos": [
+        "Me ha quedado un comentario kilometrico para la tarea y no se que sobra",
+        "Repasa el borrador de este mensaje antes de que lo mande, que suena a robot",
+        "El cuerpo de la PR me ha salido larguisimo y repite medio spec"
+      ]
+    },
     "espacio-de-trabajo-aislado": {
       "positivos": [
         "Tengo cosas a medias en otra rama y me piden mirar una PR urgente",

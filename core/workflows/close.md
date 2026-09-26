@@ -63,7 +63,8 @@ Si el cierre es por abandono y el estado de destino no está en la tabla de
 
 ## Fase 6 — Cierre
 
-Resume en 3-4 líneas: tarea, veredicto por criterio, motivo de salida y estado en ClickUp.
+Resume en 3-4 líneas, con {{guide:escritura-natural}}: tarea, veredicto por criterio,
+motivo de salida y estado en ClickUp.
 Si la rama o el worktree siguen vivos, recuérdalo — pero no decidas tú qué hacer con ellos.
 
 ## Banderas rojas (no te las saltes)

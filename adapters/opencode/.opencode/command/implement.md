@@ -254,6 +254,9 @@ Cuando todos los criterios estén completados y la suite en verde:
    - **No aplica:** escríbelo, «sin cambios visuales». Un hueco en blanco no distingue «no
      aplica» de «se me olvidó».
 
+   El cuerpo lo lee alguien sin tu contexto y dentro de seis meses: redáctalo con
+   `escritura-natural` (skill de OpenCode, auto-activable), sin repetir lo que ya dice la spec.
+
    Usa `gh pr create` si la CLI está disponible; si no, da las instrucciones manuales.
    Ejecuta SOLO tras aprobación.
 5. **Transición de estado (responsabilidad exclusiva de /implement):** tras crear la PR,

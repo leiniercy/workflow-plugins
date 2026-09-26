@@ -7,6 +7,23 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **`escritura-natural` entra en el plugin como la guía 25** — vivía solo en
+  `~/.claude/skills/` del mantenedor, fuera de control de versiones, y las §21 y §22 de
+  `docs/referencias.md` justificaban descartes apuntando a ella: el catálogo se apoyaba en
+  material que no se distribuía con el plugin. Ahora es `core/guides/escritura-natural.md`
+  (271 líneas, techo 500), con `## Prohibido` y `## Antes de entregar` renombrados a las dos
+  secciones del esqueleto de guía, su `description` registrada en `sync.mjs` y sus tres
+  positivos en `routing.json`. Cableada en los tres sitios donde el flujo escribe para una
+  persona: el cuerpo de la PR (`/implement`), el informe de hallazgos (`/review`) y el
+  resumen de cierre (`/close`).
+  **Coste medido y aceptado:** una guía más compite en el enrutado. La primera `description`
+  era una red demasiado ancha —palabras genéricas como «mismo», «dice» o «mete»— y sacó
+  cuatro prompts ajenos del top-3, bajando el eval de 80,6 % a 76,0 %. Afilada a los nombres
+  de canal recupera tres: queda en **80,0 % de top-3** (suelo 70 %) con un solo desplazado,
+  el prompt de `diagramas` sobre un diagrama que no renderiza en un comentario de PR, que
+  cae al puesto 4 porque ambas guías comparten la palabra «comentario». No se arregla sin
+  quitarle vocabulario a `diagramas`, que ya está en los 500 caracteres de techo.
+
 - **stop-slop analizado y descartado entero, con la medición delante** — §22 de
   `docs/referencias.md`. Tres de sus patrones parecían huecos nuestros: agencia falsa,
   declarativas vagas y la familia completa del contraste binario. Medidos contra ~6.800 líneas
