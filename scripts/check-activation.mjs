@@ -62,9 +62,11 @@
  *   node scripts/check-activation.mjs --baseline       # + brazo sin plugin (recomendado)
  *   node scripts/check-activation.mjs --case consultas # filtra por nombre
  *   node scripts/check-activation.mjs --runs 5       # varianza: N muestras por caso
+ *   node scripts/check-activation.mjs --sin-cache    # re-mide el brazo base aunque haya cache
  *   node scripts/check-activation.mjs --json out.json  # vuelca el resultado completo
  */
 import { readFileSync, readdirSync, existsSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -88,6 +90,9 @@ const value = (name) => {
   return i >= 0 ? argv[i + 1] : null;
 };
 const withBaseline = flag("--baseline");
+// `--sin-cache` fuerza a re-medir el brazo base aunque haya caché válida. Es la salida
+// para cuando sospechas del dato guardado, no el camino normal.
+const sinCache = flag("--sin-cache");
 const caseFilter = value("--case");
 const jsonOut = value("--json");
 const runs = Math.max(1, parseInt(value("--runs") || "1", 10) || 1);
@@ -115,6 +120,10 @@ function run(prompt, { plugin }) {
   const skills = [];
   let texto = "";
   let fallo = null;
+  // El modelo forma parte de la clave de caché del brazo base: una respuesta de otro
+  // modelo no es la misma medición. La CLI lo anuncia en el evento de init; si algún día
+  // deja de hacerlo queda null y la caché lo dice en vez de fingir que coincide.
+  let modelo = null;
   for (const linea of (r.stdout || "").split("\n")) {
     if (!linea.trim()) continue;
     let d;
@@ -123,6 +132,7 @@ function run(prompt, { plugin }) {
     } catch {
       continue;
     }
+    if (typeof d.model === "string" && !modelo) modelo = d.model;
     if (d.type === "result") {
       texto = d.result || "";
       // La CLI puede salir con código 0 y aun así no haber respondido: lo dice aquí.
@@ -148,7 +158,75 @@ function run(prompt, { plugin }) {
     else if (SIN_VEREDICTO.test(texto)) fallo = "ERROR_DE_API";
   }
 
-  return { skills, texto, error: fallo };
+  return { skills, texto, error: fallo, modelo };
+}
+
+// ---------------------------------------------------------------------------
+// Caché del brazo BASE
+//
+// Con `--baseline` cada caso cuesta el doble de sesiones, y ese brazo es el que frena la
+// calibración: gasta cuota fuera de la sesión de trabajo, así que los casos se quedan en
+// `calibrado: false` esperando un hueco.
+//
+// La observación que lo arregla: **el brazo base no depende del plugin**. Es
+// `run(prompt, { plugin: false })` — el modelo desnudo contestando al prompt. Editar una
+// guía, afinar una `description` o cambiar el `sync.mjs` no lo mueve ni un carácter. Solo
+// lo invalidan dos cosas: que cambie el PROMPT o que cambie el MODELO.
+//
+// Se guardan los TEXTOS, no el veredicto. Es la parte que importa: `debe_incluir` y
+// `no_debe_incluir` SÍ cambian al afinar un caso, así que un veredicto cacheado se
+// quedaría contestando a la pregunta vieja. Guardando el texto, re-corregir es gratis y
+// exacto — que es justamente lo que se hace al calibrar.
+//
+// Lo que NO se cachea nunca:
+//   - El brazo CON plugin. Ese mide lo que acabas de cambiar; cachearlo sería no medir.
+//   - Una corrida con error. Un brazo que no llegó a ejecutarse no es evidencia de nada
+//     (la misma regla que `baseInconcluso`), y congelarlo fabricaría un delta.
+// ---------------------------------------------------------------------------
+const cacheHits = [];
+
+function rutaCache(caso) {
+  return join(EVALS_DIR, caso.nombre, ".base-cache.json");
+}
+
+function clavePrompt(prompt) {
+  return createHash("sha256").update(prompt, "utf8").digest("hex").slice(0, 16);
+}
+
+/** Corridas base guardadas que siguen valiendo para este caso, o null. */
+function leeCache(caso, runsPedidos) {
+  if (sinCache) return null;
+  const ruta = rutaCache(caso);
+  if (!existsSync(ruta)) return null;
+  let c;
+  try {
+    c = JSON.parse(readFileSync(ruta, "utf8"));
+  } catch {
+    return null;
+  }
+  if (c.clavePrompt !== clavePrompt(caso.prompt)) return null;
+  if (!Array.isArray(c.corridas) || c.corridas.length < runsPedidos) return null;
+  if (c.corridas.some((x) => x.error)) return null;
+  // Se usan las N primeras: pedir menos muestras de las guardadas es válido; pedir más, no.
+  return { ...c, corridas: c.corridas.slice(0, runsPedidos) };
+}
+
+function escribeCache(caso, corridas, modelo) {
+  if (corridas.some((x) => x.error)) return;
+  writeFileSync(
+    rutaCache(caso),
+    JSON.stringify(
+      {
+        _: "Brazo BASE (sin plugin) de este caso. Lo escribe check-activation.mjs --baseline. No se edita a mano: bórralo para re-medir, o usa --sin-cache.",
+        clavePrompt: clavePrompt(caso.prompt),
+        modelo: modelo || null,
+        guardado: new Date().toISOString(),
+        corridas: corridas.map((x) => ({ texto: x.texto, skills: x.skills, error: null })),
+      },
+      null,
+      2,
+    ) + String.fromCharCode(10),
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -199,10 +277,18 @@ if (!casos.length) {
 // el contador de la conversación desde la que lo lanzas. Medido: 0,32–0,49 USD
 // equivalentes por sesión. Por eso no se ejecuta nada sin --yes: el fallo que
 // evita es lanzar la suite entera sin darse cuenta de lo que cuesta.
-const sesiones = casos.length * runs * (withBaseline ? 2 : 1);
+// Con --baseline, los casos cuyo brazo base ya esta en cache no vuelven a gastar: su
+// mitad del experimento ya esta medida y el prompt no ha cambiado.
+const conBaseCacheada = withBaseline ? casos.filter((c) => leeCache(c, runs)).length : 0;
+const sesiones = casos.length * runs * (withBaseline ? 2 : 1) - conBaseCacheada * runs;
 const est = (sesiones * 0.4).toFixed(2);
 if (!flag("--yes")) {
   console.log(`\nEsto lanzaría ${sesiones} sesión(es) de Claude reales.`);
+  if (conBaseCacheada) {
+    console.log(
+      `(${conBaseCacheada} brazo(s) base salen de cache: ${conBaseCacheada * runs} sesion(es) ahorradas. --sin-cache para re-medirlos.)`,
+    );
+  }
   console.log(`Coste estimado: ~${est} USD equivalentes (medido: 0,32–0,49 por sesión).`);
   console.log("Con sesión OAuth no se factura, pero SÍ consume tu límite de uso —");
   console.log("el mismo del que tira la sesión desde la que lanzas esto.\n");
@@ -246,8 +332,16 @@ for (const caso of casos) {
     // una desafortunada, un «hay delta» falso (certificas uno que no discrimina). En ambos
     // casos el delta no está medido: está muestreado una vez. Es el mismo defecto que ya
     // corregimos dos veces en el brazo con plugin, solo que en el otro brazo. → §20.
-    const basales = [];
-    for (let i = 0; i < runs; i++) basales.push(run(caso.prompt, { plugin: false }));
+    const guardado = leeCache(caso, runs);
+    let basales;
+    if (guardado) {
+      basales = guardado.corridas;
+      cacheHits.push({ caso: caso.nombre, modelo: guardado.modelo, guardado: guardado.guardado });
+    } else {
+      basales = [];
+      for (let i = 0; i < runs; i++) basales.push(run(caso.prompt, { plugin: false }));
+      escribeCache(caso, basales, basales.find((x) => x.modelo)?.modelo || conPlugin.modelo);
+    }
     const b = basales[0];
     const bc = corrige(b.texto, caso);
     nBaseOk = basales.filter((x) => !x.error && corrige(x.texto, caso).ok).length;
@@ -335,6 +429,20 @@ for (const r of resultados) {
   console.log(`${estado}  ${r.nombre}  →  ${r.guia}${delta}`);
 }
 console.log("─".repeat(78));
+
+if (cacheHits.length) {
+  console.log(`Brazo base desde cache en ${cacheHits.length} caso(s): ${cacheHits.map((h) => h.caso).join(", ")}`);
+  const sinModelo = cacheHits.filter((h) => !h.modelo);
+  if (sinModelo.length) {
+    // Honestidad sobre el limite de la cache: sin modelo guardado no se puede afirmar que
+    // la medicion sea del mismo modelo que corre ahora. Se avisa, no se descarta en
+    // silencio ni se finge que coincide.
+    console.log(
+      `  ADVERTENCIA: ${sinModelo.length} sin modelo registrado (${sinModelo.map((h) => h.caso).join(", ")}): ` +
+        "no se puede afirmar que la linea base sea del mismo modelo. --sin-cache para re-medir.",
+    );
+  }
+}
 
 if (jsonOut) {
   writeFileSync(jsonOut, JSON.stringify(resultados, null, 2) + "\n");

@@ -16,6 +16,10 @@ adaptadores no cuadran con `core/`.
 
 1. Edita el fichero equivalente en `core/{workflows,guides,agents,scripts}/`, usando los
    tokens `{{guide:nombre}}` y `{{script:nombre}}` para las referencias cruzadas.
+   Para una regla que varios ficheros tienen que cumplir **con las mismas palabras**, no la
+   copies: escríbela en `core/snippets/<nombre>.md` y ponla con `{{snippet:nombre}}`, solo en
+   su línea y sin sangrar. `{{guide:x}}` APUNTA a otro fichero; `{{snippet:x}}` INSERTA el
+   texto ahí mismo.
    `core/scripts/` es la excepción a «`scripts/` es del mantenedor»: lo que hay ahí se
    EJECUTA en el repo del usuario, así que `sync.mjs` lo copia byte a byte a los dos
    adaptadores. Un script nuevo hay que darlo de alta en el registro `SCRIPTS` de

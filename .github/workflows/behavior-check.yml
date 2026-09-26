@@ -13,6 +13,10 @@ name: Contratos de comportamiento
 #     aserción central es una ley de conservación: publicados + exigidos por spec +
 #     fusionados + bajo umbral = recibidos. Un informe que pierde un hallazgo en silencio
 #     es peor que uno que no lo encontró.
+#   check-frescura.mjs — que el grado de frescura de la revisión (AL_DIA / CADUCADA /
+#                        SIN_REVISION) salga de una comparación con tests, no de la prosa.
+#   check-entorno.mjs  — que el pre-flight no mienta sobre lo que hay (árbol limpio, rama
+#                        base, antigüedad del grafo) ni finja saber lo que no puede.
 #   check-graders.mjs  — que el grader de cada caso distinga acierto de fallo, contra las
 #     respuestas de ejemplo de su `graders/muestras.json`. Es la parte más barata de
 #     equivocarse y era la única que nadie probaba: un grader roto no falla, canta un ✓.
@@ -30,6 +34,8 @@ on:
       - "scripts/check-graders.mjs"
       - "scripts/check-suelo.mjs"
       - "scripts/check-fusion.mjs"
+      - "scripts/check-frescura.mjs"
+      - "scripts/check-entorno.mjs"
       - "scripts/lib/grader.mjs"
       - "adapters/**"
       - ".github/workflows/behavior-check.yml"
@@ -42,6 +48,8 @@ on:
       - "scripts/check-graders.mjs"
       - "scripts/check-suelo.mjs"
       - "scripts/check-fusion.mjs"
+      - "scripts/check-frescura.mjs"
+      - "scripts/check-entorno.mjs"
       - "scripts/lib/grader.mjs"
       - "adapters/**"
       - ".github/workflows/behavior-check.yml"
@@ -75,3 +83,9 @@ jobs:
 
       - name: Asevera que la fusión de hallazgos no pierde nada
         run: node scripts/check-fusion.mjs
+
+      - name: Asevera el grado de frescura de la revisión
+        run: node scripts/check-frescura.mjs
+
+      - name: Asevera el pre-flight de entorno
+        run: node scripts/check-entorno.mjs

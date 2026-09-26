@@ -17,6 +17,11 @@ graphify-out/
 # Resultados del eval de activación (se regeneran en cada ejecución)
 adapters/claude/evals/results/
 
+# La caché del brazo BASE (adapters/claude/evals/*/.base-cache.json) SÍ se versiona: es una
+# medición cara —sesiones reales de modelo— que no depende del plugin, así que compartirla
+# hace que recalibrar salga gratis para cualquiera. Lleva dentro el hash del prompt y el
+# modelo con el que se midió, que es lo que la invalida.
+
 # Credenciales — NUNCA versionar
 .mcp.json
 .env

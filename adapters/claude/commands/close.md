@@ -24,7 +24,30 @@ cierras nada sin que el usuario lo apruebe. Tu único output persistente es
 3. Comprueba si hay PR y si está mergeada (`gh pr view` si la CLI está). Si no lo está, dilo y
    pregunta si aun así quiere cerrar: cerrar sin merge es legítimo a veces, pero nunca
    silencioso.
-4. Si el usuario pidió cierre **por abandono**, salta la Fase 3 entera: no se valida el
+4. **Frescura de la revisión.** Que exista una revisión no dice que cubra lo que vas a cerrar:
+   entre la aprobación y ahora pueden haber entrado commits que nadie ha mirado. Con `gh`
+   disponible:
+
+   ```
+   gh pr view --json headRefOid,reviewDecision,reviews > <fichero temporal fuera del repo>
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/frescura-revision.mjs" <ese fichero> --head $(git rev-parse HEAD)
+   ```
+
+   El grado que devuelve:
+   - **`AL_DIA`** — la última revisión con veredicto se emitió sobre este mismo commit. Sigue.
+   - **`CADUCADA`** — hay commits posteriores. Ejecuta el `git log` que el propio script
+     devuelve en `siguiente`, **enseña qué entró después** y pregunta si aun así quiere cerrar.
+     No bloquea: un README o un typo posteriores a la aprobación no invalidan nada, y eso solo
+     lo sabe quien ve el diff. Lo que no vale es cerrar sin decirlo.
+   - **`SIN_REVISION`** — nadie ha emitido veredicto (un comentario suelto no lo es). Dilo y
+     pregunta.
+   - **`INDETERMINADO`**, o sin `gh`: declara que no has podido comprobarlo y pregunta al
+     usuario. Su respuesta es un **dato del usuario**, no un hecho verificado, y así se
+     registra (`evidencia-y-preguntas` (`${CLAUDE_PLUGIN_ROOT}/skills/evidencia-y-preguntas/SKILL.md`)).
+
+   Si además `cambiosSolicitados` es `true`, hay una revisión pidiendo cambios sin atender:
+   eso es anterior a la frescura y se dice primero.
+5. Si el usuario pidió cierre **por abandono**, salta la Fase 3 entera: no se valida el
    cumplimiento de algo que se descarta.
 
 ## Fase 3 — Gate de cumplimiento (no negociable)
@@ -57,6 +80,9 @@ del sistema**:
 
 Y sobrescribe el "Estado actual" para que refleje que la tarea está cerrada.
 
+Si sigue existiendo `tasks/<taskId>/.frontera`, bórralo: la frontera es del modo corrección,
+y la tarea se está cerrando.
+
 ## Fase 5 — Transición de estado (responsabilidad exclusiva de /close)
 
 Propón mover la tarea de ClickUp a `complete` y ejecuta el cambio **SOLO tras aprobación
@@ -72,6 +98,18 @@ Resume en 3-4 líneas, con `escritura-natural` (`${CLAUDE_PLUGIN_ROOT}/skills/es
 motivo de salida y estado en ClickUp.
 Si la rama o el worktree siguen vivos, recuérdalo — pero no decidas tú qué hacer con ellos.
 
+**Estado de salida.** Termina el mensaje con una de estas cuatro líneas, tal cual y en la
+última línea de todo:
+
+- `ESTADO: HECHO` — se hizo lo que el comando promete, y lo has comprobado.
+- `ESTADO: HECHO CON RESERVAS` — se hizo, pero queda algo que el usuario tiene que saber.
+- `ESTADO: BLOQUEADO` — no se pudo seguir.
+- `ESTADO: FALTA CONTEXTO` — hace falta un dato o una decisión que solo tiene el usuario.
+
+Las tres últimas llevan encima tres líneas, una por campo: **Motivo** (qué pasa),
+**Intentado** (qué probaste de verdad, no qué ibas a probar) y **Siguiente** (qué necesitas,
+o qué recomiendas). `HECHO` no lleva ninguna: si te sobra algo que contar, no era `HECHO`.
+
 ## Banderas rojas (no te las saltes)
 
 Si te sorprendes pensando algo de la columna izquierda, DETENTE: estás racionalizando
@@ -82,6 +120,7 @@ saltarte un gate.
 | "Falta un criterio pero el usuario quiere cerrar, y manda él" | El gate de cumplimiento no se salta con aprobación (Fase 3.3). Si de verdad hay que cerrar así, es un cierre por abandono y se etiqueta como tal. |
 | "Este criterio no lo veo en el diff, lo doy por cumplido" | «No verificable» no es «cumplido». Se lista aparte y el usuario lo reconoce (Fase 3.4). |
 | "Muevo la tarea a complete de una vez, para eso me han llamado" | Toda transición pasa por aprobación explícita (Fase 5). |
+| "Hay una revisión aprobada, doy la PR por revisada" | Mira sobre QUÉ commit se aprobó (Fase 2.4). Si entraron commits después, eso no lo ha revisado nadie: enséñalo y pregunta. |
 | "La tarea está en 'in progress' pero el trabajo está hecho, cierro" | Se cierra desde `review`. Otro estado significa que falta un paso: enruta (Fase 2.2). |
 | "Se abandona, no hace falta registrar por qué" | Sin motivo de salida, dentro de tres meses nadie sabrá si se terminó o se descartó, y cuenta como trabajo en curso eterno. |
 | "Aprovecho y corrijo este detalle menor antes de cerrar" | /close no toca código ni spec.md. Corregir es /implement. |

@@ -186,6 +186,23 @@ si el criterio toca UI, incorpora lo verificable de `usabilidad-accesibilidad` (
 En modo CORRECCIÓN, el ciclo es el mismo pero la unidad de trabajo es cada hallazgo, con la
 disciplina de `recepcion-de-revision` (skill de OpenCode, auto-activable) por delante:
 
+0. **Fija la frontera de edición.** Escribe `tasks/<taskId>/.frontera` con los ficheros que
+   el revisor vio —`git diff --name-only <base>...HEAD`— en este formato:
+
+   ```
+   # Ficheros del diff que se revisó.
+   rama: <tipo>/<taskId>_<slug>
+   src/app/page.tsx
+   src/lib/auth.ts
+   ```
+
+   El hook `PreToolUse` lee ese fichero y **pregunta** antes de dejarte editar algo que no
+   esté en la lista. No es una prohibición: arreglar un hallazgo a veces exige un fichero
+   nuevo (un test que no existía), y entonces se aprueba y se añade la ruta. Lo que evita es
+   lo otro — que la corrección se lleve por delante código que nadie revisó y entre en la PR
+   con la aprobación de un diff que ya no existe. La lista va atada a la rama, así que una
+   frontera olvidada no molesta en la tarea siguiente.
+
 1. **Antes de tocar nada:** lee la lista completa de hallazgos, verifica cada uno contra el
    código en su contexto real (¿es cierto aquí?, ¿es preexistente?, ¿hay una decisión
    registrada que lo explique?) y **pregunta por TODOS los que no entiendas antes de corregir
@@ -264,6 +281,9 @@ Cuando todos los criterios estén completados y la suite en verde:
    MCP de ClickUp no está disponible, indica hacerlo a mano y continúa sin bloquear.
    En modo CORRECCIÓN con la PR ya creada, esta fase se reduce a push (con gate) y a un
    comentario opcional en la PR; la tarea ya está en "review", no la muevas de nuevo.
+5.bis. **Retira la frontera.** Si venías de modo CORRECCIÓN y los hallazgos están cerrados,
+   borra `tasks/<taskId>/.frontera`: la corrección terminó y la siguiente ronda tendrá su
+   propio diff revisado. Si quedan hallazgos abiertos, déjala.
 6. Registra en `progress.md`: fase "implement", resultado "PR creada" (o "correcciones
    pusheadas"), enlace a la PR.
 7. **Menú de cierre de rama.** Con la PR abierta, la rama sigue viva —y el worktree, si lo
@@ -288,6 +308,18 @@ ClickUp. Recomienda `/review` como siguiente paso para un diagnóstico independi
 de pedir revisión humana — detecta desviaciones de spec, bugs y huecos de tests sin tocar
 nada.
 
+**Estado de salida.** Termina el mensaje con una de estas cuatro líneas, tal cual y en la
+última línea de todo:
+
+- `ESTADO: HECHO` — se hizo lo que el comando promete, y lo has comprobado.
+- `ESTADO: HECHO CON RESERVAS` — se hizo, pero queda algo que el usuario tiene que saber.
+- `ESTADO: BLOQUEADO` — no se pudo seguir.
+- `ESTADO: FALTA CONTEXTO` — hace falta un dato o una decisión que solo tiene el usuario.
+
+Las tres últimas llevan encima tres líneas, una por campo: **Motivo** (qué pasa),
+**Intentado** (qué probaste de verdad, no qué ibas a probar) y **Siguiente** (qué necesitas,
+o qué recomiendas). `HECHO` no lleva ninguna: si te sobra algo que contar, no era `HECHO`.
+
 ## Banderas rojas (no te las saltes)
 
 Si te sorprendes pensando algo de la columna izquierda, DETENTE: estás racionalizando
@@ -295,6 +327,7 @@ saltarte el contrato.
 
 | Pensamiento | Realidad |
 |---|---|
+| "El arreglo toca otro fichero, lo cambio y ya" | En modo CORRECCIÓN eso sale de la frontera: es código que el revisor no vio entrando en una PR ya aprobada. Pídelo, y si hace falta de verdad añade la ruta a `.frontera` (Fase 3, paso 0). |
 | "Es un cambio trivial, no hace falta test" | TDD aplica igual: test que falla → código mínimo → verde (Fase 3). Lo simple se vuelve complejo. |
 | "Implemento y luego le escribo el test" | El test va PRIMERO y debe fallar por la razón correcta. Código escrito antes del test, se borra y se rehace. |
 | "La spec está casi completa, ya empiezo" | Si hay placeholders `_pendiente de /plan_` en criterios o enfoque, niégate y manda a `/plan` (Fase 2). |

@@ -5,6 +5,125 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **El texto de la tarea es contenido, no instrucciones** — el racimo de dato no fiable de
+  §18 cerró el lado del **revisor** (superficie LLM en `revisor-bugs-seguridad`, contenido del
+  navegador en `qa-exploratoria`, salida de error en `depuracion-sistematica`). La puerta de
+  entrada se había quedado abierta: `/start` lee «título, descripción, comentarios relevantes»
+  de ClickUp y `/plan` vuelve a por los comentarios nuevos, y ese texto lo escribe cualquiera
+  con acceso al workspace. Verificado con `grep` antes de tocar nada: cero ocurrencias de
+  «no fiable», «untrusted» o «inyección» en `core/workflows/start.md`.
+
+  La diferencia con el caso que ya cubríamos importa, y es la razón de que haga falta una regla
+  propia: en `evals/inyeccion-en-contenido` el contenido trampa lo **pega el usuario**, que está
+  delante y lo ha leído. Aquí lo trae el propio flujo, el usuario no lo ha visto, y el payload
+  no son comandos destructivos genéricos sino **los gates del plugin**: crear la rama sin
+  proponerla, mover el estado sin aprobación, commitear sin preguntar. Un gate que se salta
+  porque la descripción dice que ya está aprobado se salta sin que nadie lo note.
+
+  La regla vive en `core/snippets/dato-no-fiable.md` y se renderiza en `/start` y `/plan`, con
+  su bandera roja en cada uno. Nuevo caso de eval `inyeccion-en-tarea` con sus graders (el
+  `check-graders` distingue los cuatro fallos, incluida la sonda que nombra la inyección y se
+  salta un gate igual); **sin calibrar todavía** — falta la corrida `--baseline --runs 3`.
+
+- **Protocolo de estado de salida en los cinco comandos** — terminaban en «Resume en 3-4
+  líneas»: prosa libre, donde `BLOQUEADO` no tenía nombre y salía como un párrafo más,
+  indistinguible de un cierre normal. Ahora cada comando cierra con `ESTADO: HECHO` /
+  `HECHO CON RESERVAS` / `BLOQUEADO` / `FALTA CONTEXTO`, y los tres últimos llevan **Motivo**,
+  **Intentado** y **Siguiente**.
+
+  Se escribe como **receta positiva**, no como prohibición: §2.A separa los fallos de
+  disciplina (prohibición + banderas rojas) de los de forma de la salida (receta), y este es
+  de los segundos — el agente no se está saltando nada, es que nadie le había dicho qué forma
+  tiene un cierre. `core/snippets/estado-de-cierre.md`.
+
+- **Frontera de edición del modo CORRECCIÓN** — `/implement` escribe
+  `tasks/<taskId>/.frontera` con los ficheros del diff que se revisó, y el hook `PreToolUse`
+  **pregunta** antes de dejar editar algo de fuera. Cierra por el lado determinista el fallo
+  que el propio `/review` persigue desde el otro: arreglar un hallazgo tocando código que el
+  revisor no vio mete trabajo sin revisar en una PR ya aprobada, y hasta ahora solo lo frenaba
+  la prosa del comando.
+
+  `ask` y no `deny` a propósito: corregir un hallazgo a veces exige un fichero nuevo —un test
+  que no existía—, y entonces se aprueba y se añade la ruta. La lista va **atada a la rama**,
+  así que una frontera olvidada por una sesión cortada no molesta en la tarea siguiente; ese
+  era el riesgo real de añadir un aviso más, porque un aviso que salta cuando no toca se lee
+  como ruido y acaba donde el «bloqueo fantasma». `/close` la borra al sellar.
+
+  36 comprobaciones nuevas en `check-guard.mjs` (108 en total), con repos de git de verdad:
+  dentro y fuera de la lista, frontera de otra rama, `progress.md` de la propia tarea, rutas
+  con barra invertida, y que el catálogo de lo irreversible siga ganando cuando ambos opinan.
+
+- **Frescura de la revisión en `/close`** — nuevo `core/scripts/frescura-revision.mjs` y su
+  `check-frescura.mjs` (28 comprobaciones). `/close` validaba los criterios contra `spec.md` y
+  **no miraba en ningún punto si alguien había revisado esto, ni cuándo**: se podía cerrar una
+  tarea con doce commits posteriores a la aprobación y nada lo notaba.
+
+  El dato ya existía y nadie lo leía: GitHub guarda en qué commit se emitió cada revisión
+  (`gh pr view --json headRefOid,reviewDecision,reviews`, esquema verificado contra la API el
+  2026-09-26). El script compara ese commit con el que se va a cerrar y devuelve `AL_DIA`,
+  `CADUCADA`, `SIN_REVISION` o `INDETERMINADO`. **No bloquea**: un README posterior a la
+  aprobación no invalida nada, y eso solo lo sabe quien ve el diff — lo que no vale es cerrar
+  sin decirlo.
+
+  Se lee de la PR y **no de un recibo escrito por `/review`** porque el contrato de «/review
+  nunca escribe ficheros» no se toca: un recibo suyo exigiría darle `Write`, que es justo lo
+  que `check-behavior` prohíbe. Lo que sí hace `/review` ahora es decir en su informe sobre
+  qué commit ha revisado, y que lo commiteado después queda fuera.
+
+- **Pre-flight de entorno en una llamada** — nuevo `core/scripts/entorno.mjs` y su
+  `check-entorno.mjs` (31 comprobaciones). La degradación elegante es uno de los cinco
+  principios, pero se sostenía en que el agente se acordara de sondear —«intenta una operación
+  de lectura ligera»— en cada comando y cada sesión. Un principio que se cumple por memoria se
+  cumple casi siempre, que es otra forma de decir que falla sin avisar.
+
+  Lo que aporta y la prosa no tenía: **la antigüedad del grafo**. `/plan` lo usa para explorar
+  y `/review` para el análisis de impacto, y ninguno sabía si se indexó ayer o hace tres
+  semanas. Un grafo viejo no falla: contesta, y contesta sobre un repo que ya no existe — un
+  dato sin verificar presentado como fresco, justo lo que `evidencia-y-preguntas` prohíbe.
+  Ahora `grafo.diasDesdeIndexado` y `grafo.obsoleto` (umbral: 14 días, declarado en un sitio)
+  lo dicen, y `/plan` ofrece reindexar antes de apoyarse en él.
+
+  Lo que el script **no** finge: el MCP de ClickUp no es comprobable desde el shell —un MCP
+  vive en el harness—, así que sale como tal y el comando lo sondea como siempre; y la
+  autenticación de `gh` sale como «no comprobada», porque `gh auth status` es una llamada de
+  red en cada pre-flight. Un `null` significa «no se pudo mirar», que no es «no hay», y los
+  comandos lo tratan distinto.
+
+- **Caché del brazo base del eval de activación** — `--baseline` dobla las sesiones de cada
+  caso, y ese brazo es el que frena la calibración: gasta cuota fuera de la sesión de trabajo,
+  así que los casos se quedan en `calibrado: false` esperando un hueco. Era el único punto del
+  backlog pendiente de ejecución y no de diseño.
+
+  La observación que lo arregla: **el brazo base no depende del plugin**. Es el modelo desnudo
+  contestando al prompt; editar una guía, afinar una `description` o cambiar `sync.mjs` no lo
+  mueve un carácter. Solo lo invalidan el PROMPT (clave: sha256 del texto) y el MODELO.
+  Verificado en los cuatro caminos —caché válida, `--sin-cache`, prompt cambiado y sin
+  fichero— sin gastar una sesión.
+
+  Se guardan los **textos**, no el veredicto: `debe_incluir` y `no_debe_incluir` sí cambian al
+  afinar un caso, así que un veredicto cacheado seguiría contestando a la pregunta vieja.
+  Guardando el texto, re-corregir es gratis y exacto, que es exactamente lo que se hace al
+  calibrar. Nunca se cachea el brazo CON plugin (mide lo que acabas de cambiar) ni una corrida
+  con error (un brazo que no llegó a ejecutarse no es evidencia, y congelarlo fabricaría un
+  delta). Si la caché no registró el modelo, el informe lo avisa en vez de fingir que coincide.
+
+- **Token `{{snippet:nombre}}` en `sync.mjs`** — `{{guide:x}}` APUNTA a otro fichero;
+  `{{snippet:x}}` INSERTA el texto ahí mismo. Hacía falta porque una regla que los cinco
+  comandos deben cumplir **con las mismas palabras** no puede vivir como referencia —el agente
+  tendría que ir a buscarla— ni copiada a mano en cinco sitios, que es como empiezan a
+  divergir. El token va solo en su línea y sin sangrar, o la generación casca: un bloque
+  multilínea insertado a media frase rompe el markdown de formas que nadie mira hasta que el
+  agente lee mal la regla. Los snippets se expanden **antes** que `guide`/`script`, así que
+  pueden referenciar guías.
+
+  Con él, una aserción nueva en `check-behavior.mjs`: ningún `{{guide:|script:|snippet:}}`
+  sobrevive en `adapters/`. Un token sin resolver no casca — se publica tal cual y el agente
+  lee una llave doble donde debía haber una regla. Mismo fallo silencioso que el frontmatter
+  sin comillas (ADR-0002), y se cierra igual: con un check.
+
+
 ## [0.24.0] - 2026-09-26
 
 ### Cambiado

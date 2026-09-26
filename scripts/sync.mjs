@@ -4,6 +4,7 @@
  *
  * core/ es la ÚNICA fuente de verdad de workflows y guías. Este script:
  *   - sustituye los tokens {{guide:nombre}} por la referencia correcta de cada herramienta
+ *   - expande los tokens {{snippet:nombre}} con la prosa canónica de core/snippets/
  *   - antepone el frontmatter propio de cada adaptador
  *   - escribe los ficheros generados (NO editar a mano: se sobrescriben)
  *
@@ -318,7 +319,27 @@ function yamlString(value) {
 // que el agente reconstruye en cada ejecución no se puede probar, y uno que no casa no
 // casca — devuelve cero y eso es indistinguible de un diff limpio.
 // ---------------------------------------------------------------------------
-const SCRIPTS = ["suelo-calidad", "fusion-hallazgos"];
+const SCRIPTS = ["suelo-calidad", "fusion-hallazgos", "frescura-revision", "entorno"];
+
+// ---------------------------------------------------------------------------
+// Snippets: prosa canónica que vive en UN sitio y se renderiza en varios.
+//
+// {{guide:x}} es una REFERENCIA (apunta a otro fichero); {{snippet:x}} es una
+// INSERCIÓN (el texto entra tal cual). La diferencia importa: una regla que los cinco
+// comandos tienen que cumplir igual no puede vivir como referencia —el agente tendría
+// que ir a buscarla— ni copiada a mano en cinco sitios, que es como empiezan a
+// divergir. Se escribe una vez en core/snippets/ y sync.mjs la reparte.
+//
+// No hay registro explícito porque no hay metadatos que declarar: el fichero existe o
+// la generación casca con su nombre. Y el token va SOLO en su línea, sin sangrar: un
+// bloque multilínea insertado a media frase o dentro de un `-` rompe el markdown de
+// formas que nadie mira hasta que el agente lee mal la regla.
+// ---------------------------------------------------------------------------
+function snippet(name) {
+  const p = join(ROOT, "core/snippets", name + ".md");
+  if (!existsSync(p)) throw new Error("Snippet desconocido en token: " + name);
+  return readFileSync(p, "utf8").trimEnd();
+}
 
 // ---------------------------------------------------------------------------
 // Resolución de referencias {{guide:x}} por adaptador
@@ -436,7 +457,20 @@ const ADAPTERS = {
 // Generación
 // ---------------------------------------------------------------------------
 function substitute(text, adapter) {
-  return text
+  // Los snippets se expanden ANTES que guide/script: así un snippet puede referenciar
+  // una guía y el token de dentro se resuelve en la misma pasada.
+  const conSnippets = text.replace(/^\{\{snippet:([a-z-]+)\}\}$/gm, (_, name) =>
+    snippet(name),
+  );
+  // Lo que quede es un token mal colocado (sangrado, o a media línea). Casca aquí en vez
+  // de publicar una llave doble donde el agente esperaba una regla.
+  const suelto = /\{\{snippet:([a-z-]+)\}\}/.exec(conSnippets);
+  if (suelto) {
+    throw new Error(
+      "Token {{snippet:" + suelto[1] + "}} mal colocado: va solo en su línea y sin sangrar.",
+    );
+  }
+  return conSnippets
     .replace(/\{\{guide:([a-z-]+)\}\}/g, (_, name) => {
       if (!GUIDES[name]) throw new Error("Guía desconocida en token: " + name);
       return ADAPTERS[adapter].guideRef(name);

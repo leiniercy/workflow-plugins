@@ -24,11 +24,19 @@
  *   BACKBONE_GUARD=off              → desactiva el hook por completo.
  *   BACKBONE_PROTECTED_PATHS=a,b,c  → fragmentos de ruta extra que exigen gate.
  *
+ * Además del catálogo de lo irreversible, el hook lee `tasks/<taskId>/.frontera` cuando
+ * existe: la lista de ficheros que el revisor SÍ vio, escrita por /implement al entrar en
+ * modo CORRECCIÓN. Editar fuera de esa lista no es irreversible, pero es el fallo que el
+ * propio /review persigue —arreglar un hallazgo tocando código que nadie revisó—, y hasta
+ * ahora solo lo frenaba la prosa.
+ *
  * Contrato de hook: jamás rompe la sesión. Cualquier fallo o entrada que no
  * entienda degrada a "sin decisión" (código 0) y deja pasar el flujo normal de
  * permisos de Claude Code.
  */
 const { readFileSync, existsSync } = require("fs");
+const { join, relative, resolve, sep } = require("path");
+const { git, ramaDeTarea } = require("./lib/comun.js");
 
 /** Emite la decisión (o ninguna) y termina siempre con éxito. */
 function emit(decision, reason) {
@@ -221,6 +229,79 @@ function revisarFichero(rutaCruda, existe) {
   return null;
 }
 
+/**
+ * Frontera de edición del modo CORRECCIÓN.
+ *
+ * `/implement` escribe `tasks/<taskId>/.frontera` al entrar en modo corrección con los
+ * ficheros del diff que se revisó. Tocar algo de fuera no es irreversible —por eso `ask` y
+ * no `deny`—, pero sí es trabajo que entra en la PR sin que lo haya mirado nadie: el
+ * *scope drift* que la dimensión de spec de `/review` persigue desde el otro lado.
+ *
+ * Tres cosas que NO hace, y por qué:
+ *
+ *  - **No opina si no hay fichero.** Fuera del modo corrección el hook es el de siempre.
+ *  - **Ignora una frontera de otra rama.** El fichero puede quedarse olvidado si una sesión
+ *    se corta; atado a la rama, una frontera vieja no molesta en la siguiente tarea. Un
+ *    aviso que salta cuando no toca se lee como ruido y acaba ignorado, que es justo lo
+ *    que le pasa al «bloqueo fantasma» de la guía de registro.
+ *  - **No protege `tasks/<taskId>/`.** El propio flujo escribe ahí (`progress.md`,
+ *    `spec.md`, la frontera misma): avisar de eso sería avisar de lo que acabas de pedir.
+ */
+function revisarFrontera(rutaCruda, cwd) {
+  const raiz = git(["rev-parse", "--show-toplevel"], cwd);
+  if (!raiz) return null;
+  const rama =
+    git(["symbolic-ref", "--short", "HEAD"], cwd) ||
+    git(["rev-parse", "--abbrev-ref", "HEAD"], cwd);
+  const taskId = ramaDeTarea(rama);
+  if (!taskId) return null;
+
+  const fichero = join(raiz, "tasks", taskId, ".frontera");
+  if (!existsSync(fichero)) return null;
+  let crudo;
+  try {
+    crudo = readFileSync(fichero, "utf8");
+  } catch {
+    return null;
+  }
+
+  // split("\n") + trim() basta: el trim se come el \r de un fichero con finales CRLF,
+  // así que no hace falta regex para normalizar saltos de línea.
+  const lineas = crudo.split("\n").map((l) => l.trim()).filter(Boolean);
+  const declarada = (lineas.find((l) => l.startsWith("rama:")) || "").slice(5).trim();
+  // Una frontera de otra rama es un resto de una sesión anterior, no una regla viva.
+  if (!declarada || declarada !== rama) return null;
+
+  const permitidas = new Set(
+    lineas
+      .filter((l) => !l.startsWith("#") && !l.startsWith("rama:"))
+      .map((l) => l.split("\\").join("/").replace(/^\.\//, "")),
+  );
+
+  let rel;
+  try {
+    rel = relative(raiz, resolve(cwd, rutaCruda)).split(sep).join("/");
+  } catch {
+    return null;
+  }
+  // Fuera del repo: no es asunto de la frontera (y el catálogo de arriba ya opinó).
+  if (!rel || rel.startsWith("../")) return null;
+  if (permitidas.has(rel)) return null;
+  // El estado de la propia tarea lo escribe el flujo: nunca es scope drift.
+  if (rel.startsWith("tasks/" + taskId + "/")) return null;
+
+  return [
+    "ask",
+    "`" +
+      rel +
+      "` no estaba en el diff que se revisó (`tasks/" +
+      taskId +
+      "/.frontera`). Corregir un hallazgo tocando código que el revisor no vio mete en la " +
+      "PR trabajo sin revisar. Si el arreglo lo necesita de verdad, dilo y añade la ruta a " +
+      "la frontera; si no, acota el cambio.",
+  ];
+}
+
 try {
   if (String(process.env.BACKBONE_GUARD || "").toLowerCase() === "off") emit(null);
 
@@ -249,6 +330,12 @@ try {
       /* ruta ilegible: tratamos como inexistente */
     }
     veredicto = revisarFichero(args.file_path, existe);
+    // La frontera es la regla más floja del hook: solo opina si el catálogo de lo
+    // irreversible no tenía nada que decir sobre este fichero.
+    if (!veredicto) {
+      const cwd = typeof input.cwd === "string" ? input.cwd : process.cwd();
+      veredicto = revisarFrontera(args.file_path, cwd);
+    }
   }
 
   if (!veredicto) emit(null);

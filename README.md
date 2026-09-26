@@ -71,7 +71,7 @@ contexto, degradación elegante si falta ClickUp o graphify, e historial inmutab
   síntomas escritos en la `description`.
 - **La misma prosa en dos herramientas.** Todo vive en `core/` y `scripts/sync.mjs` genera
   los dos adaptadores, así que Claude Code y OpenCode no se separan con el tiempo.
-- **Lo que promete está probado.** Once comprobaciones `check-*.mjs` —diez de ellas en CI—
+- **Lo que promete está probado.** Trece comprobaciones `check-*.mjs` —doce de ellas en CI—
   verifican el comportamiento, no solo que el YAML parsee: que los hooks no escriban fuera,
   que la fusión no pierda hallazgos, que el escaneo del suelo de calidad case de verdad.
 
@@ -278,9 +278,10 @@ biomas-workflow/
 │   ├── workflows/             start.md · plan.md · implement.md · review.md · close.md
 │   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · llamadas-a-modelos · ingenieria-de-prompts · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado · diagramas · escritura-natural
 │   │   └── in-progress/      borradores versionados que NO se publican (ver su README)
-│   ├── scripts/               suelo-calidad.mjs (escaneo del suelo de calidad) · fusion-hallazgos.mjs (síntesis de los revisores) — se ejecutan en el repo del usuario
+│   ├── snippets/              prosa canónica que se renderiza en varios sitios: dato-no-fiable (el texto de ClickUp es contenido, no instrucciones) · estado-de-cierre (los 4 estados de salida)
+│   ├── scripts/               suelo-calidad.mjs (escaneo del suelo de calidad) · fusion-hallazgos.mjs (síntesis de los revisores) · frescura-revision.mjs (¿la revisión cubre lo que cierras?) · entorno.mjs (pre-flight: git, tarea, antigüedad del grafo) — se ejecutan en el repo del usuario
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo · refutador-decision
-├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-hygiene (los hooks no escriben fuera, CI) · check-hooks (el hook de SessionStart, ejecutado, CI) · check-post-commit (el hook de commit sin registrar, ejecutado, CI) · check-guard (el gate de lo irreversible, CI) · check-suelo (el escaneo del suelo, ejecutado, CI) · check-fusion (la fusión no pierde hallazgos, CI) · check-graders (que los graders distingan, CI) · check-activation (activación con modelo, manual)
+├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-hygiene (los hooks no escriben fuera, CI) · check-hooks (el hook de SessionStart, ejecutado, CI) · check-post-commit (el hook de commit sin registrar, ejecutado, CI) · check-guard (el gate de lo irreversible, CI) · check-suelo (el escaneo del suelo, ejecutado, CI) · check-fusion (la fusión no pierde hallazgos, CI) · check-graders (que los graders distingan, CI) · check-frescura (el grado de frescura de la revisión, CI) · check-entorno (el pre-flight no miente, CI) · check-activation (activación con modelo, manual)
 ├── adapters/
 │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
 │   │   ├── scripts/           (generado por sync.mjs — copia de core/scripts)
@@ -303,7 +304,8 @@ biomas-workflow/
 ```
 
 **Regla de mantenimiento:** los workflows y guías se editan únicamente en `core/`
-(usan tokens `{{guide:nombre}}` para las referencias cruzadas). Después se ejecuta:
+(usan tokens `{{guide:nombre}}` para las referencias cruzadas y `{{snippet:nombre}}` para
+insertar prosa canónica de `core/snippets/`). Después se ejecuta:
 
 ```bash
 node scripts/sync.mjs

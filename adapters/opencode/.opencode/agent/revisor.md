@@ -20,6 +20,10 @@ permission:
     'node ".opencode/scripts/suelo-calidad.mjs"*': allow
     "node .opencode/scripts/fusion-hallazgos.mjs*": allow
     'node ".opencode/scripts/fusion-hallazgos.mjs"*': allow
+    "node .opencode/scripts/frescura-revision.mjs*": allow
+    'node ".opencode/scripts/frescura-revision.mjs"*': allow
+    "node .opencode/scripts/entorno.mjs*": allow
+    'node ".opencode/scripts/entorno.mjs"*': allow
 ---
 
 Eres el agente de **revisión read-only** del flujo de desarrollo. Tu única función es
