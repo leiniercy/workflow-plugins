@@ -7,6 +7,164 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **El escaneo del suelo de calidad deja de ser prosa y pasa a ser un script probado** — la
+  Fase 2 de `/review` describía cinco formas de aflojar la barra (checker silenciado, test
+  hecho más fácil, trabajo sin terminar, umbral movido, test desaparecido) y el agente las
+  traducía a llamadas de `Grep` sobre la marcha. Cada ejecución construía sus propias
+  expresiones, así que dos revisiones del mismo diff podían no coincidir y nada podía
+  verificar que `# type: ignore` se detectara: **un patrón que no casa no casca**, devuelve
+  cero hallazgos, y eso es indistinguible de un diff limpio. Ahora lo hace
+  `core/scripts/suelo-calidad.mjs`, que recorre el paquete de revisión y devuelve JSON con
+  los movimientos (cada uno con su dimensión de la Fase 3, fichero, línea y cita literal) y
+  las `puertasTocadas`, porque un umbral puede bajarse en una línea sin ninguna de las
+  palabras que busca (`lines: 80` → `lines: 40`) y callarlo sería un falso negativo
+  regalado. `scripts/check-suelo.mjs` lo prueba en CI con 113 aserciones: cada movimiento en
+  positivo **y** en negativo, porque la regla «una supresión con su motivo escrito al lado no
+  es un hallazgo» es la que separa una señal útil de un linter de segunda.
+- **Nuevo mecanismo: `core/scripts/` y el token `{{script:nombre}}`** — es la excepción a
+  «`scripts/` es del mantenedor». Lo que hay ahí se ejecuta en el repo del usuario, así que
+  `sync.mjs` lo copia byte a byte a `adapters/claude/scripts/` y a
+  `adapters/opencode/.opencode/scripts/`, y resuelve el token a la ruta de cada herramienta.
+  El reparto de permisos sale de la ADR 0008 sin re-litigarla: en **OpenCode** el `permission`
+  del agente `revisor` autoriza la ruta exacta (allí es una allowlist real), y en **Claude
+  Code** el comando lo ejecuta y el usuario aprueba una vez — pre-aprobar `Bash(node:*)`
+  abriría la mano entera, que es justo lo que la ADR decidió no hacer.
+
+- **Qué guías condicionales aplican se calcula, ya no se juzga** — la Fase 3 de `/review`
+  llevaba condiciones en prosa («si el diff trae migraciones…», «si el cambio llama a un
+  modelo de lenguaje…», «despacha la dimensión 6 SOLO si toca UI») que evaluaba el modelo
+  leyendo el diff. El escaneo ya lo tenía delante, así que ahora devuelve `guiasAplicables`
+  —cada guía con los ficheros que sostienen su señal— y `tocaUI`, que es el gate del
+  subagente de usabilidad. Importa en las dos direcciones: la guía que no se carga cuando
+  tocaba es un hallazgo de severidad Alta que no se levanta, y la dimensión 6 despachada de
+  más es un subagente pagado para decir que no aplica. Siguen siendo pistas verificables,
+  no veredictos: la evidencia va con la señal y el revisor abre los ficheros.
+
+- **La síntesis de hallazgos de `/review` deja de hacerse en prosa** — los cuatro revisores
+  devolvían sus hallazgos en texto libre y el orquestador los deduplicaba, reumbralaba y
+  ordenaba a ojo. Ahora devuelven **un bloque `json`** con el esquema que vive en la guía
+  `revision-hallazgos`, y `core/scripts/fusion-hallazgos.mjs` los junta. No es por tokens
+  —cuatro revisores no son sesenta y siete tandas y el ahorro sería pequeño—: es por
+  determinismo (comparar `fichero:línea` y un número contra 75 es trabajo mecánico, y hecho
+  en prosa dos síntesis del mismo material pueden no coincidir sin que nadie lo note) y por
+  **trazabilidad**. La salida trae un bloque `auditoria` donde todo lo que entró está
+  contado: publicados, exigidos por spec, fusionados, bajo umbral y los omitidos que
+  declararon los revisores. `scripts/check-fusion.mjs` asevera esa **ley de conservación** en
+  CI — publicados + exigidos + fusionados + bajo umbral = recibidos —, porque un informe que
+  pierde un hallazgo en silencio es peor que uno que no lo encontró: el segundo se sabe
+  incompleto y el primero se cree completo.
+- **`omitidos`: un revisor ya no puede recortar su lista en silencio** — el esquema obliga a
+  declarar cuántos hallazgos quedaron fuera si la lista superó el tope de 20, y la fusión lo
+  convierte en un aviso, no en una nota al pie. Viene del issue #159 de Understand-Anything,
+  donde un agente con el techo de salida bajo entraba por su cuenta en un «modo salida
+  mínima» indocumentado y tiraba nodos sin decirlo. El fallo equivalente aquí es un informe
+  de revisión con menos hallazgos y la misma pinta de completo.
+- **El contrato se mantiene sin tocar el bloqueo duro de solo-lectura** — los revisores siguen
+  con su allowlist `Read, Grep, Glob` en Claude y `edit/bash/task: deny` en OpenCode. No
+  escriben el JSON a disco: lo devuelven, y el orquestador se lo pasa a la fusión por stdin en
+  una sola orden. Era la alternativa a darles `Write`, que habría comprado determinismo a
+  cambio de la garantía más fuerte que tiene `/review`.
+- **La cobertura de los tests nuevos, después de que una revisión la midiera por mutación** —
+  de 38 mutaciones realistas, 33 sobrevivían. Lo peor no era el número sino la clase: los
+  tests probaban los MOVIMIENTOS del escaneo pero no las ENTRADAS de sus catálogos, y **29
+  patrones se podían borrar con todo en verde** (`nosemgrep`, `istanbul ignore`,
+  `NotImplementedError`, `FIXME`, `prisma`, `knex`, `__tests__`, `.eslintrc`…). Ahora hay una
+  tabla `[patrón → ejemplo → movimiento]` con una fila por entrada de cada catálogo, y la
+  regla que sale de ahí: **añadir un patrón obliga a añadir su fila**. Verificada por mutación
+  antes de darla por buena — un test de cobertura que nunca se ha visto fallar no prueba nada.
+  Se añaden además: un caso con `git diff` real, las fronteras de `VENTANA_MIN` (importada, no
+  copiada), los dos casos que pasaban por un guard distinto del que decían probar, los números
+  de línea exactos con offsets distintos por lado, las notas de baja confianza y las cinco
+  ramas sin cubrir de la fusión.
+- **`check-behavior` detecta un script huérfano en `core/scripts/`** — derivando la lista del
+  DISCO y no del registro `SCRIPTS` de `sync.mjs`, que es la única forma de que el check vea
+  justo el fallo que existe para ver. Sin él, un script nuevo sin dar de alta no se copia a
+  los adaptadores, `/review` lo invoca por una ruta que no existe y degrada en silencio.
+- **`hooks/lib/comun.js`** — `git()`, `emit()` y el reconocimiento de rama de tarea estaban
+  duplicados entre los dos hooks. Es el mismo argumento con el que se creó
+  `progreso-fresco.js` y que allí solo se aplicó a una función: si mañana se añade `test/` a
+  los prefijos de rama, los dos hooks dejarían de coincidir y solo uno avisaría.
+
+
+### Corregido
+
+- **El escaneo perdía ficheros enteros con comentarios de SQL** — una línea BORRADA que
+  empieza por `-- ` se renderiza en el diff como `--- comentario`, indistinguible de una
+  cabecera de fichero. `parsear()` la tomaba por tal, abría un fichero fantasma que nunca se
+  registraba, y **el resto del fichero desaparecía del escaneo**: cero movimientos, que es
+  exactamente lo que devuelve un fichero limpio. Ocurría justo en los `.sql`, que es donde el
+  escaneo tiene que señalar `migraciones-de-datos`. El gemelo era una línea AÑADIDA que
+  empieza por `++ `, que duplicaba el fichero. Ahora `---`/`+++` solo son cabecera **fuera de
+  un hunk**. Lo encontraron tres revisores a la vez y se reprodujo con `git diff -U10` real;
+  los casos sintéticos no lo veían porque fabricaban la cabecera a mano, así que
+  `check-suelo.mjs` monta ahora un repo git de verdad.
+- **La fusión degradaba severidades en silencio** — el desempate era `confianza > previo`, y
+  con dos revisores que dan la misma confianza eso significa «gana el que llegó primero».
+  Pasó de verdad revisando este mismo trabajo: el bug del parser llegó Medio/90 de una
+  dimensión y Alto/90 de otra, y se publicó como **Medio**. Alto y Crítico son lo que
+  convierte el veredicto en «Cambios requeridos», así que no era un detalle de orden: era el
+  antipatrón «señal fuerte degradada por comodidad» que nombra la guía `revision-hallazgos`,
+  cometido por la herramienta escrita para evitarlo. Ahora manda la severidad y solo a
+  igualdad decide la confianza, y gana un hallazgo entero — nunca una mezcla de dos.
+- **El umbral de la fusión fallaba abierto** — `Number("alta")` es `NaN` y toda comparación
+  con `NaN` es `false`, así que una confianza ilegible **se publicaba** como si hubiera pasado
+  el filtro. La entrada la escriben cuatro modelos, que es justo el motivo por el que el
+  script existe. Además, `exigidoPorSpec` se apartaba ANTES de comprobar el umbral (un
+  hallazgo con confianza 40 marcado por spec llegaba al informe), y el descarte por falta de
+  cita se contaba como «bajo umbral», así que la auditoría llamaba «descartado por confianza»
+  a un revisor que no pegó citas: ahora tiene casilla propia (`sinCita`) y entra en la ley de
+  conservación.
+- **El asunto del commit se inyectaba en crudo** — lo escribe cualquiera (un commit que se
+  acaba de traer, un PR ajeno) y acababa entre comillas angulares a dos líneas de «hazlo
+  directamente, no necesita aprobación». Los 80 caracteres del tope bastan para una orden, y
+  el asunto podía cerrar la comilla. Ahora viaja con `JSON.stringify` y etiquetado como texto
+  no fiable, en los dos hooks. El test anterior medía longitud contra un asunto inflado con
+  400 `x`: pasaba por el relleno, no por el saneado.
+- **La Fase 4.1 pegaba salida de modelo en un heredoc de bash** — el delimitador citado
+  bloquea `$()`, las comillas invertidas y `$VAR`, pero no una línea que sea exactamente el
+  delimitador: ahí termina el heredoc y el shell ejecuta la cola (verificado). Ahora los
+  bloques se escriben a un fichero fuera del repo y se pasa la ruta, igual que el diff de la
+  Fase 2: no hay nada que el shell interprete.
+
+
+- **El escaneo ya no señalaba consultas donde solo había `array.join()`** — el patrón de
+  `JOIN` no exigía cualificador, así que casaba con `lineas.join("\n")` — la línea más
+  común de JavaScript que existe. Sobre un diff real de este repo marcaba `sync.mjs` como código
+  con consultas a base de datos. Ahora exige `LEFT JOIN`/`INNER JOIN`… o un `ON` detrás.
+  Verificado contra un diff real de 10.746 líneas de una aplicación Next.js: las cuatro
+  señales que desaparecieron eran exactamente las cuatro líneas `.join(` del diff, y no
+  había ninguna consulta real que se dejara de ver.
+
+- **El escaneo ya no confunde hablar de un patrón con usarlo** — la primera pasada sobre un
+  diff real de este mismo repo devolvió ocho hallazgos y los ocho eran ruido: seis de prosa
+  en `.md` que explica las directivas, y dos de expresiones regulares en `check-behavior.mjs`
+  que las buscan. Dos filtros lo cierran: los movimientos de código no miran ficheros de
+  prosa, y una directiva solo cuenta si está escrita **como comentario** (`// @ts-ignore`,
+  `# noqa`) y no dentro de una cadena o una regex. El mismo diff pasa ahora de ocho a cero.
+  No es cosmético: un escaneo con esa relación señal/ruido no se lee con cuidado, se
+  desactiva, y entonces deja de servir para lo único que existe.
+
+- **Un commit que no consta en `progress.md` ahora se avisa, en vez de solo pedirse** — el
+  registro del avance era el paso 5 de `/implement` y el gate de commit el 6: orden correcto,
+  pero prosa. Dependía de que el agente no se saltara el paso y de que el commit pasara por el
+  comando; un commit a mano o una sesión que encadena dejaban el historial corto, que es el
+  antipatrón «Entrada sin salida» que la guía `registro-progreso` nombra sin poder impedir.
+  Nuevo hook `PostToolUse` (`hooks/post-commit-progress.js`): tras un `git commit` en una rama
+  de tarea, si la última entrada del historial es más de 15 minutos anterior al commit, inyecta
+  el hash y el asunto y apunta a la guía. `SessionStart` repite la comprobación al arrancar,
+  por si el aviso se perdió, y los dos comparten `hooks/lib/progreso-fresco.js` para que no
+  puedan discrepar sobre el mismo commit. El margen de 15 minutos es la decisión de diseño: en
+  el camino feliz la entrada se escribe justo **antes** del commit, así que exigir que el
+  historial sea más nuevo que HEAD haría saltar el aviso siempre — y un aviso que salta siempre
+  acaba donde el «Bloqueo fantasma», ignorado. El disparador no es la cadena `git commit` sino
+  un commit de verdad: `echo "git commit"`, `git log --grep="git commit"` y `--dry-run` no
+  disparan. El hook no escribe en disco (invariante de `check-hygiene`) y el asunto del commit
+  se acota antes de inyectarlo, porque lo escribe cualquiera y acaba en el contexto del agente.
+  Nuevo `scripts/check-post-commit.mjs` en CI (68 aserciones, 9 escenarios sobre repos git
+  desechables) y tres escenarios más en `check-hooks.mjs`. Patrón tomado de
+  [Understand-Anything](https://github.com/Egonex-AI/Understand-Anything), que usa el mismo
+  `PostToolUse` + chequeo de obsolescencia en `SessionStart` para mantener fresco su grafo.
+
 - **Guía `diagramas`, y la regla de canal que resuelve el fallo que no se ve** — un diagrama en
   el formato que el destino no pinta es un hueco en blanco, y el que lo descubre es quien lo
   lee, no quien lo hizo. La guía fija tres cosas: el gate de entrada (¿aprendería el lector más
@@ -108,8 +266,6 @@ Versionado [SemVer](https://semver.org/lang/es/).
   tablas de referencia, y la exención se asevera en los dos sentidos: si una exenta gana su
   autocrítica, el check pide sacarla de la lista en vez de dejar la exención muerta. 333
   aserciones.
-
-### Corregido
 
 - **La regla de fuerza de señal podía silenciar un hallazgo de seguridad** — el umbral de
   confianza está **aguas arriba** de la severidad («severidad del que pasa el umbral»), y la

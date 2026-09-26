@@ -12,20 +12,23 @@ custom-ia-plugin/
 │   ├── workflows/             start.md · plan.md · implement.md · review.md · close.md
 │   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · llamadas-a-modelos · ingenieria-de-prompts · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado · diagramas
 │   │   └── in-progress/      borradores versionados que NO se publican (ver su README)
+│   ├── scripts/               suelo-calidad.mjs (escaneo del suelo de calidad) · fusion-hallazgos.mjs (síntesis de los revisores) — se ejecutan en el repo del usuario
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo · refutador-decision
-├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-hygiene (los hooks no escriben fuera, CI) · check-hooks (el hook de SessionStart, ejecutado, CI) · check-graders (que los graders distingan, CI) · check-activation (activación con modelo, manual)
+├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-hygiene (los hooks no escriben fuera, CI) · check-hooks (el hook de SessionStart, ejecutado, CI) · check-post-commit (el hook de commit sin registrar, ejecutado, CI) · check-suelo (el escaneo del suelo, ejecutado, CI) · check-fusion (la fusión no pierde hallazgos, CI) · check-graders (que los graders distingan, CI) · check-activation (activación con modelo, manual)
 ├── adapters/
 │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
+│   │   ├── scripts/           (generado por sync.mjs — copia de core/scripts)
 │   │   ├── .claude-plugin/plugin.json
 │   │   ├── .mcp.json          (generado por sync.mjs — MCP de ClickUp por env vars)
 │   │   ├── evals/             casos del eval de activación + routing.json (corpus del eval de enrutado) — a mano, NO generado
 │   │   ├── commands/          (generado por sync.mjs — no editar a mano)
 │   │   ├── skills/            (generado por sync.mjs — no editar a mano)
 │   │   ├── agents/            (generado por sync.mjs — subagentes read-only de /review, /plan e /implement)
-│   │   └── hooks/             SessionStart (contexto de tarea) · Stop (notificación sonora) · PreToolUse (gate de acciones irreversibles)
+│   │   └── hooks/             SessionStart (contexto de tarea) · Stop (notificación sonora) · PreToolUse (gate de acciones irreversibles) · PostToolUse (commit que no consta en progress.md)
 │   └── opencode/
 │       └── .opencode/         carpeta lista para copiar al repo consumidor
 │           ├── command/       (generado por sync.mjs — no editar a mano)
+│           ├── scripts/       (generado por sync.mjs — copia de core/scripts)
 │           └── guides/        (generado por sync.mjs — no editar a mano)
 ├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a adapters/claude)
 ├── docs/adr/                  decisiones de arquitectura del plugin (léelas antes de re-litigar una)
@@ -40,7 +43,8 @@ custom-ia-plugin/
 node scripts/sync.mjs
 ```
 
-Esto regenera `adapters/claude/{commands,skills}` y `adapters/opencode/.opencode/{command,guides}`
+Esto regenera `adapters/claude/{commands,skills,agents,scripts}` y
+`adapters/opencode/.opencode/{command,guides,agent,skills,scripts}`
 sustituyendo los tokens por la ruta correcta de cada herramienta y anteponiendo el
 frontmatter propio de cada una. Los ficheros generados se sobrescriben: no los edites a mano.
 
@@ -84,6 +88,26 @@ Es una **red para accidentes, no un sandbox**: un agente decidido puede reformul
 El bloqueo duro de solo-lectura sigue siendo el campo `tools` de los agentes revisores.
 Se ajusta por entorno: `CUSTOM_IA_PROTECTED_PATHS` añade rutas propias del repo y
 `CUSTOM_IA_GUARD=off` lo desactiva (ver `examples/repo-settings.json`).
+
+### El commit que no consta (hook `PostToolUse`)
+
+Registrar el avance es el paso 5 de la fase de `/implement` y el gate de commit es el 6.
+El orden es correcto, pero vive en la prosa del comando: depende de que el agente no se
+salte el paso y de que el commit pase por ahí. Un commit a mano, o una sesión que
+encadena, y el historial de `progress.md` se queda corto — que es justo el antipatrón
+«Entrada sin salida» que la guía `registro-progreso` nombra sin poder impedir.
+
+El hook `post-commit-progress.js` lo cierra por el otro lado: tras un `git commit` en una
+rama de tarea, si la última entrada del historial es más de 15 minutos anterior al
+commit, inyecta un recordatorio con el hash y el asunto y apunta a la guía. **No escribe
+nada** — como el resto de hooks, solo lee y emite contexto. `SessionStart` repite la
+comprobación al arrancar, por si el aviso se perdió.
+
+El margen de 15 minutos es la decisión de diseño, no un detalle: en el camino feliz la
+entrada se escribe justo **antes** del commit, así que exigir que el historial sea más
+nuevo que HEAD haría saltar el aviso siempre, incluso cuando el flujo se cumplió. Un
+aviso que salta siempre se lee como ruido y acaba en el mismo sitio que el «Bloqueo
+fantasma»: ignorado.
 
 ## Cuándo NO usar este flujo
 
