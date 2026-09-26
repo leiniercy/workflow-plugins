@@ -5,6 +5,29 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Cambiado
+
+- **La portada del README contesta primero qué es, qué ganas y qué necesitas** — abría con
+  el árbol de `core/` + `adapters/`, que es lo único que no le interesa a quien acaba de
+  llegar: para saber si el plugin le sirve había que bajar hasta la tabla del flujo, y para
+  saber qué le faltaba instalar, hasta «Requisitos comunes», repartido entre esa sección y
+  el add-on de `frontend-design`. El árbol y la regla de `sync.mjs` bajan íntegros a «Cómo
+  está hecho (para quien lo mantiene)», y arriba entran cinco secciones: **De un vistazo**
+  (tabla de 7 filas con el inventario —5 comandos, 25 guías, 7 subagentes, 4 hooks—, el
+  mínimo y qué NO hace), **El problema que resuelve** (los tres fallos del agente sin flujo
+  y con qué contesta cada uno), el flujo en cinco comandos, **Qué ganas** (siete mecanismos,
+  ningún número que el lector no pueda reproducir) y **Qué necesitas**, partido en *lo
+  mínimo* (git con `develop` + Node 18+) y *los complementos*.
+  La tabla de complementos es la respuesta a «qué me falta para el 100 %»: siete filas con
+  qué añade cada uno y qué pasa si falta —ClickUp, `CLAUDE.md`/`AGENTS.md`, `gh`, graphify,
+  diagram-design, frontend-design y automatización de navegador—, todas degradando en vez de
+  romperse. También se fusionan las dos secciones de instalación de Claude Code que había
+  con títulos casi idénticos (`## Instalación — Claude Code` y `## Instalación — ClaudeCode`)
+  en una sola con «Ruta rápida» y «Qué configurar después». No se pierde ningún dato: siguen
+  ahí `CUSTOM_IA_PROTECTED_PATHS`, los cinco `examples/*.example`, la instalación de graphify
+  en Windows, el margen de 15 minutos del hook y la advertencia de que los porcentajes se
+  midieron en nuestros repos.
+
 ## [0.23.0] - 2026-09-26
 
 ### Añadido
