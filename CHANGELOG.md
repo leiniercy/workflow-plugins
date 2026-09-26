@@ -7,6 +7,19 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **stop-slop analizado y descartado entero, con la medición delante** — §22 de
+  `docs/referencias.md`. Tres de sus patrones parecían huecos nuestros: agencia falsa,
+  declarativas vagas y la familia completa del contraste binario. Medidos contra ~6.800 líneas
+  de prosa del repo (CHANGELOG, README, las 24 guías, los 5 workflows y los 7 agentes), más
+  `docs/referencias.md`, 300 mensajes de commit y los cuerpos de PR: **0 defectos** de agencia
+  falsa (los 7 aciertos del patrón son metonimia correcta en español), **0** declarativas
+  vagas, y en el contraste binario la variante que ya prohibimos aparece **0 veces** mientras
+  las que no prohibimos aparecen **15**, todas haciendo trabajo. No se adopta nada suyo.
+  Lo que deja el análisis es una regla de método —un hueco propuesto no es un hueco hasta que
+  se cuenta en el corpus— y el discriminador del contraste binario escrito en la skill
+  `escritura-natural`, que prohibía la variante aditiva sin decir por qué la correctiva se
+  queda.
+
 - **El escaneo del suelo de calidad deja de ser prosa y pasa a ser un script probado** — la
   Fase 2 de `/review` describía cinco formas de aflojar la barra (checker silenciado, test
   hecho más fácil, trabajo sin terminar, umbral movido, test desaparecido) y el agente las

@@ -1052,6 +1052,48 @@ analizados y no mide nada de lo que afirma.
 
 ---
 
+## 22. stop-slop — `hardikpandya/stop-slop`
+
+**Qué es:** una skill de un solo tema —quitar los tics de escritura de IA en prosa inglesa—
+repartida en `SKILL.md` (68 líneas) y tres ficheros de `references/` que se cargan bajo
+demanda. 451 líneas en total, cero código y cero tests. MIT, 17.576 estrellas y 1.282 forks,
+último push el 2026-03-17. No es un plugin: no trae `plugin.json` ni marketplace, se instala
+copiando la carpeta a `~/.claude/skills/`.
+
+**Relación con nosotros:** mismo terreno que §21 y con menos en la mano —humanizer al menos
+gradúa la confianza de cada patrón y asevera la estructura de su prompt; aquí no hay ninguna
+de las dos cosas. Lo útil no fue adoptar un patrón suyo sino **usar su catálogo como lista de
+sondas** contra nuestro propio texto: tres patrones parecían huecos nuestros, se midieron
+contra ~6.800 líneas de prosa del repo (CHANGELOG, README, las 24 guías, los 5 workflows y
+los 7 agentes), más `docs/referencias.md`, 300 mensajes de commit y los cuerpos de PR, y los
+tres cayeron. La medición **es** el resultado de esta entrada.
+
+| Patrón | Qué es | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **Agencia falsa** | Prohíbe el sujeto inanimado con verbo humano («the data tells us», «the decision emerges»), porque detrás hay una persona a la que no se nombra | Parecía el hueco más claro: ninguna guía lo cubre y `escritura-natural` solo trata la pasiva impersonal («se ha procedido a»). Medido: **0 defectos**. Los 7 aciertos del patrón son metonimia normal en español y las siete veces dicen justo lo que hay que decir —«la spec dice dónde va el esfuerzo», «los tests dicen qué creía el autor que estaba construyendo»—. La regla inglesa no separa metonimia de ocultación del actor, así que aquí solo produce falsos positivos | ⛔ (medido) |
+| **Declarativas vagas** | «The implications are significant»: la frase anuncia que algo importa sin nombrar qué | **0 casos.** `escritura-natural` ya lo cierra aguas arriba con dos reglas que sí se aplican: «si borras una frase y no se pierde información, era relleno» y «pon número cuando lo tengas». No se añade nada a una regla que funciona | ⛔ (medido) |
+| **La familia completa del contraste binario** (11 variantes) | Prohíbe de una vez «not X, it's Y», «the question isn't X, it's Y», «stops being X and starts being Y» y ocho más | El resultado más útil, y es el contrario del esperado. La variante que `escritura-natural` **ya prohíbe** —la aditiva, «no es solo X, sino Y»— aparece **0 veces**. Las que no prohíbe aparecen **15**, todas correctivas y todas haciendo trabajo: «el N+1 no es lento, es incorrecto por diseño», «el problema no es tu hipótesis: es el diseño», «deja de ser memoización y pasa a ser una caché». Adoptar la familia entera habría roto 15 frases sanas para arreglar ninguna. Nuestra línea estaba bien trazada; lo que faltaba era **decirla**, porque una prohibición léxica no enseña dónde acaba | 🟡 (fuera del plugin: el discriminador escrito en `escritura-natural`, no la prohibición) |
+| Listas de vocabulario inglés (`phrases.md`, el grueso del repo) | Carraspeos, jerga de negocio, adverbios | No transfieren, igual que en §21 | ⛔ |
+| «Mata todos los adverbios», «ninguna frase empieza por palabra Wh-», «ninguna raya» | Tres prohibiciones sin excepción | Su propio `structures.md` marca los absolutos como *false authority* dos ficheros antes de escribirlos, y su ejemplo 4 usa la raya que acababa de prohibir. En español la raya es el signo del inciso y *¿por qué…?* es habla corriente: aplicarlas degrada el registro en vez de limpiarlo | ⛔ |
+| Autoevaluación 1-10 en cinco ejes, umbral 35/50 | El cierre de su `SKILL.md` | Lo puntúa el mismo modelo que escribió el texto y nadie ha medido si correlaciona con nada. Es el ⛔ de §21 un escalón más abajo: humanizer al menos asevera la estructura del prompt | ⛔ |
+| *Progressive disclosure* real (`SKILL.md` de 68 líneas + `references/` bajo demanda) | Lo que §21 dejó anotado como deuda nuestra, aquí funcionando y con tráfico | Sigue siendo deuda: `escritura-natural` son 273 líneas en un fichero. A este tamaño repartir no paga, pero el ejemplo está a mano para cuando pague | 📖 |
+
+### Nota de método
+
+Quinta vez que se repite lo de §2, §19, §20 y §21 —lo aprovechable no es lo que el repo
+anuncia—, con una vuelta de tuerca: aquí **no se aprovechó ningún patrón suyo**. El valor fue
+usar su catálogo como sondas contra nuestro texto y que las tres dieran negativo.
+
+De ahí sale una regla para las próximas entradas: **un hueco propuesto no es un hueco hasta
+que se cuenta en el corpus**. La primera lectura de este repo produjo una propuesta de tres
+reglas nuevas que sonaba razonable y que, medida, habría dañado 15 frases correctas para
+arreglar cero. Costó cuatro `grep`. Es la misma disciplina que ya aplican `suelo-calidad.mjs`
+(«medido sobre diffs reales de este mismo repo») y la Ley de Hierro de `writing-skills`
+(«si el control no exhibe el fallo, no hay nada que arreglar»), aplicada esta vez a una
+adopción de prosa.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:
