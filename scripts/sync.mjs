@@ -304,12 +304,28 @@ function yamlString(value) {
 }
 
 // ---------------------------------------------------------------------------
+// Scripts ejecutables que viajan DENTRO del plugin.
+//
+// Son la excepción a «scripts/ es del mantenedor»: estos se ejecutan en el repo del
+// usuario, así que se copian tal cual a los dos adaptadores y se referencian con el
+// token {{script:nombre}}, que cada adaptador resuelve a su ruta.
+//
+// El motivo de que sean código y no prosa está en la cabecera de cada uno: un patrón
+// que el agente reconstruye en cada ejecución no se puede probar, y uno que no casa no
+// casca — devuelve cero y eso es indistinguible de un diff limpio.
+// ---------------------------------------------------------------------------
+const SCRIPTS = ["suelo-calidad", "fusion-hallazgos"];
+
+// ---------------------------------------------------------------------------
 // Resolución de referencias {{guide:x}} por adaptador
 // ---------------------------------------------------------------------------
 const ADAPTERS = {
   claude: {
     guideRef: (name) =>
       "`" + name + "` (`${CLAUDE_PLUGIN_ROOT}/skills/" + name + "/SKILL.md`)",
+    // Claude Code expande ${CLAUDE_PLUGIN_ROOT} al ejecutar el comando.
+    scriptRef: (name) => "${CLAUDE_PLUGIN_ROOT}/scripts/" + name + ".mjs",
+    scriptPath: (name) => join(ROOT, "adapters/claude/scripts", name + ".mjs"),
     commandPath: (name) => join(ROOT, "adapters/claude/commands", name + ".md"),
     guidePath: (name) => join(ROOT, "adapters/claude/skills", name, "SKILL.md"),
     agentPath: (name) => join(ROOT, "adapters/claude/agents", name + ".md"),
@@ -357,6 +373,10 @@ const ADAPTERS = {
     // auto-activa por su `description` vía la herramienta `skill`, igual que en
     // Claude. Por eso la referencia cruzada es por NOMBRE, no por ruta.
     guideRef: (name) => "`" + name + "` (skill de OpenCode, auto-activable)",
+    // El consumidor copia `.opencode/` a la raíz del repo, que es su cwd.
+    scriptRef: (name) => ".opencode/scripts/" + name + ".mjs",
+    scriptPath: (name) =>
+      join(ROOT, "adapters/opencode/.opencode/scripts", name + ".mjs"),
     commandPath: (name) =>
       join(ROOT, "adapters/opencode/.opencode/command", name + ".md"),
     // Skills: <repo>/.opencode/skills/<name>/SKILL.md (OpenCode requiere el plural).
@@ -412,10 +432,15 @@ const ADAPTERS = {
 // Generación
 // ---------------------------------------------------------------------------
 function substitute(text, adapter) {
-  return text.replace(/\{\{guide:([a-z-]+)\}\}/g, (_, name) => {
-    if (!GUIDES[name]) throw new Error("Guía desconocida en token: " + name);
-    return ADAPTERS[adapter].guideRef(name);
-  });
+  return text
+    .replace(/\{\{guide:([a-z-]+)\}\}/g, (_, name) => {
+      if (!GUIDES[name]) throw new Error("Guía desconocida en token: " + name);
+      return ADAPTERS[adapter].guideRef(name);
+    })
+    .replace(/\{\{script:([a-z-]+)\}\}/g, (_, name) => {
+      if (!SCRIPTS.includes(name)) throw new Error("Script desconocido en token: " + name);
+      return ADAPTERS[adapter].scriptRef(name);
+    });
 }
 
 let written = 0;
@@ -427,6 +452,15 @@ for (const adapter of Object.keys(ADAPTERS)) {
     const out = A.commandFrontmatter(meta) + substitute(body, adapter);
     mkdirSync(dirname(A.commandPath(name)), { recursive: true });
     writeFileSync(A.commandPath(name), out);
+    written++;
+  }
+
+  // Los scripts se copian BYTE A BYTE: no llevan tokens ni frontmatter, y una
+  // sustitución sobre código sería una forma nueva de romperlo en silencio.
+  for (const name of SCRIPTS) {
+    const body = readFileSync(join(ROOT, "core/scripts", name + ".mjs"), "utf8");
+    mkdirSync(dirname(A.scriptPath(name)), { recursive: true });
+    writeFileSync(A.scriptPath(name), body);
     written++;
   }
 
@@ -494,6 +528,20 @@ const opencodeRevisor =
     '    "graphify explain*": allow',
     '    "graphify path*": allow',
     '    "graphify --version*": allow',
+    // Los scripts del plugin que /review ejecuta (Fase 2 el escaneo del suelo, Fase 4.1
+    // la fusión de hallazgos) son deterministas y de solo lectura. Aquí el permiso SÍ
+    // puede acotarse al script exacto, cosa que el `allowed-tools` de Claude no sabe
+    // expresar (ADR 0008): allí el comando lo ejecuta y el usuario aprueba una vez, como
+    // con el sello de /close.
+    //
+    // Se emiten las dos formas —con y sin comillas— porque la prosa del comando invoca
+    // `node "<ruta>"` (las comillas hacen falta en Claude, donde CLAUDE_PLUGIN_ROOT puede
+    // llevar espacios) y un glob sin ellas no casaría con el comando real. Un permiso que
+    // no casa no falla ruidosamente: cae al catch-all `"*": deny` y el script no corre.
+    ...SCRIPTS.flatMap((name) => [
+      `    "node .opencode/scripts/${name}.mjs*": allow`,
+      `    'node ".opencode/scripts/${name}.mjs"*': allow`,
+    ]),
     "---",
     "",
     "Eres el agente de **revisión read-only** del flujo de desarrollo. Tu única función es",

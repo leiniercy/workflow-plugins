@@ -6,16 +6,20 @@ paths:
 
 # Estás en `adapters/`, que es salida generada
 
-Todo lo que hay bajo `adapters/claude/{commands,skills,agents}` y
-`adapters/opencode/.opencode/{command,skills,agent,guides}` lo **escribe `scripts/sync.mjs`** a
-partir de `core/`. Editarlo a mano no es un atajo: el cambio desaparece en la siguiente
+Todo lo que hay bajo `adapters/claude/{commands,skills,agents,scripts}` y
+`adapters/opencode/.opencode/{command,skills,agent,guides,scripts}` lo **escribe
+`scripts/sync.mjs`** a partir de `core/`. Editarlo a mano no es un atajo: el cambio desaparece en la siguiente
 ejecución de `sync.mjs`, y hasta entonces el CI `sync-check` está en rojo porque los
 adaptadores no cuadran con `core/`.
 
 **Lo que toca:**
 
-1. Edita el fichero equivalente en `core/{workflows,guides,agents}/`, usando los tokens
-   `{{guide:nombre}}` para las referencias cruzadas.
+1. Edita el fichero equivalente en `core/{workflows,guides,agents,scripts}/`, usando los
+   tokens `{{guide:nombre}}` y `{{script:nombre}}` para las referencias cruzadas.
+   `core/scripts/` es la excepción a «`scripts/` es del mantenedor»: lo que hay ahí se
+   EJECUTA en el repo del usuario, así que `sync.mjs` lo copia byte a byte a los dos
+   adaptadores. Un script nuevo hay que darlo de alta en el registro `SCRIPTS` de
+   `sync.mjs`, o no se copia y nada lo dice.
 2. Si lo que cambias es la `description` de una guía o los metadatos de un agente, eso vive en
    `scripts/sync.mjs` (`GUIDES` y `AGENTS`), no en el markdown.
 3. Ejecuta `node scripts/sync.mjs` y commitea también lo regenerado.

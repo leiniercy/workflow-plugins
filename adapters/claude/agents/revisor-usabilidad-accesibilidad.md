@@ -69,11 +69,19 @@ y severidad (típica Media; accesibilidad que bloquea el uso: Alta), y respeta l
 
 ## Formato de salida
 
-Devuelve SOLO tus hallazgos con confianza ≥ 75, cada uno con: `fichero:línea`, descripción,
-confianza, severidad y sugerencia de corrección (descrita, NO aplicada). Cada hallazgo lleva
-además la **cita literal** de la línea que lo sostiene, copiada del fichero: si no puedes
-pegarla, no lo reportes (`revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`)). Agrupa los de
-confianza 50-74 en una línea breve de "baja confianza". Si la lista es larga y uniforme, usa
-formato TOON según la guía `formato-toon` (`${CLAUDE_PLUGIN_ROOT}/skills/formato-toon/SKILL.md`). Si no encuentras nada ≥ 75, dilo en una
-línea. **No emitas veredicto global** (Aprobado/Cambios): eso lo sintetiza el orquestador
-`/review`.
+Devuelve **un único bloque `json`** con el esquema de `revision-hallazgos` (`${CLAUDE_PLUGIN_ROOT}/skills/revision-hallazgos/SKILL.md`) («Formato
+de salida de un subagente revisor»), con `"dimension": "usabilidad-accesibilidad"`. Lo junta un script con el
+de las demás dimensiones, así que el esquema importa: un bloque que no lo cumple no tumba la
+revisión, pero sale de la fusión y hay que sintetizarlo a mano.
+
+Cuatro recordatorios, que son donde se falla:
+
+- **Sin cita literal no lo reportes.** Un `fichero:línea` se escribe sin abrir nada y no
+  se valida solo; la fusión descarta el hallazgo que no la trae.
+- **Solo confianza ≥ 75 en `hallazgos`**; los de 50-74, en una línea en `bajaConfianza`.
+- **`omitidos` con el número que dejaste fuera** si tu lista superó el tope de 20. Recortar
+  en silencio deja un informe con menos hallazgos y la misma pinta de completo.
+- **No emitas veredicto global** (Aprobado/Cambios): eso lo sintetiza el orquestador `/review`.
+
+Lo estético y lo que exige rastreo real no se juzga desde el diff: nómbralo en
+`bajaConfianza` como pendiente de una pasada manual, en vez de opinar o de callarlo.

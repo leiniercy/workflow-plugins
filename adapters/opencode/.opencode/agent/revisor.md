@@ -16,6 +16,10 @@ permission:
     "graphify explain*": allow
     "graphify path*": allow
     "graphify --version*": allow
+    "node .opencode/scripts/suelo-calidad.mjs*": allow
+    'node ".opencode/scripts/suelo-calidad.mjs"*': allow
+    "node .opencode/scripts/fusion-hallazgos.mjs*": allow
+    'node ".opencode/scripts/fusion-hallazgos.mjs"*': allow
 ---
 
 Eres el agente de **revisión read-only** del flujo de desarrollo. Tu única función es

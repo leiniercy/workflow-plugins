@@ -5,6 +5,14 @@ name: Contratos de comportamiento
 #     los agentes, auto-activación de guías, banderas rojas, dato no fiable).
 #   check-routing.mjs  — enrutado del catálogo: colisión entre descriptions, fronteras
 #     entre guías confundibles y tasa de top-3 sobre su suelo.
+#   check-suelo.mjs    — que el escaneo del suelo de calidad detecte lo que dice y calle
+#     con lo que dice callar. Es el único script del plugin que se EJECUTA en el repo del
+#     usuario, y su forma de fallar es muda: un patrón que no casa devuelve cero, que es
+#     indistinguible de un diff limpio.
+#   check-fusion.mjs   — que la síntesis de hallazgos no pierda ninguno por el camino. La
+#     aserción central es una ley de conservación: publicados + exigidos por spec +
+#     fusionados + bajo umbral = recibidos. Un informe que pierde un hallazgo en silencio
+#     es peor que uno que no lo encontró.
 #   check-graders.mjs  — que el grader de cada caso distinga acierto de fallo, contra las
 #     respuestas de ejemplo de su `graders/muestras.json`. Es la parte más barata de
 #     equivocarse y era la única que nadie probaba: un grader roto no falla, canta un ✓.
@@ -20,6 +28,8 @@ on:
       - "scripts/check-behavior.mjs"
       - "scripts/check-routing.mjs"
       - "scripts/check-graders.mjs"
+      - "scripts/check-suelo.mjs"
+      - "scripts/check-fusion.mjs"
       - "scripts/lib/grader.mjs"
       - "adapters/**"
       - ".github/workflows/behavior-check.yml"
@@ -30,6 +40,8 @@ on:
       - "scripts/check-behavior.mjs"
       - "scripts/check-routing.mjs"
       - "scripts/check-graders.mjs"
+      - "scripts/check-suelo.mjs"
+      - "scripts/check-fusion.mjs"
       - "scripts/lib/grader.mjs"
       - "adapters/**"
       - ".github/workflows/behavior-check.yml"
@@ -57,3 +69,9 @@ jobs:
 
       - name: Asevera que los graders distinguen acierto de fallo
         run: node scripts/check-graders.mjs
+
+      - name: Asevera el escaneo del suelo de calidad
+        run: node scripts/check-suelo.mjs
+
+      - name: Asevera que la fusión de hallazgos no pierde nada
+        run: node scripts/check-fusion.mjs

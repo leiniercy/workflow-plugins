@@ -172,10 +172,21 @@ confianza (0-100) y severidad, y respeta la lista de "qué NO reportar".
 
 ## Formato de salida
 
-Devuelve SOLO tus hallazgos con confianza ≥ 75, cada uno con: dimensión (bug/seguridad),
-`fichero:línea`, descripción, confianza, severidad y sugerencia de corrección (descrita, NO
-aplicada). Cada hallazgo lleva además la **cita literal** de la línea que lo sostiene, copiada del
-fichero: si no puedes pegarla, no lo reportes ({{guide:revision-hallazgos}}). Agrupa los de confianza 50-74 en una línea breve de "baja confianza". Si la lista
-es larga y uniforme, usa formato TOON según la guía {{guide:formato-toon}}. Si no encuentras
-nada ≥ 75, dilo en una línea. **No emitas veredicto global** (Aprobado/Cambios): eso lo
-sintetiza el orquestador `/review` juntando todas las dimensiones.
+Devuelve **un único bloque `json`** con el esquema de {{guide:revision-hallazgos}} («Formato
+de salida de un subagente revisor»), con `"dimension": "bugs-seguridad"`. Lo junta un script con el
+de las demás dimensiones, así que el esquema importa: un bloque que no lo cumple no tumba la
+revisión, pero sale de la fusión y hay que sintetizarlo a mano.
+
+Cuatro recordatorios, que son donde se falla:
+
+- **Sin cita literal no lo reportes.** Un `fichero:línea` se escribe sin abrir nada y no
+  se valida solo; la fusión descarta el hallazgo que no la trae.
+- **Solo confianza ≥ 75 en `hallazgos`**; los de 50-74, en una línea en `bajaConfianza`.
+- **`omitidos` con el número que dejaste fuera** si tu lista superó el tope de 20. Recortar
+  en silencio deja un informe con menos hallazgos y la misma pinta de completo.
+- **No emitas veredicto global** (Aprobado/Cambios): eso lo sintetiza el orquestador `/review` juntando todas las dimensiones.
+
+Cuando el matiz entre `bug` y `seguridad` importe, dilo en la `descripcion`. **No añadas
+un `dimension` por hallazgo**: el esquema solo lo define a nivel de bloque, y un campo
+suelto pisaría al del bloque por el orden en que la fusión los junta — el hallazgo saldría
+etiquetado de una forma y la auditoría lo contaría de otra.

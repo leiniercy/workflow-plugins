@@ -185,3 +185,51 @@ revés: he bajado alguna de 75 porque sostenerla daba trabajo? ¿alguno de los q
 fuera es de seguridad y sabría escribir su camino de ataque?** Si la
 respuesta titubea, baja su confianza o descártalo. La revisión vale por lo que confirma, no por
 lo que enumera.
+
+## Formato de salida de un subagente revisor (esquema)
+
+Un revisor por dimensión **no escribe el informe**: entrega su material al orquestador, que
+lo junta con el de los demás. Ese traspaso va en un único bloque ` ```json ` con esta forma,
+para que la fusión la haga un script y no la prosa — deduplicar por `fichero:línea` y
+comparar un número contra 75 es trabajo mecánico, y hecho a ojo dos síntesis del mismo
+material pueden no coincidir sin que nadie lo note.
+
+```json
+{
+  "dimension": "seguridad",
+  "hallazgos": [
+    {
+      "fichero": "src/api/usuario.ts",
+      "linea": 42,
+      "cita": "const u = await db.user.findUnique({ where: { id } });",
+      "descripcion": "Devuelve el registro sin comprobar que el solicitante sea su dueño.",
+      "confianza": 88,
+      "severidad": "Alto",
+      "sugerencia": "Comprobar la propiedad antes de devolver el registro.",
+      "exigidoPorSpec": null
+    }
+  ],
+  "noVerificables": [{ "criterio": "Criterio 4", "queComprobar": "Si el cron sigue activo." }],
+  "bajaConfianza": "Dos posibles fugas de tipo en el mapper, 60-70.",
+  "omitidos": 0
+}
+```
+
+Las cuatro reglas del bloque:
+
+1. **`cita` es obligatoria y literal**, copiada del fichero. Un `fichero:línea` se escribe sin
+   abrir nada y no se valida solo; sin cita el hallazgo se descarta en la fusión y se registra
+   por qué. Si no puedes pegarla, no lo reportes.
+2. **`severidad` ∈ `Crítico` | `Alto` | `Medio` | `Bajo`** y **`confianza` es un entero 0-100**.
+   Solo entran en `hallazgos` los de confianza ≥ 75; los de 50-74 van resumidos en una línea en
+   `bajaConfianza`, no como objetos.
+3. **`exigidoPorSpec` lleva el texto de la spec** con el que choca el hallazgo, o `null`. No es
+   trabajo de corrección: es una decisión del usuario, y va a un apartado propio del informe.
+4. **`omitidos` no es opcional.** Si tu lista no cabe —hay un tope de 20 hallazgos por
+   revisor—, quédate con los más severos y pon ahí cuántos dejaste fuera. **Recortar en
+   silencio es el peor fallo posible de un revisor**: el informe sale con menos hallazgos y
+   con la misma pinta de completo, y nadie puede echar de menos lo que no sabe que existió.
+
+Fuera del bloque, no escribas nada más que una línea si no encontraste nada. **No emitas
+veredicto global** (Aprobado / Cambios requeridos): eso lo sintetiza el orquestador juntando
+todas las dimensiones, y tú solo has visto la tuya.

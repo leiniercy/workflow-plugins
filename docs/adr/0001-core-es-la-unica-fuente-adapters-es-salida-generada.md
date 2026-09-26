@@ -13,11 +13,28 @@ no la ve nadie hasta que un usuario de una de las dos herramientas recibe la ver
 
 ## Decision
 
-`core/{workflows,guides,agents}/` es la única fuente de verdad. `scripts/sync.mjs` genera
-todo lo que hay bajo `adapters/`: resuelve los tokens `{{guide:nombre}}` a la referencia de
-cada herramienta, antepone el frontmatter correspondiente y sobrescribe los ficheros. Los
-metadatos —`description` de comandos y guías, modelo y `tools` de los agentes— viven en los
-registros `COMMANDS`, `GUIDES` y `AGENTS` de `sync.mjs`, no en el markdown.
+`core/{workflows,guides,agents,scripts}/` es la única fuente de verdad. `scripts/sync.mjs`
+genera todo lo que hay bajo `adapters/`: resuelve los tokens `{{guide:nombre}}` a la
+referencia de cada herramienta, antepone el frontmatter correspondiente y sobrescribe los
+ficheros. Los metadatos —`description` de comandos y guías, modelo y `tools` de los
+agentes— viven en los registros `COMMANDS`, `GUIDES` y `AGENTS` de `sync.mjs`, no en el
+markdown.
+
+**Ampliación (v0.22.0): `core/scripts/`, una cuarta clase de generado.** Es la excepción a
+«`scripts/` es la caja del mantenedor»: lo que hay en `core/scripts/` se **ejecuta en el
+repo del usuario** (hoy, el escaneo del suelo de calidad y la fusión de hallazgos que usa
+`/review`). No lleva frontmatter ni tokens, así que `sync.mjs` lo copia **byte a byte** a
+`adapters/claude/scripts/` y a `adapters/opencode/.opencode/scripts/`, y resuelve el token
+`{{script:nombre}}` a la ruta de cada herramienta. Sustituir texto dentro de código sería
+una forma nueva de romperlo en silencio, y por eso no se hace.
+
+Se añadió sin ampliar esta ADR ni la regla de `adapters/**`, y una revisión lo levantó: un
+colaborador que abriera `adapters/claude/scripts/suelo-calidad.mjs` no encontraba dónde
+dijera que es generado, lo editaba, y el cambio desaparecía en el siguiente `sync.mjs`. La
+lección es de la propia ADR: **una clase nueva de artefacto generado no existe hasta que
+está en los tres sitios** — el registro de `sync.mjs`, esta decisión y la regla que se le
+sirve al agente. Un script nuevo que no se dé de alta en el registro `SCRIPTS` no se copia;
+lo asevera `check-behavior.mjs` derivando la lista del disco, no del registro.
 
 Tres cosas bajo `adapters/` sí se editan a mano, porque no se generan:
 

@@ -470,10 +470,116 @@ assert(
     /Apretar el listón es silencioso/.test(implementBody),
   "la regla del suelo («apretar es silencioso, aflojar es ruidoso») está en /review y en /implement",
 );
+// Los patrones dejaron de vivir en la prosa y pasaron a `core/scripts/suelo-calidad.mjs`
+// (un patrón que el agente reconstruye en cada ejecución no se puede probar). El contrato
+// se redeclara en las dos capas donde ahora vive: que /review lo INVOQUE, y que el script
+// shipped LLEVE las directivas. Si solo se asevera una, la otra se puede caer sola.
 assert(
-  /eslint-disable/.test(reviewBody) && /istanbul ignore/.test(reviewBody),
-  "/review escanea el diff en busca de checkers silenciados",
+  /suelo-calidad\.mjs/.test(reviewBody),
+  "/review invoca el escaneo del suelo (script determinista, no una tabla de Grep)",
 );
+const sueloShipped = read(join(CLAUDE, "scripts/suelo-calidad.mjs")) || "";
+// Aquí NO se grepean los patrones del escaneo. Aseverar que un fichero contiene un texto
+// solo demuestra que la fuente es la fuente (ADR 0003), y además era la ÚNICA cobertura de
+// `istanbul ignore` y `nosemgrep`: borrarlos del catálogo dejaba todo en verde. Ahora cada
+// entrada de cada catálogo tiene su fila EJECUTADA en `check-suelo.mjs`, verificada por
+// mutación. Lo que se asevera aquí es lo que allí no se puede ver: el acoplamiento entre la
+// prosa del comando y el script shipped.
+assert(
+  /puertasTocadas/.test(sueloShipped) && /puertasTocadas/.test(reviewBody),
+  "el escaneo devuelve las puertas tocadas y /review las mira aunque no haya movimientos",
+);
+// El gate de la dimensión 6 decide si se paga un subagente. Antes lo juzgaba el modelo
+// leyendo el diff; ahora se lee del escaneo, y las dos capas se aseveran por separado.
+assert(
+  /tocaUI/.test(sueloShipped) && /tocaUI/.test(reviewBody),
+  "el escaneo resuelve si el diff toca UI y /review usa ese dato como gate de la dimensión 6",
+);
+assert(
+  /guiasAplicables/.test(sueloShipped) && /guiasAplicables/.test(reviewBody),
+  "el escaneo calcula qué guías condicionales aplican y /review las usa",
+);
+
+// --- fusión de hallazgos: el contrato de salida de los revisores ---
+//
+// La síntesis dejó de hacerse en prosa. Se aseveran las tres capas, porque cada una puede
+// caerse sola: el esquema en la guía, que los cuatro revisores lo emitan, y que /review
+// ejecute la fusión.
+{
+  const fusionShipped = read(join(CLAUDE, "scripts/fusion-hallazgos.mjs")) || "";
+  assert(
+    /fusion-hallazgos\.mjs/.test(reviewBody),
+    "/review fusiona los hallazgos con el script (no deduplica ni reumbrala en prosa)",
+  );
+  assert(
+    /auditoria/.test(fusionShipped) && /auditoria/.test(reviewBody),
+    "la fusión devuelve auditoría y /review la lee: nada se pierde en silencio",
+  );
+  const guiaHallazgos = read(join(CLAUDE, "skills/revision-hallazgos/SKILL.md")) || "";
+  assert(
+    /"omitidos"/.test(guiaHallazgos) && /"noVerificables"/.test(guiaHallazgos),
+    "la guía revision-hallazgos lleva el esquema de salida del subagente revisor",
+  );
+  for (const r of [
+    "revisor-bugs-seguridad",
+    "revisor-spec-tests",
+    "revisor-convenciones",
+    "revisor-usabilidad-accesibilidad",
+  ]) {
+    const body = read(join(CLAUDE, "agents", r + ".md")) || "";
+    assert(
+      /`omitidos`/.test(body),
+      `${r} declara \`omitidos\`: recortar en silencio deja un informe con menos hallazgos y la misma pinta de completo`,
+    );
+  }
+}
+
+// --- ningún script de core/ se queda sin copiar a los adaptadores ---
+//
+// Mismo razonamiento que la lista de guías de más arriba: se deriva del DISCO, no del
+// registro `SCRIPTS` de sync.mjs. Si se importara, un script añadido a core/scripts/ y
+// olvidado en el registro haría que el check lo ignorase y diera verde — que es
+// exactamente el fallo que tiene que ver. No se copia, `/review` lo invoca por una ruta
+// que no existe, y degrada en silencio.
+{
+  const SCRIPTS = readdirSync(join(ROOT, "core/scripts"))
+    .filter((f) => f.endsWith(".mjs"))
+    .sort();
+  assert(SCRIPTS.length > 0, "core/scripts/ contiene scripts (la derivación del disco funciona)");
+  for (const f of SCRIPTS) {
+    const fuente = read(join(ROOT, "core/scripts", f));
+    for (const [donde, ruta] of [
+      ["Claude", join(CLAUDE, "scripts", f)],
+      ["OpenCode", join(ROOT, "adapters/opencode/.opencode/scripts", f)],
+    ]) {
+      const copia = read(ruta);
+      assert(copia !== null, `${f} está copiado al adaptador de ${donde} (¿falta en el registro SCRIPTS de sync.mjs?)`);
+      assert(
+        copia === null || copia === fuente,
+        `la copia de ${f} en ${donde} es idéntica a core/ (se copia byte a byte, sin sustituciones)`,
+      );
+    }
+  }
+}
+
+// --- OpenCode: un permiso que no casa no falla, cae al deny y el script no corre ---
+//
+// La prosa invoca `node "<ruta>"` con comillas (hacen falta en Claude, donde
+// CLAUDE_PLUGIN_ROOT puede llevar espacios). Un glob sin comillas no casaría con el comando
+// real y el agente `revisor` se quedaría sin poder ejecutar sus propios scripts, en silencio.
+{
+  const revisor = read(join(ROOT, "adapters/opencode/.opencode/agent/revisor.md")) || "";
+  for (const name of ["suelo-calidad", "fusion-hallazgos"]) {
+    assert(
+      revisor.includes(`"node .opencode/scripts/${name}.mjs*": allow`),
+      `el revisor de OpenCode autoriza ${name} sin comillas`,
+    );
+    assert(
+      revisor.includes(`'node ".opencode/scripts/${name}.mjs"*': allow`),
+      `el revisor de OpenCode autoriza ${name} con comillas (la forma que usa la prosa)`,
+    );
+  }
+}
 assert(
   /Escaneo del suelo de calidad/.test(reviewBody),
   "/review tiene el escaneo del suelo antes de repartir dimensiones",

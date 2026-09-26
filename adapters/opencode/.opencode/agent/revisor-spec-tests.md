@@ -81,13 +81,20 @@ completo (confirma que el criterio existe y que ningún test ya lo cubre), asíg
 
 ## Formato de salida
 
-Devuelve SOLO tus hallazgos con confianza ≥ 75, cada uno con: dimensión (spec/tests),
-`fichero:línea` (o el criterio de spec afectado), descripción, confianza, severidad y
-sugerencia (descrita, NO aplicada). Cada hallazgo lleva además la **cita literal** de la línea
-—o del texto de spec— que lo sostiene, copiada de su fichero: si no puedes pegarla, no lo
-reportes (`revision-hallazgos` (skill de OpenCode, auto-activable)). Añade, en su propio bloque, la lista de `⚠️ no verificable
-desde el diff` (criterio + qué comprobar) y los `exigido-por-spec` (hallazgo + texto de spec).
-Agrupa los de confianza 50-74 en una línea breve de "baja confianza". Si la lista es larga y
-uniforme, usa formato TOON según la guía `formato-toon` (skill de OpenCode, auto-activable). Si no encuentras nada ≥ 75,
-dilo en una línea. **No emitas veredicto global** (Aprobado/Cambios): eso lo sintetiza el
-orquestador `/review`.
+Devuelve **un único bloque `json`** con el esquema de `revision-hallazgos` (skill de OpenCode, auto-activable) («Formato
+de salida de un subagente revisor»), con `"dimension": "spec-tests"`. Lo junta un script con el
+de las demás dimensiones, así que el esquema importa: un bloque que no lo cumple no tumba la
+revisión, pero sale de la fusión y hay que sintetizarlo a mano.
+
+Cuatro recordatorios, que son donde se falla:
+
+- **Sin cita literal no lo reportes.** Un `fichero:línea` se escribe sin abrir nada y no
+  se valida solo; la fusión descarta el hallazgo que no la trae.
+- **Solo confianza ≥ 75 en `hallazgos`**; los de 50-74, en una línea en `bajaConfianza`.
+- **`omitidos` con el número que dejaste fuera** si tu lista superó el tope de 20. Recortar
+  en silencio deja un informe con menos hallazgos y la misma pinta de completo.
+- **No emitas veredicto global** (Aprobado/Cambios): eso lo sintetiza el orquestador `/review`.
+
+Los ⚠️ que no puedas juzgar desde el diff van en `noVerificables` (criterio + qué
+comprobar), no en `hallazgos`: los resuelve el orquestador, que tiene el contexto completo
+de la tarea.
