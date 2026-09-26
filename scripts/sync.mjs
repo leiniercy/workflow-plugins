@@ -281,7 +281,7 @@ const GUIDES = {
   },
   "diagramas": {
     description:
-      "Úsala cuando vayas a dibujar un diagrama, a enseñarle a alguien el recorrido completo de un flujo, o a decidir si de verdad hace falta: prueba visual de una PR, documentación en el repo, explicación de una arquitectura. Síntomas: el dibujo ya no cabe de un vistazo y lo aprietas para que quepa; vas a pegar HTML o SVG en un comentario de GitHub, o Mermaid en ClickUp; dibujas lo que el párrafo de al lado ya cuenta; destacas seis cosas a la vez; o pintas una caja que no has comprobado en el código.",
+      "Úsala cuando vayas a dibujar un diagrama, a enseñar el recorrido de un flujo, o a decidir si hace falta: prueba visual de una pull request, documentación en el repo, una arquitectura. Síntomas: pegaste HTML o SVG en el comentario de una pull request y sale un hueco en blanco, o Mermaid en ClickUp; el dibujo ya no cabe de un vistazo y lo aprietas; no has decidido a qué altura dibujas; no lleva título ni leyenda; destacas seis cosas; o pintas una caja que no has comprobado en el código.",
   },
   "espacio-de-trabajo-aislado": {
     description:
