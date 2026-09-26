@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.23.0] - 2026-09-26
+
 ### Añadido
 
 - **`escritura-natural` entra en el plugin como la guía 25** — vivía solo en
