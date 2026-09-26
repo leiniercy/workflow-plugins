@@ -32,9 +32,14 @@
  *
  * **Lo que NO cubre**, y conviene saberlo antes de fiarse: una escritura hecha a través de
  * un subproceso (`exec("echo x > f")`) es indetectable estáticamente, y no se puede
- * prohibir `exec` sin romper los dos hooks que legítimamente lo usan (`notify.js` para el
- * sonido, `session-context.js` para invocar `git`). Es un cable trampa contra el descuido,
- * no un sandbox contra la mala fe.
+ * prohibir `exec` sin romper los dos ficheros que legítimamente lo usan: `notify.js` para
+ * el sonido y `lib/comun.js` para invocar `git` en nombre de los hooks que lo necesitan.
+ * Es un cable trampa contra el descuido, no un sandbox contra la mala fe.
+ *
+ * (Esa lista se quedó rancia una vez, al añadir un tercer hook que también llamaba a git.
+ * Hoy la llamada vive en un solo sitio — `lib/comun.js` —, así que añadir un hook nuevo ya
+ * no la invalida; pero si alguno vuelve a hacer `exec` por su cuenta, esta frase hay que
+ * actualizarla: es donde el repo declara el alcance real del invariante.)
  *
  * Sale con código 1 si un hook rompe el invariante. Pensado para CI.
  */

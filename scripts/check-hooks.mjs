@@ -18,7 +18,8 @@
  * estático lo veía, porque el fichero era sintácticamente perfecto.
  *
  * Regla que sale de ahí: **lo que el hook decide, se ejecuta en un test.** Si mañana
- * alguien toca `section()`, `acotar()` o el árbol de «Próximo paso», esto salta.
+ * alguien toca `section()`, `acotar()`, el árbol de «Próximo paso» o el aviso de commit
+ * sin registrar, esto salta.
  *
  * ── Contrato transversal ───────────────────────────────────────────────────────
  *
@@ -288,6 +289,109 @@ function escenario(nombre, branch, ficheros) {
 }
 
 // ---------------------------------------------------------------------------
+// 10-12. Commit que no consta en el historial.
+//
+// El hook PostToolUse (`post-commit-progress.js`) avisa en el momento del commit; este
+// es la segunda red, para la sesión que se abre después. Sin ella, un commit que se
+// escapó del registro solo se descubre leyendo el fichero a mano.
+//
+// El margen importa igual que allí: en el camino feliz la entrada se escribe justo ANTES
+// del commit, así que exigir que el historial sea más nuevo que HEAD haría saltar el
+// aviso siempre — y un aviso que salta siempre se lee como ruido.
+// ---------------------------------------------------------------------------
+{
+  /** `YYYY-MM-DD HH:MM` local: el formato de las entradas de progress.md. */
+  const sello = (d) => {
+    const p = (n) => String(n).padStart(2, "0");
+    return (
+      d.getFullYear() +
+      "-" +
+      p(d.getMonth() + 1) +
+      "-" +
+      p(d.getDate()) +
+      " " +
+      p(d.getHours()) +
+      ":" +
+      p(d.getMinutes())
+    );
+  };
+
+  /** Repo de tarea con un commit fechado y una entrada de historial fechada. */
+  function conCommit(branch, taskId, entradaAt, commitAt) {
+    const dir = repo(branch);
+    temporales.push(dir);
+    tarea(dir, taskId, "spec.md", spec(criterios(2, 3)));
+    tarea(
+      dir,
+      taskId,
+      "progress.md",
+      "# Progreso\n\n## Estado actual\n\nEn curso.\n\n## Historial\n\n### " +
+        sello(entradaAt) +
+        " — implement\n\n- **Resultado:** criterio 1 completado.\n"
+    );
+    const g = (args, env) =>
+      spawnSync("git", args, {
+        cwd: dir,
+        encoding: "utf8",
+        windowsHide: true,
+        env: { ...process.env, ...env },
+      });
+    g(["config", "user.email", "test@example.com"]);
+    g(["config", "user.name", "Test"]);
+    if (commitAt) {
+      const p = (n) => String(n).padStart(2, "0");
+      const off = -commitAt.getTimezoneOffset();
+      const signo = off >= 0 ? "+" : "-";
+      const abs = Math.abs(off);
+      const f =
+        sello(commitAt).replace(" ", "T") +
+        ":00" +
+        signo +
+        p(Math.floor(abs / 60)) +
+        p(abs % 60);
+      g(["add", "-A"]);
+      g(["commit", "-q", "-m", "feat: el trabajo que no consta"], {
+        GIT_AUTHOR_DATE: f,
+        GIT_COMMITTER_DATE: f,
+      });
+    }
+    const r = ejecutar(dir);
+    assert(r.code === 0, `[${branch}] el hook sale con código 0 — actual: ${r.code}`);
+    assert(r.jsonValido, `[${branch}] el hook emite JSON válido`);
+    return r.contexto;
+  }
+
+  const ahora = new Date();
+  const haceMin = (m) => new Date(ahora.getTime() - m * 60000);
+
+  // 10. El commit es de hace un rato y la última entrada, de hace horas.
+  const ctx10 = conCommit("feat/TA_demo", "TA", haceMin(240), haceMin(5));
+  assert(
+    /commit sin registrar/i.test(ctx10),
+    "un commit posterior a la última entrada del historial se avisa al arrancar"
+  );
+  assert(
+    /el trabajo que no consta/.test(ctx10),
+    "el aviso nombra el asunto del commit para que se sepa cuál es"
+  );
+
+  // 11. Camino feliz: se registró y se commiteó acto seguido.
+  const ctx11 = conCommit("feat/TB_demo", "TB", haceMin(6), haceMin(4));
+  assert(
+    !/commit sin registrar/i.test(ctx11),
+    "una entrada escrita justo antes del commit NO produce aviso"
+  );
+
+  // 12. Repo sin commits: no hay nada de lo que avisar, y es el caso de los 9 escenarios
+  //     anteriores — esta aserción es la que impide que el aviso nuevo los contamine.
+  const ctx12 = conCommit("feat/TC_demo", "TC", haceMin(240), null);
+  assert(
+    !/commit sin registrar/i.test(ctx12),
+    "sin commits en la rama no se avisa de ningún commit"
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Limpieza y veredicto
 // ---------------------------------------------------------------------------
 for (const d of temporales) {
@@ -307,4 +411,4 @@ if (fallos.length) {
   process.exit(1);
 }
 
-console.log(`✓ ${total} aserciones de hooks OK (session-context ejecutado en 9 escenarios).`);
+console.log(`✓ ${total} aserciones de hooks OK (session-context ejecutado en 12 escenarios).`);

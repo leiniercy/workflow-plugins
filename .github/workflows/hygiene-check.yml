@@ -14,6 +14,9 @@ name: Hooks — higiene y comportamiento
 #   check-guard    el guard de acciones irreversibles decide de verdad (deny/ask/nada) al
 #                  ejecutarlo con la entrada del harness. Mismo motivo: un guard roto no
 #                  casca, deja pasar en silencio lo que existe para frenar.
+#   check-post-commit  el aviso de commit sin registrar salta cuando el historial se
+#                  queda atrás y calla el resto del tiempo. Los dos lados importan: si no
+#                  salta deja el agujero abierto, y si salta de más se deja de leer.
 
 on:
   push:
@@ -23,6 +26,7 @@ on:
       - "scripts/check-hygiene.mjs"
       - "scripts/check-hooks.mjs"
       - "scripts/check-guard.mjs"
+      - "scripts/check-post-commit.mjs"
       - ".github/workflows/hygiene-check.yml"
   pull_request:
     paths:
@@ -30,6 +34,7 @@ on:
       - "scripts/check-hygiene.mjs"
       - "scripts/check-hooks.mjs"
       - "scripts/check-guard.mjs"
+      - "scripts/check-post-commit.mjs"
       - ".github/workflows/hygiene-check.yml"
 
 permissions:
@@ -55,3 +60,6 @@ jobs:
 
       - name: Decisiones del guard de acciones irreversibles
         run: node scripts/check-guard.mjs
+
+      - name: Comportamiento del hook de commit sin registrar
+        run: node scripts/check-post-commit.mjs
