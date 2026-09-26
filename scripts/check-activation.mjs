@@ -75,7 +75,7 @@ import { corrige } from "./lib/grader.mjs";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PLUGIN_DIR = join(ROOT, "adapters/claude");
 const EVALS_DIR = join(PLUGIN_DIR, "evals");
-const PLUGIN_NAME = "custom-ia-plugin";
+const PLUGIN_NAME = "backbone";
 const TIMEOUT_MS = 300_000;
 
 // ---------------------------------------------------------------------------

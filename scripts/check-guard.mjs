@@ -125,7 +125,7 @@ caso("escribir un fichero normal", escribe("src/index.js"), undefined);
 // --- contrato y degradación --------------------------------------------------
 caso("comando inocuo no decide", bash("ls -la"), undefined);
 caso("herramienta desconocida no decide", corre({ tool_name: "Grep", tool_input: {} }), undefined);
-caso("GUARD=off no interfiere ni con rm -rf /", bash("rm -rf /", { CUSTOM_IA_GUARD: "off" }), undefined);
+caso("GUARD=off no interfiere ni con rm -rf /", bash("rm -rf /", { BACKBONE_GUARD: "off" }), undefined);
 
 // stdin no-JSON: el contrato es salir con 0 y JSON válido sin decidir.
 {

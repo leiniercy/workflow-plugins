@@ -1,4 +1,4 @@
-# custom-ia-plugin · marketplace `biomas`
+# backbone · marketplace `biomas`
 
 **Entra un ticket de ClickUp, sale una PR que otra persona puede revisar.** Entre medias el
 agente recorre siempre el mismo camino de cinco pasos, deja por escrito en el repo lo que
@@ -91,8 +91,8 @@ usuario antes de ejecutarlas:
 
 Es una **red para accidentes, no un sandbox**: un agente decidido puede reformular el comando.
 El bloqueo duro de solo-lectura sigue siendo el campo `tools` de los agentes revisores.
-Se ajusta por entorno: `CUSTOM_IA_PROTECTED_PATHS` añade rutas propias del repo y
-`CUSTOM_IA_GUARD=off` lo desactiva (ver `examples/repo-settings.json`).
+Se ajusta por entorno: `BACKBONE_PROTECTED_PATHS` añade rutas propias del repo y
+`BACKBONE_GUARD=off` lo desactiva (ver `examples/repo-settings.json`).
 
 ### El commit que no consta (hook `PostToolUse`)
 
@@ -187,8 +187,8 @@ nuestros. Un número que no has reproducido en tu código es una expectativa, no
 ### Ruta rápida
 
 ```
-/plugin marketplace add leiniercy/custom-ia-plugin
-/plugin install custom-ia-plugin@biomas
+/plugin marketplace add leiniercy/biomas-workflow
+/plugin install backbone@biomas
 /reload-plugins
 ```
 
@@ -273,7 +273,7 @@ OpenCode no cuenta con un marketplace interno: la instalación consiste en copia
 ## Cómo está hecho (para quien lo mantiene)
 
 ```
-custom-ia-plugin/
+biomas-workflow/
 ├── core/                      ← ÚNICA fuente de verdad (editar SOLO aquí)
 │   ├── workflows/             start.md · plan.md · implement.md · review.md · close.md
 │   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · llamadas-a-modelos · ingenieria-de-prompts · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado · diagramas · escritura-natural

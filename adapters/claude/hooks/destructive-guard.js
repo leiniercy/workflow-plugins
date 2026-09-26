@@ -21,8 +21,8 @@
  * dura de solo-lectura sigue siendo el campo `tools` de los agentes revisores.
  *
  * Configuración (opcional, por variables de entorno):
- *   CUSTOM_IA_GUARD=off              → desactiva el hook por completo.
- *   CUSTOM_IA_PROTECTED_PATHS=a,b,c  → fragmentos de ruta extra que exigen gate.
+ *   BACKBONE_GUARD=off              → desactiva el hook por completo.
+ *   BACKBONE_PROTECTED_PATHS=a,b,c  → fragmentos de ruta extra que exigen gate.
  *
  * Contrato de hook: jamás rompe la sesión. Cualquier fallo o entrada que no
  * entienda degrada a "sin decisión" (código 0) y deja pasar el flujo normal de
@@ -202,7 +202,7 @@ function revisarFichero(rutaCruda, existe) {
   }
 
   // Rutas extra declaradas por el repo consumidor.
-  const extras = String(process.env.CUSTOM_IA_PROTECTED_PATHS || "")
+  const extras = String(process.env.BACKBONE_PROTECTED_PATHS || "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
@@ -212,7 +212,7 @@ function revisarFichero(rutaCruda, existe) {
         "ask",
         "`" +
           ruta +
-          "` está en la lista de rutas protegidas del repo (CUSTOM_IA_PROTECTED_PATHS). " +
+          "` está en la lista de rutas protegidas del repo (BACKBONE_PROTECTED_PATHS). " +
           "Modificarla es una decisión del equipo, no un efecto colateral de una tarea.",
       ];
     }
@@ -222,7 +222,7 @@ function revisarFichero(rutaCruda, existe) {
 }
 
 try {
-  if (String(process.env.CUSTOM_IA_GUARD || "").toLowerCase() === "off") emit(null);
+  if (String(process.env.BACKBONE_GUARD || "").toLowerCase() === "off") emit(null);
 
   let input = null;
   try {
@@ -252,7 +252,7 @@ try {
   }
 
   if (!veredicto) emit(null);
-  emit(veredicto[0], "[custom-ia-plugin] " + veredicto[1]);
+  emit(veredicto[0], "[backbone] " + veredicto[1]);
 } catch {
   // Salvaguarda final: ante la duda, no interferir.
   emit(null);

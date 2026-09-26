@@ -19,7 +19,7 @@ const PLUGIN_JSON = join(ROOT, "adapters/claude/.claude-plugin/plugin.json");
 const MARKETPLACE_JSON = join(ROOT, ".claude-plugin/marketplace.json");
 const CHANGELOG = join(ROOT, "CHANGELOG.md");
 const REPO_SETTINGS = join(ROOT, "examples/repo-settings.json");
-const PLUGIN_NAME = "custom-ia-plugin";
+const PLUGIN_NAME = "backbone";
 
 const pluginV = JSON.parse(readFileSync(PLUGIN_JSON, "utf8")).version;
 const market = JSON.parse(readFileSync(MARKETPLACE_JSON, "utf8"));

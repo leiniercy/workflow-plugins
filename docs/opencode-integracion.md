@@ -1,6 +1,6 @@
 # Integración con OpenCode — guía detallada
 
-> Cómo `custom-ia-plugin` se integra con **OpenCode** hoy, qué capacidades de OpenCode
+> Cómo `backbone` se integra con **OpenCode** hoy, qué capacidades de OpenCode
 > aún no aprovechamos, y el plan concreto para llegar al **100 %** de paridad con el
 > adaptador de Claude Code. Todas las rutas y campos de frontmatter están verificados
 > contra el **código fuente** de OpenCode (`sst/opencode`), no solo contra la documentación.

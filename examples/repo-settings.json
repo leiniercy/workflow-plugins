@@ -4,18 +4,18 @@
     "biomas": {
       "source": {
         "source": "github",
-        "repo": "TU_USUARIO/custom-ia-plugin",
+        "repo": "TU_USUARIO/biomas-workflow",
         "ref": "v0.23.0"
       }
     }
   },
   "autoUpdate": false,
   "enabledPlugins": {
-    "custom-ia-plugin@biomas": true
+    "backbone@biomas": true
   },
-  "//env": "Opcional. CUSTOM_IA_PROTECTED_PATHS son fragmentos de ruta (separados por comas) que el hook PreToolUse del plugin protege: escribir en ellos pedirá aprobación al usuario. CUSTOM_IA_GUARD=off desactiva ese hook por completo si te resulta ruidoso.",
+  "//env": "Opcional. BACKBONE_PROTECTED_PATHS son fragmentos de ruta (separados por comas) que el hook PreToolUse del plugin protege: escribir en ellos pedirá aprobación al usuario. BACKBONE_GUARD=off desactiva ese hook por completo si te resulta ruidoso.",
   "env": {
-    "CUSTOM_IA_PROTECTED_PATHS": "infra/,.github/workflows/"
+    "BACKBONE_PROTECTED_PATHS": "infra/,.github/workflows/"
   },
   "//hooks-opcionales": "El plugin NO empaqueta hooks de formateo ni de notificación a servicios externos: dependen del stack y de las herramientas de cada equipo, así que son decisión del repo consumidor. Si los quieres, este es el patrón — añade una clave 'hooks' a este mismo fichero con lo que necesites:",
   "//hooks-receta-formateo": "PostToolUse + matcher 'Edit|Write' + command '<tu formateador> $CLAUDE_FILE_PATHS' — formatea en cuanto el agente toca un fichero, en vez de acumular ruido para el commit.",

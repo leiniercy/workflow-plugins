@@ -1,4 +1,4 @@
-# Referencias externas para la evolución de `custom-ia-plugin`
+# Referencias externas para la evolución de `backbone`
 
 > Catálogo de plugins y frameworks analizados como fuente de patrones para futuras
 > mejoras del plugin. Cada entrada resume **qué es**, **qué patrones aporta** y **cómo

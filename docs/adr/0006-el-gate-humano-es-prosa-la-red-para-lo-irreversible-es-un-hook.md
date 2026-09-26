@@ -35,7 +35,7 @@ Dos capas, con alcances distintos a propósito:
 - El hook jamás rompe la sesión: cualquier fallo o entrada que no entienda degrada a «sin
   decisión» y deja pasar el flujo de permisos normal. Un guard que tumba sesiones se acaba
   desactivando, y entonces no protege de nada.
-- Se puede apagar (`CUSTOM_IA_GUARD=off`) y ampliar (`CUSTOM_IA_PROTECTED_PATHS`). Que sea
+- Se puede apagar (`BACKBONE_GUARD=off`) y ampliar (`BACKBONE_PROTECTED_PATHS`). Que sea
   configurable es lo que evita que alguien lo borre el día que le estorbe.
 - OpenCode se queda sin la segunda capa, pero no por imposibilidad: su API de plugins tiene el
   evento equivalente (`tool.execute.before`, §1.6 de `docs/opencode-integracion.md`) y lo que

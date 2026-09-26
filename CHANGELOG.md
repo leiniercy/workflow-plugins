@@ -7,6 +7,35 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Cambiado
 
+- **El plugin pasa a llamarse `backbone`** — `custom-ia-plugin` era un nombre provisional
+  puesto para poder arrancar, y se quedó: no decía nada del producto y ocupaba 16 caracteres
+  delante de cada comando (`/custom-ia-plugin:review`). El nuevo nombra lo que hacen **a la
+  vez** las tres piezas que distinguen al flujo —los gates de aprobación, la regla de no
+  afirmar sin comprobar y la revisión con subagentes que no escribieron el código—: las tres
+  son la misma conducta, pararse justo donde seguir era lo fácil. Es lo que ya mide el banco
+  de evals con su campo `presion` (`autoridad`, `tiempo`, `inyeccion`).
+
+  **Rompe a quien lo tenga instalado.** La identidad de instalación pasa de
+  `custom-ia-plugin@biomas` a `backbone@biomas`, y el prefijo de comandos de
+  `/custom-ia-plugin:<cmd>` a `/backbone:<cmd>`. Los comandos sin prefijo —`/start`,
+  `/plan`, `/implement`, `/review`, `/close`— no cambian. Para migrar: actualizar el
+  marketplace (`/plugin marketplace update biomas`), instalar `backbone@biomas` y quitar
+  `custom-ia-plugin@biomas` desde el menú `/plugin`. En el `.claude/settings.json` del repo
+  consumidor hay que renombrar además la clave de `enabledPlugins` y las dos variables del
+  guard: `CUSTOM_IA_PROTECTED_PATHS` → `BACKBONE_PROTECTED_PATHS` y `CUSTOM_IA_GUARD` →
+  `BACKBONE_GUARD`. Se cambian en seco, sin ciclo de gracia que acepte las viejas: no hay
+  instalaciones de terceros a las que dárselo, y un alias que nadie necesita es deuda desde
+  el primer día.
+
+  El **marketplace sigue siendo `biomas`** —es el ecosistema, no el plugin—, lo que deja
+  sitio a un segundo plugin sin que el nombre chirríe. De paso se corrige una deriva que ya
+  estaba: el `homepage` y el `repository` del manifiesto, la línea de instalación del README
+  y la plantilla de `examples/` apuntaban a `leiniercy/custom-ia-plugin`, un repo que hoy se
+  llama `leiniercy/biomas-workflow` y que solo resolvía por la redirección de GitHub.
+
+  No se toca `docs/referencias.md:524`, donde `q=custom-ia-plugin` es la consulta literal
+  lanzada contra la API del agregador: cambiarla falsearía una medición.
+
 - **La portada del README contesta primero qué es, qué ganas y qué necesitas** — abría con
   el árbol de `core/` + `adapters/`, que es lo único que no le interesa a quien acaba de
   llegar: para saber si el plugin le sirve había que bajar hasta la tabla del flujo, y para

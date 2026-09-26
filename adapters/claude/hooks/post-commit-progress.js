@@ -144,7 +144,7 @@ try {
   // procedencia dice qué es, que es lo que la guía de llamadas a modelos exige para el
   // contenido de terceros.
   emit(
-    "## custom-ia-plugin — commit sin registrar\n\n" +
+    "## backbone — commit sin registrar\n\n" +
       "El commit `" +
       hash +
       "` no consta en `tasks/" +

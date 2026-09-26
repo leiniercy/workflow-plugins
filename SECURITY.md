@@ -2,7 +2,7 @@
 
 ## Qué protege este plugin
 
-`custom-ia-plugin` ejecuta código en la máquina de quien lo instala (tres hooks de
+`backbone` ejecuta código en la máquina de quien lo instala (tres hooks de
 Claude Code) y lee credenciales del usuario a través de variables de entorno (los
 servidores MCP). Su superficie de riesgo no es de red: es esa. Los fallos que nos
 importan son los que hacen que el plugin escriba fuera de su sitio, filtre un secreto

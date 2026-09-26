@@ -99,7 +99,7 @@ try {
     // Fuera de rama de tarea: recordatorio mínimo SOLO si el repo ya usa el flujo.
     if (hasTasksDir) {
       emit(
-        "## custom-ia-plugin\n\n" +
+        "## backbone\n\n" +
           "Este repo usa el flujo guiado por tareas, pero `" +
           branch +
           "` no es una rama de tarea. Para empezar una tarea: `/start <taskId>`; " +
@@ -121,7 +121,7 @@ try {
     // y no dejaran rastro. /start solo aporta de más la rama y la transición de ClickUp, y
     // en esta rama la primera ya existe.
     emit(
-      "## custom-ia-plugin\n\n" +
+      "## backbone\n\n" +
         "Estás en la rama de tarea `" +
         branch +
         "` (`" +
@@ -240,7 +240,7 @@ try {
   if (!parts.length && !nextStep) emit(null);
 
   let context =
-    "## Contexto de tarea activa (custom-ia-plugin)\n\n" +
+    "## Contexto de tarea activa (backbone)\n\n" +
     "Estás en la rama `" +
     branch +
     "` (tarea `" +
