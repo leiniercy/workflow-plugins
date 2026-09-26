@@ -88,6 +88,18 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Corregido
 
+- **El escaneo confundía hablar de un patrón con usarlo, y el catálogo lo empeoró** — el
+  código que habla de patrones los lleva como literales: linters, generadores, fixtures de
+  test. Sobre la propia rama que añadía el catálogo, los 30 movimientos que devolvía eran
+  las 70 filas de esa tabla. Ahora una coincidencia dentro de un literal de cadena no
+  cuenta. El apóstrofo era el caso delicado —en prosa inglesa es una contracción, no un
+  delimitador, y contándolo siempre se perdía `// can't fix this upstream, @ts-ignore`,
+  que es el error caro de los dos—, así que solo cuenta cuando la línea lo usa como
+  delimitador de verdad. Se midieron tres variantes antes de elegir: 30 → 0 en la rama,
+  0 → 0 en un diff real de 10.746 líneas, y la contracción sigue detectándose. Con eso el
+  escaneo da **cero falsos positivos sobre su propio repo**, que era el único sitio donde
+  le quedaba ruido.
+
 - **El escaneo perdía ficheros enteros con comentarios de SQL** — una línea BORRADA que
   empieza por `-- ` se renderiza en el diff como `--- comentario`, indistinguible de una
   cabecera de fichero. `parsear()` la tomaba por tal, abría un fichero fantasma que nunca se

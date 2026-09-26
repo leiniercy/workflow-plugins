@@ -804,6 +804,63 @@ function evidencia(json, guia) {
 }
 
 // ---------------------------------------------------------------------------
+// M. Una directiva dentro de una CADENA es un dato, no una supresión.
+//
+// El último reducto de ruido del escaneo, y el más terco: el código que habla de patrones
+// los lleva como literales. Linters, generadores, fixtures de test, documentación
+// ejecutable. Pasando el escaneo sobre la propia rama que lo añadía, los 30 movimientos
+// que salían eran las filas del catálogo de aquí abajo.
+//
+// El filtro cuenta comillas sin escapar antes de la coincidencia: número impar = dentro.
+// El apóstrofo es el caso delicado, porque en prosa inglesa es una contracción y no un
+// delimitador — con él contando siempre, `// can't fix this upstream, @ts-ignore` dejaba
+// de detectarse, que es justo el error caro. Por eso solo cuenta cuando la línea lo usa
+// como delimitador de verdad (dos o más).
+//
+// Medido antes de adoptarlo: 30 → 0 en la rama, 0 → 0 en un diff real de 10.746 líneas.
+// ---------------------------------------------------------------------------
+{
+  const noDisparan = [
+    ["fila de catálogo con comillas dobles", "scripts/tabla.mjs", '+  ["@ts-ignore", "src/a.ts", "checker-silenciado"],'],
+    // Esta es la forma que de verdad necesita el filtro de cadena: la línea LLEVA `//`
+    // antes de la directiva, así que `enComentario` la da por buena y solo `enCadena`
+    // la salva. Es exactamente la pinta de una fila del catálogo de aquí abajo, y sin
+    // este caso el guard de las supresiones se podía borrar con todo en verde.
+    ["supresión entrecomillada CON marca de comentario", "scripts/tabla.mjs", '+  ["ts", "src/a.ts", ["+// @ts-ignore"], "checker-silenciado"],'],
+    ["fixture entre comillas simples", "scripts/tabla.mjs", `+  ['+  throw new Error("not implemented");'],`],
+    ["test saltado como dato", "scripts/tabla.mjs", `+  const ejemplo = "+it.skip('x', () => {});";`],
+    ["catch vacío dentro de una plantilla", "scripts/tabla.mjs", "+  const ej = `try { f(); } catch {}`;"],
+    ["TODO dentro de una cadena", "scripts/tabla.mjs", '+  const marca = "// TODO: algo";'],
+  ];
+  for (const [que, fichero, linea] of noDisparan) {
+    const { json } = escanear("cadena: " + que, diff(fichero, linea));
+    assert(
+      json && json.movimientos.length === 0,
+      `«${que}»: un literal no afloja nada — actual: ${
+        json ? (json.movimientos || []).map((m) => m.movimiento) : "sin JSON"
+      }`
+    );
+  }
+
+  // Y el otro lado, que es el que importa más: fuera de una cadena sigue disparando.
+  const siDisparan = [
+    ["contracción inglesa antes de la directiva", "src/a.ts", "+// can't fix this upstream, @ts-ignore", "checker-silenciado"],
+    ["comillas pares antes de la directiva", "src/a.ts", '+const s = "hola"; // @ts-ignore', "checker-silenciado"],
+    ["apóstrofo suelto antes de un TODO", "src/a.ts", "+// don't ship this — TODO: quitarlo", "trabajo-sin-terminar"],
+    ["cadena cerrada y luego catch vacío", "src/a.ts", '+const m = "x"; try { f(); } catch {}', "trabajo-sin-terminar"],
+  ];
+  for (const [que, fichero, linea, espera] of siDisparan) {
+    const { json } = escanear("cadena, otro lado: " + que, diff(fichero, linea));
+    assert(
+      tiene(json, espera),
+      `«${que}»: esto SÍ es ${espera} — actual: ${
+        json ? (json.movimientos || []).map((m) => m.movimiento) : "sin JSON"
+      }`
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // CATÁLOGO — una entrada por patrón, y ninguna se puede borrar sin que esto falle.
 //
 // Los casos de arriba prueban los MOVIMIENTOS; este prueba las ENTRADAS. La diferencia

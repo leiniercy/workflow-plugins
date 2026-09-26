@@ -37,13 +37,15 @@
  *   (`lines: 80` → `lines: 40`). Por eso se devuelve además `puertasTocadas`: los
  *   ficheros de puerta que el diff toca, para que el revisor los mire aunque el patrón
  *   no diera nada.
- * - **No entiende el lenguaje, solo la forma.** Distingue una directiva escrita como
- *   comentario de la misma palabra dentro de una cadena o una regex, y no mira ficheros
- *   de prosa — esos dos filtros salieron de pasarlo sobre un diff real de este repo, que
- *   devolvió ocho hallazgos y los ocho eran documentación y tooling hablando de los
- *   patrones. Lo que queda fuera de su alcance es el sentido: un `catch {}` comentado o
- *   un `TODO` en un comentario que explica otra cosa cuentan igual. Es un cable trampa
- *   sobre texto, no un analizador.
+ * - **No entiende el lenguaje, solo la forma.** Tres filtros separan usar un patrón de
+ *   hablar de él: no mira ficheros de prosa ni bloques `/** … *\/`, exige que una
+ *   directiva esté escrita como comentario, y descarta lo que está dentro de un literal
+ *   de cadena. Los tres salieron de pasar el escaneo sobre diffs reales de este mismo
+ *   repo —ocho hallazgos el primer día, treinta el día que se añadió el catálogo, todos
+ *   ruido— y están medidos: sobre un diff de 10.746 líneas de una aplicación Next.js no
+ *   quitan ni un verdadero positivo. Lo que queda fuera de su alcance es el sentido: un
+ *   `catch {}` dentro de un comentario que explica otra cosa cuenta igual. Es un cable
+ *   trampa sobre texto, no un analizador.
  *
  * Nada de lo que devuelve es un hallazgo todavía: son **candidatos** que pasan por la
  * misma disciplina de la guía `revision-hallazgos` que los demás.
@@ -195,6 +197,33 @@ function esDocDeBloque(texto) {
  *
  * `@SuppressWarnings` queda exento: es una anotación de Java, no un comentario.
  */
+/**
+ * ¿La coincidencia está dentro de un literal de cadena?
+ *
+ * El último reducto de ruido, y el más terco: el código que HABLA de patrones los lleva
+ * como datos. Un linter, un generador, la fixture de un test, esta misma tabla. Sobre la
+ * rama que añadió el catálogo de `check-suelo.mjs`, los 30 movimientos que salían eran
+ * todos filas de esa tabla.
+ *
+ * Se cuentan comillas sin escapar antes de la coincidencia: número impar = dentro.
+ *
+ * El apóstrofo es el caso delicado. En prosa inglesa es una contracción, no un
+ * delimitador, y contándolo siempre se perdía `// can't fix this upstream, @ts-ignore`
+ * — un falso negativo silencioso, que es el error caro de los dos. Por eso solo cuenta
+ * cuando la línea lo usa como delimitador de verdad, es decir, cuando hay dos o más.
+ *
+ * Medido antes de adoptarlo: 30 → 0 movimientos en la rama que lo motivó, y 0 → 0 en un
+ * diff real de 10.746 líneas de una aplicación Next.js, donde no se perdió nada.
+ */
+function enCadena(linea, indice) {
+  const antes = linea.slice(0, indice).replace(/\\./g, "");
+  const dobles = (antes.match(/"/g) || []).length;
+  const plantillas = (antes.match(/`/g) || []).length;
+  const apostrofosLinea = (linea.match(/'/g) || []).length;
+  const simples = apostrofosLinea >= 2 ? (antes.match(/'/g) || []).length : 0;
+  return dobles % 2 === 1 || plantillas % 2 === 1 || simples % 2 === 1;
+}
+
 function enComentario(linea, indice, coincidencia) {
   // Se incluye la propia coincidencia porque en `# noqa` y `# type: ignore` el marcador
   // de comentario forma parte de la directiva: mirando solo lo anterior se perderían.
@@ -391,6 +420,7 @@ function escanear(diff) {
             const esAnotacion =
               /@SuppressWarnings/.test(m[0]) && /^[+-]?\s*@SuppressWarnings/.test(l.texto);
             if (
+              !enCadena(l.texto, m.index) &&
               (esAnotacion || enComentario(l.texto, m.index, m[0])) &&
               !llevaMotivo(l.texto, m.index + m[0].length)
             ) {
@@ -398,16 +428,18 @@ function escanear(diff) {
               continue;
             }
           }
-          if (TESTS_SALTADOS.some((re) => re.test(l.texto))) {
+          const salto = TESTS_SALTADOS.map((re) => re.exec(l.texto)).find(Boolean);
+          if (salto && !enCadena(l.texto, salto.index)) {
             añadir("test-mas-facil", f.ruta, l.nueva, l.texto);
             continue;
           }
-          if (SIN_TERMINAR.some((re) => re.test(l.texto))) {
+          const medias = SIN_TERMINAR.map((re) => re.exec(l.texto)).find(Boolean);
+          if (medias && !enCadena(l.texto, medias.index)) {
             añadir("trabajo-sin-terminar", f.ruta, l.nueva, l.texto);
             continue;
           }
           const pend = PENDIENTE.exec(l.texto);
-          if (pend && enComentario(l.texto, pend.index, pend[0])) {
+          if (pend && !enCadena(l.texto, pend.index) && enComentario(l.texto, pend.index, pend[0])) {
             añadir("trabajo-sin-terminar", f.ruta, l.nueva, l.texto);
             continue;
           }
