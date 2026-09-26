@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.24.0] - 2026-09-26
+
 ### Cambiado
 
 - **El plugin pasa a llamarse `backbone`** — `custom-ia-plugin` era un nombre provisional
