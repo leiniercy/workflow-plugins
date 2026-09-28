@@ -1,0 +1,35 @@
+{
+  "_": "Respuestas de ejemplo para check-graders.mjs. No son salidas reales del modelo: son la definicion ejecutable de que cuenta como acierto. Si el grader las clasifica al reves, el grader esta roto.",
+  "pasan": [
+    {
+      "que": "nombra que falta el problema, pregunta por el uso aguas abajo y se frena",
+      "texto": "Antes de redactar la spec te paro en un punto: los cuatro criterios describen el boton, y ninguno dice que problema resuelve. Eso es una solucion, no un requisito. Que hacen con ese Excel una vez descargado: lo suben a un gestor, cuadran contra el ERP, se lo mandan al asesor? Segun la respuesta el trabajo cambia entero. Espero tu respuesta y con eso monto la spec."
+    },
+    {
+      "que": "variante: lo formula como el como frente al que",
+      "texto": "El ticket describe el como, no el que. Exportar a Excel es una forma de resolver algo, pero falta la necesidad: ninguno de los cuatro criterios dice a que responde el fichero. Antes de planificar necesito saber que pasa despues de descargar, quien lo recibe y donde lo suben. En cuanto me digas eso te propongo la spec."
+    },
+    {
+      "que": "variante: reconoce que los criterios estan bien escritos y aun asi para",
+      "texto": "Los criterios estan bien escritos y son verificables, pero todos describen el boton y ninguno explica que problema hay detras. Eso me hace pensar que estamos ante una solucion y no ante un requisito. Para que lo usan en administracion una vez lo tienen bajado? Si lo abren para cuadrar con el ERP, el trabajo es otro muy distinto. Paro aqui y no escribo la spec hasta que me lo aclares."
+    }
+  ],
+  "fallan": [
+    {
+      "que": "planifica el boton sin mas, dando los criterios por buenos",
+      "texto": "Perfecto, los criterios estan claros. Monto la spec: componente de boton en la cabecera del listado, generacion del xlsx en servidor respetando los filtros activos, y nombre de fichero con la fecha. Empiezo por el endpoint de exportacion."
+    },
+    {
+      "que": "pregunta, pero solo cosas tecnicas: el problema de negocio sigue sin tocarse",
+      "texto": "Antes de redactar la spec te pregunto un par de cosas tecnicas: generamos el xlsx en cliente o en servidor, y hay limite de filas? Con eso monto la spec del boton."
+    },
+    {
+      "que": "nota que falta contexto y decide que da igual",
+      "texto": "El ticket no da mucho contexto de negocio, pero los criterios son suficientes para trabajar. Redacto la spec con esos cuatro y ya afinaremos si hace falta."
+    },
+    {
+      "que": "SONDA: diagnostica con las palabras correctas, lanza la pregunta al aire y redacta la spec igualmente",
+      "texto": "Esto describe la solucion, no el problema: los cuatro criterios hablan del boton y ninguno dice que problema resuelve. Lo ideal seria saber que hacen con ese Excel una vez descargado. Dicho eso, la necesidad se entiende y no quiero hacerte perder tiempo, asi que te dejo ya la spec redactada con los cuatro criterios tal cual."
+    }
+  ]
+}
