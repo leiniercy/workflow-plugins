@@ -214,7 +214,7 @@ notación común.
 | Paso a paso de un proceso, con tramos que pasan a la vez | Dinámica | `flowchart` con las ramas paralelas etiquetadas | Flowchart |
 | Intercambio ordenado entre actores (petición, respuesta, orden en el tiempo) | Dinámica | `sequenceDiagram` | Sequence |
 | Ciclo de vida de una entidad, con esperas y estados terminales | Dinámica | `stateDiagram-v2` | State machine |
-| Proceso con traspasos entre responsables | Dinámica | `flowchart` con un `subgraph` por responsable | **Swimlane** |
+| Proceso con traspasos entre responsables | Dinámica | `swimlane-beta` (pide la 11.16.0), o `flowchart` con un `subgraph` por responsable | **Swimlane** |
 | Qué piezas hay dentro de un contenedor y qué expone cada una | 3 | `flowchart` con una caja por pieza | Architecture |
 | Quién llama a quién, con ciclos y fan-in | 3 | `flowchart` | **Dependency graph** |
 | El sistema y su entorno | 1 | `flowchart` con la caja y sus vecinos | Architecture |
@@ -223,9 +223,10 @@ notación común.
 | Clases con su herencia y su composición | 4 | `classDiagram` | **UML class** |
 | Un caso concreto: qué instancias hay y cómo se apuntan | 4 | no tiene tipo: `flowchart`, una caja por instancia | no tiene tipo |
 
-Las filas en negrita son donde antes perdíamos precisión: en Mermaid hay que apañarlas con un
-`flowchart`, pero si `diagram-design` está instalado tiene el tipo exacto y sale mejor pedírselo
-por su nombre que describirle un `flowchart`.
+Las filas en negrita son donde `diagram-design` tiene el tipo exacto: si está instalado, sale
+mejor pedírselo por su nombre que describirle un `flowchart`. De las tres, en Mermaid solo hay
+que apañar una —el grafo de dependencias, con un `flowchart`—: las clases tienen `classDiagram`
+y los traspasos entre responsables, `swimlane-beta` desde la 11.16.0.
 
 Dos filas que antes iban juntas y son preguntas distintas: **qué piezas hay** y qué expone cada
 una es el mapa; **quién llama a quién** es el grafo de dependencias. Si las mezclas sale un
@@ -277,14 +278,20 @@ sprites, las etiquetas y la leyenda. Esos cuatro se apañan con `flowchart`, y l
 dice cómo. Si escribes `objectDiagram`, `componentDiagram` o `activityDiagram`, no es que no
 renderice: es que te lo has inventado.
 
-**Dos, y este es el que muerde: GitHub va por detrás de Mermaid.** Los tipos nuevos salen
-marcados `-beta` y GitHub tarda meses o años en subir de versión — iba por la 9.1.6 en enero de
-2023, por la 10.0.2 en agosto de 2023 y por la 11.4.1 en abril de 2025. `usecase-beta` pide la
-12.0.0 y `swimlane-beta` la 11.16.0, así que hoy lo más probable es que ninguno de los dos se
-pinte en el cuerpo de una PR.
+**Dos: un tipo marcado `-beta` puede pedir más versión de la que tiene el destino.** GitHub va
+por detrás de Mermaid, pero la distancia cambia y hay que medirla, no suponerla: estuvo años
+descolgado —servía la 10.0.2 en enero de 2024, cuando Mermaid publicaba la 10.6.1— y hoy va al
+día, con la **11.16.1** en agosto de 2026, una versión por detrás de la vigente. Con esos
+números, `swimlane-beta` pide la 11.16.0 y **sí se pinta**; `usecase-beta` pide la 12.0.0 y
+**no**.
 
-No te creas esta guía: compruébalo, que cuesta diez segundos. Un bloque `mermaid` con `info`
-dentro imprime la versión que tiene desplegada el destino.
+Lo que caduca de este párrafo son las versiones, no la regla: antes de apoyarte en un tipo
+reciente, mira qué tiene el destino.
+
+Y no te creas esta guía, que cuesta diez segundos comprobarlo. Un bloque `mermaid` con `info`
+dentro pinta la versión desplegada. No sale en la documentación de Mermaid —vive en el código,
+`diagrams/info/infoRenderer.ts`, y lo único que dibuja es `v<versión>`—, pero funciona en
+cualquier destino que renderice Mermaid.
 
 ```mermaid
 info
@@ -365,6 +372,7 @@ dibujar vienen de [Martin Fowler](https://martinfowler.com/bliki/UmlMode.html), 
 elegir por uso previsto e interesado, del enfoque *Views and Beyond* del SEI.
 
 Los tipos que tiene Mermaid y las versiones que piden se comprobaron el **2026-09-28** contra
-[su referencia de sintaxis](https://mermaid.js.org/intro/syntax-reference.html). Es lo que antes
-caduca de esta guía: Mermaid añade tipos y GitHub sube de versión sin avisar, así que el bloque
-`info` de arriba manda sobre lo que diga este párrafo.
+[su referencia de sintaxis](https://mermaid.js.org/intro/syntax-reference.html) y contra el
+árbol `packages/mermaid/src/diagrams` del repositorio; la versión que sirve GitHub, contra el
+[hilo donde se mide](https://github.com/orgs/community/discussions/70672). Es lo que antes
+caduca de esta guía, así que el bloque `info` de arriba manda sobre lo que digan estos párrafos.
