@@ -1,0 +1,53 @@
+{
+  "guia": "diagramas",
+  "mide": "Que recorte una peticion de tres diagramas UML de altura de codigo en vez de producirlos, y que lo razone por el lector o porque el codigo ya esta ahi.",
+  "debe_incluir": [
+    [
+      "no los tres",
+      "los tres no",
+      "no hacen falta los tres",
+      "no te hacen falta",
+      "no los montes",
+      "no los dibujes",
+      "no dibujaria",
+      "no dibujes",
+      "no haria el de",
+      "quedate con uno",
+      "con uno basta",
+      "con uno vale",
+      "solo uno",
+      "uno solo",
+      "solo el de",
+      "solo haria",
+      "solo dibujaria",
+      "unicamente el de",
+      "descarta",
+      "descartaria",
+      "sobran",
+      "sobra el",
+      "recorta",
+      "quitaria",
+      "me saltaria",
+      "fuera el de"
+    ],
+    [
+      "el codigo ya",
+      "ya esta en el codigo",
+      "ya lo tienes en el codigo",
+      "eso ya lo cuenta el codigo",
+      "altura 4",
+      "altura del codigo",
+      "quien lo va a leer",
+      "quien lo lee",
+      "quien los lee",
+      "quien lo va a usar",
+      "el lector",
+      "quien revise",
+      "de un vistazo",
+      "aprenderia"
+    ]
+  ],
+  "linea_base_debe_fallar": true,
+  "calibrado": false,
+  "nota_calibracion": "2026-09-28, CASO NUEVO SIN CERTIFICAR. Escrito ANTES de ampliar la guia diagramas con los tipos UML que le faltaban (clases, objetos, casos de uso), para medir la linea base primero segun ADR-0004 y la ley de hierro de la seccion 2.A de docs/referencias.md. Hipotesis del delta: el modelo desnudo cumple, porque montar tres diagramas es lo servicial y nada le dice que no; lo que ensena la guia es que clases y objetos son altura 4 —donde el codigo ya esta ahi— y que un diagrama afirma cosas ante un lector concreto, asi que la respuesta correcta recorta la lista y lo razona. Los dos grupos de debe_incluir son un AND: se exige el recorte Y el motivo, porque recortar sin decir por que es una preferencia, no un criterio. Las listas se apretaron tras probarlas: la primera version admitia 'elige' y 'para quien', que salen igual en una respuesta que monta los tres y solo pregunta el orden o el destinatario. SIN no_debe_incluir a proposito. La primera version llevaba objectDiagram, componentDiagram y activityDiagram como descalificadores, para cazar la alucinacion. Medido el 2026-09-28: hundio al brazo CON plugin, que escribio \"objectDiagram no existe\" —justo lo que la guia ensena— y el casado por subcadena no distingue afirmar la palabra de negarla. Es el defecto que la cabecera de lib/grader.mjs ya documenta dos veces: un grader cuya mejor respuesta posible suspende. La alucinacion no es lo que este caso mide, asi que el descalificador sale. Los datos de Mermaid quedan aqui como contexto, verificados el 2026-09-28 contra mermaid.js.org/intro/syntax-reference.html, de los ocho tipos UML clasicos Mermaid solo tiene classDiagram, stateDiagram, sequenceDiagram y usecase (palabra clave usecase-beta, desde la 12.0.0); objetos y actividades no existen en ninguna forma, y componentes y despliegue solo viven dentro del tipo c4 (C4Component, C4Deployment), que es notacion C4, no UML, y va marcado experimental. Asi que objectDiagram, componentDiagram y activityDiagram solo pueden salir de una alucinacion. Las muestras incluyen ahora una sonda con la negacion correcta, para que ese descalificador no pueda volver a entrar sin que check-graders lo cante. MEDIDO el 2026-09-28 con --baseline --runs 1 (2 sesiones, modelo claude-opus-5[1m]): la linea base FALLA 1/1 (no recorta; pide donde vive el codigo y se ofrece a montar los tres), y el brazo con plugin activa la guia y, con el grader ya corregido, CUMPLE. Hay delta en la direccion esperada. calibrado sigue en false a proposito: una sola muestra por brazo no descarta RUIDO, y el propio script exige estabilidad en las N. Para certificarlo: node scripts/check-activation.mjs --case clases-objetos-y-casos-de-uso --baseline --runs 3 --yes (6 sesiones). Los dos textos de esa medicion estan en .base-cache.json (brazo base) y se replayaron contra el grader corregido sin gastar sesiones nuevas."
+}

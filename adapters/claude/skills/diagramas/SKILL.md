@@ -189,6 +189,12 @@ traducidas a lo que aquí se dibuja:
 No se dibujan las cuatro: se dibuja **la que responde a la pregunta del lector que nombraste en
 el gate**. La altura 4 se omite salvo que la pieza sea de verdad enrevesada.
 
+Y «de verdad enrevesada» necesita criterio, porque si no se cuela cualquier cosa: la relación
+entre las piezas **está en el código, pero repartida**, y para verla entera hay que abrir cinco
+ficheros y acordarse de los cinco a la vez. Una herencia de tres niveles, un agregado cuyas
+partes no viven sueltas, un grafo con ciclos. Si se ve abriendo un fichero, no la dibujes: el
+lector va a abrir ese fichero igual.
+
 Y hay tres que no son una altura sino otra pregunta:
 
 | Si lo que muestras es… | |
@@ -211,16 +217,25 @@ notación común.
 | Lo que muestras | Altura | Mermaid | `diagram-design` |
 |---|---|---|---|
 | Flujo de decisión con ramas | 3 | `flowchart` | Flowchart |
+| Paso a paso de un proceso, con tramos que pasan a la vez | Dinámica | `flowchart` con las ramas paralelas etiquetadas | Flowchart |
 | Intercambio ordenado entre actores (petición, respuesta, orden en el tiempo) | Dinámica | `sequenceDiagram` | Sequence |
 | Ciclo de vida de una entidad, con esperas y estados terminales | Dinámica | `stateDiagram-v2` | State machine |
 | Proceso con traspasos entre responsables | Dinámica | `flowchart` con un `subgraph` por responsable | **Swimlane** |
-| Dependencias entre módulos | 3 | `flowchart` | **Dependency graph** |
+| Qué piezas hay dentro de un contenedor y qué expone cada una | 3 | `flowchart` con una caja por pieza | Architecture |
+| Quién llama a quién, con ciclos y fan-in | 3 | `flowchart` | **Dependency graph** |
 | El sistema y su entorno | 1 | `flowchart` con la caja y sus vecinos | Architecture |
+| Qué puede hacer cada actor con el sistema | 1 | `usecase-beta`, que GitHub no pinta — lee el apartado siguiente | no tiene tipo |
 | Piezas desplegables y su tecnología | 2 | `flowchart` con la tecnología en cada caja | Architecture o Deployment |
+| Clases con su herencia y su composición | 4 | `classDiagram` | **UML class** |
+| Un caso concreto: qué instancias hay y cómo se apuntan | 4 | no tiene tipo: `flowchart`, una caja por instancia | no tiene tipo |
 
-Las dos filas en negrita son donde antes perdíamos precisión: en Mermaid hay que apañarlas con
-un `flowchart`, pero si `diagram-design` está instalado tiene el tipo exacto y sale mejor
-pedírselo por su nombre que describirle un `flowchart`.
+Las filas en negrita son donde antes perdíamos precisión: en Mermaid hay que apañarlas con un
+`flowchart`, pero si `diagram-design` está instalado tiene el tipo exacto y sale mejor pedírselo
+por su nombre que describirle un `flowchart`.
+
+Dos filas que antes iban juntas y son preguntas distintas: **qué piezas hay** y qué expone cada
+una es el mapa; **quién llama a quién** es el grafo de dependencias. Si las mezclas sale un
+diagrama que no contesta ninguna de las dos.
 
 Para las dependencias entre módulos, las fronteras que dibujas son las de `arquitectura` (`${CLAUDE_PLUGIN_ROOT}/skills/arquitectura/SKILL.md`):
 si el diagrama enseña una flecha que se salta una capa, eso no es un detalle del dibujo, es un
@@ -242,12 +257,58 @@ Fíjate en lo que no está: el envío del correo no se desglosa, los reintentos 
 hay una caja por cada capa del código. Cabe de un vistazo porque se dejó fuera lo que no
 decidía nada.
 
+### Clases, objetos y casos de uso: cuándo sí
+
+Son los tres que más se dibujan por inercia —salen en cualquier curso de UML— y los tres que más
+veces sobran. Cada uno tiene su condición, y fuera de ella el diagrama no informa:
+
+- **Clases.** Cuando la relación cumple el criterio de altura 4 de arriba: está en el código,
+  pero repartida. No para retratar un fichero que el lector va a abrir igualmente.
+- **Objetos.** Cuando el de clases no llega porque lo que confunde es **un caso concreto** —un
+  ciclo entre instancias, el árbol real que explica un bug, una configuración que nadie se cree
+  hasta verla. Es el más raro de los ocho: si dudas, no es este.
+- **Casos de uso.** Cuando hay **varios** actores y sus permisos se solapan, que es justo lo que
+  una lista de historias no enseña de un vistazo. Con un actor gana `historias-usuario` (`${CLAUDE_PLUGIN_ROOT}/skills/historias-usuario/SKILL.md`):
+  la tabla de historias dice más y no hay que mantener lo mismo en dos sitios.
+
+### Lo que Mermaid no dibuja, y lo que dibuja pero GitHub no pinta
+
+Son dos huecos distintos y confundirlos cuesta lo mismo: un bloque en crudo en mitad de la PR.
+
+**Uno.** De los ocho tipos UML clásicos, Mermaid tiene cuatro de pleno derecho: clases,
+secuencia, máquina de estados y casos de uso. **Objetos y actividades no existen, en ninguna
+forma.** Componentes y despliegue solo viven dentro del tipo `c4` —`C4Component` y
+`C4Deployment`—, que es notación C4 y no UML, va marcado experimental y tiene sin terminar los
+sprites, las etiquetas y la leyenda. Esos cuatro se apañan con `flowchart`, y la tabla de arriba
+dice cómo. Si escribes `objectDiagram`, `componentDiagram` o `activityDiagram`, no es que no
+renderice: es que te lo has inventado.
+
+**Dos, y este es el que muerde: GitHub va por detrás de Mermaid.** Los tipos nuevos salen
+marcados `-beta` y GitHub tarda meses o años en subir de versión — iba por la 9.1.6 en enero de
+2023, por la 10.0.2 en agosto de 2023 y por la 11.4.1 en abril de 2025. `usecase-beta` pide la
+12.0.0 y `swimlane-beta` la 11.16.0, así que hoy lo más probable es que ninguno de los dos se
+pinte en el cuerpo de una PR.
+
+No te creas esta guía: compruébalo, que cuesta diez segundos. Un bloque `mermaid` con `info`
+dentro imprime la versión que tiene desplegada el destino.
+
+```mermaid
+info
+```
+
+Si esa versión no llega a la que pide el tipo que querías, baja a `flowchart` y dilo en el
+entregable. Es la misma degradación que manda la regla de canal cuando falta `diagram-design`:
+no prometas un formato que el destino no va a pintar.
+
 ## Anti-patrones
 
 - **Diagrama que repite el texto de al lado** — si el párrafo ya lo cuenta, el diagrama no
   informa: obliga a leer dos veces. Borra uno de los dos.
 - **El sistema entero para una PR de tres ficheros** — el diagrama cubre lo que el cambio toca,
   no el mapa completo del repo. Dibujar de más entierra lo que querías enseñar.
+- **El catálogo UML entero** — los ocho tipos porque la lista existe, no porque alguien tuviera
+  ocho preguntas. Cada diagrama pasa el gate por su cuenta; los que no lo pasan no se dibujan más
+  pequeños, se quedan sin dibujar.
 - **Imagen pegada sin texto alternativo ni pie** — sin `alt` no existe para quien usa lector de
   pantalla, que es el criterio WCAG de `usabilidad-accesibilidad` (`${CLAUDE_PLUGIN_ROOT}/skills/usabilidad-accesibilidad/SKILL.md`); y sin pie nadie sabe
   qué mira ni de cuándo es.
@@ -308,3 +369,8 @@ Las alturas, el test de autosuficiencia y buena parte de la lista de arriba est�
 [modelo C4](https://c4model.com) de Simon Brown, bajo licencia CC BY 4.0. Los dos modos de
 dibujar vienen de [Martin Fowler](https://martinfowler.com/bliki/UmlMode.html), y el criterio de
 elegir por uso previsto e interesado, del enfoque *Views and Beyond* del SEI.
+
+Los tipos que tiene Mermaid y las versiones que piden se comprobaron el **2026-09-28** contra
+[su referencia de sintaxis](https://mermaid.js.org/intro/syntax-reference.html). Es lo que antes
+caduca de esta guía: Mermaid añade tipos y GitHub sube de versión sin avisar, así que el bloque
+`info` de arriba manda sobre lo que diga este párrafo.

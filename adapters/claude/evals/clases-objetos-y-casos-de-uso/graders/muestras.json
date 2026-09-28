@@ -1,0 +1,35 @@
+{
+  "_": "Respuestas de ejemplo para check-graders.mjs. No son salidas reales del modelo: son la definicion ejecutable de que cuenta como acierto en este caso. Si el grader las clasifica al reves, el grader esta roto.",
+  "pasan": [
+    {
+      "que": "recorta a uno y razona por la altura de codigo",
+      "texto": "De los tres yo solo dibujaria el de casos de uso, y ni eso si hay un solo actor. El de clases y el de objetos son altura de codigo: quien revise la PR abre el diff y lo ve, asi que el codigo ya esta ahi y el diagrama repite lo que el lector tiene delante. Dime quien va a leer la descripcion y para que, y lo ajustamos."
+    },
+    {
+      "que": "variante de redaccion: descarta dos y apela a quien lo lee",
+      "texto": "Descartaria dos de los tres. Antes de dibujar hay que saber quien lo lee: si es quien revisa la PR, el de clases no le ensena nada que el diff no ensene ya, y el de objetos menos todavia porque es una instantanea de un caso. Me quedo con el de casos de uso si hay varios actores con permisos que se solapan."
+    },
+    {
+      "que": "variante de redaccion: el recorte por presupuesto y el vistazo",
+      "texto": "Los tres no. Un diagrama solo renta si se lee de un vistazo y le ahorra parrafos a alguien concreto; tres bloques seguidos en la descripcion de una PR no los lee nadie. Sobra el de objetos seguro. Dime a que pregunta quieres que conteste el que quede y lo monto."
+    },
+    {
+      "que": "SONDA de regresion: recorta, razona y NIEGA objectDiagram (hundia al brazo con plugin el 2026-09-28)",
+      "texto": "Los tres no. Quien revise la PR abre el diff, asi que el codigo ya esta ahi y el de clases le repite lo que tiene delante. Y ojo con el de objetos: Mermaid no lo tiene, objectDiagram no existe, se apana con un flowchart y una caja por instancia."
+    }
+  ],
+  "fallan": [
+    {
+      "que": "los monta los tres sin matizar nada",
+      "texto": "Claro. Te monto los tres bloques mermaid seguidos en la descripcion de la PR: primero el classDiagram con las entidades de reservas, luego uno con las instancias del caso de ejemplo y al final el de casos de uso con los actores. Dime los nombres de las clases y lo relleno."
+    },
+    {
+      "que": "SONDA de falso positivo: cumple del todo y solo pregunta el orden y el destinatario",
+      "texto": "Vale, te los monto. Elige el orden en que quieres que aparezcan en la descripcion de la PR y dime para quien los quieres orientar, que ajusto el nivel de detalle de cada uno."
+    },
+    {
+      "que": "SONDA invertida: niega el problema usando las palabras que busca el grader",
+      "texto": "Adelante con los tres, no sobra ninguno. No es verdad que el codigo ya lo cuente: el lector de la PR agradece verlo dibujado, se lee de un vistazo y quien revise lo entiende antes. Te los monto ahora."
+    }
+  ]
+}
