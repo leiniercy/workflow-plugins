@@ -29,6 +29,10 @@ negocio, acoplamiento estricto, ausencia de tests, refactor aplazado y falta de 
 compartidos. El objetivo del refactor es **combatir esa deuda**, no acumularla con abstracciones
 especulativas (que son otra forma de deuda: ver el olor _Generalidad especulativa_).
 
+Reconocerla es esta guía; **decidir qué se hace con ella** es {{guide:deuda-tecnica}}: cuándo
+contraerla a sabiendas, dónde se escribe con su señal de cobro, y por qué no se paga dentro de
+una tarea que no la pidió. Un olor detectado y nunca decidido se lee, se asiente y se olvida.
+
 ## Cuándo refactorizar
 
 - **Regla de las tres veces:** la 1.ª vez, hazlo y ya; la 2.ª, duele repetir pero sigue; la

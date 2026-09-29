@@ -136,7 +136,11 @@ casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos d
   allá de lo funcional, dilo en una línea — sin inventario ni relleno. Si la que se activa es
   **eficiencia de desempeño**, el criterio lleva las cuatro piezas de `rendimiento` (skill de OpenCode, auto-activable)
   (qué se mide, con qué volumen, en qué entorno y cuál es el límite): sin las cuatro no se
-  puede verificar en `/review` ni escribir un test que lo defienda.
+  puede verificar en `/review` ni escribir un test que lo defienda. Y si la que se activa es
+  **confidencialidad** porque la tarea toca datos de personas, el criterio sale de
+  `proteccion-de-datos` (skill de OpenCode, auto-activable): qué se guarda, cuánto tiempo, quién lo ve y qué queda
+  auditado. Lo que toque categoría especial —salud, y ahí entra una alergia— o salga hacia un
+  tercero se registra en «Decisiones tomadas» y lo aprueba el usuario.
 - **Restricciones globales**: las condiciones que vinculan a TODOS los criterios, con su
   **valor exacto**, una por línea — versiones mínimas, límites de dependencias, reglas de
   nombrado o de copy, requisitos de plataforma, formatos de dato. Van juntas y explícitas

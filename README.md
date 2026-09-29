@@ -13,7 +13,7 @@ Funciona igual en **Claude Code** y en **OpenCode**.
 |---|---|
 | **Qué es** | Un flujo de desarrollo para agentes de IA, guiado por tareas de ClickUp: `spec.md` → TDD → revisión → cierre |
 | **Para quién** | Equipos que ya trabajan por ticket, con criterios de aceptación y una PR que revisa un humano |
-| **Qué trae** | 6 comandos · 27 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
+| **Qué trae** | 6 comandos · 30 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
 | **Dónde corre** | Claude Code (plugin del marketplace `biomas`) · OpenCode (carpeta `.opencode/` lista para copiar) |
 | **Mínimo para arrancar** | Git con rama base `develop` + Node.js 18+ |
 | **Para el 100 %** | ClickUp, `gh`, graphify, `CLAUDE.md` y tres add-ons — [tabla de complementos](#los-complementos) |
@@ -67,7 +67,7 @@ contexto, degradación elegante si falta ClickUp o graphify, e historial inmutab
   seis dimensiones, con
   el campo `tools` limitado a lectura —bloqueo real, no una promesa en la prosa— y un
   verificador adversarial que intenta refutar cada hallazgo antes del informe.
-- **El criterio no se reinventa en cada sesión.** 27 guías (SQL, migraciones, rendimiento,
+- **El criterio no se reinventa en cada sesión.** 30 guías (SQL, migraciones, rendimiento,
   accesibilidad, coste, prompts, diagramas…) que se activan solas por contexto, con sus
   síntomas escritos en la `description`.
 - **La misma prosa en dos herramientas.** Todo vive en `core/` y `scripts/sync.mjs` genera

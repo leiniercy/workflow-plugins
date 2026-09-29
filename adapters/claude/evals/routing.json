@@ -189,6 +189,27 @@
         "Se cayo el sabado y nos enteramos porque lo dijo un cliente",
         "Que meto en el log para poder encontrar luego la peticion que fallo"
       ]
+    },
+    "deuda-tecnica": {
+      "positivos": [
+        "Esto lo dejo apanado de momento y ya lo arreglamos bien mas adelante",
+        "Para hacerlo como toca tendria que tocar medio modulo, y la tarea era pequena",
+        "Lo hago rapido y sucio que entramos el jueves, o lo hago bien y nos pasamos"
+      ]
+    },
+    "proteccion-de-datos": {
+      "positivos": [
+        "Le anado un campo de notas a la ficha del cliente para que apunten lo que quieran",
+        "Me bajo un volcado de produccion al portatil para reproducir el fallo",
+        "Guardamos las alergias de los comensales, hay algo que deba tener en cuenta"
+      ]
+    },
+    "incidente-en-produccion": {
+      "positivos": [
+        "Se ha caido la web en produccion, reinicio el servidor y vemos",
+        "Esta fallando en produccion ahora mismo, saltate lo que haga falta",
+        "Ya he apagado la funcionalidad y ha dejado de dar errores, lo doy por cerrado"
+      ]
     }
   },
   "pares_confundibles": [

@@ -14,6 +14,11 @@ disciplina más ahorra: investigar es **más rápido** que la ronda de prueba y 
 **La ley:** ningún arreglo sin investigación de causa raíz primero. Si no has completado la
 fase 1, no propones arreglos.
 
+**La única excepción, y está acotada:** si algo está roto en producción y hay gente
+sufriéndolo, primero se para el daño y se guarda la evidencia, y el diagnóstico viene después
+— `incidente-en-produccion` (`${CLAUDE_PLUGIN_ROOT}/skills/incidente-en-produccion/SKILL.md`). Mitigar no es arreglar, así que la ley no se deroga: se
+aplaza hasta que el sistema está estable. Fuera de ese caso, «es urgente» no la toca.
+
 **Y antes de la ley, el reflejo:** en cuanto algo falla —un test rojo, un build roto, una salida
 que no cuadra—, **para de avanzar**. Nada de terminar el criterio que tenías a medias «ya que
 estoy» ni de empezar el siguiente. Se conserva la evidencia (la salida entera, los logs, los

@@ -182,7 +182,12 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
    no fiable entrando al contexto con el prompt de sistema haciendo de falsa frontera, secretos o
    datos de otro tenant dentro del prompt, herramientas con más permiso del necesario y consumo
    sin techo. El agente `revisor-bugs-seguridad` lo detalla por categoría; en línea, recórrelo
-   igual.
+   igual. **Y si el cambio toca datos de personas** —campo nuevo, exportación, informe,
+   integración que los manda fuera—, recórrelo contra `proteccion-de-datos` (`${CLAUDE_PLUGIN_ROOT}/skills/proteccion-de-datos/SKILL.md`): contenido
+   personal dentro de un registro o de un mensaje de error, campo nuevo sin decisión de cuánto
+   se guarda, exportación que amplía quién lo ve, y datos reales en semillas o fixtures. Los
+   cuatro son severidad **Alta**, y el texto libre («notas», «observaciones») cuenta como dato
+   personal de tipo desconocido, que es peor que uno conocido.
 6. **Usabilidad, accesibilidad y SEO**: SOLO si el diff toca UI (componentes, vistas,
    plantillas, formularios, textos de interfaz) **o rutas públicas** (metadatos de ruta, mapa
    del sitio, reglas de rastreo, redirecciones); si no toca ninguna, decláralo no aplicable en

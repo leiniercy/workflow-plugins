@@ -106,7 +106,7 @@ const COMMANDS = {
 // (tiering, patrón del plugin oficial code-review). Su campo `tools` es una
 // allowlist DURA: Read/Grep/Glob y nada más → no pueden modificar nada ni
 // despachar otros agentes. OpenCode no recibe agentes: /review degrada al análisis
-// en línea de las cinco dimensiones.
+// en línea de las siete dimensiones.
 // ---------------------------------------------------------------------------
 const AGENTS = {
   "revisor-bugs-seguridad": {
@@ -307,6 +307,18 @@ const GUIDES = {
   "entrega-y-despliegue": {
     description:
       "Úsala al decidir cómo sale un cambio a producción: el orden respecto a una migración, la bandera de funcionalidad, la vuelta atrás y la ventana de vigilancia posterior. Síntomas: dices «si va mal, revertimos» sin comprobar que el redespliegue deshaga nada; juntas dos cambios en un mismo despliegue; una variable de entorno vive solo en tu máquina; una bandera se queda sin fecha de retirada.",
+  },
+  "deuda-tecnica": {
+    description:
+      "Úsala al decidir si un atajo se contrae a sabiendas, se paga ahora o se aplaza con su señal de cobro. Síntomas: te oyes decir «ya lo refactorizamos más adelante»; el arreglo correcto es más grande que la tarea y hay una fecha encima; vas a limpiar de paso un módulo que esta tarea no pedía.",
+  },
+  "proteccion-de-datos": {
+    description:
+      "Úsala al decidir qué dato personal se recoge, cuánto se retiene, quién lo consulta y qué queda auditado. Síntomas: vas a añadir un «observaciones» de texto libre donde puede acabar una alergia; nadie ha dicho cuántos meses se guarda; hay salud o discapacidad de por medio; te bajas un volcado de producción al portátil; o el correo del cliente acaba dentro de un log.",
+  },
+  "incidente-en-produccion": {
+    description:
+      "Úsala cuando se haya caído algo en producción ahora mismo y haya usuarios sufriéndolo. Síntomas: vas a reiniciar el servidor antes de guardar el error; te piden saltarte un gate porque urge; has apagado la bandera y das el incidente por cerrado; o cambias tres cosas a la vez a ver cuál lo arregla.",
   },
   "observabilidad": {
     description:

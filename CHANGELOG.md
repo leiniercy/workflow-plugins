@@ -7,6 +7,33 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **Tres guías que convierten un hallazgo en una decisión: `deuda-tecnica`,
+  `proteccion-de-datos` e `incidente-en-produccion`** — las tres cubrían huecos del mismo tipo:
+  algo que el flujo sabía *detectar* pero no sabía *qué hacer con ello*.
+
+  `deuda-tecnica` cierra el lado que le faltaba a `codigo-limpio`: reconocer un olor es una
+  cosa y decidir qué se hace con él es otra. La deuda se registra con cuatro piezas —qué se
+  dejó, por qué, qué costaría hacerlo bien y **qué señal dirá que toca pagarla**—, porque sin
+  señal de cobro no es una decisión sino un aplazamiento indefinido. Y el detalle que ordena
+  las prioridades: **los intereses se cobran al modificar**, así que la deuda se paga donde se
+  está trabajando, no donde más fea está.
+
+  `proteccion-de-datos` mueve los datos personales de ser un hallazgo tardío de `/review` a ser
+  una decisión de `/plan`, que es donde importa: **un campo que no existe no se filtra, no hay
+  que retenerlo, no hay que borrarlo y no hay que auditar quién lo mira**. Nombra el recolector
+  no declarado más común —el campo «observaciones» de texto libre, donde acaba escrito cualquier
+  cosa incluida la de categoría especial— y deja explícito que la valoración legal es del
+  usuario: un agente afirmando qué exige el RGPD en un caso concreto es el mismo dato inventado
+  que el plugin prohíbe escribir.
+
+  `incidente-en-produccion` cierra un hueco que el propio README documentaba sin resolver. No
+  basta con decir «apaga la ceremonia»: hay que escribir **qué se apaga y qué no**, o «es una
+  urgencia» se convierte en la llave que abre todas las puertas. Invierte la ley de
+  `depuracion-sistematica` durante una sola fase —estabilizar antes de diagnosticar— y mantiene
+  intacto lo irreversible, los secretos y la evidencia. El paso que más se salta y el único
+  irrecuperable: **guardar la pista antes de reiniciar**, porque reiniciar suele ser a la vez la
+  mitigación correcta y la destrucción de la prueba.
+
 - **`/ship` y la séptima dimensión de `/review`** — con las guías de entrega ya escritas, el
   comando deja de ser ceremonia: tiene qué orquestar. `/ship` recupera el plan de entrega de
   `spec.md` o lo construye, ejecuta **paso a paso y en el orden escrito** —si un paso falla se
