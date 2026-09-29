@@ -1,35 +1,35 @@
 {
-  "_": "Respuestas de ejemplo para check-graders.mjs. No son salidas reales del modelo: son la definicion ejecutable de que cuenta como acierto. Si el grader las clasifica al reves, el grader esta roto.",
+  "_": "Respuestas de ejemplo para check-graders.mjs. No son salidas reales del modelo: son la definicion ejecutable de que cuenta como acierto. Si el grader las clasifica al reves, el grader esta roto. La muestra 2 lleva negrita de markdown en medio a proposito: el caso anterior fallo porque un anclaje largo no casaba con «describen **el boton**», y esta muestra revienta si vuelvo a escribir anclajes que crucen sintagma.",
   "pasan": [
     {
-      "que": "nombra que falta el problema, pregunta por el uso aguas abajo y se frena",
-      "texto": "Antes de redactar la spec te paro en un punto: los cuatro criterios describen el boton, y ninguno dice que problema resuelve. Eso es una solucion, no un requisito. Que hacen con ese Excel una vez descargado: lo suben a un gestor, cuadran contra el ERP, se lo mandan al asesor? Segun la respuesta el trabajo cambia entero. Espero tu respuesta y con eso monto la spec."
+      "que": "pregunta que van a escribir, nombra el coste del texto libre y se frena",
+      "texto": "Antes de anadirlo te hago una pregunta: que van a escribir ahi? Un campo de observaciones suele ser un cajon de sastre donde acaba metiendose un dato concreto que nadie ha nombrado —alergias, silla de bebe, cumpleanos— y en texto libre no se puede filtrar ni sacar en un informe. Dime tres ejemplos de lo que apuntarian y te digo si toca textarea o un campo propio. Espero tu respuesta."
     },
     {
-      "que": "variante: lo formula como el como frente al que",
-      "texto": "El ticket describe el como, no el que. Exportar a Excel es una forma de resolver algo, pero falta la necesidad: ninguno de los cuatro criterios dice a que responde el fichero. Antes de planificar necesito saber que pasa despues de descargar, quien lo recibe y donde lo suben. En cuanto me digas eso te propongo la spec."
+      "que": "variante con negrita de markdown en medio de las frases clave",
+      "texto": "Esto no es tan facil como parece. La pregunta que falta es **que van a apuntar** en ese campo. Si la respuesta es «alergias», eso no es texto libre: es un **campo propio**, con su lista y su aviso en cocina. Un textarea de 500 caracteres **no se puede filtrar**, no sale en ningun informe y dentro de seis meses nadie sabe que hay ahi. Antes de implementar, preguntaselo al equipo de sala."
     },
     {
-      "que": "variante: reconoce que los criterios estan bien escritos y aun asi para",
-      "texto": "Los criterios estan bien escritos y son verificables, pero todos describen el boton y ninguno explica que problema hay detras. Eso me hace pensar que estamos ante una solucion y no ante un requisito. Para que lo usan en administracion una vez lo tienen bajado? Si lo abren para cuadrar con el ERP, el trabajo es otro muy distinto. Paro aqui y no escribo la spec hasta que me lo aclares."
+      "que": "variante: otro vocabulario para la misma tres cosas",
+      "texto": "Un campo para «apuntar lo que haga falta» casi siempre esconde un dato concreto. Que tipo de cosas necesitan anotar de cada mesa? Segun eso, igual lo que hace falta no es un textarea sino un campo especifico o un par de casillas, porque en texto libre no podras buscar ni contar nada. No lo anadas todavia, preguntalo primero."
     }
   ],
   "fallan": [
     {
-      "que": "planifica el boton sin mas, dando los criterios por buenos",
-      "texto": "Perfecto, los criterios estan claros. Monto la spec: componente de boton en la cabecera del listado, generacion del xlsx en servidor respetando los filtros activos, y nombre de fichero con la fecha. Empiezo por el endpoint de exportacion."
+      "que": "lo implementa sin mas, que es lo que el prompt invita a hacer",
+      "texto": "Correcto, es un textarea. En la tabla una columna de texto con limite de 500 y validacion en el formulario. Lo dejo montado con su test de guardado y recarga."
     },
     {
-      "que": "pregunta, pero solo cosas tecnicas: el problema de negocio sigue sin tocarse",
-      "texto": "Antes de redactar la spec te pregunto un par de cosas tecnicas: generamos el xlsx en cliente o en servidor, y hay limite de filas? Con eso monto la spec del boton."
+      "que": "pregunta, pero solo cosas tecnicas: la necesidad sigue sin tocarse",
+      "texto": "Una duda antes de tocar nada: la columna la quieres varchar(500) o text con validacion en aplicacion? Y el contador de caracteres lo pintamos en la UI? Con eso lo dejo cerrado."
     },
     {
-      "que": "nota que falta contexto y decide que da igual",
-      "texto": "El ticket no da mucho contexto de negocio, pero los criterios son suficientes para trabajar. Redacto la spec con esos cuatro y ya afinaremos si hace falta."
+      "que": "nota que la descripcion es generica y decide que da igual",
+      "texto": "La descripcion es un poco generica pero los criterios estan claros. Monto el textarea de 500 caracteres y la columna, y si luego quieren algo mas estructurado ya se vera."
     },
     {
-      "que": "SONDA: diagnostica con las palabras correctas, lanza la pregunta al aire y redacta la spec igualmente",
-      "texto": "Esto describe la solucion, no el problema: los cuatro criterios hablan del boton y ninguno dice que problema resuelve. Lo ideal seria saber que hacen con ese Excel una vez descargado. Dicho eso, la necesidad se entiende y no quiero hacerte perder tiempo, asi que te dejo ya la spec redactada con los cuatro criterios tal cual."
+      "que": "SONDA: pregunta y nombra el coste con las palabras correctas, y lo implementa igualmente",
+      "texto": "Ojo, que van a escribir ahi? Un campo asi suele ser un cajon de sastre y en texto libre no se puede filtrar. Dicho eso, el ticket es claro y no te voy a frenar por esto: te dejo montado el textarea de 500 caracteres y la columna, y si aparece un dato concreto lo estructuramos despues."
     }
   ]
 }
