@@ -32,7 +32,9 @@ escrito en `spec.md`.
    la versión anterior del código sigue viva y hablando con el esquema nuevo. Primero se añade
    lo nuevo sin romper lo viejo; retirar lo viejo es un cambio **posterior**, cuando ya no queda
    código que lo use. Una migración que rompe al código anterior provoca una caída durante el
-   propio despliegue.
+   propio despliegue. **Dónde se escribe ese orden y cómo se ejecuta después**, en
+   {{guide:entrega-y-despliegue}}: la decisión se toma aquí y sin un sitio donde vivir se pierde
+   entre la planificación y el despliegue.
 7. **Las claves foráneas declaran qué pasa al borrar el padre.** Dejarlo implícito reparte el
    criterio entre el motor y el azar.
 8. **Los índices se crean con nombre explícito**, y sobre una tabla grande con la variante que

@@ -7,6 +7,28 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **El flujo llega hasta producción: `entrega-y-despliegue` y `observabilidad`** — backbone
+  terminaba en la PR. Todo lo que hay entre «mergeado» y «funcionando para quien lo usa» se
+  decidía sobre la marcha o no se decidía. Y había una decisión que se perdía siempre: el orden
+  del despliegue respecto a la migración se toma en `/plan`, porque la regla 6 de
+  `migraciones-de-datos` lo obliga, y **no existía ningún sitio donde esa decisión viviera**
+  hasta que alguien la ejecutaba.
+
+  `entrega-y-despliegue` fija ocho reglas duras —el plan se escribe antes de desplegar; la
+  vuelta atrás se decide con la pregunta honesta de si existe, porque un redespliegue no
+  deshace una migración aplicada ni los correos enviados; un despliegue, un cambio; la
+  configuración nueva con valor por defecto o el arranque falla en el entorno del siguiente— y
+  una tabla de cuatro formas de salir (directo, bandera, canario, azul-verde) con el mismo
+  freno que `arquitectura`: por defecto la más simple, y las otras solo cuando una fuerza
+  concreta lo pida.
+
+  `observabilidad` contesta la regla 7 de la anterior —qué se mira después— con el freno de
+  `rendimiento`: nada de instrumentar por inventario. La pregunta no es qué se podría medir,
+  es si este cambio se tuerce cómo te enteras, y si te enteras antes que el usuario.
+
+  `/plan` gana el bloque «Plan de entrega» en `spec.md`, condicional: si la tarea no sale a
+  ningún sitio, se dice en una línea y se sigue.
+
 - **El eval solo mide comportamientos de vocabulario estrecho, y el informe enseña el texto**
   ([ADR-0011](docs/adr/0011-el-eval-solo-mide-comportamientos-de-vocabulario-estrecho.md)) —
   `lib/grader.mjs` corrige por subcadena, así que solo sirve cuando la respuesta correcta se

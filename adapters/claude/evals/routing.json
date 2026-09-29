@@ -175,6 +175,20 @@
         "Los mensajes de error le dicen Error 500 al usuario y ya",
         "He anadido una pagina nueva, le falta algo para que Google la coja"
       ]
+    },
+    "entrega-y-despliegue": {
+      "positivos": [
+        "Esto en cuanto se mergee ya esta en produccion? no lo tengo claro",
+        "Llevo la migracion y el codigo que la usa en la misma PR, en que orden entra",
+        "Y si una vez subido sale mal, como lo quitamos rapido"
+      ]
+    },
+    "observabilidad": {
+      "positivos": [
+        "He montado un proceso que corre cada noche, como se yo que se ha ejecutado",
+        "Se cayo el sabado y nos enteramos porque lo dijo un cliente",
+        "Que meto en el log para poder encontrar luego la peticion que fallo"
+      ]
     }
   },
   "pares_confundibles": [

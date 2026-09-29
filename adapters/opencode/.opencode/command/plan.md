@@ -124,6 +124,12 @@ casos de prueba derivado y trazabilidad Proceso→RF→HU→CA→EC. Los datos d
   implementación: decide aquí, con `migraciones-de-datos` (skill de OpenCode, auto-activable), el cambio de esquema, cómo
   se rellenan los datos existentes, si es reversible y en qué orden va respecto al despliegue.
   Lo que implique pérdida de datos se registra en «Decisiones tomadas» y lo aprueba el usuario.
+- **Plan de entrega**, si el cambio va a salir a un entorno real: escríbelo aquí con
+  `entrega-y-despliegue` (skill de OpenCode, auto-activable) —orden respecto a la migración, forma de salida, bandera si la
+  hay, cómo se vuelve atrás y qué se vigila después, con la señal y su umbral según
+  `observabilidad` (skill de OpenCode, auto-activable)—. Es una decisión de la tarea, no del momento de desplegar: escrita
+  durante el despliegue llega tarde. Si la tarea no sale a ningún sitio —refactor interno,
+  documentación—, dilo en una línea y sigue.
 - **Requisitos no funcionales**: recorre UNA vez las características de calidad de ISO 25010
   como filtro (`calidad-producto` (skill de OpenCode, auto-activable)) y marca SOLO las que la tarea activa de verdad,
   cada una con criterio verificable y su nivel/herramienta de prueba. Si ninguna aplica más

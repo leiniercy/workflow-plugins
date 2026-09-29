@@ -288,6 +288,14 @@ const GUIDES = {
     description:
       "Úsala al empezar una tarea que conviene aislar del trabajo en curso, o antes de crear un worktree de git. Síntomas: el usuario tiene cambios abiertos en otra rama, quieres revisar una PR sin abandonar lo que implementas, o vas a escribir `git worktree add` sin haber comprobado si ya estás dentro de un worktree.",
   },
+  "entrega-y-despliegue": {
+    description:
+      "Úsala al decidir cómo sale un cambio a producción: el orden respecto a una migración, la bandera de funcionalidad, la vuelta atrás y la ventana de vigilancia posterior. Síntomas: dices «si va mal, revertimos» sin comprobar que el redespliegue deshaga nada; juntas dos cambios en un mismo despliegue; una variable de entorno vive solo en tu máquina; una bandera se queda sin fecha de retirada.",
+  },
+  "observabilidad": {
+    description:
+      "Úsala al decidir qué log, qué métrica, qué traza o qué alerta acompañan a una frontera nueva —endpoint, tarea programada, integración con un tercero— y con qué umbral. Síntomas: de una caída se entera antes el cliente que vosotros; un catch vacío; una tarea programada deja de dispararse sin dar error; una alerta que nadie atiende; un log sin identificador con el que correlacionar la petición que falló.",
+  },
 };
 
 // ---------------------------------------------------------------------------
