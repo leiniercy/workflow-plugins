@@ -115,9 +115,9 @@ con /implement, que detectará el modo corrección).
    reportarlo.
 6. NO consultes ClickUp: la fuente de verdad de la revisión es spec.md y el código.
 
-## Fase 3 — Análisis en seis dimensiones
+## Fase 3 — Análisis en siete dimensiones
 
-Las seis dimensiones a cubrir (examinando el diff y los ficheros afectados COMPLETOS, no
+Las siete dimensiones a cubrir (examinando el diff y los ficheros afectados COMPLETOS, no
 solo las líneas cambiadas) corresponden a características de calidad de ISO 25010 — el mapa
 completo está en `calidad-producto` (skill de OpenCode, auto-activable). **Detecta primero el stack del repo** (manifiesto
 — `package.json`, `pyproject.toml`, `go.mod`… —, framework y paradigma de render si es web) y
@@ -193,11 +193,25 @@ adapta a él los checks; los ejemplos entre paréntesis son ilustrativos, no el 
    jerarquía, maquetación real) y lo que exige rastreo o datos reales de buscador NO se juzga
    desde el diff: nómbralo como pendiente de `qa-exploratoria` (skill de OpenCode, auto-activable) —recorrer la aplicación,
    con evidencia— en vez de opinar o de callarlo.
+7. **Entrega y operación**: SOLO si el diff toca esquema, configuración o variables de entorno,
+   tareas programadas o en segundo plano, manifiestos de despliegue o de CI, o una frontera que
+   alguien ya consume; si no toca ninguna, decláralo no aplicable en una línea. Aplica
+   `entrega-y-despliegue` (skill de OpenCode, auto-activable) y `observabilidad` (skill de OpenCode, auto-activable), y busca lo que ninguna otra
+   dimensión mira porque **no falla en tu máquina**: variable de entorno nueva sin valor por
+   defecto y sin añadir al ejemplo del repo, arranque que depende de algo que solo existe en
+   local, retirada de lo viejo en el mismo cambio que añade lo nuevo (rompe la versión en curso
+   durante el despliegue), cambio con efectos que un redespliegue no deshace presentado como
+   reversible, bandera de funcionalidad sin fecha de retirada, frontera nueva sin ninguna señal
+   —y en particular la tarea programada, que al dejar de dispararse **no da error**—, `catch`
+   que se traga el fallo, y dato personal o secreto dentro de un registro. Las cuatro primeras y
+   la última son severidad **Alta**: no son opiniones sobre calidad, son el despliegue del
+   siguiente que no arranca o datos que salen donde no deben.
 
 ### Cómo ejecutar el análisis — subagentes con tiering, o en línea
 
 **Si dispones de los agentes revisores del plugin** (`revisor-bugs-seguridad`,
-`revisor-spec-tests`, `revisor-convenciones`, `revisor-usabilidad-accesibilidad`):
+`revisor-spec-tests`, `revisor-convenciones`, `revisor-usabilidad-accesibilidad`,
+`revisor-entrega`):
 despáchalos EN PARALELO como subagentes.
 
 **Pásales RUTAS, no contenido.** A cada uno: la ruta del paquete de la Fase 2
@@ -215,6 +229,10 @@ El reparto y el modelo de cada uno (tiering por coste/complejidad, patrón del p
 - `revisor-bugs-seguridad` (opus) → dimensiones 2 (bugs) y 5 (seguridad).
 - `revisor-spec-tests` (sonnet) → dimensiones 1 (cumplimiento de spec) y 3 (tests).
 - `revisor-convenciones` (sonnet) → dimensión 4 (convenciones y deuda técnica).
+- `revisor-entrega` (sonnet) → dimensión 7 (entrega y operación). **Despáchalo solo si el diff
+  toca esquema, configuración o variables de entorno, tareas programadas, manifiestos de
+  despliegue o de CI, o una frontera que alguien ya consume**; si no toca nada de eso, registra
+  la dimensión como no aplicable en una línea y no gastes la sesión.
 - `revisor-usabilidad-accesibilidad` (sonnet) → dimensión 6 (usabilidad, accesibilidad y SEO).
   **Despáchalo solo si `tocaUI` del escaneo de la Fase 2 es `true`**; si es `false`, registra
   la dimensión como no aplicable sin gastar el agente. El gate se lee, no se juzga: decidirlo
@@ -241,7 +259,7 @@ confianza y —esto es lo que antes no existía— `omitidos`, el número de hal
 fuera si su lista superó el tope. Un revisor que recorta en silencio devuelve un informe con
 menos hallazgos y la misma pinta de completo. Recoge los cuatro bloques y pasa a la Fase 4.
 
-**Si NO dispones de esos agentes** (p. ej. en OpenCode): analiza tú mismo las seis
+**Si NO dispones de esos agentes** (p. ej. en OpenCode): analiza tú mismo las siete
 dimensiones en línea, leyendo el diff y los ficheros afectados completos, y aplica a cada
 hallazgo la validación de la Fase 4 antes de incluirlo.
 
@@ -327,7 +345,7 @@ propio, cada uno con el texto de la spec que lo obliga y la pregunta explícita 
 —no son trabajo de corrección, son una decisión del usuario—. Si la lista es larga y uniforme, preséntala en formato
 TOON según la guía `formato-toon` (skill de OpenCode, auto-activable). Cierra con un veredicto justificado: **Aprobado** o
 **Cambios requeridos**. Si no hay hallazgos ≥ 75, dilo en una línea (p. ej. "Sin hallazgos de
-alta confianza; revisadas las seis dimensiones").
+alta confianza; revisadas las siete dimensiones").
 
 Cada hallazgo lo lee la persona que escribió ese código: redáctalo con
 `escritura-natural` (skill de OpenCode, auto-activable) —hecho, impacto y acción, sobre el trabajo y nunca sobre quien

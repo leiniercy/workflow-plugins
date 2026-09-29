@@ -7,6 +7,29 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **`/ship` y la séptima dimensión de `/review`** — con las guías de entrega ya escritas, el
+  comando deja de ser ceremonia: tiene qué orquestar. `/ship` recupera el plan de entrega de
+  `spec.md` o lo construye, ejecuta **paso a paso y en el orden escrito** —si un paso falla se
+  detiene ahí, porque un despliegue a medias con un arreglo improvisado encima es el peor
+  estado posible—, vigila la señal acordada durante la ventana acordada, y sella el resultado
+  en `progress.md`, apuntando la bandera que quede encendida con su fecha de retirada.
+
+  Es el único comando **sin `allowed-tools`, y a propósito**: `/review` y `/close` lo declaran
+  para pre-aprobar lectura, pero `/ship` es el único que necesita ejecutar algo que se ve desde
+  fuera, así que pre-aprobarle herramientas sería quitarle el prompt justo al paso que más lo
+  necesita. Su gate de la Fase 4 va además escrito en la prosa, y avisa de lo que el hook
+  `destructive-guard` **no** cubre: desplegar, mandar correos y disparar webhooks.
+
+  El agente `revisor-entrega` (solo-lectura, condicional como el de UI) añade la dimensión 7 a
+  `/review`: busca lo que ninguna otra mira porque **no falla en tu máquina** — variable de
+  entorno nueva sin valor por defecto ni añadir al ejemplo del repo, arranque que depende de
+  algo que solo existe en local, retirada de lo viejo en el mismo cambio que añade lo nuevo,
+  bandera sin fecha, frontera nueva sin señal (y la tarea programada, que al dejar de
+  dispararse no da error) y dato personal dentro de un registro.
+
+  `/close` gana una pregunta: cerrar la tarea no la pone en producción, así que pregunta si
+  queda desplegada o pendiente de entrega, y enruta a `/ship`.
+
 - **El flujo llega hasta producción: `entrega-y-despliegue` y `observabilidad`** — backbone
   terminaba en la PR. Todo lo que hay entre «mergeado» y «funcionando para quien lo usa» se
   decidía sobre la marcha o no se decidía. Y había una decisión que se perdía siempre: el orden

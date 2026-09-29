@@ -88,6 +88,16 @@ const COMMANDS = {
       "Bash(gh pr view:*)",
     ],
   },
+  // Sin `allowed-tools` A PROPÓSITO, y es la decisión de diseño del comando. /review y /close
+  // lo declaran para PRE-APROBAR lectura; /ship es el único que necesita EJECUTAR algo que se
+  // ve desde fuera, así que pre-aprobarle herramientas sería quitarle el prompt justo al paso
+  // que más lo necesita. Sin el campo, cada acción pasa por el flujo normal de permisos — que
+  // es lo que queremos— y el gate de la Fase 4 va además escrito en la prosa.
+  ship: {
+    description:
+      "Lleva una tarea ya mergeada de «hecha» a «funcionando y vigilada»: recupera el plan de entrega de spec.md o lo construye, ejecuta paso a paso con gate humano antes de lo irreversible, vigila la señal acordada durante la ventana acordada y sella el resultado en progress.md. Condicional: si la tarea no sale a ningún entorno, lo dice en una línea y termina. Solo escribe progress.md - nunca código ni spec.md.",
+    argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -124,6 +134,12 @@ const AGENTS = {
   "revisor-usabilidad-accesibilidad": {
     description:
       "Subagente de /review (solo-lectura) para la dimensión de USABILIDAD, ACCESIBILIDAD y SEO TÉCNICO (la primera es la característica «capacidad de interacción» de ISO 25010). Despáchalo en paralelo desde /review SOLO si el diff toca UI o rutas públicas: verifica lo revisable en código (títulos/estados, lenguaje del usuario, validación de formularios, mensajes de error útiles, alt/labels/semántica/teclado según WCAG; literales en duro si el repo ya tiene i18n; metadatos propios de ruta, canónica y redirección al mover una URL publicada); lo estético/visual y lo que exige rastreo real lo marca como evaluación manual. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
+    model: "sonnet",
+    tools: ["Read", "Grep", "Glob"],
+  },
+  "revisor-entrega": {
+    description:
+      "Subagente de /review (solo-lectura) para la dimensión de ENTREGA Y OPERACIÓN. Despáchalo en paralelo desde /review SOLO si el diff toca esquema, configuración o variables de entorno, tareas programadas, manifiestos de despliegue o de CI, o una frontera que alguien ya consume: busca lo que no arranca en un entorno limpio, el orden que rompe la versión en curso durante el despliegue, el cambio que no vuelve atrás sin declararlo, la bandera sin fecha de retirada, la frontera nueva sin ninguna señal y el dato personal en un registro. Devuelve hallazgos puntuados (confianza ≥ 75); no emite veredicto global.",
     model: "sonnet",
     tools: ["Read", "Grep", "Glob"],
   },
