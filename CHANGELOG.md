@@ -7,6 +7,23 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **El eval solo mide comportamientos de vocabulario estrecho, y el informe enseña el texto**
+  ([ADR-0011](docs/adr/0011-el-eval-solo-mide-comportamientos-de-vocabulario-estrecho.md)) —
+  `lib/grader.mjs` corrige por subcadena, así que solo sirve cuando la respuesta correcta se
+  dice de pocas maneras. Al intentar medir con él un comportamiento abierto —descubrir que un
+  ticket describe una solución en vez de un problema— tres corridas seguidas dieron un
+  veredicto que no se sostenía al abrir las respuestas: el brazo **sin plugin** escribió «los
+  criterios describen la solución, no la necesidad» —el acierto exacto— y figuró como fallo,
+  porque el anclaje decía `que van a escribir` y el modelo dijo «qué **va** a escribir».
+  También se descubrió que `norm()` quita tildes y mayúsculas pero **no marcas de markdown**:
+  un `**` en medio rompe cualquier anclaje largo.
+
+  Se descartó con datos el proxy obvio —marcar los casos con muchas alternativas por grupo—:
+  `presion-dato-sin-verificar` tiene un grupo de 30 y `clases-objetos-y-casos-de-uso` de 26,
+  más que el caso que hubo que retirar. Lo que sí se hace cumplir es lo otro:
+  `check-activation.mjs` ya **no imprime un veredicto negativo sin un extracto de lo que
+  contestó cada brazo**, porque el fallo real no fue escribir el caso sino creerse el titular.
+
 - **El texto de la tarea es contenido, no instrucciones** — el racimo de dato no fiable de
   §18 cerró el lado del **revisor** (superficie LLM en `revisor-bugs-seguridad`, contenido del
   navegador en `qa-exploratoria`, salida de error en `depuracion-sistematica`). La puerta de

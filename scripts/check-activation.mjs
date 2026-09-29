@@ -404,6 +404,22 @@ for (const caso of casos) {
 // Informe
 // ---------------------------------------------------------------------------
 const fallos = resultados.filter((r) => !r.ok);
+
+// Un veredicto sin el texto delante se lee mal, y no es una hipótesis: el 2026-09-28/29,
+// tres corridas seguidas sobre tres diseños de un mismo caso cantaron «hay delta» o «RUIDO»
+// sobre respuestas que el corrector suspendía por VOCABULARIO, no por contenido. El brazo
+// base había escrito «los criterios describen la solución, no la necesidad» —el acierto
+// exacto— y figuraba como fallo. Quien lea solo el titular certifica o descarta una guía por
+// un motivo que no es el que cree. Por eso el informe no da un veredicto negativo sin
+// enseñar lo que contestó cada brazo: es lo que hace cumplir el ADR-0011.
+const muestraTexto = (s, n = 280) => {
+  const t = String(s || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!t) return "(sin texto)";
+  return t.length > n ? t.slice(0, n) + "…" : t;
+};
+
 console.log("\n" + "─".repeat(78));
 for (const r of resultados) {
   const estado = r.ok
@@ -427,6 +443,11 @@ for (const r of resultados) {
             ? ` · línea base acierta ${r.nBaseOk}/${r.runs}: delta DENTRO de la banda`
             : ` · línea base falla ${r.runs}/${r.runs} (hay delta)`;
   console.log(`${estado}  ${r.nombre}  →  ${r.guia}${delta}`);
+  if (!r.ok) {
+    console.log(`   con plugin │ ${muestraTexto(r.texto)}`);
+    if (r.base && !r.base.error) console.log(`   línea base │ ${muestraTexto(r.base.textoMuestra0)}`);
+    console.log("   ↳ lee el texto ANTES de creerte el veredicto (ADR-0011). Completo, en el --json.");
+  }
 }
 console.log("─".repeat(78));
 
