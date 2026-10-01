@@ -31,3 +31,7 @@ adapters/claude/evals/results/
 # variables de entorno (sin secretos) y DEBE versionarse para que Claude Code lo
 # auto-registre al instalar el plugin. Lo genera scripts/sync.mjs.
 !adapters/claude/.mcp.json
+
+# Memoria local de sesión para la IA — cada persona lleva la suya. La plantilla de referencia
+# (MEMORY.md.example) SÍ se versiona.
+/MEMORY.md
