@@ -85,6 +85,25 @@ de `head`, o el mecanismo que sea) y aplica ahí los checks:
   (evita saltos de maquetación) y usan formatos modernos; lo pesado y no crítico entra por carga
   diferida. **La medición real** de esas métricas es de la fase de pruebas, no del diff.
 
+## Prototipo antes del código (cuando la interacción no está decidida)
+
+Si la discusión sobre cómo funciona una pantalla está ocurriendo **en la PR**, llega tarde: se
+está decidiendo la interacción sobre código ya escrito, y cada cambio de opinión cuesta un
+commit. Cuando en `/plan` nadie sabe contestar qué pulsa el usuario, en qué orden y qué ve si
+se equivoca, lo barato es un prototipo — un boceto, una maqueta navegable, o el propio
+componente con datos de mentira— que se enseña antes de cablear la lógica.
+
+Dos reglas para que no se convierta en otra cosa:
+
+- **El prototipo no es el producto, ni el MVP.** Sirve para decidir y se tira. Si acaba
+  desplegado «porque ya funcionaba», hereda todo lo que se recortó para hacerlo rápido.
+- **No hace falta si la interacción ya está decidida** —un formulario más del mismo tipo, un
+  campo nuevo en una pantalla existente—. Prototipar lo obvio es la versión de interfaz de la
+  sobre-ingeniería.
+
+Para la parte visual —paleta, tipografía, maquetación— el complemento `frontend-design`, si
+está instalado, es el que aporta. Esta guía solo decide **que** hace falta decidirlo antes.
+
 ## Qué NO se revisa desde el código (nómbralo, no lo intentes)
 
 Contraste efectivo, legibilidad tipográfica, jerarquía visual, ubicación «esperada» de

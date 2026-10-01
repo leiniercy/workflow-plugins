@@ -1094,6 +1094,91 @@ adopción de prosa.
 
 ---
 
+## 23. Ingeniería del Software. Guía de Supervivencia — `ingenieriadelsoftware.es`
+
+**Qué es:** el acompañamiento web del libro *Ingeniería del Software. Guía de supervivencia*,
+publicado en Google Sites. Veinticuatro páginas que recorren las seis actividades del ciclo de
+vida —requisitos, análisis, diseño, codificación, pruebas, despliegue— más una introducción con
+historia y economía del software. Su tesis está en la portada: **principios sobre procesos**;
+«la excelencia en la construcción de software no descansa en la metodología utilizada, sino en
+la adecuada comprensión y realización de cada actividad». Cita unas sesenta fuentes —Beck,
+Brooks, Martin, Fowler, Cohn, Boehm, Palacio, Métrica v3, Takeuchi y Nonaka, Reeves, North—.
+Estudiada entera el 2026-09-28; las cuarenta fuentes con documento en línea están cargadas en el
+cuaderno de NotebookLM «Ingeniería del software — ciclo y roles».
+
+**Relación con nosotros:** es la primera referencia que **no es un plugin ni una guía de
+estilo**, sino un mapa del ciclo completo, y se usó como tal: para ver qué actividades cubre
+backbone y cuáles no. El sitio nombra trece roles a lo largo de sus páginas y, a la vez, dice
+que la visión adaptativa «elimina los silos y conserva las actividades». Eso descartó la
+ampliación obvia —un subagente por rol— y fijó la que se hizo: **una actividad por hueco, con
+su gate y sus guías**.
+
+**Lo que mostró el mapa:** backbone cubría a fondo diseño, codificación y pruebas, y terminaba
+en la PR. Faltaban el despliegue, la operación y la economía del proyecto; la seguridad era una
+revisión y no una actividad. De ahí salen, en cuatro oleadas, `/ship`, `/define`,
+`entrega-y-despliegue`, `observabilidad`, `deuda-tecnica`, `proteccion-de-datos`,
+`incidente-en-produccion`, `valor-y-prioridad`, `modelado-de-negocio`, la séptima dimensión de
+`/review` y las cuatro extensiones de abajo.
+
+**Y lo que el mapa afirmó y la medición desmintió:** el estudio puso el **descubrimiento de
+requisitos** como el hueco más caro. Tres corridas de `check-activation --baseline --runs 3`
+dijeron que no: el modelo ya distingue solo un problema de una solución disfrazada («los
+criterios describen la solución, no la necesidad», del brazo **sin** plugin). La guía no se
+escribió. Es la regla de la nota de método de §22 —un hueco propuesto no es un hueco hasta que
+se mide— y le dio el ADR-0011.
+
+| Patrón | Qué aporta | Aplicación a nuestro plugin | Estado |
+|---|---|---|---|
+| **«You build it, you run it»** y los pilares DevOps (entrega continua, ramas cortas, monitorización) | El equipo que construye asume el despliegue | `entrega-y-despliegue`, `observabilidad` y `/ship`. Reencuadrado en lo que el sitio no dice: **la vuelta atrás se decide antes y con la pregunta de si existe**, porque un redespliegue no deshace una migración, un correo ni un webhook | ✅ |
+| **Deuda técnica** (Cunningham, 1992) | La deuda financia; cobra intereses al modificar | `deuda-tecnica`, con lo que convierte la metáfora en decisión: las cuatro piezas del registro y la **señal de cobro** | ✅ |
+| **Requisitos no funcionales**: explotación, nivel de servicio, soporte, seguridad (RGPD/ENS), integración | Necesidades de otros *stakeholders* | Nivel de servicio → «contrato de servicio» en `calidad-producto`; seguridad de datos → `proteccion-de-datos`, decidida en `/plan` y **sin valoración legal del agente** | ✅ |
+| **Matriz valor/coste**, sobreingeniería, *feature creep*, falacia de la planificación (Kahneman y Tversky), ley de Brooks | Priorizar es elegir qué no se hace | `valor-y-prioridad`. Brooks entra como argumento de que, con fecha y equipo fijos, **la única palanca es el alcance** | ✅ |
+| **Prototipo frente a MVP** | El prototipo no se despliega | En `valor-y-prioridad` (prototipo/MVP/producto) y en `usabilidad-accesibilidad` (prototipo antes del código) | ✅ |
+| **Modelado del proceso de negocio** (actores, actividades, artefactos — Adam Smith, 1776), **diagramas de estados** con estados en participio o gerundio, E-R (Chen, 1976) | Entender el dominio antes de diseñar | `modelado-de-negocio`, con la máquina de estados como **contrato** y su propio freno: no se modela un formulario | ✅ |
+| **Casos de uso** (Jacobson, 1986) | Especificación de la interacción con varios actores y flujos alternativos | Sección nueva en `historias-usuario`: cuándo compensa frente a la HU y ficha mínima. No sustituye a los criterios Given/When/Then | ✅ |
+| **Críticas a SOLID** (CUPID de Dan North, 2022; *SOLID is not SOLID* de Copeland) | Razonar cohesión y acoplamiento en vez de contar responsabilidades | Trampa 4 de «La crítica» en `patrones-diseno` | ✅ |
+| **Problema frente a solución**, cinco porqués, SMART, as-is/to-be, los diálogos del pulsioxímetro y del campo «observaciones» | Los requisitos se descubren, no se recogen | **Medido y descartado como guía**: el modelo ya lo hace. Queda un párrafo en `historias-usuario` («el "para" vacío») que no afirma cambiar un comportamiento | ⛔ guía · ✅ párrafo |
+| Lenguaje natural estructurado, 3 C, INVEST, Gherkin, *Specification by Example*, ATDD | Expresión de requisitos | Ya estaba en `historias-usuario` | ✅ (previo) |
+| Cohesión y acoplamiento (Constantine y Yourdon), cuatro reglas del diseño simple, GoF, UML como boceto (Fowler), C4, CRC, *Code as Design* (Reeves), pirámide de Cohn, FIRST, AAA | Diseño, codificación y pruebas | Ya estaba en `codigo-limpio`, `patrones-diseno`, `diagramas` y `niveles-y-tipos-de-prueba`. Confirma la cobertura existente, no la amplía | ✅ (previo) |
+| Ceremonias y roles de Scrum, RUP, CMMI, ISO 15504, ISO 12207, inventario de artefactos de Métrica v3 | Metodología y madurez de procesos | El plugin es agnóstico de metodología; un agente que «facilite» una *daily* es disfraz | ⛔ |
+| COCOMO y puntos función | Estimación por fórmula | El propio sitio dice que apenas se usa | ⛔ |
+| Cifras del informe CHAOS | Tasa de fracaso de proyectos | Metodología cuestionada; vale como hito histórico, no como dato | ⛔ |
+| Ejército de simios de Netflix, modelo Spotify, F-35, *Agile Marketing* | Ilustraciones de la sección de historia | Color histórico, sin efecto en ninguna decisión | ⛔ |
+| Estimación (juicio del experto, *planning poker*, Fibonacci, efecto ancla, cono de incertidumbre) | Cómo responder a «¿cuánto tarda?» | **Pendiente de decisión**: choca con «los datos de gestión no van en `spec.md`». Si entra, será como cómo se responde, sin guardar el número | ⏳ |
+
+### Errores detectados en la fuente (no importar)
+
+| Afirmación de la fuente | Lo correcto | Contrastado con |
+|---|---|---|
+| «Mike **Corn**, en *User Stories **Explained***» | **Mike Cohn**, *User Stories **Applied*** (2004) | La propia lista de referencias de esa página |
+| «ISO **155404**» | **ISO/IEC 15504** | Nombre de la norma |
+| «A. **Hurt**, *The Pragmatic Programmer*» | **Andrew Hunt** (y Dave Thomas) | Autoría del libro |
+| Tarjetas CRC propuestas por «Kent Beck y **Brad** Cunningham» | **Ward** Cunningham (OOPSLA, 1989) | Autoría del artículo |
+| Conferencia de la OTAN «en Múnich (**Garbisch**)» | **Garmisch-Partenkirchen**, octubre de 1968 | Actas de la conferencia |
+| «Titus **Winter**, O'**really**» | **Titus Winters**, **O'Reilly** | Autoría y editorial |
+| Historias de usuario «propuestas por Kent Beck en **1998** en su libro *Extreme Programming*» | *Extreme Programming Explained* es de **1999** | La página de historia del propio sitio |
+| Ley de Brooks: «lo que un programador hace en un mes, dos programadores lo pueden hacer en dos meses» | Es la versión irónica. La ley es «**añadir personas a un proyecto de software retrasado lo retrasa más**» | *The Mythical Man-Month* (1975) |
+| Página de economía: dos párrafos sobre los doce principios del manifiesto ágil en mitad de la sección de riesgo | Copia-pega de la página de historia | Coherencia interna |
+| Página de pruebas automatizadas: el párrafo de la pirámide de Cohn y el del antipatrón «cigarrillo», **duplicados** | — | Coherencia interna |
+| La definición de «ingeniería» se cita como Wikipedia enlazando al artículo *Software* | Enlace equivocado | El propio enlace |
+
+### Nota de método
+
+Dos lecciones, y la segunda es la que más vale.
+
+La primera: **un mapa del ciclo sirve para encontrar huecos estructurales, no para justificar
+guías.** Donde el hueco era estructural —el flujo terminaba en la PR, el orden del despliegue no
+tenía dónde vivir— no hubo nada que medir y la guía se escribió. Donde el hueco era una
+hipótesis sobre el modelo —«no sabe distinguir un problema de una solución»—, la hipótesis era
+falsa.
+
+La segunda: **costó tres corridas verlo, y no por culpa del modelo.** El corrector por subcadena
+suspendió respuestas correctas dichas con otras palabras, y el titular del informe cantó «hay
+delta» dos veces sobre datos que decían lo contrario. La lección quedó en el ADR-0011 y en
+`check-activation.mjs`, que ya no da un veredicto negativo sin enseñar el texto de cada brazo.
+
+---
+
 ## Backlog consolidado de mejoras (priorizado)
 
 Orden sugerido para próximas iteraciones, por relación valor/coste y encaje con la filosofía:

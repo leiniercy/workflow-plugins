@@ -28,6 +28,13 @@ refactoring.guru dedica una página a criticar el uso de patrones. Tres trampas:
 3. **El síndrome del martillo.** «Si lo único que tienes es un martillo, todo te parece un
    clavo.» Aprender patrones y aplicarlos en todas partes —donde bastaría código más simple— **es
    la definición de sobre-ingeniería**.
+4. **Contar responsabilidades en vez de razonar.** Los principios SOLID tienen hoy críticas
+   serias: Dan North propone en su lugar las propiedades CUPID (2022), y el ensayo *SOLID is not
+   SOLID* de David Copeland pide dejar de aplicarlos como aforismos sin contexto. El punto común
+   es útil aquí: «una clase, una responsabilidad» no se cumple contando, y llevado al pie de la
+   letra produce justo la jerarquía de clases diminutas que esta guía frena. Lo que sobrevive a
+   todos los paradigmas es lo de debajo —**alta cohesión, bajo acoplamiento**—, y es lo que hay
+   que razonar en el caso concreto antes de proponer ninguna abstracción.
 
 ## Mapa olor → patrón (el patrón cura un olor concreto)
 

@@ -21,8 +21,8 @@ exige, nunca por inventario.
 | **Eficiencia de desempeño** | Comportamiento temporal, uso de recursos, capacidad | Guía `rendimiento` (`${CLAUDE_PLUGIN_ROOT}/skills/rendimiento/SKILL.md`): criterio con las cuatro piezas (qué/cuánto/dónde/límite) en `/plan`; en `/review`, solo lo evidente en código (p. ej. N+1, listado sin paginar, trabajo pesado en el hilo principal) |
 | **Compatibilidad** | Coexistencia, interoperabilidad | Contratos de API (tipo no-funcional API/contrato) |
 | **Capacidad de interacción** (antes Usabilidad) | Reconocibilidad, aprendizaje, operabilidad, protección ante errores de usuario, estética, **accesibilidad** | Dim. 6 de `/review` y guía `usabilidad-accesibilidad` (`${CLAUDE_PLUGIN_ROOT}/skills/usabilidad-accesibilidad/SKILL.md`) |
-| **Fiabilidad** | Madurez, disponibilidad, tolerancia a fallos, recuperabilidad | Dim. 2 de `/review` (bugs, edge cases, manejo de errores) |
-| **Seguridad** | Confidencialidad, integridad, no repudio, responsabilidad, autenticidad, resistencia | Dim. 5 de `/review` (OWASP Top 10) |
+| **Fiabilidad** | Madurez, disponibilidad, tolerancia a fallos, recuperabilidad | Dim. 2 de `/review` (bugs, edge cases, manejo de errores); dim. 7 y `observabilidad` (`${CLAUDE_PLUGIN_ROOT}/skills/observabilidad/SKILL.md`) (enterarse de que se rompió); `entrega-y-despliegue` (`${CLAUDE_PLUGIN_ROOT}/skills/entrega-y-despliegue/SKILL.md`) (recuperabilidad: la vuelta atrás) |
+| **Seguridad** | Confidencialidad, integridad, no repudio, responsabilidad, autenticidad, resistencia | Dim. 5 de `/review` (OWASP Top 10); confidencialidad de datos personales con `proteccion-de-datos` (`${CLAUDE_PLUGIN_ROOT}/skills/proteccion-de-datos/SKILL.md`), decidida en `/plan` |
 | **Mantenibilidad** | Modularidad, reusabilidad, analizabilidad, modificabilidad, capacidad de prueba | Dim. 4 de `/review` (`codigo-limpio` (`${CLAUDE_PLUGIN_ROOT}/skills/codigo-limpio/SKILL.md`), `arquitectura` (`${CLAUDE_PLUGIN_ROOT}/skills/arquitectura/SKILL.md`)); refactor del TDD |
 | **Flexibilidad** (antes Portabilidad) | Adaptabilidad, instalabilidad, reemplazabilidad, **escalabilidad** | Decisiones de `arquitectura` (`${CLAUDE_PLUGIN_ROOT}/skills/arquitectura/SKILL.md`) en `/plan` (solo ante fuerza real) |
 | **Protección frente a riesgos** (Safety, nueva en 2023) | Restricción operativa, identificación de riesgos, a prueba de fallos | Solo si el dominio lo exige (sistemas que afectan a personas/bienes); normalmente fuera de alcance |
@@ -41,6 +41,25 @@ exige, nunca por inventario.
 - **Al dudar del alcance de una dimensión:** la tabla de arriba resuelve solapamientos — un
   error de manejo de estado es *fiabilidad* (dim. 2); su duplicación en tres ficheros es
   *mantenibilidad* (dim. 4); que exponga un token es *seguridad* (dim. 5).
+
+## El contrato de servicio (disponibilidad, capacidad, respuesta, soporte)
+
+Cuatro requisitos no funcionales que casi siempre llegan como adjetivos —«que esté siempre
+disponible», «que aguante», «que vaya rápido», «soporte 24/7»— y que así no se pueden verificar
+ni defender. Cada uno tiene su forma comprobable, y las cuatro piezas son las mismas que pide
+`rendimiento` (`${CLAUDE_PLUGIN_ROOT}/skills/rendimiento/SKILL.md`): qué se mide, sobre qué volumen, dónde y cuál es el límite.
+
+| Lo que llega | Lo que se escribe |
+|---|---|
+| «Siempre disponible» | Porcentaje sobre una ventana —«99,5 % al mes»—, y qué cuenta como caída. 99,9 % son unos 43 minutos al mes; 99,99 %, cuatro. Cada nueve más cuesta un orden de magnitud |
+| «Que aguante» | Usuarios concurrentes o peticiones por segundo, con el volumen de datos de producción |
+| «Que vaya rápido» | Percentil y umbral —«p95 por debajo de 500 ms en el listado»—, nunca la media |
+| «Soporte 24/7» | Horario, tiempo de primera respuesta por severidad, y quién atiende. Es un requisito de organización, no de código: se apunta, pero no lo verifica un test |
+
+Dos avisos. **Un número que nadie ha medido es una expectativa, no un requisito**: si no hay
+dato del sistema actual, se dice y se escribe como objetivo a validar. Y **la cifra no la
+inventas tú**: el porcentaje de disponibilidad es una decisión de negocio con coste, y se
+pregunta (`evidencia-y-preguntas` (`${CLAUDE_PLUGIN_ROOT}/skills/evidencia-y-preguntas/SKILL.md`)).
 
 ## Anti-patrones (nómbralos para no caer en ellos)
 

@@ -7,6 +7,10 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **Cuatro extensiones y la entrada de la fuente en `docs/referencias.md` (§23)** — lo que el estudio de *Ingeniería del Software. Guía de Supervivencia* aportaba y cabía en guías que ya existían, sin crear inventario. `historias-usuario` gana «el "para" vacío» —el que no dice nada y el que es otra solución («para poder imprimirlo»)— y cuándo compensa un **caso de uso** frente a la HU, con ficha mínima; `calidad-producto` gana el **contrato de servicio** (disponibilidad, capacidad, respuesta, soporte) con su forma comprobable, y su tabla del modelo ya apunta a `observabilidad`, `entrega-y-despliegue` y `proteccion-de-datos`; `usabilidad-accesibilidad` gana **prototipo antes del código** cuando la interacción se está decidiendo en la PR; y `patrones-diseno` una cuarta trampa: **contar responsabilidades en vez de razonar** cohesión y acoplamiento (CUPID, *SOLID is not SOLID*).
+
+  La §23 documenta la fuente con su tabla de veredictos y once erratas detectadas, y deja escrita la lección: el mapa sirvió para encontrar huecos **estructurales**; donde el hueco era una hipótesis sobre el modelo —el descubrimiento de requisitos—, la medición la desmintió.
+
 - **`/define`, `valor-y-prioridad` y `modelado-de-negocio`** — el flujo empezaba con la tarea ya escrita. `/define` la produce: redacta una tarea bien formada (historia, criterios en Given/When/Then, alcance y fuera de alcance) o descompone un problema en varias, priorizadas por valor y coste, con dependencias y **lo descartado dicho en voz alta**. Crea en ClickUp solo tras aprobación.
 
   Es el único comando que **no escribe en el repo**, y es deliberado: corre antes de que exista un taskId —es quien lo crea—, así que no hay `tasks/<taskId>/` donde persistir y no se inventa uno. Su artefacto son las tareas. La frontera con la gestión queda escrita: redactar es requisitos y entra; estimar, asignar y planificar no.

@@ -90,6 +90,46 @@ la convención V/I/N/A (V = válido, I = inválido, N/A = irrelevante para ese c
 6. **Trazabilidad.** Al cerrar el spec, rellena la tabla de trazabilidad (abajo) para que no
    quede ningún CA sin EC ni ninguna HU sin RF y proceso de origen.
 
+## El «para» vacío, y el «para» que es otra solución
+
+La tercera parte de la historia es la que más se rellena por compromiso, y la que decide si la
+tarea sirve. Dos formas de que falle:
+
+- **Vacío.** «Para poder hacerlo», «para mejorar la experiencia», «para tenerlo». Si la negación
+  no tiene sentido —nadie quiere empeorar la experiencia—, el «para» no dice nada. Vuelve al
+  proceso de negocio hasta poder escribir el problema concreto que se resuelve.
+- **Lleno de otra solución.** «Para poder imprimirlo», «para mandarlo por correo», «para
+  exportarlo a Excel». Eso es el *cómo* de algo que nadie ha escrito. Pregunta una vez más qué
+  pasa después —quién recibe el papel, qué hace con el Excel—: debajo suele estar la necesidad
+  real, y a veces la solución pedida ni siquiera la cubre (un A4 de alérgenos pegado en la
+  pared caduca el día que cambia una receta).
+
+Medido el 2026-09-29: el modelo ya hace esta distinción por su cuenta cuando se la encuentra,
+así que esto no es una regla nueva — es dónde mirar al redactar, para no escribir la historia
+con el «para» que trajo el ticket sin haberlo leído.
+
+## Cuándo un caso de uso en vez de una HU
+
+La HU es la unidad por defecto. El **caso de uso** (Jacobson) compensa cuando la HU no cabe:
+**varios actores** que intervienen en la misma interacción, **flujos alternativos** que son
+tan importantes como el principal, o **excepciones con reglas de negocio propias**. En esos
+casos, una HU acaba con doce criterios que se pisan entre sí.
+
+Ficha mínima, sin el inventario de la plantilla clásica:
+
+- **Actor principal** y **meta** — una oración con sujeto, verbo y objeto en lenguaje de
+  negocio: «el administrativo registra una factura», no «pantalla de facturas».
+- **Disparador** y **precondición**.
+- **Flujo principal**, en pasos numerados, sin mencionar botones ni campos (eso es del
+  prototipo).
+- **Flujos alternativos y excepciones**, cada uno con el paso del que sale.
+- **Postcondición** — qué es verdad cuando termina bien.
+
+El caso de uso **no sustituye a los criterios de aceptación**: cada flujo, alternativo y
+excepción se baja a su CA en Given/When/Then, que es lo que `/implement` verifica. Si el
+caso de uso describe un proceso con estados, su forma correcta es la máquina de estados de
+{{guide:modelado-de-negocio}}.
+
 ## Tabla de trazabilidad (al cierre de `spec.md`)
 
 | Proceso de negocio | RF (ERS) | HU | Criterio (CA) | Escenario de prueba (EC) |
