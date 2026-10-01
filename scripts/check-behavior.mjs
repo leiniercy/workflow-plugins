@@ -48,8 +48,8 @@ assert(/\bAgent\b/.test(allowed), "/review allowed-tools incluye Agent (despacho
 assert(!/\bEdit\b/.test(allowed) && !/\bWrite\b/.test(allowed),
   "/review allowed-tools NO incluye Edit/Write (contrato read-only)");
 
-// --- los 6 comandos existen y llevan Banderas rojas ---
-for (const cmd of ["start", "plan", "implement", "review", "close", "ship"]) {
+// --- los 7 comandos existen y llevan Banderas rojas ---
+for (const cmd of ["define", "start", "plan", "implement", "review", "close", "ship"]) {
   const body = read(join(CLAUDE, "commands", cmd + ".md"));
   assert(body !== null, `comando /${cmd} existe`);
   assert(body !== null && /Banderas rojas/i.test(body), `/${cmd} tiene tabla de Banderas rojas`);

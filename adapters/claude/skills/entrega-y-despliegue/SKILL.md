@@ -1,6 +1,6 @@
 ---
 name: entrega-y-despliegue
-description: "Úsala al decidir cómo sale un cambio a producción: el orden respecto a una migración, la bandera de funcionalidad, la vuelta atrás y la ventana de vigilancia posterior. Síntomas: dices «si va mal, revertimos» sin comprobar que el redespliegue deshaga nada; juntas dos cambios en un mismo despliegue; una variable de entorno vive solo en tu máquina; una bandera se queda sin fecha de retirada."
+description: "Úsala al decidir cómo sale un cambio a producción al mergear o desplegar: el orden respecto a una migración, la bandera de funcionalidad, la vuelta atrás y la ventana de vigilancia posterior. Síntomas: dices «si va mal, revertimos» sin comprobar que el redespliegue deshaga nada; juntas dos cambios en un mismo despliegue; una variable de entorno vive solo en tu máquina; una bandera se queda sin fecha de retirada."
 user-invocable: false
 license: MIT
 ---

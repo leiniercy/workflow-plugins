@@ -13,7 +13,7 @@ Funciona igual en **Claude Code** y en **OpenCode**.
 |---|---|
 | **Qué es** | Un flujo de desarrollo para agentes de IA, guiado por tareas de ClickUp: `spec.md` → TDD → revisión → cierre |
 | **Para quién** | Equipos que ya trabajan por ticket, con criterios de aceptación y una PR que revisa un humano |
-| **Qué trae** | 6 comandos · 30 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
+| **Qué trae** | 7 comandos · 32 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
 | **Dónde corre** | Claude Code (plugin del marketplace `biomas`) · OpenCode (carpeta `.opencode/` lista para copiar) |
 | **Mínimo para arrancar** | Git con rama base `develop` + Node.js 18+ |
 | **Para el 100 %** | ClickUp, `gh`, graphify, `CLAUDE.md` y tres add-ons — [tabla de complementos](#los-complementos) |
@@ -35,10 +35,11 @@ los criterios antes de tocar código, `progress.md` guarda el hilo entre sesione
 despacha subagentes de contexto fresco que no escribieron nada, más un verificador que
 intenta refutar cada hallazgo antes de que llegue al informe.
 
-## El flujo, en seis comandos
+## El flujo, en siete comandos
 
 | Comando | Qué hace | Transición de ClickUp |
 |---|---|---|
+| `/define [descripción]` | Redacta una tarea bien formada o descompone un problema en varias priorizadas, y las crea en ClickUp. No escribe en el repo ni estima | crea tareas en `to do` (con aprobación) |
 | `/start [taskId]` | Lee la tarea, crea rama `tipo/taskId_slug` desde `develop` y el esqueleto `tasks/<taskId>/` (spec.md + progress.md) | `to do → in progress` (con aprobación) |
 | `/plan [taskId]` | Explora el repo (grafo de graphify si está disponible) y completa `spec.md` con criterios de aceptación, alcance y enfoque | ninguna |
 | `/implement [taskId]` | TDD criterio a criterio contra spec.md; duda en vuelo sobre las decisiones no triviales; commits/push/PR solo con aprobación | `in progress → review` al crear la PR (con aprobación) |
@@ -67,7 +68,7 @@ contexto, degradación elegante si falta ClickUp o graphify, e historial inmutab
   seis dimensiones, con
   el campo `tools` limitado a lectura —bloqueo real, no una promesa en la prosa— y un
   verificador adversarial que intenta refutar cada hallazgo antes del informe.
-- **El criterio no se reinventa en cada sesión.** 30 guías (SQL, migraciones, rendimiento,
+- **El criterio no se reinventa en cada sesión.** 32 guías (SQL, migraciones, rendimiento,
   accesibilidad, coste, prompts, diagramas…) que se activan solas por contexto, con sus
   síntomas escritos en la `description`.
 - **La misma prosa en dos herramientas.** Todo vive en `core/` y `scripts/sync.mjs` genera

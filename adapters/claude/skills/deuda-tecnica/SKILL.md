@@ -1,6 +1,6 @@
 ---
 name: deuda-tecnica
-description: "Úsala al decidir si un atajo se contrae a sabiendas, se paga ahora o se aplaza con su señal de cobro. Síntomas: te oyes decir «ya lo refactorizamos más adelante»; el arreglo correcto es más grande que la tarea y hay una fecha encima; vas a limpiar de paso un módulo que esta tarea no pedía."
+description: "Úsala al decidir si un atajo se contrae a sabiendas, se paga ahora o se aplaza con su señal de cobro. Síntomas: dudas entre hacerlo rápido y sucio o hacerlo bien; te oyes decir «ya lo refactorizamos más adelante»; el arreglo correcto es más grande que la tarea y hay una fecha encima; vas a limpiar de paso un módulo que esta tarea no pedía."
 user-invocable: false
 license: MIT
 ---

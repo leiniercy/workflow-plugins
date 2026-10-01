@@ -7,6 +7,12 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **`/define`, `valor-y-prioridad` y `modelado-de-negocio`** — el flujo empezaba con la tarea ya escrita. `/define` la produce: redacta una tarea bien formada (historia, criterios en Given/When/Then, alcance y fuera de alcance) o descompone un problema en varias, priorizadas por valor y coste, con dependencias y **lo descartado dicho en voz alta**. Crea en ClickUp solo tras aprobación.
+
+  Es el único comando que **no escribe en el repo**, y es deliberado: corre antes de que exista un taskId —es quien lo crea—, así que no hay `tasks/<taskId>/` donde persistir y no se inventa uno. Su artefacto son las tareas. La frontera con la gestión queda escrita: redactar es requisitos y entra; estimar, asignar y planificar no.
+
+  `valor-y-prioridad` sube un piso el freno anti-sobreingeniería de `patrones-diseno` y `arquitectura`: priorizar es elegir qué se queda fuera. Recoge la ley de Brooks como argumento de que, con fecha y equipo fijos, la única palanca es el alcance, y separa prototipo, MVP y producto. `modelado-de-negocio` cubre el fallo que ningún test pilla —implementar «validar → enviar» cuando el negocio es «validar → registrar → enviar»— con la máquina de estados como contrato, y empieza por su propio freno: no se modela un formulario.
+
 - **Tres guías que convierten un hallazgo en una decisión: `deuda-tecnica`,
   `proteccion-de-datos` e `incidente-en-produccion`** — las tres cubrían huecos del mismo tipo:
   algo que el flujo sabía *detectar* pero no sabía *qué hacer con ello*.

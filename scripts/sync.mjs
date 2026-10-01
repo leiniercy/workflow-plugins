@@ -20,6 +20,14 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // Metadatos por comando (frontmatter)
 // ---------------------------------------------------------------------------
 const COMMANDS = {
+  // Corre ANTES de que exista un taskId —es quien lo crea—, así que es el único comando que no
+  // persiste nada en el repo: no hay `tasks/<taskId>/` todavía y no se inventa uno. Su
+  // artefacto son las tareas, y las tareas viven en ClickUp.
+  define: {
+    description:
+      "Convierte una intención en tareas que alguien puede tomar. Dos modos por contexto: redacta UNA tarea bien formada (historia, criterios en Given/When/Then, alcance y fuera de alcance), o descompone un problema grande en varias priorizadas por valor y coste, con las dependencias marcadas y lo descartado dicho en voz alta. Crea las tareas en ClickUp solo tras aprobación. NO escribe en el repo ni estima ni asigna: eso es gestión.",
+    argumentHint: "[descripción de lo que se quiere construir, o el problema a resolver]",
+  },
   start: {
     description:
       'Toma una tarea de ClickUp, crea la rama de trabajo desde develop y el esqueleto de estado tasks/<taskId>/ (spec.md + progress.md). Mueve la tarea a "in progress". NO planifica en detalle ni implementa código.',
@@ -306,11 +314,19 @@ const GUIDES = {
   },
   "entrega-y-despliegue": {
     description:
-      "Úsala al decidir cómo sale un cambio a producción: el orden respecto a una migración, la bandera de funcionalidad, la vuelta atrás y la ventana de vigilancia posterior. Síntomas: dices «si va mal, revertimos» sin comprobar que el redespliegue deshaga nada; juntas dos cambios en un mismo despliegue; una variable de entorno vive solo en tu máquina; una bandera se queda sin fecha de retirada.",
+      "Úsala al decidir cómo sale un cambio a producción al mergear o desplegar: el orden respecto a una migración, la bandera de funcionalidad, la vuelta atrás y la ventana de vigilancia posterior. Síntomas: dices «si va mal, revertimos» sin comprobar que el redespliegue deshaga nada; juntas dos cambios en un mismo despliegue; una variable de entorno vive solo en tu máquina; una bandera se queda sin fecha de retirada.",
+  },
+  "valor-y-prioridad": {
+    description:
+      "Úsala al elegir qué entra y qué se queda fuera, o cuando el alcance crezca a mitad de algo. Síntomas: en la lista todo es prioritario o urgente; aparece un «ya que estamos»; alguien propone meter más gente para llegar a la fecha; se defiende terminar algo porque ya se empezó; o se llama MVP a un producto hecho con prisa.",
+  },
+  "modelado-de-negocio": {
+    description:
+      "Úsala cuando un flujo de negocio tenga estados y transiciones, varios actores, o un término que cada persona llama distinto. Síntomas: no sabes si el pedido se registra antes o después de validarse; un campo «estado» tiene valores sin lista ni transiciones; en sala lo llaman de una forma y en el código de otra.",
   },
   "deuda-tecnica": {
     description:
-      "Úsala al decidir si un atajo se contrae a sabiendas, se paga ahora o se aplaza con su señal de cobro. Síntomas: te oyes decir «ya lo refactorizamos más adelante»; el arreglo correcto es más grande que la tarea y hay una fecha encima; vas a limpiar de paso un módulo que esta tarea no pedía.",
+      "Úsala al decidir si un atajo se contrae a sabiendas, se paga ahora o se aplaza con su señal de cobro. Síntomas: dudas entre hacerlo rápido y sucio o hacerlo bien; te oyes decir «ya lo refactorizamos más adelante»; el arreglo correcto es más grande que la tarea y hay una fecha encima; vas a limpiar de paso un módulo que esta tarea no pedía.",
   },
   "proteccion-de-datos": {
     description:
@@ -322,7 +338,7 @@ const GUIDES = {
   },
   "observabilidad": {
     description:
-      "Úsala al decidir qué log, qué métrica, qué traza o qué alerta acompañan a una frontera nueva —endpoint, tarea programada, integración con un tercero— y con qué umbral. Síntomas: de una caída se entera antes el cliente que vosotros; un catch vacío; una tarea programada deja de dispararse sin dar error; una alerta que nadie atiende; un log sin identificador con el que correlacionar la petición que falló.",
+      "Úsala al decidir qué log, qué métrica, qué traza o qué alerta acompañan a una frontera nueva —endpoint, tarea programada, integración con un tercero— y con qué umbral. Síntomas: de una caída se entera antes el cliente que vosotros; un catch vacío; un cron o proceso que corre cada noche deja de dispararse sin dar error; una alerta que nadie atiende; un log sin identificador con el que correlacionar la petición que falló.",
   },
 };
 

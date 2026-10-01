@@ -1,6 +1,6 @@
 ---
 name: observabilidad
-description: "Úsala al decidir qué log, qué métrica, qué traza o qué alerta acompañan a una frontera nueva —endpoint, tarea programada, integración con un tercero— y con qué umbral. Síntomas: de una caída se entera antes el cliente que vosotros; un catch vacío; una tarea programada deja de dispararse sin dar error; una alerta que nadie atiende; un log sin identificador con el que correlacionar la petición que falló."
+description: "Úsala al decidir qué log, qué métrica, qué traza o qué alerta acompañan a una frontera nueva —endpoint, tarea programada, integración con un tercero— y con qué umbral. Síntomas: de una caída se entera antes el cliente que vosotros; un catch vacío; un cron o proceso que corre cada noche deja de dispararse sin dar error; una alerta que nadie atiende; un log sin identificador con el que correlacionar la petición que falló."
 ---
 # Observabilidad (qué señal te diría que esto salió mal)
 

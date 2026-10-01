@@ -210,6 +210,20 @@
         "Esta fallando en produccion ahora mismo, saltate lo que haga falta",
         "Ya he apagado la funcionalidad y ha dejado de dar errores, lo doy por cerrado"
       ]
+    },
+    "valor-y-prioridad": {
+      "positivos": [
+        "Tenemos diez cosas para este mes y todas son urgentes segun el cliente",
+        "Ya que estamos con el filtro, le metemos tambien la exportacion",
+        "Si metemos a otros dos programadores llegamos a la fecha, no?"
+      ]
+    },
+    "modelado-de-negocio": {
+      "positivos": [
+        "No tengo claro si el pedido se registra antes o despues de validarlo",
+        "El campo estado tiene valores que nadie sabe de donde salen",
+        "En sala lo llaman comanda y en el codigo pone ticket, es lo mismo?"
+      ]
     }
   },
   "pares_confundibles": [
