@@ -7,15 +7,15 @@ paths:
 
 # Estás en la salida de un plugin, que es generada
 
-Todo lo que hay bajo `plugins/backbone/claude/{commands,skills,agents,scripts}` y
-`plugins/backbone/opencode/.opencode/{command,skills,agent,guides,scripts}` lo **escribe
+Todo lo que hay bajo `plugins/backbone/claude/{commands,skills,agents,scripts,templates}` y
+`plugins/backbone/opencode/.opencode/{command,skills,agent,guides,scripts,templates}` lo **escribe
 `scripts/sync.mjs`** a partir de `core/`. Editarlo a mano no es un atajo: el cambio desaparece en la siguiente
 ejecución de `sync.mjs`, y hasta entonces el CI `sync-check` está en rojo porque los
 adaptadores no cuadran con `core/`.
 
 **Lo que toca:**
 
-1. Edita el fichero equivalente en `core/{workflows,guides,agents,scripts}/`, usando los
+1. Edita el fichero equivalente en `core/{workflows,guides,agents,scripts,templates}/`, usando los
    tokens `{{guide:nombre}}` y `{{script:nombre}}` para las referencias cruzadas.
    Para una regla que varios ficheros tienen que cumplir **con las mismas palabras**, no la
    copies: escríbela en `core/snippets/<nombre>.md` y ponla con `{{snippet:nombre}}`, solo en

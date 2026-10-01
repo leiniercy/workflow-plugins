@@ -1,0 +1,35 @@
+# Memoria del Proyecto
+
+> **Nota para la IA:** Mantén este archivo actualizado de forma autónoma. Registra aquí los aprendizajes, el estado actual de las tareas y las decisiones técnicas importantes para no perder contexto entre sesiones.
+
+<!--
+Plantilla de referencia. Copia este fichero como MEMORY.md (que está en .gitignore) y
+rellénalo. Cinco reglas para que sirva:
+
+- Escribe para alguien que llega en frío: qué pasó, por qué importa y qué hacer.
+- Fecha cada aprendizaje (DD/MM/AAAA). Lo que no tiene fecha no se sabe si sigue vigente.
+- Nada de secretos: ni claves, ni tokens, ni URLs con credenciales.
+- Lo que ya cuenta el repo (código, commits, ADRs) no se copia aquí: se enlaza.
+- Lo que pasa a ser una regla de todo el equipo sube a CLAUDE.md / AGENTS.md, con su commit.
+-->
+
+## 📌 Contexto Actual
+
+Rama de trabajo: `<rama>`. Objetivo: <qué se está construyendo, en una frase>.
+
+- [ ] <Tarea en curso>
+- [x] <Tarea terminada, con el commit que la cierra si aplica>
+
+## 🧠 Aprendizajes y Soluciones de Errores
+
+- **<Problema, en pocas palabras> (DD/MM/AAAA):** <qué pasaba, cuál era la causa real y cómo se resolvió>.
+- **<Algo que no hacer>:** <por qué, y qué hacer en su lugar>.
+
+## 🛠️ Comandos y Flujos Frecuentes
+
+- <Para qué sirve>: `<comando exacto>`
+- <Procedimiento de varios pasos>: <paso 1>, <paso 2>, <paso 3>.
+
+## 🧱 Arquitectura y Decisiones Técnicas
+
+- **<Decisión>:** <por qué se tomó y qué alternativa se descartó>. <Enlace al ADR si existe.>

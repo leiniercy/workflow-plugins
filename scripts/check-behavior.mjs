@@ -48,8 +48,8 @@ assert(/\bAgent\b/.test(allowed), "/review allowed-tools incluye Agent (despacho
 assert(!/\bEdit\b/.test(allowed) && !/\bWrite\b/.test(allowed),
   "/review allowed-tools NO incluye Edit/Write (contrato read-only)");
 
-// --- los 7 comandos existen y llevan Banderas rojas ---
-for (const cmd of ["define", "start", "plan", "implement", "review", "close", "ship"]) {
+// --- los 8 comandos existen y llevan Banderas rojas ---
+for (const cmd of ["define", "start", "plan", "implement", "review", "close", "ship", "setup"]) {
   const body = read(join(CLAUDE, "commands", cmd + ".md"));
   assert(body !== null, `comando /${cmd} existe`);
   assert(body !== null && /Banderas rojas/i.test(body), `/${cmd} tiene tabla de Banderas rojas`);
@@ -531,6 +531,31 @@ assert(
       /`omitidos`/.test(body),
       `${r} declara \`omitidos\`: recortar en silencio deja un informe con menos hallazgos y la misma pinta de completo`,
     );
+  }
+}
+
+// --- ninguna plantilla de core/templates/ se queda sin copiar a los adaptadores ---
+//
+// Las plantillas son lo que /setup copia al repo del usuario: CLAUDE.md, AGENTS.md y
+// MEMORY.md. Hasta que viajaron dentro del plugin vivían en examples/ del repo de backbone,
+// que quien instala NO recibe — el comando habría apuntado a ficheros que no existen. Se
+// deriva del disco por la misma razón que los scripts: un registro olvidado no puede dar verde.
+{
+  const dirFuente = join(ROOT, "core/templates");
+  const PLANTILLAS = existsSync(dirFuente)
+    ? readdirSync(dirFuente).filter((f) => f.endsWith(".example")).sort()
+    : [];
+  assert(PLANTILLAS.length > 0, "core/templates/ contiene plantillas .example (la derivación del disco funciona)");
+  for (const f of PLANTILLAS) {
+    const fuente = read(join(dirFuente, f));
+    for (const [donde, ruta] of [
+      ["Claude", join(CLAUDE, "templates", f)],
+      ["OpenCode", join(ROOT, "plugins/backbone/opencode/.opencode/templates", f)],
+    ]) {
+      const copia = read(ruta);
+      assert(copia !== null, `${f} está copiada al adaptador de ${donde} (¿falta en el registro TEMPLATES de sync.mjs?)`);
+      assert(copia === null || copia === fuente, `la copia de ${f} en ${donde} es idéntica a core/ (byte a byte)`);
+    }
   }
 }
 

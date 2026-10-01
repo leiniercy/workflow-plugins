@@ -136,9 +136,22 @@ function inspeccionar({ taskIdPedido, ahora } = {}) {
     ruta: indexado ? conBarras(grafoJson) : null,
   };
 
+  // Los ficheros de contexto que /setup propone crear. Solo se mira si están: qué dicen
+  // por dentro es cosa del comando, que los lee. `memoryIgnorado` importa porque
+  // MEMORY.md es personal: uno que existe pero se versionaría es un fallo, no un acierto.
+  const contexto = {
+    claudeMd: Boolean(raiz && (existsSync(join(raiz, "CLAUDE.md")) || existsSync(join(raiz, ".claude", "CLAUDE.md")))),
+    agentsMd: Boolean(raiz && existsSync(join(raiz, "AGENTS.md"))),
+    memoryMd: Boolean(raiz && existsSync(join(raiz, "MEMORY.md"))),
+    // `check-ignore -q` sale con 0 si la ruta está ignorada y con 1 si no: corre() devuelve
+    // "" en el primer caso y null en el segundo. Funciona aunque el fichero no exista.
+    memoryIgnorado: raiz ? corre("git", ["check-ignore", "-q", "MEMORY.md"], { cwd: raiz }) !== null : null,
+  };
+
   return {
     git,
     tarea,
+    contexto,
     grafo,
     gh: { cli: corre("gh", ["--version"]) !== null, autenticado: "no comprobado (es una llamada de red; se descubre al usarlo)" },
     clickup: { disponible: "no comprobable desde el shell (un MCP vive en el harness): sondéalo con una lectura ligera" },

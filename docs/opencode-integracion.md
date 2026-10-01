@@ -188,7 +188,7 @@ Generado por `scripts/sync.mjs` desde `core/`:
   `/plan` **degradan al análisis en línea** (sin paralelismo, sin tiering, sin refutación
   adversarial por un agente independiente).
 - `examples/opencode.json.example` — **a mano**, con placeholders literales de credenciales.
-- `examples/AGENTS.md.example` — **a mano**, contexto del repo.
+- `.opencode/templates/AGENTS.md.example` — plantilla del contexto del repo; la copia `/setup` (fuente en `core/templates/`).
 
 ---
 
@@ -389,7 +389,7 @@ export const Notify: Plugin = async ({ client }) => ({
    export CLICKUP_TEAM_ID="123456"
    ```
    OpenCode expande `{env:CLICKUP_API_KEY}` / `{env:CLICKUP_TEAM_ID}` al cargar el fichero.
-3. **Contexto (`AGENTS.md`):** copia `examples/AGENTS.md.example` como `AGENTS.md` en la raíz.
+3. **Contexto (`AGENTS.md`):** ejecuta `/setup`, o copia `.opencode/templates/AGENTS.md.example` como `AGENTS.md` en la raíz.
 4. **Verifica** (§7).
 
 > Requisitos comunes (Git + rama `develop`, Node 18+, `gh` opcional, ClickUp, graphify

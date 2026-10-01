@@ -1,0 +1,95 @@
+# CLAUDE.md — contexto permanente de este repositorio
+
+> **Plantilla para repos consumidores.** La copia `/setup` (o cópiala tú como `CLAUDE.md` en la raíz) y
+> **rellena todos los marcadores `<…>`**. Claude Code la carga automáticamente al abrir
+> cualquier sesión en este repositorio, así que es el sitio donde vive lo que el agente debe
+> saber SIEMPRE: stack, comandos exactos, convenciones y límites.
+>
+> Es complementaria, no redundante: `CLAUDE.md` describe **el repositorio**; el plugin
+> aporta **el flujo de trabajo**, `AGENTS.md` hace el mismo papel para OpenCode, y
+> `MEMORY.md` guarda lo que se va aprendiendo y todavía se mueve.
+>
+> Una regla al rellenarla: **sé específico o no lo escribas**. «Usa el gestor de paquetes del
+> proyecto» no sirve de nada; «usa `pnpm`, nunca `npm`» sí. Una instrucción vaga ocupa contexto
+> en cada sesión y no cambia ninguna decisión.
+
+## Stack
+
+- **Framework:** `<p. ej. Next.js 15 (App Router)>`
+- **Lenguaje:** `<p. ej. TypeScript en modo estricto>`
+- **Estilos:** `<p. ej. Tailwind CSS v4>`
+- **Datos:** `<p. ej. PostgreSQL con Prisma>`
+- **Tests:** `<p. ej. Vitest + Testing Library; Playwright para E2E>`
+- **Gestor de paquetes:** `<p. ej. pnpm — no uses npm ni yarn>`
+- **Despliegue / CI:** `<p. ej. GitHub Actions → Vercel>`
+
+## Comandos exactos
+
+El agente los ejecutará tal cual, así que escríbelos completos y verifica que funcionan:
+
+| Para | Comando |
+|---|---|
+| Levantar en desarrollo | `<pnpm dev>` |
+| Build de producción | `<pnpm build>` |
+| Tests | `<pnpm test>` |
+| Un solo test | `<pnpm test -- <ruta>>` |
+| Lint | `<pnpm lint>` |
+| Comprobación de tipos | `<pnpm typecheck>` |
+| Migraciones | `<pnpm db:migrate>` |
+
+## Convenciones de código
+
+Escribe solo las que **este** repo aplica de verdad y que no detecta el linter:
+
+- `<Nombrado: componentes en PascalCase, ficheros de módulo en kebab-case>`
+- `<Imports: alias @/ ; nada de rutas relativas de más de dos niveles>`
+- `<Tipos: prohibido `any` sin un comentario que lo justifique>`
+- `<Errores: nunca tragarse una excepción; usa el logger del proyecto, no console.log>`
+- `<Commits: Conventional Commits en español>`
+
+## Patrones del proyecto
+
+Las decisiones estructurales que un agente no puede deducir mirando un solo fichero:
+
+- `<Componentes de servidor por defecto; cliente solo si hay interactividad real>`
+- `<El acceso a datos vive en <ruta>; los componentes no consultan la base de datos>`
+- `<Estado de servidor con <librería>; nada de estado global para datos remotos>`
+- `<Cada ruta tiene su estado de carga y su frontera de error>`
+
+## Reglas de negocio
+
+Lo que no está en el código y sin lo cual el agente implementará algo plausible y equivocado:
+
+- `<Los precios se guardan sin impuestos y se muestran con el 21 % de IVA>`
+- `<Los datos de un usuario dado de baja se eliminan a los 30 días>`
+- `<Un pedido cancelado no se borra: cambia de estado y conserva su histórico>`
+
+## Ficheros y rutas que NO se modifican
+
+Tocarlos requiere una decisión explícita del equipo, nunca un efecto colateral de una tarea:
+
+- `<.env y .env.production>`
+- `<las migraciones ya aplicadas: se corrigen con una nueva, no se editan>`
+- `<código generado: no lo edites a mano, regenéralo con `<comando>`>`
+- `<ficheros de infraestructura / despliegue>`
+
+## Qué NO hacer
+
+Las restricciones valen tanto como las instrucciones, y son más baratas de leer:
+
+- `<No añadas dependencias sin aprobación explícita>`
+- `<No cambies la configuración del linter o de TypeScript para que algo compile>`
+- `<No desactives ni marques como omitido un test para que la suite pase>`
+- `<No ejecutes nada contra la base de datos de producción>`
+
+## Memoria de trabajo
+
+Si existe `MEMORY.md` en la raíz, léelo al empezar: guarda lo que se ha aprendido entre
+tareas (errores resueltos, comandos, decisiones). Es personal y no se versiona. Lo que pasa a
+ser una regla del equipo se sube a este fichero.
+
+---
+
+**Mantenlo vivo.** Un `CLAUDE.md` desactualizado es peor que no tenerlo: el agente confía en él
+y actúa sobre información falsa. Actualízalo en el mismo PR en que cambie el stack, un comando
+o una convención, y versiónalo — es contexto de equipo, no configuración personal.

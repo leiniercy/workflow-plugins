@@ -1,6 +1,7 @@
 # AGENTS.md — flujo de desarrollo de este repositorio
 
-> Plantilla para repos consumidores. Cópiala como `AGENTS.md` en la raíz del repo.
+> Plantilla para repos consumidores. La copia el comando `setup` (o cópiala tú como
+> `AGENTS.md` en la raíz del repo).
 > La leen automáticamente OpenCode y otros agentes compatibles con el estándar AGENTS.md;
 > sirve además como contexto general para cualquier IA que trabaje en el repo.
 
@@ -18,14 +19,23 @@ persistido en ficheros. Si eres un agente de IA trabajando aquí, respeta estas 
 
 ## Comandos del flujo
 
-Si tu herramienta tiene comandos instalados (`/start`, `/plan`, `/implement`, `/review`),
-úsalos. Si no, sus playbooks están disponibles en el repositorio del plugin
-(carpeta `core/workflows/`) y puedes seguirlos como instrucciones:
+Si tu herramienta tiene comandos instalados, úsalos. Si no, sus playbooks están en el
+repositorio del plugin (carpeta `core/workflows/`) y puedes seguirlos como instrucciones:
 
+- **define** — convierte una intención en tareas de ClickUp. No escribe en el repo.
 - **start** — inicia una tarea: rama + esqueleto de `tasks/<id>/`. Mueve a "in progress".
 - **plan** — completa `spec.md` explorando el repo. No toca código.
 - **implement** — TDD criterio a criterio contra `spec.md`. Mueve a "review" al crear PR.
-- **review** — diagnóstico frente a spec (5 dimensiones). Solo informa, nunca modifica.
+- **review** — diagnóstico frente a spec (7 dimensiones). Solo informa, nunca modifica.
+- **close** — valida los criterios y sella la salida en `progress.md`.
+- **ship** — lleva una tarea mergeada a producción, con gate antes de lo irreversible.
+- **setup** — propone los ficheros de contexto que falten (este, `MEMORY.md`).
+
+## Memoria de trabajo
+
+Si existe `MEMORY.md` en la raíz, léelo al empezar: guarda lo que se ha aprendido entre
+tareas (errores resueltos, comandos, decisiones). Es personal y no se versiona. Lo que pasa a
+ser una regla del equipo se sube a este fichero.
 
 ## Reglas innegociables
 

@@ -159,6 +159,41 @@ function correr(dir, args = []) {
   eq(json.grafo.ruta, null, "sin grafo no hay ruta");
 }
 
+// --- contexto: los ficheros que /setup propone crear ---
+{
+  const dir = repo({ rama: "feat/86abc123_login" });
+  const { json } = correr(dir);
+  eq(json.contexto?.claudeMd, false, "sin CLAUDE.md lo dice");
+  eq(json.contexto?.agentsMd, false, "sin AGENTS.md lo dice");
+  eq(json.contexto?.memoryMd, false, "sin MEMORY.md lo dice");
+  eq(json.contexto?.memoryIgnorado, false, "sin regla en .gitignore, MEMORY.md no está ignorado");
+}
+{
+  const dir = repo({ rama: "feat/86abc123_login" });
+  writeFileSync(join(dir, "CLAUDE.md"), "# repo");
+  writeFileSync(join(dir, "AGENTS.md"), "# repo");
+  writeFileSync(join(dir, "MEMORY.md"), "# memoria");
+  writeFileSync(join(dir, ".gitignore"), "/MEMORY.md\n");
+  const { json } = correr(dir);
+  eq(json.contexto?.claudeMd, true, "ve CLAUDE.md en la raíz");
+  eq(json.contexto?.agentsMd, true, "ve AGENTS.md en la raíz");
+  eq(json.contexto?.memoryMd, true, "ve MEMORY.md en la raíz");
+  eq(json.contexto?.memoryIgnorado, true, "detecta que MEMORY.md está en .gitignore");
+}
+{
+  const dir = repo({ rama: "feat/86abc123_login" });
+  mkdirSync(join(dir, ".claude"), { recursive: true });
+  writeFileSync(join(dir, ".claude", "CLAUDE.md"), "# repo");
+  const { json } = correr(dir);
+  eq(json.contexto?.claudeMd, true, "CLAUDE.md dentro de .claude/ también cuenta (Claude Code lo lee ahí)");
+}
+{
+  const dir = repo({ rama: "feat/86abc123_login" });
+  writeFileSync(join(dir, "MEMORY.md"), "# memoria");
+  const { json } = correr(dir);
+  eq(json.contexto?.memoryIgnorado, false, "un MEMORY.md que existe pero se versionaría sale como no ignorado");
+}
+
 // --- honestidad: lo que NO puede comprobar no se inventa ---
 {
   const dir = repo({ rama: "feat/86abc123_login" });

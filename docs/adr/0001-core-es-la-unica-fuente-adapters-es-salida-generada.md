@@ -40,6 +40,13 @@ está en los tres sitios** — el registro de `sync.mjs`, esta decisión y la re
 sirve al agente. Un script nuevo que no se dé de alta en el registro `SCRIPTS` no se copia;
 lo asevera `check-behavior.mjs` derivando la lista del disco, no del registro.
 
+**Ampliación (01/10/2026): `core/templates/`, una quinta clase.** Las plantillas que `/setup`
+copia al repo del usuario (`CLAUDE.md`, `AGENTS.md`, `MEMORY.md`). Hasta entonces vivían en
+`examples/`, que quien instala el plugin no recibe. Se copian byte a byte, como los scripts,
+con el sufijo `.example` también en `core/` para que ninguna herramienta las cargue como
+instrucciones; registro `TEMPLATES` en `sync.mjs` y token `{{template:nombre}}`. Lo asevera
+`check-behavior.mjs` derivando la lista del disco.
+
 Tres cosas bajo `adapters/` sí se editan a mano, porque no se generan:
 
 - `adapters/claude/hooks/` — son código.

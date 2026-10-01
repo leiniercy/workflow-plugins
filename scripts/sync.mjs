@@ -101,6 +101,15 @@ const COMMANDS = {
   // ve desde fuera, así que pre-aprobarle herramientas sería quitarle el prompt justo al paso
   // que más lo necesita. Sin el campo, cada acción pasa por el flujo normal de permisos — que
   // es lo que queremos— y el gate de la Fase 4 va además escrito en la prosa.
+  // A petición y sin `allowed-tools`, por la misma razón que /ship: todo lo que escribe
+  // —CLAUDE.md, AGENTS.md, .gitignore— es configuración compartida, y pre-aprobárselo le
+  // quitaría el prompt al único paso que lo necesita. Ningún otro comando lo sugiere: el
+  // usuario eligió (01/10/2026) que no hubiera avisos automáticos.
+  setup: {
+    description:
+      "Prepara un repo para trabajar con IA: comprueba si faltan CLAUDE.md (o AGENTS.md en OpenCode) y MEMORY.md, explica para qué sirve cada uno y los crea solo con aprobación. CLAUDE.md sale de lo verificado en el repo, no de una plantilla vacía; MEMORY.md es personal y se añade al .gitignore. Commit propio, aparte del código. NO toca código, tasks/ ni ClickUp.",
+    argumentHint: "[sin argumentos]",
+  },
   ship: {
     description:
       "Lleva una tarea ya mergeada de «hecha» a «funcionando y vigilada»: recupera el plan de entrega de spec.md o lo construye, ejecuta paso a paso con gate humano antes de lo irreversible, vigila la señal acordada durante la ventana acordada y sella el resultado en progress.md. Condicional: si la tarea no sale a ningún entorno, lo dice en una línea y termina. Solo escribe progress.md - nunca código ni spec.md.",
@@ -374,6 +383,17 @@ function yamlString(value) {
 const SCRIPTS = ["suelo-calidad", "fusion-hallazgos", "frescura-revision", "entorno"];
 
 // ---------------------------------------------------------------------------
+// Plantillas: los ficheros que /setup copia al repo del usuario (CLAUDE.md, AGENTS.md y
+// MEMORY.md). Quinta clase de generado, con el mismo trato que los scripts: se copian
+// BYTE A BYTE, porque su texto va a parar al repo de otra persona tal cual.
+//
+// Llevan el sufijo .example en todas partes, también en core/: un CLAUDE.md sin sufijo
+// dentro de core/templates/ lo cargaría Claude Code como instrucciones al trabajar en esa
+// carpeta, y un AGENTS.md lo leería OpenCode. Una plantilla no es una instrucción.
+// ---------------------------------------------------------------------------
+const TEMPLATES = ["CLAUDE.md", "AGENTS.md", "MEMORY.md"];
+
+// ---------------------------------------------------------------------------
 // Snippets: prosa canónica que vive en UN sitio y se renderiza en varios.
 //
 // {{guide:x}} es una REFERENCIA (apunta a otro fichero); {{snippet:x}} es una
@@ -403,6 +423,8 @@ const ADAPTERS = {
     // Claude Code expande ${CLAUDE_PLUGIN_ROOT} al ejecutar el comando.
     scriptRef: (name) => "${CLAUDE_PLUGIN_ROOT}/scripts/" + name + ".mjs",
     scriptPath: (name) => join(ROOT, "plugins/backbone/claude/scripts", name + ".mjs"),
+    templateRef: (name) => "${CLAUDE_PLUGIN_ROOT}/templates/" + name + ".example",
+    templatePath: (name) => join(ROOT, "plugins/backbone/claude/templates", name + ".example"),
     commandPath: (name) => join(ROOT, "plugins/backbone/claude/commands", name + ".md"),
     guidePath: (name) => join(ROOT, "plugins/backbone/claude/skills", name, "SKILL.md"),
     agentPath: (name) => join(ROOT, "plugins/backbone/claude/agents", name + ".md"),
@@ -452,6 +474,9 @@ const ADAPTERS = {
     guideRef: (name) => "`" + name + "` (skill de OpenCode, auto-activable)",
     // El consumidor copia `.opencode/` a la raíz del repo, que es su cwd.
     scriptRef: (name) => ".opencode/scripts/" + name + ".mjs",
+    templateRef: (name) => ".opencode/templates/" + name + ".example",
+    templatePath: (name) =>
+      join(ROOT, "plugins/backbone/opencode/.opencode/templates", name + ".example"),
     scriptPath: (name) =>
       join(ROOT, "plugins/backbone/opencode/.opencode/scripts", name + ".mjs"),
     commandPath: (name) =>
@@ -530,6 +555,10 @@ function substitute(text, adapter) {
     .replace(/\{\{script:([a-z-]+)\}\}/g, (_, name) => {
       if (!SCRIPTS.includes(name)) throw new Error("Script desconocido en token: " + name);
       return ADAPTERS[adapter].scriptRef(name);
+    })
+    .replace(/\{\{template:([A-Za-z.-]+)\}\}/g, (_, name) => {
+      if (!TEMPLATES.includes(name)) throw new Error("Plantilla desconocida en token: " + name);
+      return ADAPTERS[adapter].templateRef(name);
     });
 }
 
@@ -551,6 +580,13 @@ for (const adapter of Object.keys(ADAPTERS)) {
     const body = readFileSync(join(ROOT, "core/scripts", name + ".mjs"), "utf8");
     mkdirSync(dirname(A.scriptPath(name)), { recursive: true });
     writeFileSync(A.scriptPath(name), body);
+    written++;
+  }
+
+  for (const name of TEMPLATES) {
+    const body = readFileSync(join(ROOT, "core/templates", name + ".example"), "utf8");
+    mkdirSync(dirname(A.templatePath(name)), { recursive: true });
+    writeFileSync(A.templatePath(name), body);
     written++;
   }
 

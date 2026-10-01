@@ -5,6 +5,12 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **`/setup`, el comando que prepara un repo para trabajar con IA** — comprueba si faltan `CLAUDE.md` (o `AGENTS.md` en OpenCode) y `MEMORY.md`, explica en una línea qué se pierde sin cada uno y los crea solo con aprobación, en un commit propio. `CLAUDE.md` no es la plantilla vacía: se rellena con lo verificado en el manifiesto, los scripts y la CI, y lo que no se puede verificar queda como pregunta, porque una regla falsa la obedecen todos los agentes. `MEMORY.md` es personal: va al `.gitignore`, y si ya estaba versionado lo dice y propone `git rm --cached`. Es a petición: ningún otro comando lo sugiere.
+
+  Para que funcione, las plantillas viajan por fin dentro del plugin: pasan de `examples/` (que quien instala no recibe) a `core/templates/`, quinta clase de generado (ADR-0001), y `entorno.mjs` gana un bloque `contexto` con qué ficheros hay y si `MEMORY.md` está ignorado. La plantilla de `AGENTS.md` estaba desfasada —cuatro comandos y cinco dimensiones— y se pone al día.
+
 ### Cambiado
 
 - **Cada plugin tiene su directorio bajo `plugins/`** (ADR-0012). `adapters/claude/` pasa a `plugins/backbone/claude/` y `adapters/opencode/` a `plugins/backbone/opencode/`, para que el segundo plugin del marketplace, `voice` (entregables de cliente), viva al mismo nivel que backbone y no dentro de él. `core/` sigue siendo la fuente única de los dos. En OpenCode, la carpeta que se copia es ahora `plugins/backbone/opencode/.opencode/`; en Claude Code no cambia nada para quien instala.

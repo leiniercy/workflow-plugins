@@ -1,0 +1,59 @@
+# AGENTS.md — flujo de desarrollo de este repositorio
+
+> Plantilla para repos consumidores. La copia el comando `setup` (o cópiala tú como
+> `AGENTS.md` en la raíz del repo).
+> La leen automáticamente OpenCode y otros agentes compatibles con el estándar AGENTS.md;
+> sirve además como contexto general para cualquier IA que trabaje en el repo.
+
+Este repositorio usa un flujo de desarrollo guiado por tareas de **ClickUp** con estado
+persistido en ficheros. Si eres un agente de IA trabajando aquí, respeta estas reglas.
+
+## Fuente de verdad
+
+- Cada tarea tiene una carpeta `tasks/<taskId>/` con dos ficheros:
+  - **`spec.md`**: la definición completa de la tarea (criterios de aceptación, alcance,
+    enfoque técnico, decisiones). Es la fuente de verdad — ClickUp solo guarda el resumen.
+  - **`progress.md`**: diario de continuidad ("Estado actual" + historial append-only).
+    Léelo SIEMPRE al empezar para recuperar el contexto; escríbelo al registrar avances.
+- Rama base: `develop`. Convención de ramas: `tipo/taskId_slug` (ej. `feat/86abc123_login`).
+
+## Comandos del flujo
+
+Si tu herramienta tiene comandos instalados, úsalos. Si no, sus playbooks están en el
+repositorio del plugin (carpeta `core/workflows/`) y puedes seguirlos como instrucciones:
+
+- **define** — convierte una intención en tareas de ClickUp. No escribe en el repo.
+- **start** — inicia una tarea: rama + esqueleto de `tasks/<id>/`. Mueve a "in progress".
+- **plan** — completa `spec.md` explorando el repo. No toca código.
+- **implement** — TDD criterio a criterio contra `spec.md`. Mueve a "review" al crear PR.
+- **review** — diagnóstico frente a spec (7 dimensiones). Solo informa, nunca modifica.
+- **close** — valida los criterios y sella la salida en `progress.md`.
+- **ship** — lleva una tarea mergeada a producción, con gate antes de lo irreversible.
+- **setup** — propone los ficheros de contexto que falten (este, `MEMORY.md`).
+
+## Memoria de trabajo
+
+Si existe `MEMORY.md` en la raíz, léelo al empezar: guarda lo que se ha aprendido entre
+tareas (errores resueltos, comandos, decisiones). Es personal y no se versiona. Lo que pasa a
+ser una regla del equipo se sube a este fichero.
+
+## Reglas innegociables
+
+1. **Gates humanos**: nada visible para terceros (commit, push, PR, cambio de estado en
+   ClickUp) se ejecuta sin aprobación explícita del usuario.
+2. **Responsabilidad única de transiciones**: solo *start* mueve a "in progress", solo
+   *implement* mueve a "review", el paso a "complete" es siempre humano.
+3. **Inmutabilidad del historial**: en `progress.md`, las entradas pasadas jamás se
+   editan; los errores se corrigen con entradas nuevas.
+4. **No implementar sin spec**: si `spec.md` tiene placeholders `_pendiente de /plan_`,
+   primero hay que planificar.
+5. **Degradación elegante**: si falta el MCP de ClickUp o graphify, continúa en modo
+   manual e indica cómo configurarlos; no bloquees.
+
+## Herramientas auxiliares
+
+- **graphify** (opcional): grafo de conocimiento del repo en `graphify-out/`. Úsalo para
+  explorar (query/explain/path) antes de leer ficheros crudos; verifica en código lo
+  etiquetado INFERRED/AMBIGUOUS. No lo construyas/actualices sin aprobación.
+- **TOON**: para listas largas y uniformes en tus respuestas, usa formato TOON
+  (`nombre[N]{campos}:` + filas CSV indentadas) en lugar de JSON.

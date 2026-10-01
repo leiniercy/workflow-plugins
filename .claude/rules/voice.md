@@ -10,7 +10,7 @@ paths:
 trabajo** en `plugins/voice/MEMORY.md`, separada de la de backbone (`/MEMORY.md`).
 
 1. Lee `plugins/voice/MEMORY.md` antes de seguir: ahí están el estado de las tareas y lo que se
-   aprendió. Si no existe, créala con `cp MEMORY.md.example plugins/voice/MEMORY.md`.
+   aprendió. Si no existe, créala con `cp core/templates/MEMORY.md.example plugins/voice/MEMORY.md`.
 2. Lo que avances, aprendas o decidas sobre voice va a `plugins/voice/MEMORY.md`, con fecha. No lo
    mezcles en `/MEMORY.md`.
 3. Lo que quede decidido y estable sube a `plugins/voice/README.md` o a un ADR en `docs/adr/`.

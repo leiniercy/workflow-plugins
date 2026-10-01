@@ -64,7 +64,7 @@ se versiona, igual que el `MEMORY.md` de la raíz, y cada persona lleva la suya.
 empezar una, copia la plantilla de la raíz:
 
 ```sh
-cp MEMORY.md.example plugins/voice/MEMORY.md
+cp core/templates/MEMORY.md.example plugins/voice/MEMORY.md
 ```
 
 Lo que se decida de forma estable pasa a este README o a un ADR en `docs/adr/`; la memoria

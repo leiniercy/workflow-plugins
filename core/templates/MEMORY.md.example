@@ -4,12 +4,13 @@
 
 <!--
 Plantilla de referencia. Copia este fichero como MEMORY.md (que está en .gitignore) y
-rellénalo. Cuatro reglas para que sirva:
+rellénalo. Cinco reglas para que sirva:
 
 - Escribe para alguien que llega en frío: qué pasó, por qué importa y qué hacer.
 - Fecha cada aprendizaje (DD/MM/AAAA). Lo que no tiene fecha no se sabe si sigue vigente.
 - Nada de secretos: ni claves, ni tokens, ni URLs con credenciales.
 - Lo que ya cuenta el repo (código, commits, ADRs) no se copia aquí: se enlaza.
+- Lo que pasa a ser una regla de todo el equipo sube a CLAUDE.md / AGENTS.md, con su commit.
 -->
 
 ## 📌 Contexto Actual

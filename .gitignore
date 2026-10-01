@@ -33,6 +33,6 @@ plugins/backbone/claude/evals/results/
 !plugins/backbone/claude/.mcp.json
 
 # Memoria local de sesión para la IA — cada persona lleva la suya. La plantilla de referencia
-# (MEMORY.md.example) SÍ se versiona.
+# (core/templates/MEMORY.md.example) SÍ se versiona.
 /MEMORY.md
 /plugins/voice/MEMORY.md

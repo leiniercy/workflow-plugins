@@ -13,7 +13,7 @@ Funciona igual en **Claude Code** y en **OpenCode**.
 |---|---|
 | **Qué es** | Un flujo de desarrollo para agentes de IA, guiado por tareas de ClickUp: `spec.md` → TDD → revisión → cierre |
 | **Para quién** | Equipos que ya trabajan por ticket, con criterios de aceptación y una PR que revisa un humano |
-| **Qué trae** | 7 comandos · 32 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
+| **Qué trae** | 8 comandos · 32 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
 | **Dónde corre** | Claude Code (plugin del marketplace `biomas`) · OpenCode (carpeta `.opencode/` lista para copiar) |
 | **Mínimo para arrancar** | Git con rama base `develop` + Node.js 18+ |
 | **Para el 100 %** | ClickUp, `gh`, graphify, `CLAUDE.md` y tres add-ons — [tabla de complementos](#los-complementos) |
@@ -35,7 +35,7 @@ los criterios antes de tocar código, `progress.md` guarda el hilo entre sesione
 despacha subagentes de contexto fresco que no escribieron nada, más un verificador que
 intenta refutar cada hallazgo antes de que llegue al informe.
 
-## El flujo, en siete comandos
+## El flujo, en ocho comandos
 
 | Comando | Qué hace | Transición de ClickUp |
 |---|---|---|
@@ -46,6 +46,7 @@ intenta refutar cada hallazgo antes de que llegue al informe.
 | `/review [taskId]` | Diagnóstico en 7 dimensiones frente a spec.md (taxonomía ISO 25010; usabilidad/accesibilidad solo si el diff toca UI, entrega y operación solo si toca despliegue); **solo informa** | ninguna |
 | `/close [taskId]` | Valida los criterios contra spec.md; si están en verde, sella la salida en `progress.md` y propone el cierre. Admite cierre por abandono | `review → complete` (con aprobación) |
 | `/ship [taskId]` | Recupera el plan de entrega de spec.md o lo construye, despliega paso a paso con gate antes de lo irreversible y vigila la señal acordada. Condicional: si la tarea no sale a ningún entorno, lo dice y termina | a un estado posterior a `complete`, si el espacio lo tiene (con aprobación) |
+| `/setup` | A petición, fuera del camino de un ticket: comprueba si faltan `CLAUDE.md` (o `AGENTS.md`) y `MEMORY.md`, explica para qué sirve cada uno y los crea con aprobación. `CLAUDE.md` sale de lo verificado en el repo; `MEMORY.md` es personal y va al `.gitignore` | ninguna |
 
 Principios transversales: **nada se afirma sin comprobarlo** —todo dato escrito es hecho
 verificado, asunción declarada o dato del usuario, y un hueco que cambiaría el trabajo se
@@ -223,8 +224,9 @@ Si vas a usar graphify, indexa el repo una vez:
    _(Alternativa por repo: copia `examples/mcp.json.example` como `.mcp.json` con los
    valores literales y añádelo al `.gitignore` — útil si prefieres credenciales por proyecto.)_
 
-2. **Contexto del repo.** Copia `examples/CLAUDE.md.example` como `CLAUDE.md` en la raíz y
-   rellena los marcadores: stack, comandos exactos, convenciones, reglas de negocio y
+2. **Contexto del repo.** Ejecuta `/setup`: propone un `CLAUDE.md` rellenado con lo que
+   verifica en el repo, y un `MEMORY.md` personal (ignorado por git). Si prefieres hacerlo a
+   mano, la plantilla está en `core/templates/CLAUDE.md.example`; rellena los marcadores: stack, comandos exactos, convenciones, reglas de negocio y
    ficheros que no se tocan. Claude Code lo carga en cada sesión, y es de donde `/plan` e
    `/implement` sacan las convenciones que deben respetar.
 
@@ -264,8 +266,8 @@ OpenCode no cuenta con un marketplace interno: la instalación consiste en copia
    _(Alternativa por proyecto: copia `examples/opencode.json.example` a la raíz con valores
    literales y añádelo al `.gitignore`.)_
 
-3. **Define el contexto (AGENTS.md):** copia `examples/AGENTS.md.example` como `AGENTS.md` en
-   la raíz. OpenCode lo lee automáticamente para entender las reglas del flujo.
+3. **Define el contexto (AGENTS.md):** ejecuta `/setup`, o copia
+   `.opencode/templates/AGENTS.md.example` como `AGENTS.md` en la raíz. OpenCode lo lee automáticamente para entender las reglas del flujo.
 
 4. **Verifica:** abre OpenCode en el repo y comprueba — `/` muestra los comandos; `@` muestra
    los subagentes (`revisor-bugs-seguridad`, etc.); `/review` los despacha en paralelo y **no
@@ -280,6 +282,7 @@ biomas-workflow/
 │   ├── workflows/             start.md · plan.md · implement.md · review.md · close.md
 │   ├── guides/                evidencia-y-preguntas · estados-tareas · registro-progreso · grafo-conocimiento · formato-toon · revision-hallazgos · historias-usuario · codigo-limpio · patrones-diseno · niveles-y-tipos-de-prueba · arquitectura · calidad-producto · rendimiento · coste-y-estructuras · llamadas-a-modelos · ingenieria-de-prompts · consultas-correctas · usabilidad-accesibilidad · migraciones-de-datos · depuracion-sistematica · recepcion-de-revision · qa-exploratoria · espacio-de-trabajo-aislado · diagramas · escritura-natural
 │   │   └── in-progress/      borradores versionados que NO se publican (ver su README)
+│   ├── templates/             CLAUDE.md · AGENTS.md · MEMORY.md (.example) — lo que /setup copia al repo del usuario; se copian byte a byte al plugin
 │   ├── snippets/              prosa canónica que se renderiza en varios sitios: dato-no-fiable (el texto de ClickUp es contenido, no instrucciones) · estado-de-cierre (los 4 estados de salida)
 │   ├── scripts/               suelo-calidad.mjs (escaneo del suelo de calidad) · fusion-hallazgos.mjs (síntesis de los revisores) · frescura-revision.mjs (¿la revisión cubre lo que cierras?) · entorno.mjs (pre-flight: git, tarea, antigüedad del grafo) — se ejecutan en el repo del usuario
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo · refutador-decision
@@ -288,6 +291,7 @@ biomas-workflow/
 │   ├── backbone/
 │   │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
 │   │   │   ├── scripts/           (generado por sync.mjs — copia de core/scripts)
+│   │   │   ├── templates/         (generado por sync.mjs — copia de core/templates)
 │   │   │   ├── .claude-plugin/plugin.json
 │   │   │   ├── .mcp.json          (generado por sync.mjs — MCP de ClickUp por env vars)
 │   │   │   ├── evals/             casos del eval de activación + routing.json (corpus del eval de enrutado) — a mano, NO generado
