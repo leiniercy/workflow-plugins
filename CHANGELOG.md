@@ -5,7 +5,13 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Cambiado
+
+- **Cada plugin tiene su directorio bajo `plugins/`** (ADR-0012). `adapters/claude/` pasa a `plugins/backbone/claude/` y `adapters/opencode/` a `plugins/backbone/opencode/`, para que el segundo plugin del marketplace, `voice` (entregables de cliente), viva al mismo nivel que backbone y no dentro de él. `core/` sigue siendo la fuente única de los dos. En OpenCode, la carpeta que se copia es ahora `plugins/backbone/opencode/.opencode/`; en Claude Code no cambia nada para quien instala.
+
 ### Añadido
+
+- **`plugins/voice/`, el sitio del segundo plugin** — README con el alcance y las decisiones tomadas, memoria de trabajo propia (no versionada) y la regla `.claude/rules/voice.md`, que hace que el agente la lea al trabajar ahí. Sin contenido instalable todavía.
 
 - **Cuatro extensiones y la entrada de la fuente en `docs/referencias.md` (§23)** — lo que el estudio de *Ingeniería del Software. Guía de Supervivencia* aportaba y cabía en guías que ya existían, sin crear inventario. `historias-usuario` gana «el "para" vacío» —el que no dice nada y el que es otra solución («para poder imprimirlo»)— y cuándo compensa un **caso de uso** frente a la HU, con ficha mínima; `calidad-producto` gana el **contrato de servicio** (disponibilidad, capacidad, respuesta, soporte) con su forma comprobable, y su tabla del modelo ya apunta a `observabilidad`, `entrega-y-despliegue` y `proteccion-de-datos`; `usabilidad-accesibilidad` gana **prototipo antes del código** cuando la interacción se está decidiendo en la PR; y `patrones-diseno` una cuarta trampa: **contar responsabilidades en vez de razonar** cohesión y acoplamiento (CUPID, *SOLID is not SOLID*).
 

@@ -12,12 +12,12 @@ on:
   push:
     branches: ["**"]
     paths:
-      - "adapters/claude/hooks/**"
+      - "plugins/backbone/claude/hooks/**"
       - "scripts/**"
       - ".github/workflows/codeql.yml"
   pull_request:
     paths:
-      - "adapters/claude/hooks/**"
+      - "plugins/backbone/claude/hooks/**"
       - "scripts/**"
       - ".github/workflows/codeql.yml"
   schedule:

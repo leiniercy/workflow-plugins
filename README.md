@@ -207,7 +207,7 @@ Si vas a usar graphify, indexa el repo una vez:
 ### Qué configurar después
 
 1. **Credenciales de ClickUp por variables de entorno (recomendado).** El plugin ya incluye
-   su propio `.mcp.json` (`adapters/claude/.mcp.json`, generado por `sync.mjs`) que Claude
+   su propio `.mcp.json` (`plugins/backbone/claude/.mcp.json`, generado por `sync.mjs`) que Claude
    Code auto-registra al instalarlo. Solo exportas las credenciales — no hace falta ningún
    fichero con secretos en el repo consumidor:
 
@@ -247,7 +247,7 @@ pendientes de `spec.md` — continuidad entre sesiones sin intervención manual.
 OpenCode no cuenta con un marketplace interno: la instalación consiste en copiar la carpeta
 `.opencode/` del adaptador a tu proyecto. Esa carpeta ya trae **todo** generado por `sync.mjs`.
 
-1. **Copia el adaptador completo:** copia `adapters/opencode/.opencode/` a la raíz del repo.
+1. **Copia el adaptador completo:** copia `plugins/backbone/opencode/.opencode/` a la raíz del repo.
    Resultado: `<repo>/.opencode/` con `command/*.md` (comandos `/start` `/plan` `/implement`
    `/review`), `agent/*.md` (subagentes read-only de `/review` y `/plan` + el primario
    `revisor`), `skills/*/SKILL.md` (las guías, auto-activables) y `opencode.json` (MCP de
@@ -284,22 +284,24 @@ biomas-workflow/
 │   ├── scripts/               suelo-calidad.mjs (escaneo del suelo de calidad) · fusion-hallazgos.mjs (síntesis de los revisores) · frescura-revision.mjs (¿la revisión cubre lo que cierras?) · entorno.mjs (pre-flight: git, tarea, antigüedad del grafo) — se ejecutan en el repo del usuario
 │   └── agents/                revisor-bugs-seguridad · revisor-spec-tests · revisor-convenciones · revisor-usabilidad-accesibilidad · verificador-hallazgos · explorador-repo · refutador-decision
 ├── scripts/                   sync.mjs (genera adaptadores) · bump-version · check-version · check-behavior (contratos, CI) · check-routing (enrutado del catálogo, CI) · check-hygiene (los hooks no escriben fuera, CI) · check-hooks (el hook de SessionStart, ejecutado, CI) · check-post-commit (el hook de commit sin registrar, ejecutado, CI) · check-guard (el gate de lo irreversible, CI) · check-suelo (el escaneo del suelo, ejecutado, CI) · check-fusion (la fusión no pierde hallazgos, CI) · check-graders (que los graders distingan, CI) · check-frescura (el grado de frescura de la revisión, CI) · check-entorno (el pre-flight no miente, CI) · check-activation (activación con modelo, manual)
-├── adapters/
-│   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
-│   │   ├── scripts/           (generado por sync.mjs — copia de core/scripts)
-│   │   ├── .claude-plugin/plugin.json
-│   │   ├── .mcp.json          (generado por sync.mjs — MCP de ClickUp por env vars)
-│   │   ├── evals/             casos del eval de activación + routing.json (corpus del eval de enrutado) — a mano, NO generado
-│   │   ├── commands/          (generado por sync.mjs — no editar a mano)
-│   │   ├── skills/            (generado por sync.mjs — no editar a mano)
-│   │   ├── agents/            (generado por sync.mjs — subagentes read-only de /review, /plan e /implement)
-│   │   └── hooks/             SessionStart (contexto de tarea) · Stop (notificación sonora) · PreToolUse (gate de acciones irreversibles) · PostToolUse (commit que no consta en progress.md)
-│   └── opencode/
-│       └── .opencode/         carpeta lista para copiar al repo consumidor
-│           ├── command/       (generado por sync.mjs — no editar a mano)
-│           ├── scripts/       (generado por sync.mjs — copia de core/scripts)
-│           └── guides/        (generado por sync.mjs — no editar a mano)
-├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a adapters/claude)
+├── plugins/                 un directorio por plugin del marketplace, hermanos
+│   ├── backbone/
+│   │   ├── claude/                plugin nativo de Claude Code (generado + manifiesto + hooks)
+│   │   │   ├── scripts/           (generado por sync.mjs — copia de core/scripts)
+│   │   │   ├── .claude-plugin/plugin.json
+│   │   │   ├── .mcp.json          (generado por sync.mjs — MCP de ClickUp por env vars)
+│   │   │   ├── evals/             casos del eval de activación + routing.json (corpus del eval de enrutado) — a mano, NO generado
+│   │   │   ├── commands/          (generado por sync.mjs — no editar a mano)
+│   │   │   ├── skills/            (generado por sync.mjs — no editar a mano)
+│   │   │   ├── agents/            (generado por sync.mjs — subagentes read-only de /review, /plan e /implement)
+│   │   │   └── hooks/             SessionStart (contexto de tarea) · Stop (notificación sonora) · PreToolUse (gate de acciones irreversibles) · PostToolUse (commit que no consta en progress.md)
+│   │   └── opencode/
+│   │       └── .opencode/         carpeta lista para copiar al repo consumidor
+│   │           ├── command/       (generado por sync.mjs — no editar a mano)
+│   │           ├── scripts/       (generado por sync.mjs — copia de core/scripts)
+│   │           └── guides/        (generado por sync.mjs — no editar a mano)
+│   └── voice/                 segundo plugin (entregables de cliente): README y memoria de trabajo propia; sin contenido todavía
+├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a plugins/backbone/claude)
 ├── docs/adr/                  decisiones de arquitectura del plugin (léelas antes de re-litigar una)
 ├── .github/workflows/         review.yml (CI de PRs) · sync-check · version-check · behavior-check · manifest-check · hygiene-check · codeql · secret-scan
 └── examples/                  plantillas para repos consumidores
@@ -313,8 +315,8 @@ insertar prosa canónica de `core/snippets/`). Después se ejecuta:
 node scripts/sync.mjs
 ```
 
-Esto regenera `adapters/claude/{commands,skills,agents,scripts}` y
-`adapters/opencode/.opencode/{command,guides,agent,skills,scripts}`
+Esto regenera `plugins/backbone/claude/{commands,skills,agents,scripts}` y
+`plugins/backbone/opencode/.opencode/{command,guides,agent,skills,scripts}`
 sustituyendo los tokens por la ruta correcta de cada herramienta y anteponiendo el
 frontmatter propio de cada una. Los ficheros generados se sobrescriben: no los edites a mano.
 

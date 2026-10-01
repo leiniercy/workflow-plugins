@@ -52,8 +52,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILLS = join(ROOT, "adapters/claude/skills");
-const CASES = join(ROOT, "adapters/claude/evals/routing.json");
+const SKILLS = join(ROOT, "plugins/backbone/claude/skills");
+const CASES = join(ROOT, "plugins/backbone/claude/evals/routing.json");
 
 // Suelo del corpus, CALIBRADO (no aspiracional). Medido el 2026-09-07 sobre 63 prompts:
 // rank-1 52,4 % · top-3 77,8 %. El suelo se pone unos puntos por debajo del top-3 medido para

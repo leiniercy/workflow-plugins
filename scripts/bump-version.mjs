@@ -2,9 +2,9 @@
 /**
  * bump-version.mjs — sube la versión del plugin de forma sincronizada.
  *
- * Fuente única de versión: adapters/claude/.claude-plugin/plugin.json. Este script
+ * Fuente única de versión: plugins/backbone/claude/.claude-plugin/plugin.json. Este script
  * la sube y mantiene en sync los tres sitios donde vive una versión:
- *   1. adapters/claude/.claude-plugin/plugin.json  (campo `version`)
+ *   1. plugins/backbone/claude/.claude-plugin/plugin.json  (campo `version`)
  *   2. .claude-plugin/marketplace.json             (entrada del plugin)
  *   3. CHANGELOG.md  (mueve "[No publicado]" a "[X.Y.Z] - fecha" y abre un
  *      "[No publicado]" vacío encima)
@@ -21,7 +21,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const PLUGIN_JSON = join(ROOT, "adapters/claude/.claude-plugin/plugin.json");
+const PLUGIN_JSON = join(ROOT, "plugins/backbone/claude/.claude-plugin/plugin.json");
 const MARKETPLACE_JSON = join(ROOT, ".claude-plugin/marketplace.json");
 const CHANGELOG = join(ROOT, "CHANGELOG.md");
 const REPO_SETTINGS = join(ROOT, "examples/repo-settings.json");

@@ -22,7 +22,7 @@ on:
   push:
     branches: ["**"]
     paths:
-      - "adapters/claude/hooks/**"
+      - "plugins/backbone/claude/hooks/**"
       - "scripts/check-hygiene.mjs"
       - "scripts/check-hooks.mjs"
       - "scripts/check-guard.mjs"
@@ -30,7 +30,7 @@ on:
       - ".github/workflows/hygiene-check.yml"
   pull_request:
     paths:
-      - "adapters/claude/hooks/**"
+      - "plugins/backbone/claude/hooks/**"
       - "scripts/check-hygiene.mjs"
       - "scripts/check-hooks.mjs"
       - "scripts/check-guard.mjs"

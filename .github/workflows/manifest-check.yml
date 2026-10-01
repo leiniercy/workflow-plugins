@@ -13,13 +13,13 @@ on:
   push:
     branches: ["**"]
     paths:
-      - "adapters/claude/**"
+      - "plugins/backbone/claude/**"
       - ".claude-plugin/**"
       - "scripts/sync.mjs"
       - ".github/workflows/manifest-check.yml"
   pull_request:
     paths:
-      - "adapters/claude/**"
+      - "plugins/backbone/claude/**"
       - ".claude-plugin/**"
       - "scripts/sync.mjs"
       - ".github/workflows/manifest-check.yml"
@@ -43,7 +43,7 @@ jobs:
         run: npm install -g @anthropic-ai/claude-code
 
       - name: Validar el manifiesto del plugin y el frontmatter de skills/agentes
-        run: claude plugin validate adapters/claude --strict
+        run: claude plugin validate plugins/backbone/claude --strict
 
       - name: Validar el manifiesto del marketplace
         run: claude plugin validate . --strict

@@ -21,7 +21,7 @@
  *
  * ── Alcance ────────────────────────────────────────────────────────────────────
  *
- * Solo `adapters/claude/hooks/`. Los scripts de `scripts/` SÍ escriben (sync, bump), pero
+ * Solo `plugins/backbone/claude/hooks/`. Los scripts de `scripts/` SÍ escriben (sync, bump), pero
  * corren en este repo y los lanza el mantenedor a mano: no se ejecutan en la máquina de
  * nadie más. `tasks/<taskId>/` en el repo consumidor también es escritura deliberada — la
  * hacen los comandos con aprobación humana, es artefacto versionado, y git es su inverso.
@@ -48,7 +48,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const HOOKS_DIR = join(ROOT, "adapters/claude/hooks");
+const HOOKS_DIR = join(ROOT, "plugins/backbone/claude/hooks");
 const HOOKS_JSON = join(HOOKS_DIR, "hooks.json");
 
 /** APIs que escriben en disco. Un hook que necesite una es un hook que hay que discutir. */

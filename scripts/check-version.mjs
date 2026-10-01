@@ -3,7 +3,7 @@
  * check-version.mjs — "doctor" de coherencia de versión.
  *
  * Verifica que la versión coincide en los tres sitios donde vive:
- *   - adapters/claude/.claude-plugin/plugin.json
+ *   - plugins/backbone/claude/.claude-plugin/plugin.json
  *   - .claude-plugin/marketplace.json (entrada del plugin)
  *   - CHANGELOG.md (última versión publicada, ignorando "[No publicado]")
  *
@@ -15,7 +15,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const PLUGIN_JSON = join(ROOT, "adapters/claude/.claude-plugin/plugin.json");
+const PLUGIN_JSON = join(ROOT, "plugins/backbone/claude/.claude-plugin/plugin.json");
 const MARKETPLACE_JSON = join(ROOT, ".claude-plugin/marketplace.json");
 const CHANGELOG = join(ROOT, "CHANGELOG.md");
 const REPO_SETTINGS = join(ROOT, "examples/repo-settings.json");

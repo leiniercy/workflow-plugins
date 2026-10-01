@@ -2,6 +2,10 @@
 
 **Status:** aceptada (v0.21.0)
 
+> **Rutas actualizadas por el [ADR-0012](0012-cada-plugin-tiene-su-directorio-bajo-plugins.md):** lo que aquí es
+> `adapters/claude/` y `adapters/opencode/` vive ahora en `plugins/backbone/claude/` y
+> `plugins/backbone/opencode/`. La decisión no cambia.
+
 ## Context
 
 El plugin se publica para dos herramientas con formatos distintos: Claude Code

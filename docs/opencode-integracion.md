@@ -8,7 +8,7 @@
 > **Estado** de cada mejora: `✅ adoptado` · `🔜 pendiente` · `🟡 parcial` · `⛔ descartado`
 
 > **⚡ Estado de implementación:** las **Mejoras 1–4** de la §5 ya están **implementadas** en
-> `scripts/sync.mjs` y reflejadas en `adapters/opencode/.opencode/` (subagentes read-only,
+> `scripts/sync.mjs` y reflejadas en `plugins/backbone/opencode/.opencode/` (subagentes read-only,
 > guías→skills, `opencode.json` generado y read-only duro en `/review`). La **Mejora 5**
 > (plugin de hooks) queda **opcional/pendiente**: la continuidad ya la cubre `AGENTS.md`.
 
@@ -172,7 +172,7 @@ worktree }` y devuelven un objeto de hooks. Eventos relevantes para nosotros:
 
 ---
 
-## 2. Estado del adaptador ANTES de estas mejoras (`adapters/opencode/.opencode/`)
+## 2. Estado del adaptador ANTES de estas mejoras (`plugins/backbone/opencode/.opencode/`)
 
 > Punto de partida que motivó las mejoras de la §5 (ya implementadas). Se conserva como
 > contexto del "antes/después".
@@ -232,7 +232,7 @@ En `scripts/sync.mjs`, dentro del adaptador `opencode`, añadir:
 opencode: {
   // … guideRef, commandPath, commandFrontmatter existentes …
   agentPath: (name) =>
-    join(ROOT, "adapters/opencode/.opencode/agent", name + ".md"),
+    join(ROOT, "plugins/backbone/opencode/.opencode/agent", name + ".md"),
   agentFrontmatter: (name, meta) =>
     [
       "---",
@@ -289,7 +289,7 @@ opencode: {
   // la referencia pasa a ser por NOMBRE de skill (el modelo la auto-activa):
   guideRef: (name) => "`" + name + "` (skill de OpenCode, auto-activable)",
   guidePath: (name) =>
-    join(ROOT, "adapters/opencode/.opencode/skills", name, "SKILL.md"),
+    join(ROOT, "plugins/backbone/opencode/.opencode/skills", name, "SKILL.md"),
   guideFrontmatter: (name, meta) =>
     [
       "---",
@@ -308,7 +308,7 @@ Los `name` de las guías (`estados-tareas`, `registro-progreso`, `grafo-conocimi
 > (gasto de tokens constante); las skills se cargan solo cuando el modelo las juzga
 > relevantes — exactamente el comportamiento de Claude.
 >
-> **Migración:** al adoptarla, borrar el viejo `adapters/opencode/.opencode/guides/`
+> **Migración:** al adoptarla, borrar el viejo `plugins/backbone/opencode/.opencode/guides/`
 > (queda obsoleto) y actualizar el paso de instalación que copiaba esa carpeta.
 
 ### Mejora 3 — `opencode.json` generado desde fuente única ✅ adoptado (impacto MEDIO)
@@ -335,7 +335,7 @@ const opencodeJson = JSON.stringify(
   { $schema: "https://opencode.ai/config.json", mcp: ocMcp, instructions: ["AGENTS.md"] },
   null, 2
 ) + "\n";
-writeFileSync(join(ROOT, "adapters/opencode/.opencode/opencode.json"), opencodeJson);
+writeFileSync(join(ROOT, "plugins/backbone/opencode/.opencode/opencode.json"), opencodeJson);
 ```
 
 Opcionalmente añadir al objeto un bloque `"agent"` con el tiering de la Mejora 1. El
@@ -366,7 +366,7 @@ al arrancar; los eventos de plugin son sobre todo observacionales. Dos caminos:
   rama queda como nice-to-have de menor madurez; no bloquea el 100 % funcional.
 
 ```ts
-// adapters/opencode/.opencode/plugin/notify.ts (ejemplo mínimo)
+// plugins/backbone/opencode/.opencode/plugin/notify.ts (ejemplo mínimo)
 import type { Plugin } from "@opencode-ai/plugin"
 export const Notify: Plugin = async ({ client }) => ({
   "session.idle": async () => {
@@ -379,7 +379,7 @@ export const Notify: Plugin = async ({ client }) => ({
 
 ## 6. Instalación en el repo consumidor (objetivo, tras las mejoras)
 
-1. **Comandos, agentes y skills:** copia `adapters/opencode/.opencode/` a la raíz del repo.
+1. **Comandos, agentes y skills:** copia `plugins/backbone/opencode/.opencode/` a la raíz del repo.
    Resultado: `<repo>/.opencode/{command,agent,skills}/…`.
 2. **Config (`opencode.json`):** copia el `opencode.json` generado (o `examples/opencode.json.example`)
    a la **raíz del repo** y exporta las credenciales en tu entorno (no las escribas en el fichero):

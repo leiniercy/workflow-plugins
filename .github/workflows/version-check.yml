@@ -7,14 +7,14 @@ on:
   push:
     branches: ["**"]
     paths:
-      - "adapters/claude/.claude-plugin/plugin.json"
+      - "plugins/backbone/claude/.claude-plugin/plugin.json"
       - ".claude-plugin/marketplace.json"
       - "CHANGELOG.md"
       - "scripts/check-version.mjs"
       - ".github/workflows/version-check.yml"
   pull_request:
     paths:
-      - "adapters/claude/.claude-plugin/plugin.json"
+      - "plugins/backbone/claude/.claude-plugin/plugin.json"
       - ".claude-plugin/marketplace.json"
       - "CHANGELOG.md"
       - "scripts/check-version.mjs"

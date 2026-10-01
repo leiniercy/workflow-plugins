@@ -3,7 +3,7 @@
  * check-behavior.mjs — mitad DETERMINISTA del eval de comportamiento (#6).
  *
  * Asevera los contratos que encodean el comportamiento del plugin sobre los
- * artefactos SHIPPED (adapters/claude/*): si un contrato se rompe (p. ej. /review
+ * artefactos SHIPPED (plugins/backbone/claude/*): si un contrato se rompe (p. ej. /review
  * deja de ser read-only, o un agente pierde su modelo o gana Write), el agente se
  * comportaría mal — y esto lo detecta antes de publicar.
  *
@@ -18,7 +18,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const CLAUDE = join(ROOT, "adapters/claude");
+const CLAUDE = join(ROOT, "plugins/backbone/claude");
 
 const failures = [];
 let total = 0;
@@ -550,7 +550,7 @@ assert(
     const fuente = read(join(ROOT, "core/scripts", f));
     for (const [donde, ruta] of [
       ["Claude", join(CLAUDE, "scripts", f)],
-      ["OpenCode", join(ROOT, "adapters/opencode/.opencode/scripts", f)],
+      ["OpenCode", join(ROOT, "plugins/backbone/opencode/.opencode/scripts", f)],
     ]) {
       const copia = read(ruta);
       assert(copia !== null, `${f} está copiado al adaptador de ${donde} (¿falta en el registro SCRIPTS de sync.mjs?)`);
@@ -568,7 +568,7 @@ assert(
 // CLAUDE_PLUGIN_ROOT puede llevar espacios). Un glob sin comillas no casaría con el comando
 // real y el agente `revisor` se quedaría sin poder ejecutar sus propios scripts, en silencio.
 {
-  const revisor = read(join(ROOT, "adapters/opencode/.opencode/agent/revisor.md")) || "";
+  const revisor = read(join(ROOT, "plugins/backbone/opencode/.opencode/agent/revisor.md")) || "";
   for (const name of ["suelo-calidad", "fusion-hallazgos"]) {
     assert(
       revisor.includes(`"node .opencode/scripts/${name}.mjs*": allow`),
@@ -666,7 +666,7 @@ for (const cmd of ["start", "plan", "implement", "review", "close"]) {
 // Un {{snippet:x}} que sobrevive a sync.mjs no casca: se publica tal cual y el agente lee
 // una llave doble donde debería haber una regla. Es el mismo fallo silencioso que el
 // frontmatter sin comillas (ADR-0002), así que se cierra igual: con un check.
-for (const dir of ["adapters/claude", "adapters/opencode"]) {
+for (const dir of ["plugins/backbone/claude", "plugins/backbone/opencode"]) {
   const pendientes = [];
   const recorre = (d) => {
     for (const e of readdirSync(join(ROOT, d), { withFileTypes: true })) {

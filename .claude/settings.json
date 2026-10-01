@@ -8,7 +8,7 @@
       "Bash(node scripts/sync.mjs)",
       "Bash(node scripts/check-behavior.mjs)",
       "Bash(echo \"exit: $?\")",
-      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('adapters/opencode/.opencode/opencode.json','utf8'\\)\\); console.log\\('opencode.json: JSON válido ✓'\\)\")"
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('plugins/backbone/opencode/.opencode/opencode.json','utf8'\\)\\); console.log\\('opencode.json: JSON válido ✓'\\)\")"
     ]
   }
 }

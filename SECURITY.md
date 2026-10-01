@@ -11,7 +11,7 @@ o ejecute algo irreversible sin gate.
 ## Versiones con soporte
 
 Se da soporte a la última versión publicada en el marketplace. Mira la versión en
-`adapters/claude/.claude-plugin/plugin.json`.
+`plugins/backbone/claude/.claude-plugin/plugin.json`.
 
 ## Cómo reportar un fallo
 

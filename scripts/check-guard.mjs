@@ -22,7 +22,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const HOOK = join(ROOT, "adapters/claude/hooks/destructive-guard.js");
+const HOOK = join(ROOT, "plugins/backbone/claude/hooks/destructive-guard.js");
 
 const fallos = [];
 let total = 0;

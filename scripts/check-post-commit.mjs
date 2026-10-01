@@ -44,13 +44,13 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const HOOK = join(ROOT, "adapters/claude/hooks/post-commit-progress.js");
+const HOOK = join(ROOT, "plugins/backbone/claude/hooks/post-commit-progress.js");
 
 // La ventana se IMPORTA, no se escribe. Los casos de frontera tienen que seguir a la
 // decisión: con el 15 copiado aquí, cambiarla en el hook dejaría el test en verde
 // probando una ventana que ya no existe.
 const { VENTANA_MIN } = createRequire(import.meta.url)(
-  join(ROOT, "adapters/claude/hooks/lib/progreso-fresco.js")
+  join(ROOT, "plugins/backbone/claude/hooks/lib/progreso-fresco.js")
 );
 
 const fallos = [];

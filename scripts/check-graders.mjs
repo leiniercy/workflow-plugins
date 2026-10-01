@@ -39,7 +39,7 @@ import { fileURLToPath } from "node:url";
 import { corrige } from "./lib/grader.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const EVALS = join(ROOT, "adapters/claude/evals");
+const EVALS = join(ROOT, "plugins/backbone/claude/evals");
 
 const fallos = [];
 let total = 0;

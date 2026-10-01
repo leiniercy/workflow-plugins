@@ -26,7 +26,7 @@ que los ficheros son correctos. El eval es **híbrido**:
 
 ## 0. Eval de activación automatizado (`check-activation.mjs`)
 
-Los casos viven en `adapters/claude/evals/<caso>/` con tres ficheros: `prompt.md` (el prompt tal
+Los casos viven en `plugins/backbone/claude/evals/<caso>/` con tres ficheros: `prompt.md` (el prompt tal
 cual), `expect.json` (qué guía debe activarse y qué debe aparecer en la respuesta) y
 `graders/criteria.md` (el criterio en lenguaje natural). El formato es el que espera
 `claude plugin eval`, que hoy está **en early access**; mientras tanto el script hace lo mismo a
@@ -291,7 +291,7 @@ node scripts/check-activation.mjs --baseline --case svg-en-cuerpo-de-pr --yes   
 ## 0.bis Eval de enrutado del catálogo (`check-routing.mjs`)
 
 TF-IDF sobre las `description` **enviadas** + coseno, contra el corpus de
-`adapters/claude/evals/routing.json` (3 prompts positivos por guía + pares confundibles).
+`plugins/backbone/claude/evals/routing.json` (3 prompts positivos por guía + pares confundibles).
 Determinista y gratis. Patrón tomado del Tier 2 de `addyosmani/agent-skills` (§18.C de
 [referencias.md](referencias.md)).
 
@@ -440,7 +440,7 @@ criterio en prosa —lo que de verdad hay que juzgar— y **nada lo lee**. `corr
 | 1.30 | "lo he probado con cinco casos y en los cinco sale bien, lo dejo así" | Se apoya en `evidencia-y-preguntas`: cinco casos a favor no comprueban una regla; **exige buscar el contraejemplo** y, si no aparece, declararlo como asunción | ☐ |
 | 1.31 | "necesito un endpoint que recalcule el precio de los 80.000 productos al cambiar el margen" | Se apoya en `arquitectura`: pregunta si alguien necesita el resultado **en ese mismo gesto** antes de asumir petición-respuesta, y plantea el procesamiento por lotes; no se queda en síncrono por inercia | ☐ |
 
-> Los casos 1.24–1.31 tienen candidatos automatizados en §0 (`adapters/claude/evals/`), todavía
+> Los casos 1.24–1.31 tienen candidatos automatizados en §0 (`plugins/backbone/claude/evals/`), todavía
 > **sin calibrar**. Mientras no se calibren, esta checklist manual es la única verificación real
 > de esas guías.
 

@@ -402,10 +402,10 @@ const ADAPTERS = {
       "`" + name + "` (`${CLAUDE_PLUGIN_ROOT}/skills/" + name + "/SKILL.md`)",
     // Claude Code expande ${CLAUDE_PLUGIN_ROOT} al ejecutar el comando.
     scriptRef: (name) => "${CLAUDE_PLUGIN_ROOT}/scripts/" + name + ".mjs",
-    scriptPath: (name) => join(ROOT, "adapters/claude/scripts", name + ".mjs"),
-    commandPath: (name) => join(ROOT, "adapters/claude/commands", name + ".md"),
-    guidePath: (name) => join(ROOT, "adapters/claude/skills", name, "SKILL.md"),
-    agentPath: (name) => join(ROOT, "adapters/claude/agents", name + ".md"),
+    scriptPath: (name) => join(ROOT, "plugins/backbone/claude/scripts", name + ".mjs"),
+    commandPath: (name) => join(ROOT, "plugins/backbone/claude/commands", name + ".md"),
+    guidePath: (name) => join(ROOT, "plugins/backbone/claude/skills", name, "SKILL.md"),
+    agentPath: (name) => join(ROOT, "plugins/backbone/claude/agents", name + ".md"),
     commandFrontmatter: (meta) => {
       const lines = [
         "---",
@@ -453,15 +453,15 @@ const ADAPTERS = {
     // El consumidor copia `.opencode/` a la raíz del repo, que es su cwd.
     scriptRef: (name) => ".opencode/scripts/" + name + ".mjs",
     scriptPath: (name) =>
-      join(ROOT, "adapters/opencode/.opencode/scripts", name + ".mjs"),
+      join(ROOT, "plugins/backbone/opencode/.opencode/scripts", name + ".mjs"),
     commandPath: (name) =>
-      join(ROOT, "adapters/opencode/.opencode/command", name + ".md"),
+      join(ROOT, "plugins/backbone/opencode/.opencode/command", name + ".md"),
     // Skills: <repo>/.opencode/skills/<name>/SKILL.md (OpenCode requiere el plural).
     guidePath: (name) =>
-      join(ROOT, "adapters/opencode/.opencode/skills", name, "SKILL.md"),
+      join(ROOT, "plugins/backbone/opencode/.opencode/skills", name, "SKILL.md"),
     // Subagentes: <repo>/.opencode/agent/<name>.md (el loader acepta singular y plural).
     agentPath: (name) =>
-      join(ROOT, "adapters/opencode/.opencode/agent", name + ".md"),
+      join(ROOT, "plugins/backbone/opencode/.opencode/agent", name + ".md"),
     commandFrontmatter: (meta) => {
       const lines = [
         "---",
@@ -581,7 +581,7 @@ for (const adapter of Object.keys(ADAPTERS)) {
 // Claude Code expande ${VAR} desde el entorno al cargar el fichero.
 // ---------------------------------------------------------------------------
 const claudeMcp = JSON.stringify({ mcpServers: MCP_SERVERS }, null, 2) + "\n";
-const claudeMcpPath = join(ROOT, "adapters/claude/.mcp.json");
+const claudeMcpPath = join(ROOT, "plugins/backbone/claude/.mcp.json");
 writeFileSync(claudeMcpPath, claudeMcp);
 written++;
 
@@ -646,7 +646,7 @@ const opencodeRevisor =
     "lo pedirá explícitamente con `/implement` (que detecta el modo corrección).",
     "",
   ].join("\n");
-const opencodeRevisorPath = join(ROOT, "adapters/opencode/.opencode/agent/revisor.md");
+const opencodeRevisorPath = join(ROOT, "plugins/backbone/opencode/.opencode/agent/revisor.md");
 mkdirSync(dirname(opencodeRevisorPath), { recursive: true });
 writeFileSync(opencodeRevisorPath, opencodeRevisor);
 written++;
@@ -676,14 +676,14 @@ const opencodeConfig =
     null,
     2
   ) + "\n";
-const opencodeConfigPath = join(ROOT, "adapters/opencode/.opencode/opencode.json");
+const opencodeConfigPath = join(ROOT, "plugins/backbone/opencode/.opencode/opencode.json");
 writeFileSync(opencodeConfigPath, opencodeConfig);
 written++;
 
 // (c) Limpieza: las guías ahora son skills (.opencode/skills/). Borra el directorio
 // antiguo de Markdown plano si quedó de una generación previa, para no dejar copias
 // obsoletas que el consumidor pudiera arrastrar.
-const legacyGuidesDir = join(ROOT, "adapters/opencode/.opencode/guides");
+const legacyGuidesDir = join(ROOT, "plugins/backbone/opencode/.opencode/guides");
 if (existsSync(legacyGuidesDir)) rmSync(legacyGuidesDir, { recursive: true, force: true });
 
 console.log("sync.mjs: " + written + " ficheros generados desde core/.");

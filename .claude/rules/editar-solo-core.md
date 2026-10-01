@@ -1,13 +1,14 @@
 ---
 description: "Los adaptadores se generan; la fuente única es core/."
 paths:
-  - "adapters/**"
+  - "plugins/*/claude/**"
+  - "plugins/*/opencode/**"
 ---
 
-# Estás en `adapters/`, que es salida generada
+# Estás en la salida de un plugin, que es generada
 
-Todo lo que hay bajo `adapters/claude/{commands,skills,agents,scripts}` y
-`adapters/opencode/.opencode/{command,skills,agent,guides,scripts}` lo **escribe
+Todo lo que hay bajo `plugins/backbone/claude/{commands,skills,agents,scripts}` y
+`plugins/backbone/opencode/.opencode/{command,skills,agent,guides,scripts}` lo **escribe
 `scripts/sync.mjs`** a partir de `core/`. Editarlo a mano no es un atajo: el cambio desaparece en la siguiente
 ejecución de `sync.mjs`, y hasta entonces el CI `sync-check` está en rojo porque los
 adaptadores no cuadran con `core/`.
@@ -28,11 +29,11 @@ adaptadores no cuadran con `core/`.
    `scripts/sync.mjs` (`GUIDES` y `AGENTS`), no en el markdown.
 3. Ejecuta `node scripts/sync.mjs` y commitea también lo regenerado.
 
-**Las tres excepciones**, que sí se editan a mano bajo `adapters/`:
+**Las tres excepciones**, que sí se editan a mano bajo `plugins/<plugin>/claude/`:
 
-- `adapters/claude/hooks/` — los hooks son código, no se generan.
-- `adapters/claude/evals/` — casos de activación y `routing.json`.
-- `adapters/claude/.claude-plugin/plugin.json` — el manifiesto.
+- `plugins/backbone/claude/hooks/` — los hooks son código, no se generan.
+- `plugins/backbone/claude/evals/` — casos de activación y `routing.json`.
+- `plugins/backbone/claude/.claude-plugin/plugin.json` — el manifiesto.
 
 Antes de dar por buena una edición aquí, comprueba con `node scripts/sync.mjs` que no queda
 drift, y pasa `node scripts/check-behavior.mjs` y `node scripts/check-routing.mjs`.

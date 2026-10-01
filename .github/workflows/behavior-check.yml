@@ -37,7 +37,7 @@ on:
       - "scripts/check-frescura.mjs"
       - "scripts/check-entorno.mjs"
       - "scripts/lib/grader.mjs"
-      - "adapters/**"
+      - "plugins/**"
       - ".github/workflows/behavior-check.yml"
   pull_request:
     paths:
@@ -51,7 +51,7 @@ on:
       - "scripts/check-frescura.mjs"
       - "scripts/check-entorno.mjs"
       - "scripts/lib/grader.mjs"
-      - "adapters/**"
+      - "plugins/**"
       - ".github/workflows/behavior-check.yml"
 
 permissions:

@@ -15,9 +15,9 @@ graphify-out/
 *.log
 
 # Resultados del eval de activación (se regeneran en cada ejecución)
-adapters/claude/evals/results/
+plugins/backbone/claude/evals/results/
 
-# La caché del brazo BASE (adapters/claude/evals/*/.base-cache.json) SÍ se versiona: es una
+# La caché del brazo BASE (plugins/backbone/claude/evals/*/.base-cache.json) SÍ se versiona: es una
 # medición cara —sesiones reales de modelo— que no depende del plugin, así que compartirla
 # hace que recalibrar salga gratis para cualquiera. Lleva dentro el hash del prompt y el
 # modelo con el que se midió, que es lo que la invalida.
@@ -30,8 +30,9 @@ adapters/claude/evals/results/
 # Excepción: el .mcp.json EMPAQUETADO del plugin Claude usa solo placeholders de
 # variables de entorno (sin secretos) y DEBE versionarse para que Claude Code lo
 # auto-registre al instalar el plugin. Lo genera scripts/sync.mjs.
-!adapters/claude/.mcp.json
+!plugins/backbone/claude/.mcp.json
 
 # Memoria local de sesión para la IA — cada persona lleva la suya. La plantilla de referencia
 # (MEMORY.md.example) SÍ se versiona.
 /MEMORY.md
+/plugins/voice/MEMORY.md

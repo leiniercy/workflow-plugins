@@ -60,3 +60,4 @@ puede señalar quién lo verifica es una intención, no una política.
 | [0009](0009-las-acciones-de-ci-van-pineadas-por-sha.md) | Las acciones de CI van pineadas por SHA, y los workflows con permisos mínimos |
 | [0010](0010-el-modelo-de-cada-agente-se-elige-por-turnos.md) | El modelo de cada agente se elige por turnos, no por precio por token |
 | [0011](0011-el-eval-solo-mide-comportamientos-de-vocabulario-estrecho.md) | El eval solo mide comportamientos de vocabulario estrecho, y el informe enseña el texto |
+| [0012](0012-cada-plugin-tiene-su-directorio-bajo-plugins.md) | Cada plugin del marketplace tiene su directorio bajo `plugins/` |
