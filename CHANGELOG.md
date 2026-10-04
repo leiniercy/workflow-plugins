@@ -7,11 +7,15 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Añadido
 
+- **`/lead`, el coordinador del flujo** — lee el estado de una tarea (`spec.md`, `progress.md`, `.frontera`, la PR con `gh` y ClickUp), lo dice en una línea y propone la siguiente fase; la lanza con tu visto bueno y vuelve a leer. No escribe, no mueve ClickUp y no se salta los gates. Decide el estado con señales de forma fija, no con el texto libre de `progress.md`. Como `/review` no deja rastro, con la PR abierta pregunta si ya pasaste `/review` en vez de suponerlo. Lo que no ha comprobado lo dice en su propia línea, con «⚠ No comprobado:», y si no sabe cómo averiguarlo dice «no lo sé; deberíamos investigarlo». Solo para Claude Code: no se ha comprobado que OpenCode pueda lanzar fases desde un comando.
+
 - **`/setup`, el comando que prepara un repo para trabajar con IA** — comprueba si faltan `CLAUDE.md` (o `AGENTS.md` en OpenCode) y `MEMORY.md`, explica en una línea qué se pierde sin cada uno y los crea solo con aprobación, en un commit propio. `CLAUDE.md` no es la plantilla vacía: se rellena con lo verificado en el manifiesto, los scripts y la CI, y lo que no se puede verificar queda como pregunta, porque una regla falsa la obedecen todos los agentes. `MEMORY.md` es personal: va al `.gitignore`, y si ya estaba versionado lo dice y propone `git rm --cached`. Es a petición: ningún otro comando lo sugiere.
 
   Para que funcione, las plantillas viajan por fin dentro del plugin: pasan de `examples/` (que quien instala no recibe) a `core/templates/`, quinta clase de generado (ADR-0001), y `entorno.mjs` gana un bloque `contexto` con qué ficheros hay y si `MEMORY.md` está ignorado. La plantilla de `AGENTS.md` estaba desfasada —cuatro comandos y cinco dimensiones— y se pone al día.
 
 ### Cambiado
+
+- **`sync.mjs` admite `name` y `adapters` por comando** — la clave de `COMMANDS` sigue siendo el fichero de `core/workflows/`, `name` da el comando generado y `adapters` lo limita a parte de los adaptadores. Hace falta para tener un `/lead` en cada plugin; el de voice pasa a `core/workflows/lead-voice.md`. Dos entradas que generen la misma ruta paran la sincronización.
 
 - **`sync.mjs` genera varios paquetes desde el mismo `core/`** — cada guía y cada agente declara en `GUIDES` y `AGENTS` el campo `packages` (por defecto, solo `backbone`), y cada paquete tiene su carpeta de salida bajo `plugins/`. Es lo que permite que `voice` comparta guías con backbone sin copiarlas.
 

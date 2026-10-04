@@ -5,6 +5,10 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Cambiado
+
+- `/lead` separa lo comprobado de lo que no: lo primero lo dice en firme y con su origen; lo segundo, en su propia línea con «⚠ No comprobado:», terminando en lo que hay que mirar o en una pregunta. No nombra rutas, ramas ni cifras por patrón, y si no tiene evidencia de qué toca, pregunta en vez de proponer. La regla está en el snippet que comparte con el `/lead` de backbone.
+
 ### Corregido
 
 - El flujo entre fases cuadra: `/lead` ve cuándo un plan quedó pendiente tras cambiar el encargo y `/outline` deja constancia aunque no cambie nada; redactar tras entregar abre una versión nueva; reescribir una sección quita sus afirmaciones viejas; ninguna fase retoma un entregable descartado; y si falta el motor de PDF, `/deliver` deja el markdown en vez de cambiar a `.docx`. El verificador devuelve también lo que el borrador afirma sin apuntarlo.
