@@ -868,6 +868,29 @@ for (const cmd of VOICE_COMMANDS) {
     "voice: /lead pre-aprueba leer y lanzar fases (Read, Skill)");
   assert(!/\bWrite\b/.test(leadTools) && !/\bEdit\b/.test(leadTools) && !/\bBash\(\*/.test(leadTools),
     "voice: /lead NO pre-aprueba Write, Edit ni Bash libre");
+  // `Bash` sin paréntesis pre-aprueba cualquier comando: tan libre como `Bash(*)`.
+  assert(!/\bBash\b(?!\()/.test(leadTools),
+    "voice: /lead NO pre-aprueba Bash desnudo (sin paréntesis)");
+}
+
+// Gates de voice: frases que sostienen un punto de control o una regla compartida. Si un
+// cambio en core/ las quita, el gate se ha perdido aunque el comando siga existiendo.
+{
+  const vc = (cmd) => read(join(VOICE, "commands", cmd + ".md")) || "";
+  const va = (name) => read(join(VOICE, "agents", name + ".md")) || "";
+  const deliver = vc("deliver");
+  assert(/firma/i.test(deliver), "voice: /deliver pide la firma antes de exportar");
+  assert(deliver.includes("No exportes nada"), "voice: /deliver no exporta en modo descartar");
+  assert(vc("draft").includes("De uno en uno"), "voice: /draft despacha los redactores de uno en uno");
+  for (const [tipo, nombre, body] of [
+    ["comando", "outline", vc("outline")],
+    ["comando", "draft", vc("draft")],
+    ["agente", "redactor", va("redactor")],
+    ["agente", "verificador-afirmaciones", va("verificador-afirmaciones")],
+  ]) {
+    assert(body.includes("Texto autocontenido"), `voice: ${tipo} ${nombre} inserta el snippet texto-autocontenido`);
+  }
+  assert(vc("lead").includes("Eres el coordinador"), "voice: /lead inserta el snippet coordinador");
 }
 
 if (failures.length) {

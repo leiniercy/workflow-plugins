@@ -44,6 +44,7 @@ const A_MANO = [
   "plugins/backbone/claude/hooks/hooks.json",
   "plugins/backbone/claude/evals/routing.json",
   "plugins/backbone/claude/.claude-plugin/plugin.json",
+  "plugins/voice/claude/.claude-plugin/plugin.json",
 ];
 
 const huerfanos = POSEIDOS.flatMap((d) => [
@@ -81,6 +82,8 @@ assert(existsSync(join(VOICE, "agents", "explorador-repo.md")),
   "voice recibe el agente compartido explorador-repo");
 assert(!existsSync(join(ROOT, "plugins/voice/opencode")),
   "voice no se genera para OpenCode (depende de subagentes)");
+assert(!existsSync(join(ROOT, "plugins/backbone/claude/scripts/siglas.mjs")),
+  "el script de siglas solo viaja en voice (no llega a backbone)");
 assert(!existsSync(join(VOICE, ".mcp.json")),
   "voice no trae servidor MCP propio (chocaría con el clickup de backbone)");
 

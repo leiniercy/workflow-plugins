@@ -12,7 +12,9 @@
  *   4. solo backbone: el `ref` de examples/repo-settings.json
  *
  * NO crea el commit ni el tag: deja los ficheros listos para que los revises,
- * commitees (`chore(release): X.Y.Z`) y etiquetes (`git tag vX.Y.Z`).
+ * commitees y etiquetes. backbone: `chore(release): X.Y.Z` y `git tag vX.Y.Z`.
+ * voice: `chore(release): voice X.Y.Z` y `git tag voice-vX.Y.Z`, para no chocar con las
+ * etiquetas vX.Y.Z, que son de backbone.
  *
  * Uso:
  *   node scripts/bump-version.mjs <patch|minor|major|X.Y.Z> [--plugin voice]
@@ -61,6 +63,10 @@ const pluginFlag = args.indexOf("--plugin");
 let pluginName = "backbone";
 if (pluginFlag !== -1) {
   pluginName = args[pluginFlag + 1];
+  if (!pluginName || pluginName.startsWith("--")) {
+    console.error("--plugin necesita un nombre: --plugin voice");
+    process.exit(1);
+  }
   args.splice(pluginFlag, 2);
 }
 const arg = args[0];
@@ -115,4 +121,8 @@ if (settingsRef) {
 console.log(`bump-version (${PLUGIN_NAME}): ${current} -> ${next}`);
 console.log("  ✓ plugin.json, marketplace.json y changelog actualizados");
 console.log(`  Ahora: revisa el diff, ejecuta 'node scripts/check-version.mjs',`);
-console.log(`  commitea (chore(release): ${next}) y etiqueta (git tag v${next}).`);
+// Las etiquetas vX.Y.Z son de backbone; los demás plugins llevan su nombre delante.
+const isBackbone = PLUGIN_NAME === "backbone";
+const commitMsg = isBackbone ? `chore(release): ${next}` : `chore(release): ${PLUGIN_NAME} ${next}`;
+const tag = isBackbone ? `v${next}` : `${PLUGIN_NAME}-v${next}`;
+console.log(`  commitea (${commitMsg}) y etiqueta (git tag ${tag}).`);
