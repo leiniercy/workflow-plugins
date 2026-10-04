@@ -843,12 +843,21 @@ assert(read(join(ROOT, "plugins/backbone/claude/agents/redactor.md")) === null,
 // --- voice: comandos ---
 // Cada comando existe, lleva banderas rojas y no llega a backbone. La lista crece en cada
 // tarea del plan de voice; al final son los cinco.
-const VOICE_COMMANDS = ["brief", "outline"];
+const VOICE_COMMANDS = ["brief", "outline", "draft", "deliver"];
 for (const cmd of VOICE_COMMANDS) {
   const body = read(join(VOICE, "commands", cmd + ".md"));
   assert(body !== null, `voice: comando /${cmd} existe`);
   assert(body !== null && /Banderas rojas/i.test(body), `voice: /${cmd} tiene tabla de Banderas rojas`);
   assert(read(join(CLAUDE, "commands", cmd + ".md")) === null, `voice: /${cmd} no llega a backbone`);
+}
+
+// /deliver ejecuta el script de siglas antes de la firma: es la única comprobación
+// determinista del texto autocontenido. Se asevera que el comando lo referencia por su ruta
+// generada, no que la prosa lo nombre.
+{
+  const deliver = read(join(VOICE, "commands/deliver.md")) || "";
+  assert(/\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/siglas\.mjs/.test(deliver),
+    "voice: /deliver ejecuta siglas.mjs desde el plugin");
 }
 
 if (failures.length) {

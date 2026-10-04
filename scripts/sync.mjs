@@ -132,6 +132,18 @@ const COMMANDS = {
     argumentHint: "[slug del entregable (opcional: se infiere si solo hay uno vivo)]",
     packages: ["voice"],
   },
+  draft: {
+    description:
+      "Redacta un entregable sección a sección contra plan.md, despachando un redactor por sección de uno en uno. Cada afirmación sobre el producto o el cliente va a afirmaciones.md con su respaldo; lo que no tiene respaldo se marca, no se inventa. Se retoma a medias. Si el plan ya no sirve, para y lo dice: NO reescribe el plan.",
+    argumentHint: "[slug del entregable (opcional)] [identificador de sección para redactar solo esa]",
+    packages: ["voice"],
+  },
+  deliver: {
+    description:
+      "Cierra un entregable. Modo entregar: comprueba siglas, despacha verificador-afirmaciones, enseña lo dudoso o sin respaldo, pide la firma del usuario (punto de control 2) y solo entonces exporta al formato del encargo y sella progress.md. Modo descartar: motivo en una línea, sello, nada exportado y la carpeta intacta.",
+    argumentHint: "[slug del entregable (opcional)] [descartar]",
+    packages: ["voice"],
+  },
 };
 
 // ---------------------------------------------------------------------------
