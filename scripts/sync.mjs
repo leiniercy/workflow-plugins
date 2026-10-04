@@ -118,6 +118,20 @@ const COMMANDS = {
       "Prepara un repo para trabajar con IA: comprueba si faltan CLAUDE.md (o AGENTS.md en OpenCode) y MEMORY.md, explica para qué sirve cada uno y los crea solo con aprobación. CLAUDE.md sale de lo verificado en el repo, no de una plantilla vacía; MEMORY.md es personal y se añade al .gitignore. Commit propio, aparte del código. NO toca código, tasks/ ni ClickUp.",
     argumentHint: "[sin argumentos]",
   },
+
+  // voice. Sin allowed-tools: escriben ficheros de estado y pasan por el permiso normal.
+  brief: {
+    description:
+      "Fija el encargo de un entregable de cliente: quién lo lee, qué decisión tiene que poder tomar, formato de salida, fuentes (repo opcional, documentos, reuniones) y qué queda fuera. Pregunta solo lo que no está en ninguna fuente y, con aprobación, crea entregables/<slug>/ con encargo.md y progress.md. NO escribe el plan ni redacta.",
+    argumentHint: "[descripción del encargo, o taskId de ClickUp]",
+    packages: ["voice"],
+  },
+  outline: {
+    description:
+      "Escribe plan.md de un entregable: índice y, por sección, qué cuenta, de qué fuente sale, qué afirmaciones hará y cómo se respaldan, y si lleva diagrama o tabla y por qué. Termina con la aprobación del plan (punto de control 1). NO redacta prosa.",
+    argumentHint: "[slug del entregable (opcional: se infiere si solo hay uno vivo)]",
+    packages: ["voice"],
+  },
 };
 
 // ---------------------------------------------------------------------------

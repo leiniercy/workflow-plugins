@@ -840,6 +840,17 @@ for (const [name, want] of Object.entries(VOICE_AGENTS)) {
 assert(read(join(ROOT, "plugins/backbone/claude/agents/redactor.md")) === null,
   "el redactor de voice no llega a backbone");
 
+// --- voice: comandos ---
+// Cada comando existe, lleva banderas rojas y no llega a backbone. La lista crece en cada
+// tarea del plan de voice; al final son los cinco.
+const VOICE_COMMANDS = ["brief", "outline"];
+for (const cmd of VOICE_COMMANDS) {
+  const body = read(join(VOICE, "commands", cmd + ".md"));
+  assert(body !== null, `voice: comando /${cmd} existe`);
+  assert(body !== null && /Banderas rojas/i.test(body), `voice: /${cmd} tiene tabla de Banderas rojas`);
+  assert(read(join(CLAUDE, "commands", cmd + ".md")) === null, `voice: /${cmd} no llega a backbone`);
+}
+
 if (failures.length) {
   console.error(`✗ ${failures.length}/${total} aserciones de comportamiento fallaron:`);
   for (const f of failures) console.error("  - " + f);
