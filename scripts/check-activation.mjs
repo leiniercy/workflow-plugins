@@ -90,7 +90,11 @@ const value = (name) => {
 // `--plugin <nombre>` elige qué plugin del marketplace se mide (ADR-0012: cada uno vive en
 // plugins/<nombre>/claude, con sus evals/ al lado). Por defecto backbone, que es lo que
 // este script medía antes de que hubiera un segundo plugin.
-const PLUGIN_NAME = value("--plugin") || "backbone";
+if (flag("--plugin") && (!value("--plugin") || value("--plugin").startsWith("--"))) {
+  console.error("✗ --plugin necesita un nombre (p. ej. --plugin voice).");
+  process.exit(2);
+}
+const PLUGIN_NAME = flag("--plugin") ? value("--plugin") : "backbone";
 const PLUGIN_DIR = join(ROOT, "plugins", PLUGIN_NAME, "claude");
 const EVALS_DIR = join(PLUGIN_DIR, "evals");
 const withBaseline = flag("--baseline");

@@ -5,6 +5,10 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Medido
+
+- `veracidad-tecnica` no se escribe (2026-10-04): sin el plugin, el modelo ya se niega a afirmar ante el cliente una capacidad sin respaldo (3 de 3). El caso de eval se borró, como los casos SIN DELTA de backbone.
+
 ## [0.1.0] - 2026-10-04
 
 ### Añadido

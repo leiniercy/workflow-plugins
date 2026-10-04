@@ -42,8 +42,17 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // `--plugin <nombre>` elige el plugin cuyos graders se prueban; por defecto backbone.
 const argv = process.argv.slice(2);
 const iPlugin = argv.indexOf("--plugin");
-const PLUGIN = (iPlugin >= 0 && argv[iPlugin + 1]) || "backbone";
-const EVALS = join(ROOT, "plugins", PLUGIN, "claude", "evals");
+if (iPlugin >= 0 && (!argv[iPlugin + 1] || argv[iPlugin + 1].startsWith("--"))) {
+  console.error("✗ --plugin necesita un nombre (p. ej. --plugin voice).");
+  process.exit(2);
+}
+const PLUGIN = iPlugin >= 0 ? argv[iPlugin + 1] : "backbone";
+const PLUGIN_ROOT = join(ROOT, "plugins", PLUGIN);
+if (!existsSync(PLUGIN_ROOT)) {
+  console.error(`✗ No existe el plugin «${PLUGIN}» (${PLUGIN_ROOT}). ¿Está bien escrito el nombre?`);
+  process.exit(2);
+}
+const EVALS = join(PLUGIN_ROOT, "claude", "evals");
 
 const fallos = [];
 let total = 0;
@@ -53,8 +62,8 @@ function assert(cond, msg) {
   if (!cond) fallos.push(msg);
 }
 
-// Un plugin que aún no tiene casos no es un fallo de sus graders: no hay grader que probar.
-// backbone sí debe tenerlos, y para él se mantiene la aserción de siempre.
+// Un plugin que existe y aún no tiene casos no es un fallo de sus graders: no hay grader que
+// probar. backbone sí debe tenerlos, y para él se mantiene la aserción de siempre.
 if (PLUGIN !== "backbone" && !existsSync(EVALS)) {
   console.log(`✓ ${PLUGIN}: sin casos de eval (no existe ${EVALS}); nada que comprobar.`);
   process.exit(0);
