@@ -14,21 +14,29 @@ Para CADA línea de `afirmaciones.md`:
 
 - **Respaldo de código:** abre el fichero en la línea citada. Si no existe, la línea no está o
   dice otra cosa → **tumbada**. Hazlo antes que nada: no exige razonar y tumba sin gastar más.
-- **Respaldo del encargo:** busca la cita en `encargo.md`. Si no aparece, o aparece con otro
-  sentido → **tumbada**.
-- **Compromiso sin respaldo:** no se tumba, se **señala**: el usuario tiene que verlo antes de
-  firmar.
+- **Respaldo del encargo:** busca la cita en `encargo.md` o, si cita un documento o una reunión
+  que el encargo nombra, en ese documento o en lo que el encargo apuntó de esa reunión. Si no
+  aparece, o aparece con otro sentido → **tumbada**. Si la fuente no se puede abrir → **dudosa**.
+- **Compromiso sin respaldo:** no se tumba, se **señala** con el veredicto **sin respaldo**: el
+  usuario tiene que verlo antes de firmar.
 - **¿El borrador dice lo mismo que la afirmación?** Si el texto del borrador promete más que lo
   apuntado («menos de cinco minutos» en la lista, «al instante» en el texto) → **tumbada**.
 - Si no puedes decidir con lo que hay → **dudosa**, con lo que falta para decidir.
+- Si el respaldo existe y dice lo mismo que el borrador → **sostenida**.
 
-Además, recorre el borrador buscando **referencias que no se entienden sin abrir la fuente** («ver
-el documento de requisitos», «como se acordó») y devuélvelas aparte.
+Son cuatro veredictos, y solo cuatro: **sostenida**, **tumbada**, **dudosa** y **sin respaldo**.
+
+Después, recorre el borrador buscando **afirmaciones sobre el producto o el cliente que no están en
+`afirmaciones.md`**. Nadie ha comprobado su respaldo, así que devuélvelas aparte, como **sin
+apuntar**, con su sección.
+
+Por último, recorre el borrador buscando **referencias que no se entienden sin abrir la fuente**
+(«ver el documento de requisitos», «como se acordó») y devuélvelas aparte.
 
 {{snippet:texto-autocontenido}}
 
 ## Lo que devuelves
 
-Una tabla `| afirmación | veredicto | motivo |` con sostenida, tumbada, dudosa o sin respaldo, y
-después la lista de referencias que no se sostienen solas. Sin veredicto global: la firma es del
-usuario.
+Una tabla `| afirmación | veredicto | motivo |` con sostenida, tumbada, dudosa o sin respaldo;
+después, la lista de afirmaciones sin apuntar, y por último la de referencias que no se sostienen
+solas. Sin veredicto global: la firma es del usuario.

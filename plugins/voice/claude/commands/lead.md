@@ -20,7 +20,7 @@ Lo que no haces, aunque parezca más rápido:
 - **No escribes ni editas ningún fichero, y no ejecutas nada que cambie el estado.** Si te
   sorprendes redactando una frase del trabajo o corrigiendo un fichero de estado, para: es trabajo
   de una fase. Esta regla no la impone ninguna herramienta, porque en un comando `allowed-tools`
-  pre-aprueba pero no prohíbe (ADR-0008); la sostienes tú.
+  solo pre-aprueba herramientas; no prohíbe las demás. La sostienes tú.
 - **No te saltas los puntos de control de las fases.** Un «sigue» que el usuario te dice a ti no
   es la aprobación que pide la fase.
 - **No encadenas fases sin preguntar.** Entre una fase y la siguiente es cuando el usuario decide
@@ -44,10 +44,11 @@ hay. El estado es el primero de esta lista que se cumpla:
 | Estado | Señal | Siguiente paso |
 |---|---|---|
 | descartado | `progress.md` lo sella como descartado | ninguno: dilo y termina |
+| nueva versión en curso | sellado como entregado y, después del último sello de entrega, una entrada «Versión nueva abierta» o de `/draft` | `/draft` si quedan secciones por redactar o pendientes de revisar; si no, `/deliver` (versión nueva) |
 | entregado | sellado como entregado y `salida/` o enlace presentes | ninguno, salvo que el usuario quiera una versión nueva (`/draft`) |
 | estado incoherente | sellado como entregado y sin `salida/` ni enlace, u otra contradicción | dilo y pregunta; no lo arregles |
 | sin encargo | no hay `encargo.md` | `/brief` |
-| plan pendiente de revisar | `progress.md` dice que el encargo cambió después del plan | revisión de la Fase 3, y luego `/outline` |
+| plan pendiente de revisar | en `progress.md`, la última entrada «Encargo cambiado» es más reciente que la última de `/outline` | revisión de la Fase 3: si falla, `/outline` para cambiar el plan; si cuadra, `/outline` para dejar constancia de la revisión |
 | sin plan | no hay `plan.md` | `/outline` |
 | plan sin revisar | hay `plan.md` y no hay secciones redactadas | revisión de la Fase 3, y luego `/draft` |
 | redacción a medias | faltan secciones o hay pendientes de revisar | `/draft` (di cuántas de cuántas) |
@@ -57,7 +58,8 @@ Dilo en una línea: «`<slug>`: redacción a medias, 4 de 7 secciones; siguiente
 
 ## Fase 3 — Revisar el plan contra el encargo
 
-Antes de proponer `/draft`, y cuando el encargo cambió después del plan, lee los dos y comprueba:
+Antes de proponer `/draft`, y cuando el plan está pendiente de revisar porque el encargo cambió,
+lee los dos y comprueba:
 
 1. Cada objetivo del encargo tiene al menos una sección que lo cubre.
 2. Ninguna sección cae fuera del alcance del encargo.
@@ -65,7 +67,9 @@ Antes de proponer `/draft`, y cuando el encargo cambió después del plan, lee l
 4. El formato de salida admite lo que el plan propone.
 
 Si algo falla, di qué y propone volver a `/outline <slug>`. **No corrijas el plan.** Si todo
-cuadra, resúmelo en dos líneas y propone `/draft`.
+cuadra, resúmelo en dos líneas y propone `/draft`. Si el plan estaba pendiente de revisar y
+cuadra, propone antes `/outline <slug>` para que deje escrito «Plan revisado contra el encargo
+nuevo, sin cambios»: tú no lo apuntas, y sin esa entrada el plan seguiría pendiente.
 
 ## Fase 4 — Lanzar y volver
 
@@ -90,4 +94,5 @@ gate.
 | "progress.md dice entregado pero no hay salida; lo corrijo" | Un estado incoherente se dice y se pregunta. Arreglarlo es escribir. |
 | "Hay tres entregables vivos, cojo el más reciente" | Elige el usuario. |
 | "Está descartado, pero propongo retomarlo" | Descartado es una decisión tomada. Dilo y termina. |
+| "El plan cuadra con el encargo nuevo; ya no está pendiente de revisar, paso a /draft" | Mientras `/outline` no deje constancia de la revisión, sigue pendiente. Propón `/outline`. |
 | "El plan tiene un hueco, lo apunto en progress.md para que no se pierda" | Tampoco escribes en `progress.md`. Lo dices y propones la fase que lo arregla. |

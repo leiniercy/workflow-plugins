@@ -6,6 +6,11 @@ redactores) y las entradas de `progress.md`.
 
 - Slug como en `/outline` (argumento, o el único vivo, o elegir).
 - Sin `plan.md` aprobado no se redacta: dilo y propón `/outline`.
+- Si `progress.md` lo sella como **descartado**, dilo y para, aunque el slug venga explícito.
+- Si `progress.md` lo sella como **entregado** y después no hay una entrada «Versión nueva
+  abierta», dilo: redactar abre una versión nueva, y lo enviado se conserva en `salida/vN/` sin
+  pisarse. Pregunta qué secciones cambian y, con la respuesta, apunta en `progress.md` «Versión
+  nueva abierta tras vN» con esas secciones como pendientes de revisar.
 - Lee `progress.md`: qué secciones están hechas, cuáles pendientes de revisar tras una vuelta atrás
   y cuáles sin empezar. Si el argumento trae un identificador de sección, solo esa.
 
@@ -47,3 +52,5 @@ gate.
 | "No encuentro el respaldo, pero seguro que es así" | Compromiso sin respaldo. Se marca y se dice, no se inventa. |
 | "El plan no encaja, lo ajusto un poco y sigo" | El plan es de `/outline` y se aprueba. Para y propón volver. |
 | "Ya que estoy, mejoro la sección anterior" | Solo las secciones pendientes. Reescribir lo aprobado es una vuelta atrás. |
+| "Ya se entregó; reescribo la sección y listo" | Redactar tras entregar abre una versión nueva: dilo, pregunta qué secciones y apúntalo. Lo enviado no se pisa. |
+| "Me pasan el slug explícito; aunque esté descartado, redacto" | Descartado es una decisión sellada. Dilo y para. |

@@ -220,7 +220,8 @@ const AGENTS = {
     model: "sonnet",
     tools: ["Read", "Grep", "Glob"],
     packages: ["backbone", "voice"],
-  },  // voice. sonnet: redactar una sección es multi-turno (leer plan, fuentes, escribir, apuntar
+  },
+  // voice. sonnet: redactar una sección es multi-turno (leer plan, fuentes, escribir, apuntar
   // afirmaciones) y no es la función adversarial que justifica opus.
   redactor: {
     description:
@@ -233,12 +234,11 @@ const AGENTS = {
   // lo que tumba aquí es lo que el cliente leería como verdad.
   "verificador-afirmaciones": {
     description:
-      "Verificador adversarial de un entregable de voice (solo-lectura), despachado UNA vez por /deliver antes de la firma. Intenta TUMBAR cada línea de afirmaciones.md contra su respaldo (código, cita del encargo) y comprueba que cada referencia del borrador se entiende sin abrir la fuente. Devuelve un veredicto por afirmación (sostenida/tumbada/dudosa); no firma ni exporta.",
+      "Verificador adversarial de un entregable de voice (solo-lectura), despachado UNA vez por /deliver antes de la firma. Intenta TUMBAR cada línea de afirmaciones.md contra su respaldo (código, cita del encargo o de un documento o reunión que el encargo nombra), busca en el borrador afirmaciones sobre el producto o el cliente que no están apuntadas y comprueba que cada referencia del borrador se entiende sin abrir la fuente. Devuelve un veredicto por afirmación (sostenida/tumbada/dudosa/sin respaldo) y aparte las que encontró sin apuntar; no firma ni exporta.",
     model: "opus",
     tools: ["Read", "Grep", "Glob"],
     packages: ["voice"],
   },
-
 };
 
 // ---------------------------------------------------------------------------

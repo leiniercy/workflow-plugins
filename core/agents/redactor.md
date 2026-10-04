@@ -12,8 +12,11 @@ UNA sección y te vas: quien te despacha decide cuál va después.
 ## Lo que haces
 
 1. Escribe la sección en `borrador.md`, bajo un encabezado que lleve su identificador en un
-   comentario: `## Instalación <!-- s-instalacion -->`. Si la sección ya existía (vuelta atrás),
-   la reescribes en su sitio; no tocas las demás.
+   comentario: `## Instalación <!-- s-instalacion -->`. Si la sección ya existía (vuelta atrás o
+   versión nueva), la reescribes en su sitio; no tocas las demás. **Antes de reescribirla, quita
+   de `afirmaciones.md` todas las líneas `[s-<id>]` de esa sección**, y luego apunta las nuevas:
+   una afirmación vieja que el texto nuevo ya no hace se verificaría igual y podría colarse como
+   respaldada.
 2. Escribe para el lector de `encargo.md`, con {{guide:escritura-natural}}: registro del lector,
    frases cortas, sin preámbulos.
 3. Por **cada afirmación sobre el producto o el cliente**, una línea en `afirmaciones.md`:
@@ -39,7 +42,8 @@ UNA sección y te vas: quien te despacha decide cuál va después.
 
 - No tocas `encargo.md`, `plan.md` ni `progress.md`. Si el plan no sirve para esta sección, no lo
   corriges: lo dices en tu respuesta y `/draft` para.
-- No escribes otras secciones «ya que estás».
+- No escribes otras secciones «ya que estás», ni tocas las líneas de `afirmaciones.md` de otras
+  secciones.
 
 ## Lo que devuelves
 

@@ -5,6 +5,8 @@ el cliente, así que **nada se exporta sin la firma del usuario**. Tu output per
 ## Fase 1 — Qué entregable y qué modo
 
 - Slug como en `/outline`.
+- Si `progress.md` ya lo sella como **descartado**, dilo y para, en los dos modos: no se entrega
+  ni se vuelve a sellar.
 - **Modo descartar** si `$ARGUMENTS` trae `descartar` o el usuario lo pide: salta a la Fase 6.
 - Modo entregar: sin `borrador.md` completo (todas las secciones de `plan.md` hechas y ninguna
   pendiente de revisar, según `progress.md`), no se entrega. Dilo y propón `/draft`.
@@ -30,12 +32,14 @@ En este orden, y sin resumir de más:
 
 1. Afirmaciones **tumbadas**, con el motivo.
 2. **Compromisos sin respaldo**: lo que el documento promete y nadie confirma.
-3. Afirmaciones **dudosas**.
-4. **Referencias** que no se entienden sin la fuente.
-5. **Siglas** sin explicar. Si alguna es una marca o un código de producto, el usuario puede
+3. Afirmaciones **sin apuntar**: lo que el borrador afirma y no está en `afirmaciones.md`, así que
+   nadie comprobó su respaldo.
+4. Afirmaciones **dudosas**.
+5. **Referencias** que no se entienden sin la fuente.
+6. **Siglas** sin explicar. Si alguna es una marca o un código de producto, el usuario puede
    pedir que se apunte en `<!-- siglas-ignorar: … -->` del borrador.
 
-Si hay algo en 1, 4 o 5, propone volver a `/draft <slug> <sección>` para arreglarlo antes de
+Si hay algo en 1, 3, 5 o 6, propone volver a `/draft <slug> <sección>` para arreglarlo antes de
 firmar. El usuario puede firmar igual: es su decisión, y queda escrita.
 
 ## Fase 5 — Firma y exportación (punto de control 2)
@@ -50,8 +54,10 @@ Con la firma:
 2. **Exporta** al formato de `encargo.md`:
    - `.docx`: `pandoc entregables/<slug>/borrador.md -o entregables/<slug>/salida/vN/<slug>.docx`
    - `.pptx`: `pandoc entregables/<slug>/borrador.md -o entregables/<slug>/salida/vN/<slug>.pptx`
-   - PDF: `pandoc entregables/<slug>/borrador.md -o entregables/<slug>/salida/vN/<slug>.pdf`;
-     si falla por falta de motor de PDF, exporta a `.docx` y dilo, para que lo convierta el usuario.
+   - PDF: `pandoc entregables/<slug>/borrador.md -o entregables/<slug>/salida/vN/<slug>.pdf`.
+     Si `pandoc` no encuentra un motor de PDF, borra el `.pdf` a medias si quedó, deja el
+     markdown firmado en `salida/vN/` y explica cómo convertirlo. **No exportes a `.docx` en su
+     lugar**: el cliente pidió PDF.
    - Google Docs o Slides, documento de Claude: con el conector de documentos que tenga la sesión.
      Publicar es visible para otros: confirma antes. El enlace va a `progress.md`.
    - **Sin `pandoc`** (`pandoc --version` falla) **o sin conector**: copia `borrador.md` a
@@ -81,5 +87,7 @@ gate.
 | "El verificador no está; lo doy por verificado" | Haces tú la pasada y dices que no es independiente. |
 | "Ya existe salida/v1, la sobrescribo con la nueva" | Lo enviado no se pisa: versión nueva. |
 | "No hay pandoc, le paso el markdown y ya" | Lo dices y explicas cómo convertirlo. Que falte una herramienta no se oculta. |
+| "Falta el motor de PDF; saco un .docx, que se parece" | El cliente pidió PDF. Deja el markdown firmado y explica cómo convertirlo. |
+| "Está descartado, pero me piden entregarlo" | Descartado es una decisión sellada. Dilo y para. |
 | "Se descarta, borro la carpeta para no dejar basura" | No se borra. El historial es la razón de sellar el descarte. |
 | "Se descarta, no hace falta motivo" | Sin motivo, nadie sabrá si se terminó o se abandonó. |

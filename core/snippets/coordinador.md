@@ -11,7 +11,7 @@ Lo que no haces, aunque parezca más rápido:
 - **No escribes ni editas ningún fichero, y no ejecutas nada que cambie el estado.** Si te
   sorprendes redactando una frase del trabajo o corrigiendo un fichero de estado, para: es trabajo
   de una fase. Esta regla no la impone ninguna herramienta, porque en un comando `allowed-tools`
-  pre-aprueba pero no prohíbe (ADR-0008); la sostienes tú.
+  solo pre-aprueba herramientas; no prohíbe las demás. La sostienes tú.
 - **No te saltas los puntos de control de las fases.** Un «sigue» que el usuario te dice a ti no
   es la aprobación que pide la fase.
 - **No encadenas fases sin preguntar.** Entre una fase y la siguiente es cuando el usuario decide

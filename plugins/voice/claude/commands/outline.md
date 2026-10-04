@@ -12,6 +12,8 @@ prosa, son decisiones. **No redactas**: eso es `/draft`. Tu único output persis
 - Si no, lista `entregables/*/` que no estén entregados ni descartados (lo dice su `progress.md`).
   Si hay uno, úsalo; si hay varios, pide elegir.
 - Sin `encargo.md`, no hay plan posible: dilo y propón `/brief`.
+- Si `progress.md` lo sella como **descartado**, dilo y para, aunque el slug venga explícito.
+  Descartar fue una decisión sellada; esta fase no la deshace.
 
 ## Fase 2 — Lee
 
@@ -68,13 +70,22 @@ coordinador revise el plan contra el encargo antes.
 
 ## Fase 5 — Vuelta atrás
 
-Si `plan.md` ya existe, el usuario está reorganizando:
+Si `plan.md` ya existe, el usuario está reorganizando o el encargo cambió después del plan:
 
-1. Enseña qué cambia: secciones nuevas, quitadas, movidas o con otro contenido, por identificador.
-2. Si existe `borrador.md`, lista qué secciones redactadas quedan afectadas. **No las borres**: se
+1. **Si el encargo cambió** (en `progress.md`, la última entrada «Encargo cambiado» es posterior a
+   la última de `/outline`), revisa el plan contra el encargo nuevo: qué secciones ya no cuadran y
+   qué objetivo nuevo no cubre ninguna.
+2. Enseña qué cambia: secciones nuevas, quitadas, movidas o con otro contenido, por identificador.
+3. Si existe `borrador.md`, lista qué secciones redactadas quedan afectadas y, de cada una, sus
+   líneas `[s-<id>]` de `afirmaciones.md`. **No las borres**: secciones y afirmaciones se
    marcarán como pendientes de revisar. Puede que solo cambien de sitio.
-3. Con aprobación, reescribe `plan.md` y apunta en `progress.md` qué cambió, por qué y qué
-   secciones quedan pendientes de revisar.
+4. Con aprobación, reescribe `plan.md` y apunta en `progress.md` qué cambió, por qué y qué
+   secciones y afirmaciones quedan pendientes de revisar.
+
+**Revisar sin cambios.** Si tras revisar el plan contra el encargo nuevo no hay nada que cambiar,
+dilo y, con aprobación, apunta en `progress.md` «Plan revisado contra el encargo nuevo, sin
+cambios». No reescribas `plan.md`. Esa entrada es la que le dice a `/lead` que la revisión está
+hecha.
 
 El punto de control se repite: un plan cambiado se vuelve a aprobar.
 
@@ -91,3 +102,5 @@ gate.
 | "Esta afirmación ya la respaldaremos" | Si hoy no sabes de dónde sale, se marca como difícil de respaldar. |
 | "El plan cambió poco, no hace falta volver a aprobarlo" | Un plan cambiado se vuelve a aprobar. |
 | "Hay secciones del borrador que ya no encajan, las borro" | Se marcan como pendientes de revisar. No se tira trabajo hecho. |
+| "El encargo cambió pero el plan sigue valiendo; no apunto nada" | Sin la entrada «Plan revisado contra el encargo nuevo, sin cambios», `/lead` seguirá viendo el plan pendiente de revisar. |
+| "Me pasan el slug explícito; aunque esté descartado, sigo" | Descartado es una decisión sellada. Dilo y para. |
