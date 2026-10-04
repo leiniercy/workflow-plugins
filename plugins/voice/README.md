@@ -22,8 +22,9 @@ sigue la regla del repo (ADR-0001, la decisión de que `core/` es la fuente úni
 /reload-plugins
 ```
 
-Para exportar a ficheros (docx, pdf) necesita `pandoc`, un conversor de documentos que se
-instala aparte. Sin él, `/deliver` deja el markdown firmado y explica cómo convertirlo.
+Para exportar a `.docx`, `.pptx` o PDF necesita `pandoc`, la herramienta que convierte el
+markdown a esos formatos; se instala aparte. Para PDF, `pandoc` necesita además un motor de PDF.
+Si falta cualquiera de los dos, `/deliver` deja el markdown firmado y explica cómo convertirlo.
 En esta versión funciona solo en Claude Code: OpenCode no está soportado.
 
 ## Los cinco comandos
@@ -38,7 +39,8 @@ Al instalarse quedan como `voice:brief`, etc., así que no chocan con los de bac
 | `/draft [slug]` | `borrador.md`, `afirmaciones.md` | ninguno propio; para si el plan ya no sirve |
 | `/deliver [slug]` | `salida/`, sello en `progress.md` | **punto de control 2**: tu firma antes de exportar |
 
-Todas las fases escriben su entrada en `progress.md` y sirven sueltas, sin pasar por `/lead`.
+Todas las fases escriben su entrada en `progress.md`, y las cuatro fases sirven sueltas, sin pasar
+por `/lead`.
 `/deliver` también descarta un entregable desde cualquier fase: sella el motivo y no borra la
 carpeta. `taskId` es el identificador de la tarea de ClickUp, si la hay.
 
@@ -106,6 +108,16 @@ salen en los dos plugins (`packages: ["backbone", "voice"]`).
 - Una guía por tipo de entregable (manual, presentación, informe), si el eval demuestra que
   hacen falta. Antes de escribir cada una, leer el ADR-0004 (el caso vale solo si la línea
   base falla) y el ADR-0011 (el eval solo mide comportamientos de vocabulario estrecho).
+
+## Riesgos conocidos
+
+- **La exportación no se ha probado de punta a punta.** Tampoco el camino completo de redactar,
+  verificar y firmar: `pandoc` no estaba instalado cuando se construyó esta versión. Las
+  instrucciones están escritas y comprobadas, pero el primer entregable real es también la
+  primera prueba.
+- **Con los dos plugins instalados, las ocho guías compartidas aparecen dos veces**, una por
+  plugin (`backbone:diagramas` y `voice:diagramas`, por ejemplo), con el mismo contenido. Da igual
+  cuál se cargue.
 
 ## Memoria de trabajo
 

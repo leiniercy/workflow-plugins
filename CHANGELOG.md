@@ -15,6 +15,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 - **`sync.mjs` genera varios paquetes desde el mismo `core/`** — cada guía y cada agente declara en `GUIDES` y `AGENTS` el campo `packages` (por defecto, solo `backbone`), y cada paquete tiene su carpeta de salida bajo `plugins/`. Es lo que permite que `voice` comparta guías con backbone sin copiarlas.
 
+- **Las comprobaciones del repo saben que hay dos plugins** — `check-version` comprueba la versión de cada plugin por separado, y `bump-version` sube la del que digas con `--plugin voice` (por defecto, backbone). `check-activation` y `check-graders` también aceptan `--plugin`. La prueba nueva `check-sync` comprueba que `sync.mjs` borra lo huérfano, reparte cada guía al plugin que toca y deja la salida de backbone sin cambiar ni un byte.
+
 - **Cada plugin tiene su directorio bajo `plugins/`** (ADR-0012). `adapters/claude/` pasa a `plugins/backbone/claude/` y `adapters/opencode/` a `plugins/backbone/opencode/`, para que el segundo plugin del marketplace, `voice` (entregables de cliente), viva al mismo nivel que backbone y no dentro de él. `core/` sigue siendo la fuente única de los dos. En OpenCode, la carpeta que se copia es ahora `plugins/backbone/opencode/.opencode/`; en Claude Code no cambia nada para quien instala.
 
 ### Añadido
