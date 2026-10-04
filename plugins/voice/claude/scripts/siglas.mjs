@@ -9,6 +9,9 @@
  * Lo que avisa lo decide el usuario: una marca o un código de producto no es una sigla. Para
  * eso, `<!-- siglas-ignorar: A, B -->` en el propio documento.
  *
+ * Con --diapositivas, cada diapositiva (separada por `---` o por un encabezado `#` o `##`) se
+ * revisa suelta, porque se proyecta suelta.
+ *
  * Uso:    node siglas.mjs <fichero.md> [--diapositivas]
  * Salida: JSON en stdout. 0 sin avisos · 1 hay siglas sin explicar · 2 no se pudo leer.
  */
@@ -40,13 +43,16 @@ function limpiar(t) {
     .replace(/https?:\/\/\S+/g, blanco);
 }
 
-const SIGLA = /\b([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ0-9]+)(s?)\b/g;
+// Límite de palabra Unicode: `\b` solo conoce letras ASCII y partiría «ÍNDICE» en «NDICE».
+const ANTES = "(?<![\\p{L}\\p{N}])";
+const DESPUES = "(?![\\p{L}\\p{N}])";
+const SIGLA = new RegExp(`${ANTES}([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ0-9]+)(s?)${DESPUES}`, "gu");
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 function explicadaEn(linea, sigla) {
   const s = esc(sigla);
-  return new RegExp(`\\b${s}s?\\s*\\([^)]+\\)`).test(linea) ||
-    new RegExp(`\\S[^()]*\\(${s}s?\\)`).test(linea);
+  return new RegExp(`${ANTES}${s}s?${DESPUES}\\s*\\([^)]+\\)`, "u").test(linea) ||
+    new RegExp(`\\S[^()]*\\(${s}s?\\)`, "u").test(linea);
 }
 
 function revisar(parte, lineaInicial, diapositiva) {
@@ -69,9 +75,11 @@ const limpio = limpiar(texto);
 let sinExplicar;
 if (diapositivas) {
   sinExplicar = [];
+  // Una diapositiva empieza en una línea `---` o en un encabezado de nivel 1 o 2.
   let linea = 1;
-  limpio.split(/^---$/m).forEach((parte, n) => {
-    sinExplicar.push(...revisar(parte, linea, n + 1));
+  let n = 0;
+  limpio.split(/^---$|^(?=#{1,2} )/m).forEach((parte) => {
+    if (parte.trim()) sinExplicar.push(...revisar(parte, linea, ++n));
     linea += parte.split("\n").length - 1;
   });
 } else {

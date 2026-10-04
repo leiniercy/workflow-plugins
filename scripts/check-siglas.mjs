@@ -44,6 +44,9 @@ caso("ignoradas", "<!-- siglas-ignorar: SKU, iOS -->\nCada SKU se vende en la ap
 caso("palabra-corta", "A veces Y otras no.", []);
 caso("diapositivas", "El ERP (sistema de gestión) arranca.\n---\nEl ERP se reinicia.", ["ERP"], ["--diapositivas"]);
 caso("sin-diapositivas", "El ERP (sistema de gestión) arranca.\n---\nEl ERP se reinicia.", []);
+caso("tildes", "El ÍNDICE y el ÁREA cambian.", ["ÁREA", "ÍNDICE"]);
+caso("tildes-explicada", "La OTAN (Organización del Tratado del Atlántico Norte) se reúne. La OTAN decide.", []);
+caso("diapositivas-encabezado", "## Uno\nEl ERP (sistema) arranca.\n## Dos\nEl ERP se reinicia.", ["ERP"], ["--diapositivas"]);
 
 if (failures.length) {
   console.error(`check-siglas: ${failures.length} de ${total} fallan`);

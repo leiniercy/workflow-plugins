@@ -35,6 +35,9 @@ UNA sección y te vas: quien te despacha decide cuál va después.
    tu respuesta. Un respaldo inventado es peor que uno ausente: el verificador puede no pillarlo
    y el cliente lo lee como verdad (`evidencia-y-preguntas` (`${CLAUDE_PLUGIN_ROOT}/skills/evidencia-y-preguntas/SKILL.md`)).
 5. Diagramas o tablas, solo los que pide `plan.md` para esta sección, con lo que dice que muestran.
+6. **En una presentación, cada diapositiva es un encabezado de nivel 2** (`##`). No partas una
+   diapositiva con otro `##` ni metas dos bajo el mismo: la comprobación de siglas trata cada
+   `##` como una diapositiva que se proyecta suelta.
 
 **Texto autocontenido.** Quien lee el entregable es de fuera y no tiene acceso a vuestros
 documentos. Dos reglas, sin excepción:

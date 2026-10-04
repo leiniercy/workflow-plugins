@@ -40,6 +40,9 @@ Por cada sección:
   al final.
 - Comprueba que el formato de salida del encargo admite lo que propones: un diagrama interactivo
   no cabe en un PDF.
+- **En una presentación, cada diapositiva es un encabezado de nivel 2** (`##`) con su
+  identificador. Así `/deliver` revisa las siglas diapositiva a diapositiva, que es como se
+  proyectan.
 
 **Texto autocontenido.** Quien lee el entregable es de fuera y no tiene acceso a vuestros
 documentos. Dos reglas, sin excepción:
