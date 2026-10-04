@@ -39,7 +39,11 @@ import { fileURLToPath } from "node:url";
 import { corrige } from "./lib/grader.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const EVALS = join(ROOT, "plugins/backbone/claude/evals");
+// `--plugin <nombre>` elige el plugin cuyos graders se prueban; por defecto backbone.
+const argv = process.argv.slice(2);
+const iPlugin = argv.indexOf("--plugin");
+const PLUGIN = (iPlugin >= 0 && argv[iPlugin + 1]) || "backbone";
+const EVALS = join(ROOT, "plugins", PLUGIN, "claude", "evals");
 
 const fallos = [];
 let total = 0;
@@ -49,9 +53,21 @@ function assert(cond, msg) {
   if (!cond) fallos.push(msg);
 }
 
+// Un plugin que aún no tiene casos no es un fallo de sus graders: no hay grader que probar.
+// backbone sí debe tenerlos, y para él se mantiene la aserción de siempre.
+if (PLUGIN !== "backbone" && !existsSync(EVALS)) {
+  console.log(`✓ ${PLUGIN}: sin casos de eval (no existe ${EVALS}); nada que comprobar.`);
+  process.exit(0);
+}
+
 const casos = readdirSync(EVALS, { withFileTypes: true })
   .filter((e) => e.isDirectory() && e.name !== "results")
   .map((e) => e.name);
+
+if (PLUGIN !== "backbone" && casos.length === 0) {
+  console.log(`✓ ${PLUGIN}: sin casos de eval; nada que comprobar.`);
+  process.exit(0);
+}
 
 assert(casos.length > 0, "hay casos de eval que comprobar");
 

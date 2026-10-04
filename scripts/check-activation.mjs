@@ -8,7 +8,7 @@
  *
  * Este script lo comprueba lanzando sesiones reales aisladas:
  *
- *     claude -p "<prompt>" --plugin-dir plugins/backbone/claude --allowedTools Skill
+ *     claude -p "<prompt>" --plugin-dir plugins/<plugin>/claude --allowedTools Skill
  *
  * `--plugin-dir` carga el plugin SOLO para esa sesión: no instala nada ni toca la
  * configuración del usuario. `--allowedTools Skill` impide que la sesión de prueba
@@ -64,6 +64,7 @@
  *   node scripts/check-activation.mjs --runs 5       # varianza: N muestras por caso
  *   node scripts/check-activation.mjs --sin-cache    # re-mide el brazo base aunque haya cache
  *   node scripts/check-activation.mjs --json out.json  # vuelca el resultado completo
+ *   node scripts/check-activation.mjs --plugin voice   # mide otro plugin (por defecto backbone)
  */
 import { readFileSync, readdirSync, existsSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -75,9 +76,6 @@ import { fileURLToPath } from "node:url";
 import { corrige } from "./lib/grader.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const PLUGIN_DIR = join(ROOT, "plugins/backbone/claude");
-const EVALS_DIR = join(PLUGIN_DIR, "evals");
-const PLUGIN_NAME = "backbone";
 const TIMEOUT_MS = 300_000;
 
 // ---------------------------------------------------------------------------
@@ -89,6 +87,12 @@ const value = (name) => {
   const i = argv.indexOf(name);
   return i >= 0 ? argv[i + 1] : null;
 };
+// `--plugin <nombre>` elige qué plugin del marketplace se mide (ADR-0012: cada uno vive en
+// plugins/<nombre>/claude, con sus evals/ al lado). Por defecto backbone, que es lo que
+// este script medía antes de que hubiera un segundo plugin.
+const PLUGIN_NAME = value("--plugin") || "backbone";
+const PLUGIN_DIR = join(ROOT, "plugins", PLUGIN_NAME, "claude");
+const EVALS_DIR = join(PLUGIN_DIR, "evals");
 const withBaseline = flag("--baseline");
 // `--sin-cache` fuerza a re-medir el brazo base aunque haya caché válida. Es la salida
 // para cuando sospechas del dato guardado, no el camino normal.
