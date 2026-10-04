@@ -567,9 +567,17 @@ assert(
 // exactamente el fallo que tiene que ver. No se copia, `/review` lo invoca por una ruta
 // que no existe, y degrada en silencio.
 {
+  // Los scripts que solo viajan en voice se declaran aquí; el resto se deriva del disco.
+  const SOLO_VOICE = ["siglas.mjs"];
   const SCRIPTS = readdirSync(join(ROOT, "core/scripts"))
-    .filter((f) => f.endsWith(".mjs"))
+    .filter((f) => f.endsWith(".mjs") && !SOLO_VOICE.includes(f))
     .sort();
+  for (const f of SOLO_VOICE) {
+    assert(
+      read(join(ROOT, "plugins/voice/claude/scripts", f)) === read(join(ROOT, "core/scripts", f)),
+      `${f} está copiado byte a byte al plugin voice`,
+    );
+  }
   assert(SCRIPTS.length > 0, "core/scripts/ contiene scripts (la derivación del disco funciona)");
   for (const f of SCRIPTS) {
     const fuente = read(join(ROOT, "core/scripts", f));
