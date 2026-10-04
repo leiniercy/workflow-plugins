@@ -19,3 +19,8 @@ cambios, porque esa guía nació para las tareas de backbone:
 | «Versión nueva abierta tras vN» | `/draft` | se vuelve a redactar algo ya entregado |
 | «Entregado vN» | `/deliver` | firma y exportación hechas |
 | «Descartado» | `/deliver` | descarte, con su motivo |
+
+**Entregable vivo**, para listar sin argumentos: no tiene «Descartado» y, o no tiene ninguna
+«Entregado vN», o tiene alguna entrada de `/brief`, `/outline` o `/draft` después de la última.
+Un entregable entregado al que le cambian el encargo o le abren una versión nueva vuelve a estar
+vivo, y las fases lo ofrecen igual que uno sin entregar.

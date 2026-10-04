@@ -34,7 +34,8 @@ Lo que no haces, aunque parezca más rápido:
 - Si es una descripción y no casa con ningún slug, es un encargo nuevo: propone `/brief` con esa
   descripción.
 - Sin argumentos: lista `entregables/*/` con su estado (Fase 2). Si no hay ninguno, pregunta qué
-  entregable quiere empezar. Si hay varios vivos, que elija el usuario.
+  entregable quiere empezar. Si hay varios vivos (definición junto a la lista de títulos), que
+  elija el usuario.
 
 ## Fase 2 — Diagnóstico
 
@@ -76,6 +77,11 @@ cambios, porque esa guía nació para las tareas de backbone:
 | «Versión nueva abierta tras vN» | `/draft` | se vuelve a redactar algo ya entregado |
 | «Entregado vN» | `/deliver` | firma y exportación hechas |
 | «Descartado» | `/deliver` | descarte, con su motivo |
+
+**Entregable vivo**, para listar sin argumentos: no tiene «Descartado» y, o no tiene ninguna
+«Entregado vN», o tiene alguna entrada de `/brief`, `/outline` o `/draft` después de la última.
+Un entregable entregado al que le cambian el encargo o le abren una versión nueva vuelve a estar
+vivo, y las fases lo ofrecen igual que uno sin entregar.
 
 Dilo en una línea: «`<slug>`: redacción a medias, 4 de 7 secciones; siguiente, `/draft`».
 

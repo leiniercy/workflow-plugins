@@ -9,9 +9,9 @@ prosa, son decisiones. **No redactas**: eso es `/draft`. Tu único output persis
 ## Fase 1 — Qué entregable
 
 - Si `$ARGUMENTS` trae un slug, úsalo.
-- Si no, lista `entregables/*/` que no estén entregados ni descartados (lo dicen sus entradas
-  «Entregado vN» y «Descartado» de `progress.md`).
-  Si hay uno, úsalo; si hay varios, pide elegir.
+- Si no, lista los entregables vivos (definición junto a la lista de títulos, al final de este
+  comando): también los entregados a los que les cambió el encargo después. Si hay uno, úsalo; si
+  hay varios, pide elegir.
 - Sin `encargo.md`, no hay plan posible: dilo y propón `/brief`.
 - Si `progress.md` lo sella como **descartado**, dilo y para, aunque el slug venga explícito.
   Descartar fue una decisión sellada; esta fase no la deshace.
@@ -111,6 +111,11 @@ cambios, porque esa guía nació para las tareas de backbone:
 | «Versión nueva abierta tras vN» | `/draft` | se vuelve a redactar algo ya entregado |
 | «Entregado vN» | `/deliver` | firma y exportación hechas |
 | «Descartado» | `/deliver` | descarte, con su motivo |
+
+**Entregable vivo**, para listar sin argumentos: no tiene «Descartado» y, o no tiene ninguna
+«Entregado vN», o tiene alguna entrada de `/brief`, `/outline` o `/draft` después de la última.
+Un entregable entregado al que le cambian el encargo o le abren una versión nueva vuelve a estar
+vivo, y las fases lo ofrecen igual que uno sin entregar.
 
 ## Banderas rojas (no te las saltes)
 

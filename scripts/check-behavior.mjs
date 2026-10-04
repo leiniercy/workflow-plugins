@@ -916,6 +916,26 @@ for (const cmd of VOICE_COMMANDS) {
     assert(titulos.some(({ t }) => base(citado).startsWith(t)),
       `voice: /lead lee «${citado}», que no está en la lista de títulos`);
   }
+  // Los tres casos de la tabla de estados de /lead que se arreglaron el 2026-10-04. Cada uno
+  // falla aquí si se pierde, no solo en una lectura a mano.
+  const leadCuerpo = read(join(ROOT, "core/workflows/lead.md")) || "";
+  const fila = (estado) => leadCuerpo.indexOf("| " + estado + " |");
+  // 1. Un cambio de encargo después de entregar pasa por la revisión del plan: la fila del plan
+  //    pendiente lo dice y va antes que «entregado», que si no la taparía.
+  assert(fila("plan pendiente de revisar") > -1 && fila("plan pendiente de revisar") < fila("entregado"),
+    "voice: /lead mira el plan pendiente de revisar antes que «entregado»");
+  assert(/\| plan pendiente de revisar \|[^\n]*después de entregar/.test(leadCuerpo),
+    "voice: /lead aplica el plan pendiente de revisar también después de entregar");
+  // 2. El estado incoherente se detecta antes que una versión en curso.
+  assert(fila("estado incoherente") > -1 && fila("estado incoherente") < fila("nueva versión en curso"),
+    "voice: /lead detecta el estado incoherente antes que la versión en curso");
+  // 3. Sin argumentos, las fases ofrecen también los entregados que vuelven a estar vivos.
+  assert(/\*\*Entregable vivo\*\*[\s\S]*después de la última/.test(snippetTitulos),
+    "voice: la lista de títulos define «entregable vivo» incluyendo lo reabierto tras entregar");
+  for (const cmd of ["outline", "draft", "deliver"]) {
+    assert(vc(cmd).includes("lista los entregables vivos (definición junto a la"),
+      `voice: /${cmd} sin argumentos usa la definición compartida de entregable vivo`);
+  }
 }
 
 if (failures.length) {

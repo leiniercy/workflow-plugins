@@ -4,9 +4,9 @@ el cliente, así que **nada se exporta sin la firma del usuario**. Tu output per
 
 ## Fase 1 — Qué entregable y qué modo
 
-- Si `$ARGUMENTS` trae un slug, úsalo. Si no, lista los entregables vivos y los que tienen una
-  «Versión nueva abierta tras vN» posterior a su última entrega; si hay uno, úsalo; si hay
-  varios, pide elegir.
+- Si `$ARGUMENTS` trae un slug, úsalo. Si no, lista los entregables vivos (definición junto a la
+  lista de títulos, al final de este comando): también los entregados con una versión nueva
+  abierta. Si hay uno, úsalo; si hay varios, pide elegir.
 - Si `progress.md` ya lo sella como **descartado**, dilo y para, en los dos modos: no se entrega
   ni se vuelve a sellar.
 - **Modo descartar** si `$ARGUMENTS` trae `descartar` o el usuario lo pide: salta a la Fase 6.

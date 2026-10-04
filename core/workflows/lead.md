@@ -10,7 +10,8 @@ descarte).
 - Si es una descripción y no casa con ningún slug, es un encargo nuevo: propone `/brief` con esa
   descripción.
 - Sin argumentos: lista `entregables/*/` con su estado (Fase 2). Si no hay ninguno, pregunta qué
-  entregable quiere empezar. Si hay varios vivos, que elija el usuario.
+  entregable quiere empezar. Si hay varios vivos (definición junto a la lista de títulos), que
+  elija el usuario.
 
 ## Fase 2 — Diagnóstico
 

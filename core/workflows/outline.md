@@ -5,9 +5,9 @@ prosa, son decisiones. **No redactas**: eso es `/draft`. Tu único output persis
 ## Fase 1 — Qué entregable
 
 - Si `$ARGUMENTS` trae un slug, úsalo.
-- Si no, lista `entregables/*/` que no estén entregados ni descartados (lo dicen sus entradas
-  «Entregado vN» y «Descartado» de `progress.md`).
-  Si hay uno, úsalo; si hay varios, pide elegir.
+- Si no, lista los entregables vivos (definición junto a la lista de títulos, al final de este
+  comando): también los entregados a los que les cambió el encargo después. Si hay uno, úsalo; si
+  hay varios, pide elegir.
 - Sin `encargo.md`, no hay plan posible: dilo y propón `/brief`.
 - Si `progress.md` lo sella como **descartado**, dilo y para, aunque el slug venga explícito.
   Descartar fue una decisión sellada; esta fase no la deshace.

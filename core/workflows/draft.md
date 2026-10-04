@@ -4,9 +4,11 @@ redactores) y las entradas de `progress.md`.
 
 ## Fase 1 — Qué entregable y qué secciones
 
-- Si `$ARGUMENTS` trae un slug, úsalo. Si no, lista los entregables vivos (sin «Entregado vN» ni
-  «Descartado» en `progress.md`): si hay uno, úsalo; si hay varios, pide elegir. Si no hay ninguno
-  vivo pero sí entregados, enuméralos y pregunta si quiere abrir una versión nueva de alguno.
+- Si `$ARGUMENTS` trae un slug, úsalo. Si no, lista los entregables vivos (definición junto a la
+  lista de títulos, al final de este comando): también los entregados con una versión nueva
+  abierta o con el encargo cambiado después. Si hay uno, úsalo; si hay varios, pide elegir. Si no
+  hay ninguno vivo pero sí entregados, enuméralos y pregunta si quiere abrir una versión nueva de
+  alguno.
 - Sin una entrada «Plan aprobado» en `progress.md` no se redacta: dilo y propón `/outline`.
 - Si `progress.md` lo sella como **descartado**, dilo y para, aunque el slug venga explícito.
 - Si la última entrega («Entregado vN») no tiene después una entrada

@@ -8,9 +8,9 @@ el cliente, así que **nada se exporta sin la firma del usuario**. Tu output per
 
 ## Fase 1 — Qué entregable y qué modo
 
-- Si `$ARGUMENTS` trae un slug, úsalo. Si no, lista los entregables vivos y los que tienen una
-  «Versión nueva abierta tras vN» posterior a su última entrega; si hay uno, úsalo; si hay
-  varios, pide elegir.
+- Si `$ARGUMENTS` trae un slug, úsalo. Si no, lista los entregables vivos (definición junto a la
+  lista de títulos, al final de este comando): también los entregados con una versión nueva
+  abierta. Si hay uno, úsalo; si hay varios, pide elegir.
 - Si `progress.md` ya lo sella como **descartado**, dilo y para, en los dos modos: no se entrega
   ni se vuelve a sellar.
 - **Modo descartar** si `$ARGUMENTS` trae `descartar` o el usuario lo pide: salta a la Fase 6.
@@ -103,6 +103,11 @@ cambios, porque esa guía nació para las tareas de backbone:
 | «Versión nueva abierta tras vN» | `/draft` | se vuelve a redactar algo ya entregado |
 | «Entregado vN» | `/deliver` | firma y exportación hechas |
 | «Descartado» | `/deliver` | descarte, con su motivo |
+
+**Entregable vivo**, para listar sin argumentos: no tiene «Descartado» y, o no tiene ninguna
+«Entregado vN», o tiene alguna entrada de `/brief`, `/outline` o `/draft` después de la última.
+Un entregable entregado al que le cambian el encargo o le abren una versión nueva vuelve a estar
+vivo, y las fases lo ofrecen igual que uno sin entregar.
 
 ## Banderas rojas (no te las saltes)
 
