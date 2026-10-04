@@ -56,18 +56,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
   irrecuperable: **guardar la pista antes de reiniciar**, porque reiniciar suele ser a la vez la
   mitigación correcta y la destrucción de la prueba.
 
-- **`/ship` y la séptima dimensión de `/review`** — con las guías de entrega ya escritas, el
-  comando deja de ser ceremonia: tiene qué orquestar. `/ship` recupera el plan de entrega de
-  `spec.md` o lo construye, ejecuta **paso a paso y en el orden escrito** —si un paso falla se
-  detiene ahí, porque un despliegue a medias con un arreglo improvisado encima es el peor
-  estado posible—, vigila la señal acordada durante la ventana acordada, y sella el resultado
-  en `progress.md`, apuntando la bandera que quede encendida con su fecha de retirada.
-
-  Es el único comando **sin `allowed-tools`, y a propósito**: `/review` y `/close` lo declaran
-  para pre-aprobar lectura, pero `/ship` es el único que necesita ejecutar algo que se ve desde
-  fuera, así que pre-aprobarle herramientas sería quitarle el prompt justo al paso que más lo
-  necesita. Su gate de la Fase 4 va además escrito en la prosa, y avisa de lo que el hook
-  `destructive-guard` **no** cubre: desplegar, mandar correos y disparar webhooks.
+- **La séptima dimensión de `/review`** — con las guías de entrega ya escritas, la revisión
+  tiene algo que mirar que antes no veía.
 
   El agente `revisor-entrega` (solo-lectura, condicional como el de UI) añade la dimensión 7 a
   `/review`: busca lo que ninguna otra mira porque **no falla en tu máquina** — variable de
@@ -77,7 +67,11 @@ Versionado [SemVer](https://semver.org/lang/es/).
   dispararse no da error) y dato personal dentro de un registro.
 
   `/close` gana una pregunta: cerrar la tarea no la pone en producción, así que pregunta si
-  queda desplegada o pendiente de entrega, y enruta a `/ship`.
+  queda desplegada o pendiente de entrega, y recuerda el «Plan de entrega» de `spec.md`.
+
+  Un comando `/ship`, que ejecutaba ese plan con gate antes de lo irreversible, llegó a
+  escribirse y se retiró antes de publicar: meter al plugin en producción no compensaba, y casi
+  todo su valor ya está en el plan escrito en `/plan` y en esta dimensión.
 
 - **El flujo llega hasta producción: `entrega-y-despliegue` y `observabilidad`** — backbone
   terminaba en la PR. Todo lo que hay entre «mergeado» y «funcionando para quien lo usa» se

@@ -13,7 +13,7 @@ Funciona igual en **Claude Code** y en **OpenCode**.
 |---|---|
 | **Qué es** | Un flujo de desarrollo para agentes de IA, guiado por tareas de ClickUp: `spec.md` → TDD → revisión → cierre |
 | **Para quién** | Equipos que ya trabajan por ticket, con criterios de aceptación y una PR que revisa un humano |
-| **Qué trae** | 8 comandos · 32 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
+| **Qué trae** | 7 comandos · 32 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
 | **Dónde corre** | Claude Code (plugin del marketplace `biomas`) · OpenCode (carpeta `.opencode/` lista para copiar) |
 | **Mínimo para arrancar** | Git con rama base `develop` + Node.js 18+ |
 | **Para el 100 %** | ClickUp, `gh`, graphify, `CLAUDE.md` y tres add-ons — [tabla de complementos](#los-complementos) |
@@ -35,7 +35,7 @@ los criterios antes de tocar código, `progress.md` guarda el hilo entre sesione
 despacha subagentes de contexto fresco que no escribieron nada, más un verificador que
 intenta refutar cada hallazgo antes de que llegue al informe.
 
-## El flujo, en ocho comandos
+## El flujo, en siete comandos
 
 | Comando | Qué hace | Transición de ClickUp |
 |---|---|---|
@@ -45,7 +45,6 @@ intenta refutar cada hallazgo antes de que llegue al informe.
 | `/implement [taskId]` | TDD criterio a criterio contra spec.md; duda en vuelo sobre las decisiones no triviales; commits/push/PR solo con aprobación | `in progress → review` al crear la PR (con aprobación) |
 | `/review [taskId]` | Diagnóstico en 7 dimensiones frente a spec.md (taxonomía ISO 25010; usabilidad/accesibilidad solo si el diff toca UI, entrega y operación solo si toca despliegue); **solo informa** | ninguna |
 | `/close [taskId]` | Valida los criterios contra spec.md; si están en verde, sella la salida en `progress.md` y propone el cierre. Admite cierre por abandono | `review → complete` (con aprobación) |
-| `/ship [taskId]` | Recupera el plan de entrega de spec.md o lo construye, despliega paso a paso con gate antes de lo irreversible y vigila la señal acordada. Condicional: si la tarea no sale a ningún entorno, lo dice y termina | a un estado posterior a `complete`, si el espacio lo tiene (con aprobación) |
 | `/setup` | A petición, fuera del camino de un ticket: comprueba si faltan `CLAUDE.md` (o `AGENTS.md`) y `MEMORY.md`, explica para qué sirve cada uno y los crea con aprobación. `CLAUDE.md` sale de lo verificado en el repo; `MEMORY.md` es personal y va al `.gitignore` | ninguna |
 
 Principios transversales: **nada se afirma sin comprobarlo** —todo dato escrito es hecho

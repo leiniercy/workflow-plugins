@@ -1115,7 +1115,7 @@ su gate y sus guías**.
 
 **Lo que mostró el mapa:** backbone cubría a fondo diseño, codificación y pruebas, y terminaba
 en la PR. Faltaban el despliegue, la operación y la economía del proyecto; la seguridad era una
-revisión y no una actividad. De ahí salen, en cuatro oleadas, `/ship`, `/define`,
+revisión y no una actividad. De ahí salen, en cuatro oleadas, `/define`,
 `entrega-y-despliegue`, `observabilidad`, `deuda-tecnica`, `proteccion-de-datos`,
 `incidente-en-produccion`, `valor-y-prioridad`, `modelado-de-negocio`, la séptima dimensión de
 `/review` y las cuatro extensiones de abajo.
@@ -1129,7 +1129,7 @@ se mide— y le dio el ADR-0011.
 
 | Patrón | Qué aporta | Aplicación a nuestro plugin | Estado |
 |---|---|---|---|
-| **«You build it, you run it»** y los pilares DevOps (entrega continua, ramas cortas, monitorización) | El equipo que construye asume el despliegue | `entrega-y-despliegue`, `observabilidad` y `/ship`. Reencuadrado en lo que el sitio no dice: **la vuelta atrás se decide antes y con la pregunta de si existe**, porque un redespliegue no deshace una migración, un correo ni un webhook | ✅ |
+| **«You build it, you run it»** y los pilares DevOps (entrega continua, ramas cortas, monitorización) | El equipo que construye asume el despliegue | `entrega-y-despliegue`, `observabilidad` y el bloque «Plan de entrega» de `spec.md` (un comando `/ship` llegó a escribirse y se retiró antes de publicar: meter al plugin en producción no compensaba). Reencuadrado en lo que el sitio no dice: **la vuelta atrás se decide antes y con la pregunta de si existe**, porque un redespliegue no deshace una migración, un correo ni un webhook | ✅ |
 | **Deuda técnica** (Cunningham, 1992) | La deuda financia; cobra intereses al modificar | `deuda-tecnica`, con lo que convierte la metáfora en decisión: las cuatro piezas del registro y la **señal de cobro** | ✅ |
 | **Requisitos no funcionales**: explotación, nivel de servicio, soporte, seguridad (RGPD/ENS), integración | Necesidades de otros *stakeholders* | Nivel de servicio → «contrato de servicio» en `calidad-producto`; seguridad de datos → `proteccion-de-datos`, decidida en `/plan` y **sin valoración legal del agente** | ✅ |
 | **Matriz valor/coste**, sobreingeniería, *feature creep*, falacia de la planificación (Kahneman y Tversky), ley de Brooks | Priorizar es elegir qué no se hace | `valor-y-prioridad`. Brooks entra como argumento de que, con fecha y equipo fijos, **la única palanca es el alcance** | ✅ |

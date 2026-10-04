@@ -100,8 +100,9 @@ Si la rama o el worktree siguen vivos, recuérdalo — pero no decidas tú qué 
 
 **Y pregunta si esto queda desplegado o pendiente de entrega.** Cerrar la tarea no la pone en
 producción, y ahí es donde el trabajo se queda a medias sin que nadie lo note: si el cambio
-tiene que salir a un entorno real, recomienda `/ship` como siguiente paso. Si no sale a ningún
-sitio, dilo en una línea y termina.
+tiene que salir a un entorno real, recuerda el bloque «Plan de entrega» de `spec.md` —orden,
+vuelta atrás y señal a vigilar, según `entrega-y-despliegue` (`${CLAUDE_PLUGIN_ROOT}/skills/entrega-y-despliegue/SKILL.md`)— y que lo ejecuta el
+usuario. Si no sale a ningún sitio, dilo en una línea y termina.
 
 **Estado de salida.** Termina el mensaje con una de estas cuatro líneas, tal cual y en la
 última línea de todo:

@@ -28,7 +28,6 @@ repositorio del plugin (carpeta `core/workflows/`) y puedes seguirlos como instr
 - **implement** — TDD criterio a criterio contra `spec.md`. Mueve a "review" al crear PR.
 - **review** — diagnóstico frente a spec (7 dimensiones). Solo informa, nunca modifica.
 - **close** — valida los criterios y sella la salida en `progress.md`.
-- **ship** — lleva una tarea mergeada a producción, con gate antes de lo irreversible.
 - **setup** — propone los ficheros de contexto que falten (este, `MEMORY.md`).
 
 ## Memoria de trabajo

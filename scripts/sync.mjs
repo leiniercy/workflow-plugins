@@ -96,24 +96,15 @@ const COMMANDS = {
       "Bash(gh pr view:*)",
     ],
   },
-  // Sin `allowed-tools` A PROPÓSITO, y es la decisión de diseño del comando. /review y /close
-  // lo declaran para PRE-APROBAR lectura; /ship es el único que necesita EJECUTAR algo que se
-  // ve desde fuera, así que pre-aprobarle herramientas sería quitarle el prompt justo al paso
-  // que más lo necesita. Sin el campo, cada acción pasa por el flujo normal de permisos — que
-  // es lo que queremos— y el gate de la Fase 4 va además escrito en la prosa.
-  // A petición y sin `allowed-tools`, por la misma razón que /ship: todo lo que escribe
-  // —CLAUDE.md, AGENTS.md, .gitignore— es configuración compartida, y pre-aprobárselo le
-  // quitaría el prompt al único paso que lo necesita. Ningún otro comando lo sugiere: el
+  // A petición y sin `allowed-tools` A PROPÓSITO. /review y /close lo declaran para
+  // PRE-APROBAR lectura; todo lo que /setup escribe —CLAUDE.md, AGENTS.md, .gitignore— es
+  // configuración compartida, y pre-aprobárselo le quitaría el prompt al único paso que lo
+  // necesita. Sin el campo, cada escritura pasa por el flujo normal de permisos. Ningún otro comando lo sugiere: el
   // usuario eligió (01/10/2026) que no hubiera avisos automáticos.
   setup: {
     description:
       "Prepara un repo para trabajar con IA: comprueba si faltan CLAUDE.md (o AGENTS.md en OpenCode) y MEMORY.md, explica para qué sirve cada uno y los crea solo con aprobación. CLAUDE.md sale de lo verificado en el repo, no de una plantilla vacía; MEMORY.md es personal y se añade al .gitignore. Commit propio, aparte del código. NO toca código, tasks/ ni ClickUp.",
     argumentHint: "[sin argumentos]",
-  },
-  ship: {
-    description:
-      "Lleva una tarea ya mergeada de «hecha» a «funcionando y vigilada»: recupera el plan de entrega de spec.md o lo construye, ejecuta paso a paso con gate humano antes de lo irreversible, vigila la señal acordada durante la ventana acordada y sella el resultado en progress.md. Condicional: si la tarea no sale a ningún entorno, lo dice en una línea y termina. Solo escribe progress.md - nunca código ni spec.md.",
-    argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
   },
 };
 
