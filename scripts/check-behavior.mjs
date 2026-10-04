@@ -820,6 +820,26 @@ for (const dir of ["plugins/backbone/claude", "plugins/backbone/opencode"]) {
 }
 
 
+// --- voice: agentes ---
+// En un subagente, `tools` SÍ es un límite duro: el verificador no puede escribir aunque se lo
+// pidan, y el redactor no tiene Bash, así que no puede exportar ni tocar git.
+const VOICE = join(ROOT, "plugins/voice/claude");
+const VOICE_AGENTS = {
+  redactor: { tools: "Read, Grep, Glob, Write, Edit", model: "sonnet" },
+  "verificador-afirmaciones": { tools: "Read, Grep, Glob", model: "opus" },
+  "explorador-repo": { tools: "Read, Grep, Glob", model: "sonnet" },
+};
+for (const [name, want] of Object.entries(VOICE_AGENTS)) {
+  const body = read(join(VOICE, "agents", name + ".md"));
+  assert(body !== null, `voice: agente ${name} existe`);
+  if (body === null) continue;
+  const fm = frontmatter(body);
+  assert(field(fm, "tools") === want.tools, `voice: ${name} tools = "${want.tools}" — actual: "${field(fm, "tools")}"`);
+  assert(field(fm, "model") === want.model, `voice: ${name} model = ${want.model} — actual: ${field(fm, "model")}`);
+}
+assert(read(join(ROOT, "plugins/backbone/claude/agents/redactor.md")) === null,
+  "el redactor de voice no llega a backbone");
+
 if (failures.length) {
   console.error(`✗ ${failures.length}/${total} aserciones de comportamiento fallaron:`);
   for (const f of failures) console.error("  - " + f);

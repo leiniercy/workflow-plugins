@@ -184,7 +184,25 @@ const AGENTS = {
     model: "sonnet",
     tools: ["Read", "Grep", "Glob"],
     packages: ["backbone", "voice"],
+  },  // voice. sonnet: redactar una sección es multi-turno (leer plan, fuentes, escribir, apuntar
+  // afirmaciones) y no es la función adversarial que justifica opus.
+  redactor: {
+    description:
+      "Redactor de UNA sección de un entregable de voice, despachado por /draft de uno en uno. Recibe la carpeta del entregable y el identificador de sección; escribe esa sección en borrador.md siguiendo plan.md y apunta cada afirmación sobre el producto o el cliente en afirmaciones.md con su respaldo. No inventa respaldo: lo que no encuentra lo marca como compromiso sin respaldo. Solo toca borrador.md y afirmaciones.md.",
+    model: "sonnet",
+    tools: ["Read", "Grep", "Glob", "Write", "Edit"],
+    packages: ["voice"],
   },
+  // opus, como verificador-hallazgos: su única función es encontrar lo que el autor no vio, y
+  // lo que tumba aquí es lo que el cliente leería como verdad.
+  "verificador-afirmaciones": {
+    description:
+      "Verificador adversarial de un entregable de voice (solo-lectura), despachado UNA vez por /deliver antes de la firma. Intenta TUMBAR cada línea de afirmaciones.md contra su respaldo (código, cita del encargo) y comprueba que cada referencia del borrador se entiende sin abrir la fuente. Devuelve un veredicto por afirmación (sostenida/tumbada/dudosa); no firma ni exporta.",
+    model: "opus",
+    tools: ["Read", "Grep", "Glob"],
+    packages: ["voice"],
+  },
+
 };
 
 // ---------------------------------------------------------------------------
