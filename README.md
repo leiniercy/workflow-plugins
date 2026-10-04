@@ -5,7 +5,7 @@ agente recorre siempre el mismo camino de cinco pasos, deja por escrito en el re
 decide, y te pide permiso para todo lo que se ve desde fuera: commits, push, PR y cambios
 de estado.
 
-Funciona igual en **Claude Code** y en **OpenCode**.
+Funciona igual en **Claude Code** y en **OpenCode**, salvo `/lead`, que es solo de Claude Code.
 
 ## De un vistazo
 
@@ -13,7 +13,7 @@ Funciona igual en **Claude Code** y en **OpenCode**.
 |---|---|
 | **Qué es** | Un flujo de desarrollo para agentes de IA, guiado por tareas de ClickUp: `spec.md` → TDD → revisión → cierre |
 | **Para quién** | Equipos que ya trabajan por ticket, con criterios de aceptación y una PR que revisa un humano |
-| **Qué trae** | 8 comandos · 32 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
+| **Qué trae** | 8 comandos (7 en OpenCode: `/lead` es solo de Claude Code) · 32 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
 | **Dónde corre** | Claude Code (plugin del marketplace `biomas`) · OpenCode (carpeta `.opencode/` lista para copiar) |
 | **Mínimo para arrancar** | Git con rama base `develop` + Node.js 18+ |
 | **Para el 100 %** | ClickUp, `gh`, graphify, `CLAUDE.md` y tres add-ons — [tabla de complementos](#los-complementos) |
@@ -80,7 +80,7 @@ contexto, degradación elegante si falta ClickUp o graphify, e historial inmutab
   accesibilidad, coste, prompts, diagramas…) que se activan solas por contexto, con sus
   síntomas escritos en la `description`.
 - **La misma prosa en dos herramientas.** Todo vive en `core/` y `scripts/sync.mjs` genera
-  los dos adaptadores, así que Claude Code y OpenCode no se separan con el tiempo.
+  los dos adaptadores, así que Claude Code y OpenCode no se separan con el tiempo (salvo `/lead`).
 - **Lo que promete está probado.** Trece comprobaciones `check-*.mjs` —doce de ellas en CI—
   verifican el comportamiento, no solo que el YAML parsee: que los hooks no escriban fuera,
   que la fusión no pierda hallazgos, que el escaneo del suelo de calidad case de verdad.

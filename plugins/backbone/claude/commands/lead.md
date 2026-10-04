@@ -20,8 +20,8 @@ mismo:
 comprobada o no lo es, y se tiene que notar en cómo la dices.
 
 - **Comprobado** es lo que has leído o ejecutado en esta vuelta: un fichero, la salida de un
-  comando, el estado de ClickUp. Lo dices en firme y con su origen al lado: «`spec.md` tiene 3 de
-  7 criterios marcados».
+  comando, el estado de ClickUp. Lo dices en firme y con su origen al lado: «`progress.md` tiene
+  cuatro entradas en el historial».
 - **No comprobado** es todo lo demás, incluido lo que «seguro que es así». Va en su propia línea,
   empezando por **«⚠ No comprobado:»**, y termina en una de dos salidas: lo que hay que mirar
   para saberlo, o una pregunta al usuario. Si no sabes cómo averiguarlo, dilo con esas palabras:
@@ -82,8 +82,9 @@ Lee `tasks/<taskId>/progress.md` y `tasks/<taskId>/spec.md`, y mira si existe
 `tasks/<taskId>/.frontera`. Busca la rama de la tarea con `git branch --list '*<taskId>*'` y
 `git branch -r --list '*<taskId>*'`: puede no ser la rama en la que estás. Con ella, consulta su
 PR con `gh pr view <rama> --json state,url,headRefOid,reviewDecision`; sin `<rama>`, `gh` mira la
-rama actual y diría «no hay PR» de una tarea que sí la tiene. Si no encuentras la rama, la PR es
-«no se pudo mirar». Lee también el estado de la tarea en ClickUp, traducido con
+rama actual y diría «no hay PR» de una tarea que sí la tiene. Si la rama solo aparece en remoto
+(`origin/<tipo>/<taskId>_<slug>`), a `gh pr view` pásale el nombre sin `origin/` y a `git log`,
+con él. Si no encuentras la rama, la PR es «no se pudo mirar». Lee también el estado de la tarea en ClickUp, traducido con
 `estados-tareas` (`${CLAUDE_PLUGIN_ROOT}/skills/estados-tareas/SKILL.md`).
 
 El estado se decide con señales que tienen forma fija:
@@ -134,9 +135,10 @@ marcados en `spec.md`; siguiente, `/implement`».
 Con la PR abierta:
 
 - Di en firme lo que muestra `gh`: el estado de la PR, la decisión de revisión si la hay, y si la
-  rama está subida (`headRefOid` frente a `git log -1 --format=%H <rama>`). Eso no dice si la
-  revisión cubre el último commit: `headRefOid` es la cabeza de la PR, no el commit revisado. Esa
-  comprobación la hace `/close`; tú no la afirmas.
+  rama está subida: lo está si `headRefOid` coincide con `git log -1 --format=%H <rama>`. Si no
+  coinciden, la rama local puede ir por delante, por detrás o haber divergido, y eso va en una
+  línea «⚠ No comprobado:». Eso no dice si la revisión cubre el último commit: `headRefOid` es la
+  cabeza de la PR, no el commit revisado. Esa comprobación la hace `/close`; tú no la afirmas.
 - Lo que no consta, pregúntalo:
   «⚠ No comprobado: no consta si has pasado `/review` en esta rama. ¿Lo has hecho? Si no,
   propongo `/review`; si dejó hallazgos, `/implement` para corregirlos; si salió limpio,

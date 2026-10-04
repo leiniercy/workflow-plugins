@@ -10,8 +10,8 @@ mismo:
 comprobada o no lo es, y se tiene que notar en cómo la dices.
 
 - **Comprobado** es lo que has leído o ejecutado en esta vuelta: un fichero, la salida de un
-  comando, el estado de ClickUp. Lo dices en firme y con su origen al lado: «`spec.md` tiene 3 de
-  7 criterios marcados».
+  comando, el estado de ClickUp. Lo dices en firme y con su origen al lado: «`progress.md` tiene
+  cuatro entradas en el historial».
 - **No comprobado** es todo lo demás, incluido lo que «seguro que es así». Va en su propia línea,
   empezando por **«⚠ No comprobado:»**, y termina en una de dos salidas: lo que hay que mirar
   para saberlo, o una pregunta al usuario. Si no sabes cómo averiguarlo, dilo con esas palabras:

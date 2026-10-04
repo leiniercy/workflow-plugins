@@ -78,6 +78,8 @@ for (const cmd of ["define", "start", "plan", "implement", "review", "close", "s
   assert(body.includes("nunca para decidir el estado"), "/lead no decide el estado por el texto libre de progress.md");
   assert(body.includes("no es lo mismo que «no hay»"), "/lead distingue «no se pudo mirar» de «no hay»");
   assert(body.includes("gh pr view <rama>"), "/lead consulta la PR de la rama de la tarea, no la actual");
+  assert(body.includes("sin `origin/`"), "/lead consulta la PR de una rama remota sin el prefijo origin/");
+  assert(body.includes("puede ir por delante, por detrás o haber divergido"), "/lead solo afirma «rama subida» cuando las cabezas coinciden");
   assert(!body.includes("si la revisión cubre el último commit (`headRefOid`"), "/lead no afirma que la revisión cubre el último commit");
   assert(body.includes("Si ninguna fila se cumple"), "/lead pregunta cuando ninguna fila del diagnóstico se cumple");
   assert(body.includes("Tú no vuelcas nada en `spec.md` ni en `progress.md`"), "/lead aclara que no vuelca el texto de la tarea");
