@@ -10,7 +10,7 @@
  *
  * Uso:  node scripts/sync.mjs
  */
-import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -409,6 +409,9 @@ function snippet(name) {
 // ---------------------------------------------------------------------------
 const ADAPTERS = {
   claude: {
+    managedDirs: ["commands", "skills", "agents", "scripts", "templates"].map((d) =>
+      join(ROOT, "plugins/backbone/claude", d),
+    ),
     guideRef: (name) =>
       "`" + name + "` (`${CLAUDE_PLUGIN_ROOT}/skills/" + name + "/SKILL.md`)",
     // Claude Code expande ${CLAUDE_PLUGIN_ROOT} al ejecutar el comando.
@@ -459,6 +462,9 @@ const ADAPTERS = {
       ].join("\n"),
   },
   opencode: {
+    managedDirs: ["command", "skills", "agent", "scripts", "templates"].map((d) =>
+      join(ROOT, "plugins/backbone/opencode/.opencode", d),
+    ),
     // Las guías se generan como SKILL.md (skills de OpenCode): el modelo las
     // auto-activa por su `description` vía la herramienta `skill`, igual que en
     // Claude. Por eso la referencia cruzada es por NOMBRE, no por ruta.
@@ -553,40 +559,43 @@ function substitute(text, adapter) {
     });
 }
 
+// Toda escritura pasa por emit(): así sync.mjs sabe qué ha generado en esta pasada y, al
+// final, puede borrar lo que hay en sus directorios y ya no sale de core/. Sin esto, un
+// comando retirado deja su fichero generado para siempre y sync-check no lo ve, porque solo
+// compara ficheros que existen (pasó al retirar /ship).
 let written = 0;
+const generated = new Set();
+function emit(path, content) {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, content);
+  generated.add(resolve(path));
+  written++;
+}
 for (const adapter of Object.keys(ADAPTERS)) {
   const A = ADAPTERS[adapter];
 
   for (const [name, meta] of Object.entries(COMMANDS)) {
     const body = readFileSync(join(ROOT, "core/workflows", name + ".md"), "utf8");
     const out = A.commandFrontmatter(meta) + substitute(body, adapter);
-    mkdirSync(dirname(A.commandPath(name)), { recursive: true });
-    writeFileSync(A.commandPath(name), out);
-    written++;
+    emit(A.commandPath(name), out);
   }
 
   // Los scripts se copian BYTE A BYTE: no llevan tokens ni frontmatter, y una
   // sustitución sobre código sería una forma nueva de romperlo en silencio.
   for (const name of SCRIPTS) {
     const body = readFileSync(join(ROOT, "core/scripts", name + ".mjs"), "utf8");
-    mkdirSync(dirname(A.scriptPath(name)), { recursive: true });
-    writeFileSync(A.scriptPath(name), body);
-    written++;
+    emit(A.scriptPath(name), body);
   }
 
   for (const name of TEMPLATES) {
     const body = readFileSync(join(ROOT, "core/templates", name + ".example"), "utf8");
-    mkdirSync(dirname(A.templatePath(name)), { recursive: true });
-    writeFileSync(A.templatePath(name), body);
-    written++;
+    emit(A.templatePath(name), body);
   }
 
   for (const [name, meta] of Object.entries(GUIDES)) {
     const body = readFileSync(join(ROOT, "core/guides", name + ".md"), "utf8");
     const out = A.guideFrontmatter(name, meta) + substitute(body, adapter);
-    mkdirSync(dirname(A.guidePath(name)), { recursive: true });
-    writeFileSync(A.guidePath(name), out);
-    written++;
+    emit(A.guidePath(name), out);
   }
 
   // Agentes: solo los adaptadores que los soporten (hoy, Claude Code). OpenCode no
@@ -595,9 +604,7 @@ for (const adapter of Object.keys(ADAPTERS)) {
     for (const [name, meta] of Object.entries(AGENTS)) {
       const body = readFileSync(join(ROOT, "core/agents", name + ".md"), "utf8");
       const out = A.agentFrontmatter(name, meta) + substitute(body, adapter);
-      mkdirSync(dirname(A.agentPath(name)), { recursive: true });
-      writeFileSync(A.agentPath(name), out);
-      written++;
+      emit(A.agentPath(name), out);
     }
   }
 }
@@ -609,8 +616,7 @@ for (const adapter of Object.keys(ADAPTERS)) {
 // ---------------------------------------------------------------------------
 const claudeMcp = JSON.stringify({ mcpServers: MCP_SERVERS }, null, 2) + "\n";
 const claudeMcpPath = join(ROOT, "plugins/backbone/claude/.mcp.json");
-writeFileSync(claudeMcpPath, claudeMcp);
-written++;
+emit(claudeMcpPath, claudeMcp);
 
 // ---------------------------------------------------------------------------
 // OpenCode: artefactos que NO salen de core/ (glue específico del adaptador).
@@ -674,9 +680,7 @@ const opencodeRevisor =
     "",
   ].join("\n");
 const opencodeRevisorPath = join(ROOT, "plugins/backbone/opencode/.opencode/agent/revisor.md");
-mkdirSync(dirname(opencodeRevisorPath), { recursive: true });
-writeFileSync(opencodeRevisorPath, opencodeRevisor);
-written++;
+emit(opencodeRevisorPath, opencodeRevisor);
 
 // (b) opencode.json del adaptador, desde la MISMA fuente MCP_SERVERS (evita drift con
 // el .mcp.json de Claude). OpenCode lee `<repo>/.opencode/opencode.json`, así que el
@@ -704,8 +708,7 @@ const opencodeConfig =
     2
   ) + "\n";
 const opencodeConfigPath = join(ROOT, "plugins/backbone/opencode/.opencode/opencode.json");
-writeFileSync(opencodeConfigPath, opencodeConfig);
-written++;
+emit(opencodeConfigPath, opencodeConfig);
 
 // (c) Limpieza: las guías ahora son skills (.opencode/skills/). Borra el directorio
 // antiguo de Markdown plano si quedó de una generación previa, para no dejar copias
@@ -713,4 +716,27 @@ written++;
 const legacyGuidesDir = join(ROOT, "plugins/backbone/opencode/.opencode/guides");
 if (existsSync(legacyGuidesDir)) rmSync(legacyGuidesDir, { recursive: true, force: true });
 
-console.log("sync.mjs: " + written + " ficheros generados desde core/.");
+// ---------------------------------------------------------------------------
+// Poda: lo que hay en un directorio poseído y no se ha generado en esta pasada es un
+// huérfano de algo que salió de core/. Solo se poda dentro de managedDirs: hooks/, evals/ y
+// el manifiesto se editan a mano y quedan fuera por construcción.
+// ---------------------------------------------------------------------------
+function prune(dir) {
+  if (!existsSync(dir)) return 0;
+  let removed = 0;
+  for (const entry of readdirSync(dir)) {
+    const p = resolve(join(dir, entry));
+    if (statSync(p).isDirectory()) {
+      removed += prune(p);
+      if (readdirSync(p).length === 0) rmSync(p, { recursive: true });
+    } else if (!generated.has(p)) {
+      rmSync(p);
+      removed++;
+    }
+  }
+  return removed;
+}
+let pruned = 0;
+for (const A of Object.values(ADAPTERS)) for (const d of A.managedDirs) pruned += prune(d);
+
+console.log("sync.mjs: " + written + " ficheros generados desde core/" + (pruned ? ", " + pruned + " huérfanos borrados." : "."));

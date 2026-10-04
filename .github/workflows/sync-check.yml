@@ -46,3 +46,5 @@ jobs:
             exit 1
           fi
           echo "✓ Adaptadores en sync con core/."
+      - name: Prueba de la generación (huérfanos y ficheros a mano)
+        run: node scripts/check-sync.mjs
