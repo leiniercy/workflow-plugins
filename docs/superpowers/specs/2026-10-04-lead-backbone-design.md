@@ -82,9 +82,9 @@ Manda la primera fila que se cumpla:
 
 | Estado | Señal | Siguiente paso |
 |---|---|---|
+| incoherente | dos señales se contradicen (ClickUp en `complete` sin sello, `.frontera` en una tarea cerrada, PR mergeada con criterios sin marcar…) | lo dice y pregunta; no lo arregla |
 | cerrada | entrada `— complete` | ninguno; lo dice y termina |
 | bloqueada | existe `## Bloqueo` | lo cuenta y pregunta; no propone fase |
-| incoherente | dos señales se contradicen (ClickUp en `complete` sin sello, `.frontera` en una tarea cerrada, PR mergeada con criterios sin marcar…) | lo dice y pregunta; no lo arregla |
 | sin empezar | ClickUp en `to do`, sin rama ni `tasks/<id>/` | `/start` |
 | sin plan | sin `spec.md`, o con `_pendiente de /plan_` | `/plan` |
 | en corrección | existe `.frontera` | `/implement` (modo corrección) |
@@ -93,7 +93,7 @@ Manda la primera fila que se cumpla:
 | PR abierta | `gh` encuentra la PR abierta | «⚠ No consta si has pasado `/review`»: pregunta |
 | PR mergeada | `gh` la da por mergeada | `/close` |
 
-La lista de incoherencias son ejemplos. La regla que se escribe es la general: dos señales que se
+«incoherente» va primero porque sus ejemplos incluyen una tarea cerrada (con `.frontera`, o con ClickUp sin mover): si «cerrada» fuera antes, nunca se verían. La lista de incoherencias son ejemplos. La regla que se escribe es la general: dos señales que se
 contradicen → se dice y se pregunta.
 
 **Señal que no se pudo leer** (`gh` no instalado, ClickUp sin responder): pasa a «no se pudo
