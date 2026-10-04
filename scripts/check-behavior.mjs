@@ -891,6 +891,31 @@ for (const cmd of VOICE_COMMANDS) {
     assert(body.includes("Texto autocontenido"), `voice: ${tipo} ${nombre} inserta el snippet texto-autocontenido`);
   }
   assert(vc("lead").includes("Eres el coordinador"), "voice: /lead inserta el snippet coordinador");
+
+  // Lista cerrada de títulos de progress.md. /lead decide el estado comparando títulos que
+  // escriben OTRAS fases; sin esto, una fase que apunte «Plan actualizado» lo deja ciego y nada
+  // lo dice. Se comprueba el vínculo entre ficheros: cada fase inserta la lista, cada título lo
+  // menciona quien lo escribe, y cada título que /lead lee está en la lista.
+  const snippetTitulos = read(join(ROOT, "core/snippets/progreso-entregable.md")) || "";
+  const filas = [...snippetTitulos.matchAll(/^\| «([^»]+)» \| `\/(\w+)` \|/gm)];
+  assert(filas.length === 10, `voice: la lista de títulos de progress.md tiene 10 filas — actual: ${filas.length}`);
+  // «Sección redactada: s-<nombre>» → «Sección redactada»; «Entregado vN» → «Entregado».
+  const base = (t) => t.replace(/:.*$/, "").replace(/\s+(tras\s+)?vN$/, "").trim();
+  const titulos = filas.map(([, t, cmd]) => ({ t: base(t), cmd }));
+  for (const cmd of ["brief", "outline", "draft", "deliver", "lead"]) {
+    assert(vc(cmd).includes("Entradas de `progress.md` en voice"),
+      `voice: /${cmd} inserta la lista de títulos de progress.md`);
+  }
+  for (const { t, cmd } of titulos) {
+    const cuerpo = read(join(ROOT, "core/workflows", cmd + ".md")) || "";
+    assert(cuerpo.includes("«" + t), `voice: /${cmd} escribe el título «${t}» que declara la lista`);
+  }
+  const tablaLead = (read(join(ROOT, "core/workflows/lead.md")) || "").split("{{snippet:progreso-entregable}}")[0];
+  for (const [, citado] of tablaLead.matchAll(/«([^»]+)»/g)) {
+    if (/^`|^\w+ — /.test(citado)) continue;
+    assert(titulos.some(({ t }) => base(citado).startsWith(t)),
+      `voice: /lead lee «${citado}», que no está en la lista de títulos`);
+  }
 }
 
 if (failures.length) {

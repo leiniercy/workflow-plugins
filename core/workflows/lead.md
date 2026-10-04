@@ -15,20 +15,23 @@ descarte).
 ## Fase 2 — Diagnóstico
 
 Lee `encargo.md`, `plan.md`, `progress.md` y `salida/` del entregable, y la tarea de ClickUp si la
-hay. El estado es el primero de esta lista que se cumpla:
+hay. En `progress.md` lees los **títulos** de las entradas, que son una lista cerrada (al final de
+esta fase). El estado es el primero de esta lista que se cumpla:
 
 | Estado | Señal | Siguiente paso |
 |---|---|---|
-| descartado | `progress.md` lo sella como descartado | ninguno: dilo y termina |
-| nueva versión en curso | sellado como entregado y, después del último sello de entrega, una entrada «Versión nueva abierta» o de `/draft` | `/draft` si quedan secciones por redactar o pendientes de revisar; si no, `/deliver` (versión nueva) |
-| entregado | sellado como entregado y `salida/` o enlace presentes | ninguno, salvo que el usuario quiera una versión nueva (`/draft`) |
-| estado incoherente | sellado como entregado y sin `salida/` ni enlace, u otra contradicción | dilo y pregunta; no lo arregles |
+| descartado | hay una entrada «Descartado» | ninguno: dilo y termina |
+| estado incoherente | una «Entregado vN» sin `salida/vN/` ni enlace apuntado, una «Sección redactada» de una sección que no está en `borrador.md`, u otra contradicción | dilo y pregunta; no lo arregles |
 | sin encargo | no hay `encargo.md` | `/brief` |
-| plan pendiente de revisar | en `progress.md`, la última entrada «Encargo cambiado» es más reciente que la última de `/outline` | revisión de la Fase 3: si falla, `/outline` para cambiar el plan; si cuadra, `/outline` para dejar constancia de la revisión |
-| sin plan | no hay `plan.md` | `/outline` |
-| plan sin revisar | hay `plan.md` y no hay secciones redactadas | revisión de la Fase 3, y luego `/draft` |
-| redacción a medias | faltan secciones o hay pendientes de revisar | `/draft` (di cuántas de cuántas) |
-| listo para entregar | todas las secciones hechas | `/deliver` |
+| plan pendiente de revisar | la última «Encargo cambiado» es posterior a la última «Plan aprobado», «Plan cambiado» o «Plan revisado sin cambios». Vale también después de entregar | revisión de la Fase 3: si falla, `/outline` para cambiar el plan; si cuadra, `/outline` para que apunte «Plan revisado sin cambios» |
+| sin plan | no hay ninguna «Plan aprobado» | `/outline` |
+| nueva versión en curso | hay una «Entregado vN» y, después de la última, alguna entrada de `/brief`, `/outline` o `/draft` | si después de la última entrega aún no hay «Versión nueva abierta tras vN», `/draft` para abrirla; si la hay, `/draft` mientras queden secciones pendientes y luego `/deliver` |
+| entregado | hay una «Entregado vN» y nada después | ninguno, salvo que el usuario quiera una versión nueva: `/draft`, o `/brief` si cambia el encargo |
+| plan sin revisar | hay «Plan aprobado» y ninguna «Sección redactada» | revisión de la Fase 3, y luego `/draft` |
+| redacción a medias | alguna sección de `plan.md` sin su «Sección redactada», o pendiente de revisar desde la última «Plan cambiado» o «Versión nueva abierta» | `/draft` (di cuántas de cuántas) |
+| listo para entregar | todas las secciones de `plan.md` redactadas y ninguna pendiente | `/deliver` |
+
+{{snippet:progreso-entregable}}
 
 Dilo en una línea: «`<slug>`: redacción a medias, 4 de 7 secciones; siguiente, `/draft`».
 
@@ -44,8 +47,8 @@ lee los dos y comprueba:
 
 Si algo falla, di qué y propone volver a `/outline <slug>`. **No corrijas el plan.** Si todo
 cuadra, resúmelo en dos líneas y propone `/draft`. Si el plan estaba pendiente de revisar y
-cuadra, propone antes `/outline <slug>` para que deje escrito «Plan revisado contra el encargo
-nuevo, sin cambios»: tú no lo apuntas, y sin esa entrada el plan seguiría pendiente.
+cuadra, propone antes `/outline <slug>` para que deje escrito «Plan revisado sin cambios»: tú no
+lo apuntas, y sin esa entrada el plan seguiría pendiente.
 
 ## Fase 4 — Lanzar y volver
 
@@ -67,6 +70,7 @@ gate.
 | "Es un cambio de una línea en el plan, lo hago yo y ahorro una vuelta" | No escribes. Propón `/outline`. |
 | "El usuario dijo 'sigue', lanzo todas las fases seguidas" | Cada salto entre fases es una aprobación. Entre fases es cuando se decide descartar. |
 | "El usuario me dio el visto bueno, eso vale como firma de /deliver" | La firma la pide `/deliver`, y es suya. |
+| "Esta entrada dice «Plan actualizado»; será de /outline" | Los títulos son una lista cerrada. Uno que no está en ella es un estado incoherente: dilo y pregunta. |
 | "progress.md dice entregado pero no hay salida; lo corrijo" | Un estado incoherente se dice y se pregunta. Arreglarlo es escribir. |
 | "Hay tres entregables vivos, cojo el más reciente" | Elige el usuario. |
 | "Está descartado, pero propongo retomarlo" | Descartado es una decisión tomada. Dilo y termina. |

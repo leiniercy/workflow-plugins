@@ -4,12 +4,14 @@ el cliente, así que **nada se exporta sin la firma del usuario**. Tu output per
 
 ## Fase 1 — Qué entregable y qué modo
 
-- Slug como en `/outline`.
+- Si `$ARGUMENTS` trae un slug, úsalo. Si no, lista los entregables vivos y los que tienen una
+  «Versión nueva abierta tras vN» posterior a su última entrega; si hay uno, úsalo; si hay
+  varios, pide elegir.
 - Si `progress.md` ya lo sella como **descartado**, dilo y para, en los dos modos: no se entrega
   ni se vuelve a sellar.
 - **Modo descartar** si `$ARGUMENTS` trae `descartar` o el usuario lo pide: salta a la Fase 6.
-- Modo entregar: sin `borrador.md` completo (todas las secciones de `plan.md` hechas y ninguna
-  pendiente de revisar, según `progress.md`), no se entrega. Dilo y propón `/draft`.
+- Modo entregar: sin `borrador.md` completo (cada sección de `plan.md` con su «Sección redactada»
+  y ninguna pendiente de revisar, según `progress.md`), no se entrega. Dilo y propón `/draft`.
 
 ## Fase 2 — Siglas
 
@@ -62,18 +64,21 @@ Con la firma:
      Publicar es visible para otros: confirma antes. El enlace va a `progress.md`.
    - **Sin `pandoc`** (`pandoc --version` falla) **o sin conector**: copia `borrador.md` a
      `salida/vN/`, dilo, y explica en una línea cómo convertirlo.
-3. **Sella `progress.md`** ({{guide:registro-progreso}}): entregado, versión, formato, ruta o
-   enlace, y lo que se firmó con avisos pendientes (compromisos sin respaldo incluidos).
+3. **Sella `progress.md`** con una entrada «Entregado vN»: formato, ruta o enlace, y lo que se
+   firmó con avisos pendientes (compromisos sin respaldo incluidos).
 4. Si hay tarea de ClickUp, propone moverla. Solo con aprobación.
 
 ## Fase 6 — Descartar
 
 1. Pide el motivo en una línea. Sin motivo no se sella: dentro de un mes nadie sabría si se
    terminó o se abandonó.
-2. Sella `progress.md`: descartado, fecha real del sistema, motivo y en qué fase estaba.
+2. Sella `progress.md` con una entrada «Descartado»: fecha real del sistema, motivo y en qué fase
+   estaba.
 3. Si hay tarea de ClickUp, propone moverla. Solo con aprobación.
 4. **No exportes nada y no borres la carpeta.** git guarda el historial; borrarla lo decide el
    usuario.
+
+{{snippet:progreso-entregable}}
 
 ## Banderas rojas (no te las saltes)
 

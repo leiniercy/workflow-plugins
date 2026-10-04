@@ -8,6 +8,7 @@ Versionado [SemVer](https://semver.org/lang/es/).
 ### Corregido
 
 - El flujo entre fases cuadra: `/lead` ve cuándo un plan quedó pendiente tras cambiar el encargo y `/outline` deja constancia aunque no cambie nada; redactar tras entregar abre una versión nueva; reescribir una sección quita sus afirmaciones viejas; ninguna fase retoma un entregable descartado; y si falta el motor de PDF, `/deliver` deja el markdown en vez de cambiar a `.docx`. El verificador devuelve también lo que el borrador afirma sin apuntarlo.
+- Las entradas de `progress.md` usan una lista cerrada de títulos («Encargo cambiado», «Plan aprobado», «Entregado vN»…), escrita una vez y compartida por las cinco fases. `/lead` decide el estado comparando esos títulos, y `check-behavior` comprueba que cada fase escribe los suyos. Antes, `/lead` tenía que adivinar qué fase había escrito cada entrada y, tras cambiar el encargo, podía proponer `/outline` sin fin. La tabla de estados también se reordena: un cambio de encargo después de entregar abre una versión nueva, un estado incoherente se detecta antes que una versión en curso, y `/draft` y `/deliver` sin argumentos ofrecen los entregables con versión nueva.
 - `siglas.mjs` reconoce siglas con tilde («ÍNDICE») y, en presentaciones, trata cada encabezado `#` o `##` como una diapositiva.
 
 ### Medido

@@ -8,13 +8,15 @@ redactores) y las entradas de `progress.md`.
 
 ## Fase 1 — Qué entregable y qué secciones
 
-- Slug como en `/outline` (argumento, o el único vivo, o elegir).
-- Sin `plan.md` aprobado no se redacta: dilo y propón `/outline`.
+- Si `$ARGUMENTS` trae un slug, úsalo. Si no, lista los entregables vivos (sin «Entregado vN» ni
+  «Descartado» en `progress.md`): si hay uno, úsalo; si hay varios, pide elegir. Si no hay ninguno
+  vivo pero sí entregados, enuméralos y pregunta si quiere abrir una versión nueva de alguno.
+- Sin una entrada «Plan aprobado» en `progress.md` no se redacta: dilo y propón `/outline`.
 - Si `progress.md` lo sella como **descartado**, dilo y para, aunque el slug venga explícito.
-- Si `progress.md` lo sella como **entregado** y después no hay una entrada «Versión nueva
-  abierta», dilo: redactar abre una versión nueva, y lo enviado se conserva en `salida/vN/` sin
-  pisarse. Pregunta qué secciones cambian y, con la respuesta, apunta en `progress.md` «Versión
-  nueva abierta tras vN» con esas secciones como pendientes de revisar.
+- Si la última entrega («Entregado vN») no tiene después una entrada
+  «Versión nueva abierta tras vN», dilo: redactar abre una versión nueva, y lo enviado se conserva
+  en `salida/vN/` sin pisarse. Pregunta qué secciones cambian y, con la respuesta, apunta en
+  `progress.md` «Versión nueva abierta tras vN» con esas secciones como pendientes de revisar.
 - Lee `progress.md`: qué secciones están hechas, cuáles pendientes de revisar tras una vuelta atrás
   y cuáles sin empezar. Si el argumento trae un identificador de sección, solo esa.
 
@@ -26,7 +28,8 @@ En el orden de `plan.md`, por cada sección pendiente:
    sección. **De uno en uno**: dos redactores a la vez chocarían en `borrador.md` y romperían la
    continuidad del tono.
 2. Lee lo que devuelve. Si dice que el plan no cuadra con esta sección, **para** (Fase 3).
-3. Apunta en `progress.md` la sección hecha y cuántas afirmaciones quedaron sin respaldo.
+3. Apunta en `progress.md` una entrada «Sección redactada: s-<nombre>» con cuántas afirmaciones
+   quedaron sin respaldo.
 
 Si el agente `redactor` no está disponible, redacta tú la sección con las mismas reglas que tiene
 él: sección en su sitio con su identificador, una línea en `afirmaciones.md` por afirmación, sin
@@ -49,13 +52,35 @@ contexto igual que el cliente.
 
 ## Fase 3 — Cuando el plan no sirve
 
-No reescribas el plan. Di qué sección y por qué, apúntalo en `progress.md` y propón volver a
-`/outline <slug>`. Las secciones ya redactadas se quedan como están.
+No reescribas el plan. Di qué sección y por qué, apúntalo en `progress.md` como
+«Redacción parada» y propón volver a `/outline <slug>`. Las secciones ya redactadas se quedan como están.
 
 ## Fase 4 — Cierre de la vuelta
 
 Resume en tres líneas: secciones hechas de cuántas, afirmaciones sin respaldo y si queda alguna
 pendiente de revisar. Si están todas, el siguiente paso es `/deliver <slug>`.
+
+**Entradas de `progress.md` en voice.** Se escriben con `registro-progreso` (`${CLAUDE_PLUGIN_ROOT}/skills/registro-progreso/SKILL.md`) con dos
+cambios, porque esa guía nació para las tareas de backbone:
+
+- La ruta es `entregables/<slug>/progress.md`, y `<fase>` es el nombre del comando que escribe:
+  `brief`, `outline`, `draft` o `deliver`.
+- El **Resultado** de cada entrada empieza por uno de estos títulos, tal cual, y después lo que
+  haga falta. `/lead` decide el estado del entregable leyendo estos títulos, así que uno inventado
+  o reescrito («Encargo actualizado» en vez de «Encargo cambiado») lo deja ciego.
+
+| Título | Lo escribe | Cuándo |
+|---|---|---|
+| «Encargo fijado» | `/brief` | primera vez que se aprueba el encargo |
+| «Encargo cambiado» | `/brief` | vuelta atrás: el encargo aprobado cambia |
+| «Plan aprobado» | `/outline` | primera vez que se aprueba el plan |
+| «Plan cambiado» | `/outline` | vuelta atrás: el plan aprobado cambia (con las secciones pendientes de revisar) |
+| «Plan revisado sin cambios» | `/outline` | el encargo cambió y el plan sigue valiendo |
+| «Sección redactada: s-<nombre>» | `/draft` | una sección queda escrita, nueva o reescrita |
+| «Redacción parada» | `/draft` | el plan no sirve para una sección |
+| «Versión nueva abierta tras vN» | `/draft` | se vuelve a redactar algo ya entregado |
+| «Entregado vN» | `/deliver` | firma y exportación hechas |
+| «Descartado» | `/deliver` | descarte, con su motivo |
 
 ## Banderas rojas (no te las saltes)
 
