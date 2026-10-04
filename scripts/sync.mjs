@@ -144,10 +144,13 @@ const COMMANDS = {
     argumentHint: "[slug del entregable (opcional)] [descartar]",
     packages: ["voice"],
   },
+  // La clave es el fichero de core/workflows/; `name`, el comando generado. Hay dos /lead, uno
+  // por plugin, y por eso la clave no puede ser el nombre.
   // El coordinador. allowed-tools pre-aprueba solo lectura y el lanzamiento de fases; no
   // impide escribir (ADR-0008), así que el «no escribe» lo sostienen la prosa, el snippet
   // coordinador y las banderas rojas, y check-behavior vigila que no se pre-apruebe escritura.
-  lead: {
+  "lead-voice": {
+    name: "lead",
     description:
       "Coordina el flujo de un entregable de voice sin escribir nada: lee entregables/, encargo.md y progress.md, diagnostica en una línea en qué punto está, propone la siguiente fase (/brief, /outline, /draft, /deliver) y la lanza con visto bueno. Entre /outline y /draft revisa el plan contra el encargo. NO redacta, NO edita, NO exporta y NO se salta los puntos de control de las fases.",
     argumentHint: "[slug del entregable, o descripción de un encargo nuevo]",
@@ -676,11 +679,19 @@ for (const [pkg, P] of Object.entries(PACKAGES)) {
     adapters.push(A);
     const inPkg = (meta) => pkgsOf(meta).includes(pkg);
 
-    for (const [name, meta] of Object.entries(COMMANDS)) {
+    for (const [key, meta] of Object.entries(COMMANDS)) {
       if (!inPkg(meta)) continue;
-      const body = readFileSync(join(ROOT, "core/workflows", name + ".md"), "utf8");
+      // `adapters` limita un comando a parte de los adaptadores de su paquete: el /lead de
+      // backbone lanza fases con Skill, y no se sabe si OpenCode puede hacer lo mismo.
+      if (meta.adapters && !meta.adapters.includes(adapterName)) continue;
+      const body = readFileSync(join(ROOT, "core/workflows", key + ".md"), "utf8");
       const out = A.commandFrontmatter(meta) + substitute(body, A, pkg, { strict: true });
-      emit(A.commandPath(name), out);
+      const path = A.commandPath(meta.name || key);
+      // Dos entradas con el mismo `name` en el mismo paquete se pisarían en silencio.
+      if (generated.has(resolve(path))) {
+        throw new Error("Dos entradas de COMMANDS generan " + path + ": revisa su `name`.");
+      }
+      emit(path, out);
     }
 
     // Los scripts se copian BYTE A BYTE: no llevan tokens ni frontmatter, y una

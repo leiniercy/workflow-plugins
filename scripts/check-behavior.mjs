@@ -848,7 +848,15 @@ for (const cmd of VOICE_COMMANDS) {
   const body = read(join(VOICE, "commands", cmd + ".md"));
   assert(body !== null, `voice: comando /${cmd} existe`);
   assert(body !== null && /Banderas rojas/i.test(body), `voice: /${cmd} tiene tabla de Banderas rojas`);
-  assert(read(join(CLAUDE, "commands", cmd + ".md")) === null, `voice: /${cmd} no llega a backbone`);
+  if (cmd !== "lead") {
+    assert(read(join(CLAUDE, "commands", cmd + ".md")) === null, `voice: /${cmd} no llega a backbone`);
+  }
+}
+
+{
+  const leadBackbone = read(join(CLAUDE, "commands/lead.md"));
+  assert(leadBackbone === null || !leadBackbone.includes("entregable de cliente"),
+    "voice: el /lead de voice no llega a backbone");
 }
 
 // /deliver ejecuta el script de siglas antes de la firma: es la única comprobación
@@ -910,7 +918,7 @@ for (const cmd of VOICE_COMMANDS) {
     const cuerpo = read(join(ROOT, "core/workflows", cmd + ".md")) || "";
     assert(cuerpo.includes("«" + t), `voice: /${cmd} escribe el título «${t}» que declara la lista`);
   }
-  const tablaLead = (read(join(ROOT, "core/workflows/lead.md")) || "").split("{{snippet:progreso-entregable}}")[0];
+  const tablaLead = (read(join(ROOT, "core/workflows/lead-voice.md")) || "").split("{{snippet:progreso-entregable}}")[0];
   for (const [, citado] of tablaLead.matchAll(/«([^»]+)»/g)) {
     if (/^`|^\w+ — /.test(citado)) continue;
     assert(titulos.some(({ t }) => base(citado).startsWith(t)),
@@ -918,7 +926,7 @@ for (const cmd of VOICE_COMMANDS) {
   }
   // Los tres casos de la tabla de estados de /lead que se arreglaron el 2026-10-04. Cada uno
   // falla aquí si se pierde, no solo en una lectura a mano.
-  const leadCuerpo = read(join(ROOT, "core/workflows/lead.md")) || "";
+  const leadCuerpo = read(join(ROOT, "core/workflows/lead-voice.md")) || "";
   const fila = (estado) => leadCuerpo.indexOf("| " + estado + " |");
   // 1. Un cambio de encargo después de entregar pasa por la revisión del plan: la fila del plan
   //    pendiente lo dice y va antes que «entregado», que si no la taparía.
