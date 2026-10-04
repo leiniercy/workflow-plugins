@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "biomas",
-  "description": "Marketplace de biomas: flujo de desarrollo agéntico guiado por tareas de ClickUp (spec → TDD → revisión) con gates humanos y continuidad entre sesiones.",
+  "description": "Marketplace de biomas: backbone, flujo de desarrollo agéntico guiado por tareas de ClickUp (spec → TDD → revisión), y voice, entregables de cliente con la misma disciplina. Ambos con gates humanos y continuidad entre sesiones.",
   "owner": {
     "name": "Leiniercy",
     "email": "leiner.caraballo@rockstardata.ai"
@@ -12,6 +12,12 @@
       "version": "0.24.0",
       "source": "./plugins/backbone/claude",
       "description": "Flujo de desarrollo guiado por tareas de ClickUp: planificación con spec.md, implementación con TDD, revisión y continuidad entre sesiones."
+    },
+    {
+      "name": "voice",
+      "version": "0.1.0",
+      "source": "./plugins/voice/claude",
+      "description": "Entregables de cliente (manuales, presentaciones, informes técnicos) con afirmaciones respaldadas, firma humana antes de enviar y continuidad entre sesiones."
     }
   ]
 }

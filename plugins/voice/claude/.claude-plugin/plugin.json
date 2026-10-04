@@ -1,0 +1,19 @@
+{
+  "name": "voice",
+  "version": "0.1.0",
+  "description": "Entregables de cliente (manuales de usuario, presentaciones e informes técnicos) con la disciplina de backbone: /lead coordina sin escribir; /brief fija el encargo, /outline el plan, /draft redacta con cada afirmación respaldada y /deliver verifica, pide la firma y exporta. Estado en entregables/<slug>/ para retomar entre sesiones.",
+  "author": {
+    "name": "Leiniercy",
+    "email": "leiner.caraballo@rockstardata.ai"
+  },
+  "homepage": "https://github.com/leiniercy/biomas-workflow",
+  "repository": "https://github.com/leiniercy/biomas-workflow",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "documentation",
+    "deliverables",
+    "technical-writing",
+    "presentations"
+  ]
+}
