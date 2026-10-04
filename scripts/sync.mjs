@@ -17,6 +17,18 @@ import { fileURLToPath } from "node:url";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 // ---------------------------------------------------------------------------
+// Paquetes del marketplace. Cada entrada de COMMANDS, AGENTS, GUIDES y SCRIPTS declara en
+// `packages` a cuáles pertenece; sin el campo, solo a backbone, para que lo que ya existía no
+// cambie. voice no se genera para OpenCode: sus comandos despachan subagentes, que OpenCode
+// no tiene (spec de voice, §8).
+// ---------------------------------------------------------------------------
+const PACKAGES = {
+  backbone: { adapters: ["claude", "opencode"] },
+  voice: { adapters: ["claude"] },
+};
+const pkgsOf = (meta) => (meta && meta.packages) || ["backbone"];
+
+// ---------------------------------------------------------------------------
 // Metadatos por comando (frontmatter)
 // ---------------------------------------------------------------------------
 const COMMANDS = {
@@ -171,6 +183,7 @@ const AGENTS = {
       "Explorador de repositorio read-only para la Fase 3 de /plan. Despáchalo para mapear la estructura y el stack del proyecto (manifiesto, framework, paradigma), convenciones vigentes, ficheros candidatos y señales de riesgo, y devolver un mapa estructurado (TOON). No propone el plan ni escribe ficheros: el planificador razona el enfoque a partir de su mapa.",
     model: "sonnet",
     tools: ["Read", "Grep", "Glob"],
+    packages: ["backbone", "voice"],
   },
 };
 
@@ -219,22 +232,27 @@ const GUIDES = {
   "registro-progreso": {
     description:
       "Úsala SIEMPRE que vayas a registrar el avance de una tarea, apuntar dónde te has quedado, crear su fichero de estado inicial o actualizar su estado actual — al cerrar cualquier fase del flujo (plan, implement, corrección, review). Es lo que permite que un agente en sesión limpia recupere el contexto.",
+    packages: ["backbone", "voice"],
   },
   "escritura-natural": {
     description:
       "Úsala al redactar un texto que va a leer una persona — el cuerpo de una PR, un hilo de code review, el comentario de ClickUp, el resumen de cierre, el changelog o un mensaje de Slack. Síntomas: el borrador arranca con un preámbulo, suena a robot, se alarga sin decidir nada, o junta dos asuntos que se contestan por separado. También al señalar el trabajo de otra persona.",
+    packages: ["backbone", "voice"],
   },
   "grafo-conocimiento": {
     description:
       "Úsala cuando necesites entender la estructura de un repo que no conoces, localizar las áreas que una tarea va a tocar, o analizar el impacto de un cambio sobre sus consumidores, antes de ponerte a leer ficheros crudos. Síntoma extra: vas a pedir el contenido completo de una lista (nodos, tareas, ficheros) sin haberla filtrado antes.",
+    packages: ["backbone", "voice"],
   },
   "formato-toon": {
     description:
       "Úsala siempre que vayas a devolver listas largas de datos uniformes, varias rutas del grafo, esquemas de base de datos o cualquier salida estructural repetitiva, en lugar de JSON o YAML. Síntomas: vas a volcar decenas de filas o de registros de una tabla; la salida tendría las mismas claves repetidas en cada elemento y gastaría tokens de más.",
+    packages: ["backbone", "voice"],
   },
   "evidencia-y-preguntas": {
     description:
       "Úsala siempre que vayas a escribir un dato que no has comprobado —en spec.md, en progress.md o en un informe— y para decidir si un hueco se verifica, se asume declarándolo, o se pregunta al usuario. Síntomas: te oyes decir «seguro que usan X», «debería funcionar» o «ya se corregirá»; vas a preguntar algo que está en el repo; das por bueno lo que afirma progress.md o un subagente sin abrir el código.",
+    packages: ["backbone", "voice"],
   },
   "revision-hallazgos": {
     description:
@@ -279,6 +297,7 @@ const GUIDES = {
   "usabilidad-accesibilidad": {
     description:
       "Úsala cuando el trabajo toque interfaz o una ruta pública: criterios de aceptación de UI en /plan, tests de componente en /implement y la dimensión 6 de /review. Síntomas: formularios sin validación o sin mensajes útiles, imágenes sin alt, controles no alcanzables por teclado, texto en duro en un repo traducido, una ruta nueva sin metadatos propios, o una URL publicada que se mueve sin redirección. Nielsen + WCAG 2.2 + SEO técnico.",
+    packages: ["backbone", "voice"],
   },
   "arquitectura": {
     description:
@@ -307,10 +326,12 @@ const GUIDES = {
   "diagramas": {
     description:
       "Úsala cuando vayas a dibujar un diagrama, a enseñar el recorrido de un flujo, o a decidir si hace falta: prueba visual de una pull request, documentación en el repo, una arquitectura. Síntomas: pegaste HTML o SVG en el comentario de una pull request y sale un hueco en blanco, o Mermaid en ClickUp; el dibujo ya no cabe de un vistazo y lo aprietas; no has decidido a qué altura dibujas; no lleva título ni leyenda; destacas seis cosas; o pintas una caja que no has comprobado en el código.",
+    packages: ["backbone", "voice"],
   },
   "espacio-de-trabajo-aislado": {
     description:
       "Úsala al empezar una tarea que conviene aislar del trabajo en curso, o antes de crear un worktree de git. Síntomas: el usuario tiene cambios abiertos en otra rama, quieres revisar una PR sin abandonar lo que implementas, o vas a escribir `git worktree add` sin haber comprobado si ya estás dentro de un worktree.",
+    packages: ["backbone", "voice"],
   },
   "entrega-y-despliegue": {
     description:
@@ -371,7 +392,12 @@ function yamlString(value) {
 // que el agente reconstruye en cada ejecución no se puede probar, y uno que no casa no
 // casca — devuelve cero y eso es indistinguible de un diff limpio.
 // ---------------------------------------------------------------------------
-const SCRIPTS = ["suelo-calidad", "fusion-hallazgos", "frescura-revision", "entorno"];
+const SCRIPTS = {
+  "suelo-calidad": {},
+  "fusion-hallazgos": {},
+  "frescura-revision": {},
+  entorno: {},
+};
 
 // ---------------------------------------------------------------------------
 // Plantillas: los ficheros que /setup copia al repo del usuario (CLAUDE.md, AGENTS.md y
@@ -408,20 +434,24 @@ function snippet(name) {
 // Resolución de referencias {{guide:x}} por adaptador
 // ---------------------------------------------------------------------------
 const ADAPTERS = {
-  claude: {
+  claude: (pkg) => ({
     managedDirs: ["commands", "skills", "agents", "scripts", "templates"].map((d) =>
-      join(ROOT, "plugins/backbone/claude", d),
+      join(ROOT, "plugins", pkg, "claude", d),
     ),
     guideRef: (name) =>
       "`" + name + "` (`${CLAUDE_PLUGIN_ROOT}/skills/" + name + "/SKILL.md`)",
+    // Referencia a una guía de otro paquete, desde una guía compartida: se nombra sin ruta,
+    // porque la ruta no existiría en este plugin.
+    foreignGuideRef: (name, owner) =>
+      "`" + name + "` (guía de " + owner + ", no incluida en este plugin)",
     // Claude Code expande ${CLAUDE_PLUGIN_ROOT} al ejecutar el comando.
     scriptRef: (name) => "${CLAUDE_PLUGIN_ROOT}/scripts/" + name + ".mjs",
-    scriptPath: (name) => join(ROOT, "plugins/backbone/claude/scripts", name + ".mjs"),
+    scriptPath: (name) => join(ROOT, "plugins", pkg, "claude/scripts", name + ".mjs"),
     templateRef: (name) => "${CLAUDE_PLUGIN_ROOT}/templates/" + name + ".example",
-    templatePath: (name) => join(ROOT, "plugins/backbone/claude/templates", name + ".example"),
-    commandPath: (name) => join(ROOT, "plugins/backbone/claude/commands", name + ".md"),
-    guidePath: (name) => join(ROOT, "plugins/backbone/claude/skills", name, "SKILL.md"),
-    agentPath: (name) => join(ROOT, "plugins/backbone/claude/agents", name + ".md"),
+    templatePath: (name) => join(ROOT, "plugins", pkg, "claude/templates", name + ".example"),
+    commandPath: (name) => join(ROOT, "plugins", pkg, "claude/commands", name + ".md"),
+    guidePath: (name) => join(ROOT, "plugins", pkg, "claude/skills", name, "SKILL.md"),
+    agentPath: (name) => join(ROOT, "plugins", pkg, "claude/agents", name + ".md"),
     commandFrontmatter: (meta) => {
       const lines = [
         "---",
@@ -460,30 +490,34 @@ const ADAPTERS = {
         "---",
         "",
       ].join("\n"),
-  },
-  opencode: {
+  }),
+  opencode: (pkg) => ({
     managedDirs: ["command", "skills", "agent", "scripts", "templates"].map((d) =>
-      join(ROOT, "plugins/backbone/opencode/.opencode", d),
+      join(ROOT, "plugins", pkg, "opencode/.opencode", d),
     ),
     // Las guías se generan como SKILL.md (skills de OpenCode): el modelo las
     // auto-activa por su `description` vía la herramienta `skill`, igual que en
     // Claude. Por eso la referencia cruzada es por NOMBRE, no por ruta.
     guideRef: (name) => "`" + name + "` (skill de OpenCode, auto-activable)",
+    // Referencia a una guía de otro paquete, desde una guía compartida: se nombra sin ruta,
+    // porque la ruta no existiría en este plugin.
+    foreignGuideRef: (name, owner) =>
+      "`" + name + "` (guía de " + owner + ", no incluida en este plugin)",
     // El consumidor copia `.opencode/` a la raíz del repo, que es su cwd.
     scriptRef: (name) => ".opencode/scripts/" + name + ".mjs",
     templateRef: (name) => ".opencode/templates/" + name + ".example",
     templatePath: (name) =>
-      join(ROOT, "plugins/backbone/opencode/.opencode/templates", name + ".example"),
+      join(ROOT, "plugins", pkg, "opencode/.opencode/templates", name + ".example"),
     scriptPath: (name) =>
-      join(ROOT, "plugins/backbone/opencode/.opencode/scripts", name + ".mjs"),
+      join(ROOT, "plugins", pkg, "opencode/.opencode/scripts", name + ".mjs"),
     commandPath: (name) =>
-      join(ROOT, "plugins/backbone/opencode/.opencode/command", name + ".md"),
+      join(ROOT, "plugins", pkg, "opencode/.opencode/command", name + ".md"),
     // Skills: <repo>/.opencode/skills/<name>/SKILL.md (OpenCode requiere el plural).
     guidePath: (name) =>
-      join(ROOT, "plugins/backbone/opencode/.opencode/skills", name, "SKILL.md"),
+      join(ROOT, "plugins", pkg, "opencode/.opencode/skills", name, "SKILL.md"),
     // Subagentes: <repo>/.opencode/agent/<name>.md (el loader acepta singular y plural).
     agentPath: (name) =>
-      join(ROOT, "plugins/backbone/opencode/.opencode/agent", name + ".md"),
+      join(ROOT, "plugins", pkg, "opencode/.opencode/agent", name + ".md"),
     commandFrontmatter: (meta) => {
       const lines = [
         "---",
@@ -524,13 +558,13 @@ const ADAPTERS = {
         "---",
         "",
       ].join("\n"),
-  },
+  }),
 };
 
 // ---------------------------------------------------------------------------
 // Generación
 // ---------------------------------------------------------------------------
-function substitute(text, adapter) {
+function substitute(text, A, pkg, { strict }) {
   // Los snippets se expanden ANTES que guide/script: así un snippet puede referenciar
   // una guía y el token de dentro se resuelve en la misma pasada.
   const conSnippets = text.replace(/^\{\{snippet:([a-z-]+)\}\}$/gm, (_, name) =>
@@ -547,15 +581,23 @@ function substitute(text, adapter) {
   return conSnippets
     .replace(/\{\{guide:([a-z-]+)\}\}/g, (_, name) => {
       if (!GUIDES[name]) throw new Error("Guía desconocida en token: " + name);
-      return ADAPTERS[adapter].guideRef(name);
+      if (pkgsOf(GUIDES[name]).includes(pkg)) return A.guideRef(name);
+      // Un comando o un agente de este paquete no puede depender de una guía que no viaja con
+      // él: es un error de quien lo escribe. Una guía compartida sí puede mencionarla.
+      if (strict) throw new Error(`La guía ${name} no está en el paquete ${pkg}`);
+      return A.foreignGuideRef(name, pkgsOf(GUIDES[name])[0]);
     })
     .replace(/\{\{script:([a-z-]+)\}\}/g, (_, name) => {
-      if (!SCRIPTS.includes(name)) throw new Error("Script desconocido en token: " + name);
-      return ADAPTERS[adapter].scriptRef(name);
+      if (!SCRIPTS[name]) throw new Error("Script desconocido en token: " + name);
+      if (!pkgsOf(SCRIPTS[name]).includes(pkg)) {
+        throw new Error(`El script ${name} no está en el paquete ${pkg}`);
+      }
+      return A.scriptRef(name);
     })
     .replace(/\{\{template:([A-Za-z.-]+)\}\}/g, (_, name) => {
       if (!TEMPLATES.includes(name)) throw new Error("Plantilla desconocida en token: " + name);
-      return ADAPTERS[adapter].templateRef(name);
+      if (pkg !== "backbone") throw new Error(`Las plantillas solo existen en backbone`);
+      return A.templateRef(name);
     });
 }
 
@@ -571,40 +613,51 @@ function emit(path, content) {
   generated.add(resolve(path));
   written++;
 }
-for (const adapter of Object.keys(ADAPTERS)) {
-  const A = ADAPTERS[adapter];
+const adapters = [];
+for (const [pkg, P] of Object.entries(PACKAGES)) {
+  for (const adapterName of P.adapters) {
+    const A = ADAPTERS[adapterName](pkg);
+    adapters.push(A);
+    const inPkg = (meta) => pkgsOf(meta).includes(pkg);
 
-  for (const [name, meta] of Object.entries(COMMANDS)) {
-    const body = readFileSync(join(ROOT, "core/workflows", name + ".md"), "utf8");
-    const out = A.commandFrontmatter(meta) + substitute(body, adapter);
-    emit(A.commandPath(name), out);
-  }
+    for (const [name, meta] of Object.entries(COMMANDS)) {
+      if (!inPkg(meta)) continue;
+      const body = readFileSync(join(ROOT, "core/workflows", name + ".md"), "utf8");
+      const out = A.commandFrontmatter(meta) + substitute(body, A, pkg, { strict: true });
+      emit(A.commandPath(name), out);
+    }
 
-  // Los scripts se copian BYTE A BYTE: no llevan tokens ni frontmatter, y una
-  // sustitución sobre código sería una forma nueva de romperlo en silencio.
-  for (const name of SCRIPTS) {
-    const body = readFileSync(join(ROOT, "core/scripts", name + ".mjs"), "utf8");
-    emit(A.scriptPath(name), body);
-  }
+    // Los scripts se copian BYTE A BYTE: no llevan tokens ni frontmatter, y una
+    // sustitución sobre código sería una forma nueva de romperlo en silencio.
+    for (const [name, meta] of Object.entries(SCRIPTS)) {
+      if (!inPkg(meta)) continue;
+      const body = readFileSync(join(ROOT, "core/scripts", name + ".mjs"), "utf8");
+      emit(A.scriptPath(name), body);
+    }
 
-  for (const name of TEMPLATES) {
-    const body = readFileSync(join(ROOT, "core/templates", name + ".example"), "utf8");
-    emit(A.templatePath(name), body);
-  }
+    if (pkg === "backbone") {
+      for (const name of TEMPLATES) {
+        const body = readFileSync(join(ROOT, "core/templates", name + ".example"), "utf8");
+        emit(A.templatePath(name), body);
+      }
+    }
 
-  for (const [name, meta] of Object.entries(GUIDES)) {
-    const body = readFileSync(join(ROOT, "core/guides", name + ".md"), "utf8");
-    const out = A.guideFrontmatter(name, meta) + substitute(body, adapter);
-    emit(A.guidePath(name), out);
-  }
+    for (const [name, meta] of Object.entries(GUIDES)) {
+      if (!inPkg(meta)) continue;
+      const body = readFileSync(join(ROOT, "core/guides", name + ".md"), "utf8");
+      const out = A.guideFrontmatter(name, meta) + substitute(body, A, pkg, { strict: false });
+      emit(A.guidePath(name), out);
+    }
 
-  // Agentes: solo los adaptadores que los soporten (hoy, Claude Code). OpenCode no
-  // define agentPath → se omite y /review degrada al análisis en línea.
-  if (A.agentPath) {
-    for (const [name, meta] of Object.entries(AGENTS)) {
-      const body = readFileSync(join(ROOT, "core/agents", name + ".md"), "utf8");
-      const out = A.agentFrontmatter(name, meta) + substitute(body, adapter);
-      emit(A.agentPath(name), out);
+    // Agentes: solo los adaptadores que los soporten (hoy, Claude Code). OpenCode no
+    // define agentPath → se omite y /review degrada al análisis en línea.
+    if (A.agentPath) {
+      for (const [name, meta] of Object.entries(AGENTS)) {
+        if (!inPkg(meta)) continue;
+        const body = readFileSync(join(ROOT, "core/agents", name + ".md"), "utf8");
+        const out = A.agentFrontmatter(name, meta) + substitute(body, A, pkg, { strict: true });
+        emit(A.agentPath(name), out);
+      }
     }
   }
 }
@@ -661,7 +714,7 @@ const opencodeRevisor =
     // `node "<ruta>"` (las comillas hacen falta en Claude, donde CLAUDE_PLUGIN_ROOT puede
     // llevar espacios) y un glob sin ellas no casaría con el comando real. Un permiso que
     // no casa no falla ruidosamente: cae al catch-all `"*": deny` y el script no corre.
-    ...SCRIPTS.flatMap((name) => [
+    ...Object.keys(SCRIPTS).filter((n) => pkgsOf(SCRIPTS[n]).includes("backbone")).flatMap((name) => [
       `    "node .opencode/scripts/${name}.mjs*": allow`,
       `    'node ".opencode/scripts/${name}.mjs"*': allow`,
     ]),
@@ -737,6 +790,6 @@ function prune(dir) {
   return removed;
 }
 let pruned = 0;
-for (const A of Object.values(ADAPTERS)) for (const d of A.managedDirs) pruned += prune(d);
+for (const A of adapters) for (const d of A.managedDirs) pruned += prune(d);
 
 console.log("sync.mjs: " + written + " ficheros generados desde core/" + (pruned ? ", " + pruned + " huérfanos borrados." : "."));

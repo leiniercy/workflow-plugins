@@ -10,12 +10,14 @@ on:
     paths:
       - "core/**"
       - "scripts/sync.mjs"
+      - "scripts/check-sync.mjs"
       - "plugins/**"
       - ".github/workflows/sync-check.yml"
   pull_request:
     paths:
       - "core/**"
       - "scripts/sync.mjs"
+      - "scripts/check-sync.mjs"
       - "plugins/**"
       - ".github/workflows/sync-check.yml"
 
