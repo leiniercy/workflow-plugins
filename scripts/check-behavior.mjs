@@ -55,6 +55,41 @@ for (const cmd of ["define", "start", "plan", "implement", "review", "close", "s
   assert(body !== null && /Banderas rojas/i.test(body), `/${cmd} tiene tabla de Banderas rojas`);
 }
 
+// --- /lead de backbone: coordina sin escribir (spec 2026-10-04-lead-backbone-design.md) ---
+// allowed-tools no prohíbe (ADR-0008): se asevera que no PRE-APRUEBA escritura.
+{
+  const lead = read(join(CLAUDE, "commands/lead.md"));
+  assert(lead !== null, "comando /lead existe en backbone");
+  const body = lead || "";
+  assert(/Banderas rojas/i.test(body), "/lead tiene tabla de Banderas rojas");
+  assert(body.includes("Eres el coordinador"), "/lead inserta el snippet coordinador");
+  assert(body.includes("una tarea de backbone"), "/lead de backbone es el de backbone, no el de voice");
+  const tools = field(frontmatter(body), "allowed-tools") || "";
+  assert(/\bRead\b/.test(tools) && /\bSkill\b/.test(tools), "/lead pre-aprueba leer y lanzar fases (Read, Skill)");
+  assert(/Bash\(gh pr view:\*\)/.test(tools), "/lead pre-aprueba leer la PR con gh");
+  assert(!/\bWrite\b/.test(tools) && !/\bEdit\b/.test(tools) && !/\bBash\(\*/.test(tools),
+    "/lead NO pre-aprueba Write, Edit ni Bash libre");
+  assert(!/\bBash\b(?!\()/.test(tools), "/lead NO pre-aprueba Bash desnudo (sin paréntesis)");
+  // Regla de honestidad (§2) y el hueco de /review (§4).
+  assert(body.includes("⚠ No comprobado:"), "/lead marca lo no comprobado con «⚠ No comprobado:»");
+  assert(body.includes("no lo sé; deberíamos investigarlo"), "/lead dice «no lo sé; deberíamos investigarlo»");
+  assert(body.includes("Si no la has visto con `git`, no la nombras."), "/lead lleva las banderas rojas de honestidad");
+  assert(body.includes("No lo das por hecho en ningún sentido"), "/lead no da /review por hecho ni por pendiente");
+  assert(body.includes("nunca para decidir el estado"), "/lead no decide el estado por el texto libre de progress.md");
+  assert(body.includes("no es lo mismo que «no hay»"), "/lead distingue «no se pudo mirar» de «no hay»");
+  // Orden de la tabla: lo que para el flujo va antes que lo que lo hace avanzar.
+  const fila = (estado) => body.indexOf("| " + estado + " |");
+  const orden = ["incoherente", "cerrada", "bloqueada", "sin empezar", "sin plan", "en corrección",
+    "implementando", "criterios hechos, sin PR", "PR abierta", "PR mergeada"];
+  for (let i = 0; i < orden.length; i++) {
+    assert(fila(orden[i]) > -1, `/lead tiene la fila «${orden[i]}»`);
+    if (i > 0) assert(fila(orden[i - 1]) < fila(orden[i]), `/lead mira «${orden[i - 1]}» antes que «${orden[i]}»`);
+  }
+  // Solo Claude Code (spec §5): no se sabe si OpenCode puede lanzar fases desde un comando.
+  assert(read(join(ROOT, "plugins/backbone/opencode/.opencode/command/lead.md")) === null,
+    "/lead no se genera para OpenCode");
+}
+
 // --- /close: la escritura NO se pre-aprueba ---
 // `allowed-tools` es PRE-APROBACIÓN de permisos, no un sandbox: lo que se lista corre sin
 // prompt. Por eso /close pre-aprueba lectura y el despacho del subagente del gate, pero NO

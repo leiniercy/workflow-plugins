@@ -119,6 +119,28 @@ const COMMANDS = {
     argumentHint: "[sin argumentos]",
   },
 
+  // El coordinador de backbone. Como el de voice: allowed-tools pre-aprueba solo leer y lanzar
+  // fases, y el «no escribe» lo sostienen la prosa, el snippet y check-behavior (ADR-0008).
+  // Solo Claude Code: lanza fases con Skill y no se ha comprobado que OpenCode pueda.
+  // Las lecturas de ClickUp no se pre-aprueban: ningún comando pre-aprueba herramientas MCP.
+  "lead-backbone": {
+    name: "lead",
+    adapters: ["claude"],
+    description:
+      "Coordina el flujo de una tarea de backbone sin escribir nada: lee tasks/<taskId>/, la PR y ClickUp, diagnostica en una línea en qué punto está, propone la siguiente fase (/define, /start, /plan, /implement, /review, /close) y la lanza con visto bueno. Dice en firme solo lo comprobado; lo demás lo marca y lo pregunta. NO escribe, NO mueve ClickUp y NO se salta los gates de las fases.",
+    argumentHint: "[taskId (opcional: se infiere de la rama), o descripción de una tarea nueva]",
+    allowedTools: [
+      "Read",
+      "Glob",
+      "Grep",
+      "Skill",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(gh pr view:*)",
+    ],
+  },
+
   // voice. Sin allowed-tools: escriben ficheros de estado y pasan por el permiso normal.
   brief: {
     description:
