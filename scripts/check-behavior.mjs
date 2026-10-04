@@ -843,7 +843,7 @@ assert(read(join(ROOT, "plugins/backbone/claude/agents/redactor.md")) === null,
 // --- voice: comandos ---
 // Cada comando existe, lleva banderas rojas y no llega a backbone. La lista crece en cada
 // tarea del plan de voice; al final son los cinco.
-const VOICE_COMMANDS = ["brief", "outline", "draft", "deliver"];
+const VOICE_COMMANDS = ["brief", "outline", "draft", "deliver", "lead"];
 for (const cmd of VOICE_COMMANDS) {
   const body = read(join(VOICE, "commands", cmd + ".md"));
   assert(body !== null, `voice: comando /${cmd} existe`);
@@ -858,6 +858,16 @@ for (const cmd of VOICE_COMMANDS) {
   const deliver = read(join(VOICE, "commands/deliver.md")) || "";
   assert(/\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\/siglas\.mjs/.test(deliver),
     "voice: /deliver ejecuta siglas.mjs desde el plugin");
+}
+
+// /lead coordina y no escribe. allowed-tools no prohíbe (ADR-0008), así que lo que se asevera
+// es que no PRE-APRUEBA escritura, y que sí pre-aprueba lo que necesita para leer y lanzar.
+{
+  const leadTools = field(frontmatter(read(join(VOICE, "commands/lead.md"))), "allowed-tools") || "";
+  assert(/\bRead\b/.test(leadTools) && /\bSkill\b/.test(leadTools),
+    "voice: /lead pre-aprueba leer y lanzar fases (Read, Skill)");
+  assert(!/\bWrite\b/.test(leadTools) && !/\bEdit\b/.test(leadTools) && !/\bBash\(\*/.test(leadTools),
+    "voice: /lead NO pre-aprueba Write, Edit ni Bash libre");
 }
 
 if (failures.length) {

@@ -144,6 +144,16 @@ const COMMANDS = {
     argumentHint: "[slug del entregable (opcional)] [descartar]",
     packages: ["voice"],
   },
+  // El coordinador. allowed-tools pre-aprueba solo lectura y el lanzamiento de fases; no
+  // impide escribir (ADR-0008), así que el «no escribe» lo sostienen la prosa, el snippet
+  // coordinador y las banderas rojas, y check-behavior vigila que no se pre-apruebe escritura.
+  lead: {
+    description:
+      "Coordina el flujo de un entregable de voice sin escribir nada: lee entregables/, encargo.md y progress.md, diagnostica en una línea en qué punto está, propone la siguiente fase (/brief, /outline, /draft, /deliver) y la lanza con visto bueno. Entre /outline y /draft revisa el plan contra el encargo. NO redacta, NO edita, NO exporta y NO se salta los puntos de control de las fases.",
+    argumentHint: "[slug del entregable, o descripción de un encargo nuevo]",
+    allowedTools: ["Read", "Glob", "Grep", "Skill", "Bash(git status:*)", "Bash(git log:*)"],
+    packages: ["voice"],
+  },
 };
 
 // ---------------------------------------------------------------------------
