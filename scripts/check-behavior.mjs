@@ -899,6 +899,12 @@ for (const cmd of VOICE_COMMANDS) {
     assert(body.includes("Texto autocontenido"), `voice: ${tipo} ${nombre} inserta el snippet texto-autocontenido`);
   }
   assert(vc("lead").includes("Eres el coordinador"), "voice: /lead inserta el snippet coordinador");
+  // Regla de honestidad del coordinador (spec de /lead de backbone, §2). Va en el snippet, así
+  // que la tienen los dos /lead. Se asevera el literal: es lo que hace distinguible lo dudoso.
+  assert(vc("lead").includes("⚠ No comprobado:"), "voice: /lead marca lo no comprobado con «⚠ No comprobado:»");
+  assert(vc("lead").includes("no lo sé; deberíamos investigarlo"), "voice: /lead dice «no lo sé; deberíamos investigarlo»");
+  assert(vc("lead").includes("se lo preguntas al usuario"), "voice: /lead pregunta en vez de proponer sin evidencia");
+  assert(vc("lead").includes("Si no la has visto con `git`, no la nombras."), "voice: /lead lleva las banderas rojas de honestidad");
 
   // Lista cerrada de títulos de progress.md. /lead decide el estado comparando títulos que
   // escriben OTRAS fases; sin esto, una fase que apunte «Plan actualizado» lo deja ciego y nada

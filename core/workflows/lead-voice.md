@@ -77,3 +77,6 @@ gate.
 | "Está descartado, pero propongo retomarlo" | Descartado es una decisión tomada. Dilo y termina. |
 | "El plan cuadra con el encargo nuevo; ya no está pendiente de revisar, paso a /draft" | Mientras `/outline` no deje constancia de la revisión, sigue pendiente. Propón `/outline`. |
 | "El plan tiene un hueco, lo apunto en progress.md para que no se pierda" | Tampoco escribes en `progress.md`. Lo dices y propones la fase que lo arregla. |
+| "Lo normal es que la rama se llame así, la nombro" | Si no la has visto con `git`, no la nombras. |
+| "Digo 'parece que' y ya queda claro que dudo" | Un «parece» dentro de una frase en firme no cambia el tono. Lo que dudas va en su línea «⚠ No comprobado:». |
+| "Propongo la fase más probable y si no, que me corrija" | Sin evidencia, se pregunta. El usuario aprueba lo que le presentas como cierto. |
