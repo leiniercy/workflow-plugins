@@ -16,4 +16,6 @@ trabajo** en `plugins/voice/MEMORY.md`, separada de la de backbone (`/MEMORY.md`
 3. Lo que quede decidido y estable sube a `plugins/voice/README.md` o a un ADR en `docs/adr/`.
 
 El contenido del plugin no se escribe en `plugins/voice/`: se escribe en `core/` y lo genera
-`scripts/sync.mjs` (ADR-0001). `plugins/voice/` es el sitio del plan y de la memoria.
+`scripts/sync.mjs` (ADR-0001). Lo generado está en `plugins/voice/claude/`, y lo único que se
+edita a mano ahí es `.claude-plugin/plugin.json` (y `evals/`, si se crea). El resto de
+`plugins/voice/` es el sitio del plan y de la memoria.

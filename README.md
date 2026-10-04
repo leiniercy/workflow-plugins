@@ -19,6 +19,13 @@ Funciona igual en **Claude Code** y en **OpenCode**.
 | **Para el 100 %** | ClickUp, `gh`, graphify, `CLAUDE.md` y tres add-ons — [tabla de complementos](#los-complementos) |
 | **Qué NO hace** | Aprobar por ti. `/review` solo informa, y el paso a `complete` lo firma siempre una persona |
 
+## El marketplace tiene dos plugins
+
+- **`backbone`** (este README): de un ticket de ClickUp a una PR que otra persona revisa.
+- **`voice`**: de un encargo de cliente a un entregable que se puede enviar (manual de usuario,
+  presentación, informe técnico). Se instala aparte con `/plugin install voice@biomas`; mira su
+  [README](plugins/voice/README.md).
+
 ## El problema que resuelve
 
 Un agente suelto sobre un ticket falla casi siempre por los mismos tres sitios:
@@ -303,8 +310,8 @@ biomas-workflow/
 │   │           ├── command/       (generado por sync.mjs — no editar a mano)
 │   │           ├── scripts/       (generado por sync.mjs — copia de core/scripts)
 │   │           └── guides/        (generado por sync.mjs — no editar a mano)
-│   └── voice/                 segundo plugin (entregables de cliente): README y memoria de trabajo propia; sin contenido todavía
-├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a plugins/backbone/claude)
+│   └── voice/                 segundo plugin (entregables de cliente): README, memoria de trabajo propia y su salida generada en claude/
+├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a plugins/backbone/claude y a plugins/voice/claude)
 ├── docs/adr/                  decisiones de arquitectura del plugin (léelas antes de re-litigar una)
 ├── .github/workflows/         review.yml (CI de PRs) · sync-check · version-check · behavior-check · manifest-check · hygiene-check · codeql · secret-scan
 └── examples/                  plantillas para repos consumidores

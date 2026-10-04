@@ -13,6 +13,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ### Cambiado
 
+- **`sync.mjs` genera varios paquetes desde el mismo `core/`** — cada guía y cada agente declara en `GUIDES` y `AGENTS` el campo `packages` (por defecto, solo `backbone`), y cada paquete tiene su carpeta de salida bajo `plugins/`. Es lo que permite que `voice` comparta guías con backbone sin copiarlas.
+
 - **Cada plugin tiene su directorio bajo `plugins/`** (ADR-0012). `adapters/claude/` pasa a `plugins/backbone/claude/` y `adapters/opencode/` a `plugins/backbone/opencode/`, para que el segundo plugin del marketplace, `voice` (entregables de cliente), viva al mismo nivel que backbone y no dentro de él. `core/` sigue siendo la fuente única de los dos. En OpenCode, la carpeta que se copia es ahora `plugins/backbone/opencode/.opencode/`; en Claude Code no cambia nada para quien instala.
 
 ### Añadido
@@ -228,6 +230,10 @@ Versionado [SemVer](https://semver.org/lang/es/).
   lee una llave doble donde debía haber una regla. Mismo fallo silencioso que el frontmatter
   sin comillas (ADR-0002), y se cierra igual: con un check.
 
+
+### Corregido
+
+- **`sync.mjs` borra lo generado que ya no sale de `core/`** — antes, una guía o un agente que dejaba de generarse (porque se quitaba de `core/` o de un paquete) seguía en la salida. Ahora se borra al regenerar.
 
 ## [0.24.0] - 2026-09-26
 
