@@ -36,6 +36,7 @@ on:
       - "scripts/check-fusion.mjs"
       - "scripts/check-frescura.mjs"
       - "scripts/check-entorno.mjs"
+      - "scripts/check-siglas.mjs"
       - "scripts/lib/grader.mjs"
       - "plugins/**"
       - ".github/workflows/behavior-check.yml"
@@ -50,6 +51,7 @@ on:
       - "scripts/check-fusion.mjs"
       - "scripts/check-frescura.mjs"
       - "scripts/check-entorno.mjs"
+      - "scripts/check-siglas.mjs"
       - "scripts/lib/grader.mjs"
       - "plugins/**"
       - ".github/workflows/behavior-check.yml"
@@ -89,3 +91,6 @@ jobs:
 
       - name: Asevera el pre-flight de entorno
         run: node scripts/check-entorno.mjs
+
+      - name: Asevera el detector de siglas sin explicar
+        run: node scripts/check-siglas.mjs

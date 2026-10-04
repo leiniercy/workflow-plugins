@@ -397,6 +397,8 @@ const SCRIPTS = {
   "fusion-hallazgos": {},
   "frescura-revision": {},
   entorno: {},
+  // lo ejecuta /deliver de voice antes de pedir la firma
+  siglas: { packages: ["voice"] },
 };
 
 // ---------------------------------------------------------------------------
