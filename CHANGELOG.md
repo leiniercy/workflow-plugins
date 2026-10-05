@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.25.0] - 2026-10-05
+
 ### Añadido
 
 - **En OpenCode, `/lead` despacha las fases como subagentes** — `fase-define`, `fase-start`, `fase-plan`, `fase-implement`, `fase-review` y `fase-close`: subagentes ocultos con el mismo texto que cada comando, más una nota delante. Esa nota dice que el argumento llega en el mensaje y que cada aprobación se pide con la herramienta `question`. Te quedas en `lead` todo el flujo; antes, cada fase te sacaba a `build`. Probado en la interfaz: un subagente pregunta y escribe con su propio permiso aunque `lead` tenga `edit: deny`. `fase-review` mantiene los permisos de solo lectura del revisor. `opencode.json` sube `experimental.subagent_depth` a 2, para que las fases puedan lanzar sus propios subagentes; es una opción experimental de OpenCode. Los comandos siguen existiendo para usar las fases sueltas.

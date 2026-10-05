@@ -5,7 +5,7 @@
       "source": {
         "source": "github",
         "repo": "TU_USUARIO/biomas-workflow",
-        "ref": "v0.24.0"
+        "ref": "v0.25.0"
       }
     }
   },
