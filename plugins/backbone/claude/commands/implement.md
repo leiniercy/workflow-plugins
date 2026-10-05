@@ -204,6 +204,10 @@ disciplina de `recepcion-de-revision` (`${CLAUDE_PLUGIN_ROOT}/skills/recepcion-d
    con la aprobación de un diff que ya no existe. La lista va atada a la rama, así que una
    frontera olvidada no molesta en la tarea siguiente.
 
+   **No se commitea.** Es estado de tu sesión, no parte del trabajo: en el diff de la PR solo
+   sería ruido, y `/close` la borra sin commitear. Si `git status` la muestra, déjala fuera del
+   commit y propón al usuario añadir `tasks/*/.frontera` al `.gitignore` del repo.
+
 1. **Antes de tocar nada:** lee la lista completa de hallazgos, verifica cada uno contra el
    código en su contexto real (¿es cierto aquí?, ¿es preexistente?, ¿hay una decisión
    registrada que lo explique?) y **pregunta por TODOS los que no entiendas antes de corregir

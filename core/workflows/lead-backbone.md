@@ -40,7 +40,10 @@ El estado se decide con señales que tienen forma fija:
   `## Bloqueo`.
 - En `spec.md`: los marcadores `_pendiente de /plan_` y las casillas `- [ ]` / `- [x]` de los
   criterios de aceptación.
-- `.frontera`: la crea `/implement` al entrar en modo corrección y la borra al cerrarla.
+- `.frontera`: la crea `/implement` al entrar en modo corrección y la borra al cerrarla. Es
+  local, no se commitea: en otro clon o en otra máquina no está, así que su ausencia no prueba
+  que no haya una corrección abierta. Si `progress.md` habla de hallazgos de revisión
+  pendientes y no hay `.frontera`, va en una línea «⚠ No comprobado:» y preguntas.
 - La PR: abierta, mergeada o inexistente, según `gh`.
 - ClickUp: el estado de la tarea.
 

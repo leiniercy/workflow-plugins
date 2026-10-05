@@ -830,6 +830,18 @@ for (const dir of ["plugins/backbone/claude", "plugins/backbone/opencode"]) {
     /\.frontera/.test(close),
     "/close no deja la frontera detrás al sellar la tarea",
   );
+  // Decidido el 2026-10-04: la frontera es local. Antes ningún texto decía si se commiteaba,
+  // y el gate de commit se podía leer en los dos sentidos.
+  assert(
+    /\*\*No se commitea\.\*\*/.test(impl),
+    "/implement declara que la frontera no se commitea",
+  );
+  // Espacios normalizados: la prosa se reenvuelve y la frase puede caer partida en dos líneas.
+  const lead = (read(join(CLAUDE, "commands/lead.md")) || "").replace(/\s+/g, " ");
+  assert(
+    lead.includes("su ausencia no prueba que no haya una corrección abierta"),
+    "/lead sabe que la frontera es local y no la da por ausente en otro clon",
+  );
 }
 
 
