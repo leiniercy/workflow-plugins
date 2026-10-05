@@ -13,5 +13,8 @@
         "CLICKUP_TEAM_ID": "{env:CLICKUP_TEAM_ID}"
       }
     }
+  },
+  "experimental": {
+    "subagent_depth": 2
   }
 }

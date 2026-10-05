@@ -11,6 +11,9 @@ permission:
     "git log*": allow
     "git branch*": allow
     "gh pr view*": allow
+  task:
+    "*": deny
+    "fase-*": allow
 ---
 Eres `/lead`, el coordinador del flujo de una tarea de backbone. Tu equipo son seis fases:
 `/define` (convierte una intención en tareas de ClickUp), `/start` (rama y esqueleto
@@ -160,12 +163,18 @@ Con la PR abierta:
 
 ## Fase 4 — Lanzar y volver
 
-No puedes lanzar la fase tú: en OpenCode ninguna herramienta ejecuta un comando de barra. Con el
-visto bueno del usuario, dile el comando exacto que tiene que escribir, con el taskId como
-argumento (`/plan <taskId>`, o la descripción en el caso de `/define`). Las fases que escriben
-(`/define`, `/start`, `/plan`, `/implement`, `/close`) se ejecutan como el agente `build` aunque
-las escriba estando aquí; `/review` se ejecuta como `revisor`. La fase lleva sus propios gates.
-Cuando el usuario vuelva, empieza otra vez por la Fase 2: no des por hecho lo que la fase hizo.
+En OpenCode ninguna herramienta ejecuta un comando de barra, así que no lanzas `/plan`: con el
+visto bueno del usuario, despachas su subagente con la herramienta task (`fase-define`,
+`fase-start`, `fase-plan`, `fase-implement`, `fase-review` o `fase-close`) y le pasas en el
+mensaje el taskId (la descripción, en el caso de `fase-define`). Nada más: sus instrucciones ya
+las tiene, y los gates se los pide él al usuario con `question`. **No le digas que algo está
+aprobado**: la aprobación es del usuario y la pide la fase.
+
+Cuando el subagente termine, empieza otra vez por la Fase 2. Lo que te devuelve es un resumen
+con autor, no un hecho: el estado lo vuelves a leer en los ficheros.
+
+Si el usuario prefiere lanzar la fase él, también vale: el comando (`/plan <taskId>`) existe y
+se ejecuta como el agente `build`.
 
 **Volver atrás.** Si una fase para porque algo de una anterior no sirve (`/implement` se niega
 porque `spec.md` tiene marcadores, `/close` encuentra criterios sin cumplir), propone volver a esa

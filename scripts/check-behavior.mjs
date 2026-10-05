@@ -115,6 +115,28 @@ for (const cmd of ["define", "start", "plan", "implement", "review", "close", "s
   assert(a.includes("⚠ No comprobado:"), "OpenCode: lead lleva la regla de honestidad");
   assert(!a.includes("herramienta Skill"), "OpenCode: lead no promete lanzar fases con Skill");
   assert(a.includes("ninguna herramienta ejecuta un comando de barra"), "OpenCode: lead dice qué comando escribir en vez de lanzarlo");
+  // Las fases como subagentes (probado en la interfaz el 2026-10-05: un subagente pregunta
+  // con `question` y escribe con su propio permiso aunque quien lo despacha tenga edit: deny).
+  const task = /^  task:\n((?:    .+\n)+)/m.exec(fm + "\n");
+  assert(task && /"\*": deny/.test(task[1]) && /"fase-\*": allow/.test(task[1]),
+    "OpenCode: lead solo puede despachar los subagentes fase-*");
+  assert(a.includes("`fase-plan`"), "OpenCode: lead despacha la fase como subagente");
+  for (const fase of ["define", "start", "plan", "implement", "review", "close"]) {
+    const sub = read(join(OC, "agent/fase-" + fase + ".md")) || "";
+    const sfm = frontmatter(sub);
+    assert(/^mode: subagent$/m.test(sfm) && /^hidden: true$/m.test(sfm),
+      `OpenCode: fase-${fase} es un subagente oculto`);
+    assert(/^  question: allow$/m.test(sfm), `OpenCode: fase-${fase} puede preguntar al usuario`);
+    assert(sub.replace(/\n> /g, " ").replace(/\s+/g, " ").includes("la pides con la herramienta `question`"),
+      `OpenCode: fase-${fase} pide sus aprobaciones con question`);
+    assert(sub.includes("## Banderas rojas"), `OpenCode: fase-${fase} lleva el cuerpo entero de la fase`);
+  }
+  assert(/^  edit: deny$/m.test(frontmatter(read(join(OC, "agent/fase-review.md")) || "")),
+    "OpenCode: fase-review sigue siendo de solo lectura");
+  // Las fases lanzan sus propios subagentes (revisores, explorador): hace falta profundidad 2.
+  const ocConfig = JSON.parse(read(join(OC, "opencode.json")) || "{}");
+  assert(ocConfig.experimental && ocConfig.experimental.subagent_depth === 2,
+    "OpenCode: opencode.json permite subagentes anidados (subagent_depth 2)");
   const cmd = read(join(OC, "command/lead.md")) || "";
   assert(/^agent: lead$/m.test(frontmatter(cmd)), "OpenCode: /lead se ejecuta como el agente lead");
   // Un comando sin `agent:` corre con el agente actual: escrito desde lead, no podría escribir.

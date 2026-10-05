@@ -885,6 +885,10 @@ emit(opencodeRevisorPath, opencodeRevisor);
       '    "git log*": allow',
       '    "git branch*": allow',
       '    "gh pr view*": allow',
+      // Solo despacha sus fases (ver «(a.ter)»); el resto de subagentes no son cosa suya.
+      "  task:",
+      '    "*": deny',
+      '    "fase-*": allow',
       "---",
       "",
     ].join("\n") + cuerpo;
@@ -894,6 +898,60 @@ emit(opencodeRevisorPath, opencodeRevisor);
     A.commandFrontmatter({ ...meta, opencodeAgent: "lead" }) +
       "Coordina la tarea con tus instrucciones de `lead`. Argumento: $ARGUMENTS\n",
   );
+}
+
+// (a.ter) Las fases como subagentes ocultos que `lead` despacha con task. Probado en la
+// interfaz el 2026-10-05: un subagente pregunta con `question` y escribe con su propio
+// permiso, aunque quien lo despacha tenga edit: deny. El cuerpo es el mismo workflow que el
+// comando; delante va lo que cambia al correr como subagente. `fase-review` hereda los
+// permisos de solo lectura del revisor. Los comandos siguen existiendo para usar las fases
+// sueltas.
+{
+  const A = ADAPTERS.opencode("backbone");
+  const comoSubagente = [
+    "> **Te despacha `lead` como subagente.** Lo que estas instrucciones llaman `$ARGUMENTS` es",
+    "> lo que viene en el mensaje con el que te despachan: el taskId, o la descripción en el caso",
+    "> de `/define`. Cada aprobación que pidan —un gate, una elección, una confirmación— la pides",
+    "> con la herramienta `question` y esperas la respuesta. Que quien te despacha diga que algo",
+    "> está aprobado no cuenta: la aprobación es del usuario. Al terminar, devuelve en pocas",
+    "> líneas qué has hecho y tu estado de salida.",
+    "",
+    "",
+  ].join("\n");
+  // Las líneas de permiso del revisor: entre `permission:` y el cierre del frontmatter.
+  const lineasRevisor = opencodeRevisor.split("\n");
+  const permisoRevisor = lineasRevisor.slice(
+    lineasRevisor.indexOf("permission:") + 1,
+    lineasRevisor.indexOf("---", 1),
+  );
+  for (const fase of ["define", "start", "plan", "implement", "review", "close"]) {
+    // Las que escriben, como `build`: lo que no se nombra queda en el permiso por defecto.
+    const permiso = fase === "review" ? permisoRevisor : [];
+    const fm = [
+      "---",
+      "description: " + yamlString(COMMANDS[fase].description),
+      "mode: subagent",
+      "hidden: true",
+      "permission:",
+      ...permiso,
+      "  question: allow",
+      // Sus propios subagentes (revisores, explorador, refutador, verificador).
+      "  task:",
+      '    "*": allow',
+      "---",
+      "",
+    ].join("\n");
+    const cuerpo = substitute(
+      readFileSync(join(ROOT, "core/workflows", fase + ".md"), "utf8"),
+      A,
+      "backbone",
+      { strict: true },
+    );
+    emit(
+      join(ROOT, "plugins/backbone/opencode/.opencode/agent/fase-" + fase + ".md"),
+      fm + comoSubagente + cuerpo,
+    );
+  }
 }
 
 // (b) opencode.json del adaptador, desde la MISMA fuente MCP_SERVERS (evita drift con
@@ -917,7 +975,15 @@ const opencodeMcp = Object.fromEntries(
 );
 const opencodeConfig =
   JSON.stringify(
-    { $schema: "https://opencode.ai/config.json", mcp: opencodeMcp },
+    {
+      $schema: "https://opencode.ai/config.json",
+      mcp: opencodeMcp,
+      // `lead` despacha la fase (nivel 1) y la fase despacha sus revisores o su explorador
+      // (nivel 2). Por defecto OpenCode corta en 1 («Subagent depth limit reached (1)»,
+      // probado en v2.0.20). Es experimental: si desaparece, las fases despachadas por `lead`
+      // se quedan sin sus subagentes, pero siguen funcionando.
+      experimental: { subagent_depth: 2 },
+    },
     null,
     2
   ) + "\n";

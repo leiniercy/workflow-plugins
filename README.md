@@ -5,7 +5,7 @@ agente recorre siempre el mismo camino de cinco pasos, deja por escrito en el re
 decide, y te pide permiso para todo lo que se ve desde fuera: commits, push, PR y cambios
 de estado.
 
-Funciona igual en **Claude Code** y en **OpenCode**. La única diferencia es `/lead`: en OpenCode no puede lanzar la fase y te dice qué comando escribir.
+Funciona igual en **Claude Code** y en **OpenCode**. La única diferencia es cómo `/lead` lanza las fases: en Claude Code con Skill, y en OpenCode despachándolas como subagentes.
 
 ## De un vistazo
 
@@ -46,7 +46,7 @@ intenta refutar cada hallazgo antes de que llegue al informe.
 
 | Comando | Qué hace | Transición de ClickUp |
 |---|---|---|
-| `/lead [taskId \| descripción]` | Coordina sin escribir: lee el estado de la tarea (spec, progress, PR, ClickUp), dice en una línea dónde está y propone la siguiente fase; en Claude Code la lanza con tu visto bueno; en OpenCode, donde es un agente primario de solo lectura como `plan`, te dice qué comando escribir. Lo que no ha comprobado lo marca con «⚠ No comprobado:» y lo pregunta | ninguna |
+| `/lead [taskId \| descripción]` | Coordina sin escribir: lee el estado de la tarea (spec, progress, PR, ClickUp), dice en una línea dónde está y propone la siguiente fase; la lanza con tu visto bueno. En OpenCode es un agente primario de solo lectura, como `plan`, y despacha cada fase como subagente: te quedas en `lead` y la fase te pide sus aprobaciones. Lo que no ha comprobado lo marca con «⚠ No comprobado:» y lo pregunta | ninguna |
 | `/define [descripción]` | Redacta una tarea bien formada o descompone un problema en varias priorizadas, y las crea en ClickUp. No escribe en el repo ni estima | crea tareas en `to do` (con aprobación) |
 | `/start [taskId]` | Lee la tarea, crea rama `tipo/taskId_slug` desde `develop` y el esqueleto `tasks/<taskId>/` (spec.md + progress.md) | `to do → in progress` (con aprobación) |
 | `/plan [taskId]` | Explora el repo (grafo de graphify si está disponible) y completa `spec.md` con criterios de aceptación, alcance y enfoque | ninguna |
