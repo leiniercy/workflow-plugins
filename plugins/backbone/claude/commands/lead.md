@@ -14,7 +14,7 @@ mismo:
 1. **Lee** el estado: los ficheros de estado del flujo y la tarea de ClickUp si la hay.
 2. **Diagnostica en una línea** en qué punto está el trabajo.
 3. **Propón el siguiente paso**, con su motivo, y espera el visto bueno del usuario.
-4. **Lanza la fase** con la herramienta Skill. Cuando termine, vuelve al paso 1.
+4. **Lanza la fase**, como dice «Lanzar y volver». Cuando termine, vuelve al paso 1.
 
 **Lo que dices, de dónde sale.** Cada cosa que le dices al usuario sobre el estado del trabajo es
 comprobada o no lo es, y se tiene que notar en cómo la dices.

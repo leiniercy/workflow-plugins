@@ -91,9 +91,37 @@ for (const cmd of ["define", "start", "plan", "implement", "review", "close", "s
     assert(fila(orden[i]) > -1, `/lead tiene la fila «${orden[i]}»`);
     if (i > 0) assert(fila(orden[i - 1]) < fila(orden[i]), `/lead mira «${orden[i - 1]}» antes que «${orden[i]}»`);
   }
-  // Solo Claude Code (spec §5): no se sabe si OpenCode puede lanzar fases desde un comando.
-  assert(read(join(ROOT, "plugins/backbone/opencode/.opencode/command/lead.md")) === null,
-    "/lead no se genera para OpenCode");
+  assert(body.includes("con la herramienta Skill (`backbone:define`"), "/lead de Claude lanza las fases con Skill");
+}
+
+// --- /lead en OpenCode: agente primario de solo lectura (probado en v2.0.20, 2026-10-04) ---
+// Allí ninguna herramienta ejecuta un comando de barra: /lead no lanza la fase, te dice cuál
+// escribir. A cambio, `permission` bloquea de verdad, no pre-aprueba como allowed-tools.
+{
+  const OC = join(ROOT, "plugins/backbone/opencode/.opencode");
+  const agente = read(join(OC, "agent/lead.md"));
+  assert(agente !== null, "OpenCode: existe el agente lead");
+  const a = agente || "";
+  const fm = frontmatter(a);
+  assert(/^mode: primary$/m.test(fm), "OpenCode: lead es un agente primario");
+  assert(/^  edit: deny$/m.test(fm), "OpenCode: lead tiene edit: deny");
+  // En permission.bash gana la última regla que coincide: el catch-all va primero.
+  const reglas = [...fm.matchAll(/^    "([^"]+)": (allow|deny)$/gm)].map((m) => m[1]);
+  assert(reglas[0] === "*" && /^    "\*": deny$/m.test(fm), "OpenCode: lead bloquea toda la shell antes de las excepciones");
+  for (const r of ["git status*", "git log*", "git branch*", "gh pr view*"]) {
+    assert(reglas.includes(r), `OpenCode: lead puede ejecutar «${r}»`);
+  }
+  assert(a.includes("Eres el coordinador"), "OpenCode: lead inserta el snippet coordinador");
+  assert(a.includes("⚠ No comprobado:"), "OpenCode: lead lleva la regla de honestidad");
+  assert(!a.includes("herramienta Skill"), "OpenCode: lead no promete lanzar fases con Skill");
+  assert(a.includes("ninguna herramienta ejecuta un comando de barra"), "OpenCode: lead dice qué comando escribir en vez de lanzarlo");
+  const cmd = read(join(OC, "command/lead.md")) || "";
+  assert(/^agent: lead$/m.test(frontmatter(cmd)), "OpenCode: /lead se ejecuta como el agente lead");
+  // Un comando sin `agent:` corre con el agente actual: escrito desde lead, no podría escribir.
+  for (const fase of ["define", "start", "plan", "implement", "close", "setup"]) {
+    assert(/^agent: build$/m.test(frontmatter(read(join(OC, "command", fase + ".md")) || "")),
+      `OpenCode: /${fase} se ejecuta como build aunque se escriba desde lead`);
+  }
 }
 
 // --- /close: la escritura NO se pre-aprueba ---

@@ -98,10 +98,7 @@ Con la PR abierta:
 
 ## Fase 4 — Lanzar y volver
 
-Con el visto bueno del usuario, lanza la fase con la herramienta Skill (`backbone:define`,
-`backbone:start`, `backbone:plan`, `backbone:implement`, `backbone:review` o `backbone:close`) y
-el taskId como argumento (la descripción, en el caso de `/define`). La fase lleva sus propios
-gates: déjala trabajar. Cuando termine, vuelve a la Fase 2.
+{{snippet:lanzar-fase}}
 
 **Volver atrás.** Si una fase para porque algo de una anterior no sirve (`/implement` se niega
 porque `spec.md` tiene marcadores, `/close` encuentra criterios sin cumplir), propone volver a esa

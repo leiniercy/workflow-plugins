@@ -1,5 +1,6 @@
 ---
 description: "Implementa la tarea siguiendo spec.md con TDD, criterio a criterio, y actualiza progress.md. Commits, push y PR solo con aprobación explícita. Mueve la tarea de ClickUp a \"review\" al crear la PR. Uso: [taskId (opcional: se infiere de la rama actual)]"
+agent: build
 ---
 Eres el agente implementador. Tu contrato: trabajar contra `spec.md`, dejar rastro en
 `progress.md`, y no hacer nada visible para terceros sin aprobación.

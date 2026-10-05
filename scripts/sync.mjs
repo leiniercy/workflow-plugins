@@ -39,22 +39,34 @@ const COMMANDS = {
     description:
       "Convierte una intención en tareas que alguien puede tomar. Dos modos por contexto: redacta UNA tarea bien formada (historia, criterios en Given/When/Then, alcance y fuera de alcance), o descompone un problema grande en varias priorizadas por valor y coste, con las dependencias marcadas y lo descartado dicho en voz alta. Crea las tareas en ClickUp solo tras aprobación. NO escribe en el repo ni estima ni asigna: eso es gestión.",
     argumentHint: "[descripción de lo que se quiere construir, o el problema a resolver]",
+    // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual,
+    // y escrito desde el agente `lead` (solo lectura) no podría escribir.
+    opencodeAgent: "build",
   },
   start: {
     description:
       'Toma una tarea de ClickUp, crea la rama de trabajo desde develop y el esqueleto de estado tasks/<taskId>/ (spec.md + progress.md). Mueve la tarea a "in progress". NO planifica en detalle ni implementa código.',
     argumentHint:
       "[taskId de ClickUp (opcional: si se omite, lista las tareas en 'to do' para elegir)]",
+    // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual,
+    // y escrito desde el agente `lead` (solo lectura) no podría escribir.
+    opencodeAgent: "build",
   },
   plan: {
     description:
       "Completa tasks/<taskId>/spec.md con criterios de aceptación, alcance y enfoque técnico tras explorar el repo (vía grafo de conocimiento si graphify está disponible). Requiere aprobación antes de guardar. NO modifica código ni el estado de ClickUp.",
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+    // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual,
+    // y escrito desde el agente `lead` (solo lectura) no podría escribir.
+    opencodeAgent: "build",
   },
   implement: {
     description:
       'Implementa la tarea siguiendo spec.md con TDD, criterio a criterio, y actualiza progress.md. Commits, push y PR solo con aprobación explícita. Mueve la tarea de ClickUp a "review" al crear la PR.',
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+    // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual,
+    // y escrito desde el agente `lead` (solo lectura) no podría escribir.
+    opencodeAgent: "build",
   },
   review: {
     description:
@@ -91,6 +103,9 @@ const COMMANDS = {
     description:
       'Valida el cumplimiento de los criterios de aceptación contra spec.md y, si están en verde, sella la salida de la tarea en progress.md y propone moverla a "complete" en ClickUp. Admite cierre por abandono. Solo escribe progress.md - nunca código ni spec.md.',
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
+    // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual,
+    // y escrito desde el agente `lead` (solo lectura) no podría escribir.
+    opencodeAgent: "build",
     // Pre-autoriza lectura y el despacho del subagente del gate. **Write/Edit quedan FUERA a
     // propósito.** `allowed-tools` no es un sandbox: es pre-aprobación, y lo que se lista corre
     // sin prompt. Listar Write aquí haría del comando que CIERRA el único del paquete que
@@ -117,11 +132,15 @@ const COMMANDS = {
     description:
       "Prepara un repo para trabajar con IA: comprueba si faltan CLAUDE.md (o AGENTS.md en OpenCode) y MEMORY.md, explica para qué sirve cada uno y los crea solo con aprobación. CLAUDE.md sale de lo verificado en el repo, no de una plantilla vacía; MEMORY.md es personal y se añade al .gitignore. Commit propio, aparte del código. NO toca código, tasks/ ni ClickUp.",
     argumentHint: "[sin argumentos]",
+    // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual,
+    // y escrito desde el agente `lead` (solo lectura) no podría escribir.
+    opencodeAgent: "build",
   },
 
   // El coordinador de backbone. Como el de voice: allowed-tools pre-aprueba solo leer y lanzar
   // fases, y el «no escribe» lo sostienen la prosa, el snippet y check-behavior (ADR-0008).
-  // Solo Claude Code: lanza fases con Skill y no se ha comprobado que OpenCode pueda.
+  // Aquí solo Claude Code: lanza fases con Skill. En OpenCode es un agente primario que se
+  // genera aparte, más abajo (sección «(a.bis)»).
   // Las lecturas de ClickUp no se pre-aprueban: ningún comando pre-aprueba herramientas MCP.
   "lead-backbone": {
     name: "lead",
@@ -505,8 +524,13 @@ const TEMPLATES = ["CLAUDE.md", "AGENTS.md", "MEMORY.md"];
 // bloque multilínea insertado a media frase o dentro de un `-` rompe el markdown de
 // formas que nadie mira hasta que el agente lee mal la regla.
 // ---------------------------------------------------------------------------
-function snippet(name) {
-  const p = join(ROOT, "core/snippets", name + ".md");
+//
+// Un snippet puede tener una versión por adaptador, `<nombre>.<adaptador>.md`, que gana a la
+// común. Sirve para lo que de verdad difiere entre herramientas —cómo se lanza una fase— sin
+// llenar la prosa de condicionales que el agente tendría que resolver leyendo.
+function snippet(name, adapterId) {
+  const propio = join(ROOT, "core/snippets", name + "." + adapterId + ".md");
+  const p = existsSync(propio) ? propio : join(ROOT, "core/snippets", name + ".md");
   if (!existsSync(p)) throw new Error("Snippet desconocido en token: " + name);
   return readFileSync(p, "utf8").trimEnd();
 }
@@ -516,6 +540,7 @@ function snippet(name) {
 // ---------------------------------------------------------------------------
 const ADAPTERS = {
   claude: (pkg) => ({
+    id: "claude",
     managedDirs: ["commands", "skills", "agents", "scripts", "templates"].map((d) =>
       join(ROOT, "plugins", pkg, "claude", d),
     ),
@@ -573,6 +598,7 @@ const ADAPTERS = {
       ].join("\n"),
   }),
   opencode: (pkg) => ({
+    id: "opencode",
     managedDirs: ["command", "skills", "agent", "scripts", "templates"].map((d) =>
       join(ROOT, "plugins", pkg, "opencode/.opencode", d),
     ),
@@ -649,7 +675,7 @@ function substitute(text, A, pkg, { strict }) {
   // Los snippets se expanden ANTES que guide/script: así un snippet puede referenciar
   // una guía y el token de dentro se resuelve en la misma pasada.
   const conSnippets = text.replace(/^\{\{snippet:([a-z-]+)\}\}$/gm, (_, name) =>
-    snippet(name),
+    snippet(name, A.id),
   );
   // Lo que quede es un token mal colocado (sangrado, o a media línea). Casca aquí en vez
   // de publicar una llave doble donde el agente esperaba una regla.
@@ -823,6 +849,52 @@ const opencodeRevisor =
   ].join("\n");
 const opencodeRevisorPath = join(ROOT, "plugins/backbone/opencode/.opencode/agent/revisor.md");
 emit(opencodeRevisorPath, opencodeRevisor);
+
+// (a.bis) El coordinador `lead`: agente PRIMARIO de solo lectura, como `plan` o `revisor`.
+// Probado en OpenCode v2.0.20 (2026-10-04): ninguna herramienta ejecuta un comando de barra,
+// así que no lanza la fase —te dice cuál escribir— y su cuerpo usa la versión OpenCode del
+// snippet `lanzar-fase`. A cambio, `permission` bloquea de verdad. Mismo orden que el
+// revisor: el catch-all "*": deny primero, las excepciones de lectura después. El comando
+// `/lead` solo hace de puerta: corre como este agente, que lleva las instrucciones.
+{
+  const A = ADAPTERS.opencode("backbone");
+  // La descripción de Claude dice que lanza la fase; aquí no puede, así que no se reutiliza.
+  const meta = {
+    ...COMMANDS["lead-backbone"],
+    description:
+      "Coordina el flujo de una tarea de backbone sin escribir nada: lee tasks/<taskId>/, la PR y ClickUp, diagnostica en una línea en qué punto está y te dice qué fase toca (/define, /start, /plan, /implement, /review, /close) y el comando exacto que escribir: en OpenCode no puede lanzarla. Dice en firme solo lo comprobado; lo demás lo marca y lo pregunta. NO escribe y NO mueve ClickUp: su permission lo bloquea.",
+  };
+  const cuerpo = substitute(
+    readFileSync(join(ROOT, "core/workflows/lead-backbone.md"), "utf8"),
+    A,
+    "backbone",
+    { strict: true },
+  );
+  const agente =
+    [
+      "---",
+      "description: " + yamlString(meta.description),
+      "mode: primary",
+      "permission:",
+      "  edit: deny",
+      "  webfetch: deny",
+      "  websearch: deny",
+      "  bash:",
+      '    "*": deny',
+      '    "git status*": allow',
+      '    "git log*": allow',
+      '    "git branch*": allow',
+      '    "gh pr view*": allow',
+      "---",
+      "",
+    ].join("\n") + cuerpo;
+  emit(join(ROOT, "plugins/backbone/opencode/.opencode/agent/lead.md"), agente);
+  emit(
+    A.commandPath("lead"),
+    A.commandFrontmatter({ ...meta, opencodeAgent: "lead" }) +
+      "Coordina la tarea con tus instrucciones de `lead`. Argumento: $ARGUMENTS\n",
+  );
+}
 
 // (b) opencode.json del adaptador, desde la MISMA fuente MCP_SERVERS (evita drift con
 // el .mcp.json de Claude). OpenCode lee `<repo>/.opencode/opencode.json`, así que el
