@@ -392,6 +392,90 @@ function escenario(nombre, branch, ficheros) {
 }
 
 // ---------------------------------------------------------------------------
+// 13-16. La memoria (`MEMORY.md`) entra en el arranque.
+//
+// El «Contexto Actual» es lo que permite arrancar en frío sin releer el repo. Se inyecta
+// tanto en rama de tarea como fuera de ella —donde no hay `tasks/<id>/` y la memoria es lo
+// único que orienta—. Si la sesión trabaja dentro de un plugin, manda la suya de
+// `plugins/<x>/`. Y se acota: una memoria que crezca sin límite no puede inundar la sesión
+// (el mismo motivo por el que se acota el `progress.md`).
+// ---------------------------------------------------------------------------
+{
+  /** MEMORY.md con la forma real: H1, sección con emoji y una sección más detrás. */
+  const memoria = (estado) =>
+    `# Memoria del Proyecto\n\n## 📌 Contexto Actual\n\n${estado}\n\n## 🧠 Aprendizajes\n\n- algo.\n`;
+
+  // 13. En rama de tarea, con esqueleto: la memoria convive con el estado de la tarea.
+  {
+    const dir = repo("feat/TM_demo");
+    temporales.push(dir);
+    tarea(dir, "TM", "spec.md", spec(criterios(2, 3)));
+    tarea(dir, "TM", "progress.md", progress("En curso."));
+    writeFileSync(
+      join(dir, "MEMORY.md"),
+      memoria("Rama `feat/TM_demo`. Objetivo: probar la memoria.")
+    );
+    const r = ejecutar(dir);
+    assert(r.code === 0, `[memoria en rama de tarea] código 0 — actual: ${r.code}`);
+    assert(r.jsonValido, "[memoria en rama de tarea] JSON válido");
+    assert(/Contexto Actual/.test(r.contexto), "la memoria se inyecta en rama de tarea");
+    assert(/probar la memoria/.test(r.contexto), "el texto inyectado es el de MEMORY.md");
+    assert(/Estado actual/.test(r.contexto), "la memoria NO desplaza al estado de la tarea");
+  }
+
+  // 14. Fuera de rama de tarea y sin tasks/: antes no se inyectaba nada; ahora la memoria sí.
+  {
+    const dir = repo("main");
+    temporales.push(dir);
+    writeFileSync(join(dir, "MEMORY.md"), memoria("Repo sin tarea abierta."));
+    const r = ejecutar(dir);
+    assert(r.code === 0, `[memoria fuera de rama] código 0 — actual: ${r.code}`);
+    assert(r.jsonValido, "[memoria fuera de rama] JSON válido");
+    assert(
+      /Contexto Actual/.test(r.contexto),
+      "fuera de rama de tarea la memoria también se inyecta"
+    );
+    assert(/Repo sin tarea abierta/.test(r.contexto), "el texto es el de la memoria del repo");
+  }
+
+  // 15. Acotada: una sección enorme se recorta nombrando el fichero que hay que revisar.
+  {
+    const dir = repo("main");
+    temporales.push(dir);
+    writeFileSync(join(dir, "MEMORY.md"), memoria("x".repeat(2000)));
+    const r = ejecutar(dir);
+    assert(
+      /recortado: revisa la estructura de `MEMORY\.md`/.test(r.contexto),
+      "una memoria enorme se acota nombrando MEMORY.md"
+    );
+    assert(
+      r.contexto.length < 1200,
+      `la inyección de una memoria enorme queda acotada — actual: ${r.contexto.length}`
+    );
+  }
+
+  // 16. Trabajando dentro de un plugin, manda la memoria del plugin, no la del repo.
+  {
+    const dir = repo("main");
+    temporales.push(dir);
+    writeFileSync(join(dir, "MEMORY.md"), memoria("MEMORIA DEL REPO"));
+    mkdirSync(join(dir, "plugins", "voice"), { recursive: true });
+    writeFileSync(join(dir, "plugins", "voice", "MEMORY.md"), memoria("MEMORIA DEL PLUGIN VOICE"));
+    const r = ejecutar(join(dir, "plugins", "voice"));
+    assert(r.code === 0, `[memoria de plugin] código 0 — actual: ${r.code}`);
+    assert(r.jsonValido, "[memoria de plugin] JSON válido");
+    assert(
+      /MEMORIA DEL PLUGIN VOICE/.test(r.contexto),
+      "trabajando en plugins/voice se inyecta la memoria del plugin"
+    );
+    assert(
+      !/MEMORIA DEL REPO/.test(r.contexto),
+      "no se inyecta la del repo cuando hay una del plugin que aplica"
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Limpieza y veredicto
 // ---------------------------------------------------------------------------
 for (const d of temporales) {
@@ -411,4 +495,6 @@ if (fallos.length) {
   process.exit(1);
 }
 
-console.log(`✓ ${total} aserciones de hooks OK (session-context ejecutado en 12 escenarios).`);
+console.log(
+  `✓ ${total} aserciones de hooks OK (session-context ejecutado en 16 escenarios).`
+);

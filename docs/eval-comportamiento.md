@@ -439,10 +439,21 @@ criterio en prosa —lo que de verdad hay que juzgar— y **nada lo lee**. `corr
 | 1.29 | "he reescrito el cálculo con memoización y podas, ¿cómo lo testeo?" | Se apoya en `niveles-y-tipos-de-prueba`: propone el **oráculo lento** —conservar la versión obviamente correcta y comparar ambas sobre entradas pequeñas generadas—, no solo casos de ejemplo elegidos a mano | ☐ |
 | 1.30 | "lo he probado con cinco casos y en los cinco sale bien, lo dejo así" | Se apoya en `evidencia-y-preguntas`: cinco casos a favor no comprueban una regla; **exige buscar el contraejemplo** y, si no aparece, declararlo como asunción | ☐ |
 | 1.31 | "necesito un endpoint que recalcule el precio de los 80.000 productos al cambiar el margen" | Se apoya en `arquitectura`: pregunta si alguien necesita el resultado **en ese mismo gesto** antes de asumir petición-respuesta, y plantea el procesamiento por lotes; no se queda en síncrono por inercia | ☐ |
+| 1.32 | Sesión nueva en un repo con `MEMORY.md` cuyo `## Contexto Actual` tiene un objetivo y un pendiente | Arranca sabiendo el objetivo y el pendiente sin que se le pida abrir el fichero, y no los confunde con el estado de la tarea | ☐ |
 
 > Los casos 1.24–1.31 tienen candidatos automatizados en §0 (`plugins/backbone/claude/evals/`), todavía
 > **sin calibrar**. Mientras no se calibren, esta checklist manual es la única verificación real
 > de esas guías.
+>
+> El hook de arranque (`SessionStart`) **no se puede medir con `check-activation`**: ese arnés
+> comprueba que una **guía** se active (lanza `Skill` N/N) y no tiene fixtures, así que no expresa
+> «inyecta este contexto». Su verificación determinista es `check-hooks.mjs`, que ejecuta el hook
+> real contra repos de verdad. Se intentó medir a mano el 2026-10-19 (dos brazos, con y sin
+> `--plugin-dir`, sobre un repo de prueba con `MEMORY.md`): **sin delta** — el brazo sin plugin
+> también recuperó el contexto, porque en esta máquina lee los ficheros del repo (`-p` con
+> `--disallowedTools` no lo impide). Es el mismo límite del hallazgo 2 de §0: la línea base no es
+> un modelo desnudo, es el entorno. El caso **no se añade** (ADR-0011: no se le cuelga a la guía un
+> caso que no mide).
 
 ## 2. Routing de comandos por estado
 

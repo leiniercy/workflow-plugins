@@ -8,6 +8,9 @@
  *     de progress.md, los criterios pendientes de spec.md y un PRÓXIMO PASO
  *     sugerido (derivado del estado de la spec) + recordatorio de gates. Así el
  *     flujo se auto-conduce sin que el usuario recuerde qué comando toca.
+ *   - El "Contexto Actual" de `MEMORY.md` (o de `plugins/<x>/MEMORY.md` si la sesión
+ *     trabaja dentro de un plugin), con o sin rama de tarea: es lo que permite
+ *     arrancar en frío. Solo se lee, acotado; si no existe, no se dice nada.
  *   - Fuera de una rama de tarea, si el repo ya usa el flujo (existe `tasks/`):
  *     un recordatorio mínimo de una línea. Sin ruido en repos no adoptados.
  *
@@ -16,7 +19,7 @@
  * git, git ausente, ficheros inexistentes) degrada en silencio con código 0.
  */
 const { readFileSync, existsSync } = require("fs");
-const { join } = require("path");
+const { join, relative } = require("path");
 const { commitSinRegistrar } = require("./lib/progreso-fresco.js");
 const { git, ramaDeTarea, crearEmit } = require("./lib/comun.js");
 
@@ -69,6 +72,33 @@ function acotar(texto, fichero, max = MAX_SECCION) {
   );
 }
 
+/**
+ * «Contexto Actual» de la memoria que toca inyectar, ya acotado, o null si no hay nada.
+ *
+ * Hay dos memorias: la del proyecto (`MEMORY.md`, en la raíz) y la del plugin
+ * (`plugins/<x>/MEMORY.md`). Si la sesión trabaja dentro de un plugin, manda la suya —es la
+ * que habla de lo que se está tocando—; si no, la del repo. Se lee SOLO esa sección y se
+ * acota: está escrita para orientar el arranque en frío, no para ocuparlo.
+ */
+function memoriaActual(root, cwd) {
+  const rel = relative(root, cwd).replace(/\\/g, "/");
+  const plugin = /^plugins\/([^/]+)/.exec(rel);
+  const candidatos = [];
+  if (plugin) {
+    candidatos.push({
+      abs: join(root, "plugins", plugin[1], "MEMORY.md"),
+      rel: "plugins/" + plugin[1] + "/MEMORY.md",
+    });
+  }
+  candidatos.push({ abs: join(root, "MEMORY.md"), rel: "MEMORY.md" });
+  for (const c of candidatos) {
+    if (!existsSync(c.abs)) continue;
+    const contexto = section(readFileSync(c.abs, "utf8"), /Contexto Actual/i);
+    if (contexto) return { texto: acotar(contexto, c.rel), fichero: c.rel };
+  }
+  return null;
+}
+
 try {
   // 1. Entrada del hook (stdin JSON). Puede venir vacía: degradamos a cwd.
   let cwd = process.cwd();
@@ -96,16 +126,22 @@ try {
   // 3. taskId desde el patrón <tipo>/<taskId>_<slug>.
   const taskIdRama = ramaDeTarea(branch);
   if (!taskIdRama) {
-    // Fuera de rama de tarea: recordatorio mínimo SOLO si el repo ya usa el flujo.
+    // Fuera de rama de tarea: el recordatorio del flujo (si el repo lo usa) y, siempre que
+    // exista, el «Contexto Actual» de la memoria. Es justo el arranque en frío: no hay
+    // `tasks/<id>/` de donde tirar, así que la memoria es lo único que orienta. Sin
+    // MEMORY.md no se dice nada: cero ruido en repos no adoptados.
+    const partes = [];
     if (hasTasksDir) {
-      emit(
-        "## backbone\n\n" +
-          "Este repo usa el flujo guiado por tareas, pero `" +
+      partes.push(
+        "Este repo usa el flujo guiado por tareas, pero `" +
           branch +
           "` no es una rama de tarea. Para empezar una tarea: `/start <taskId>`; " +
           "para retomar una, haz checkout de su rama `<tipo>/<taskId>_<slug>`."
       );
     }
+    const mem = memoriaActual(root, cwd);
+    if (mem) partes.push("**Contexto Actual:** " + mem.texto);
+    if (partes.length) emit("## backbone\n\n" + partes.join("\n\n"));
     emit(null);
   }
   const taskId = taskIdRama;
@@ -178,6 +214,11 @@ try {
     bloqueo = acotar(section(progress, /^bloqueo$/i), "progress.md") || null;
     if (bloqueo) parts.unshift("**⚠ BLOQUEADO:** " + bloqueo);
   }
+
+  // Contexto de proyecto: la memoria va tras el estado de la tarea (que es lo accionable)
+  // y antes de la spec. Sirve para arrancar en frío sin releer el repo entero.
+  const mem = memoriaActual(root, cwd);
+  if (mem) parts.push("**Contexto Actual:** " + mem.texto);
 
   if (existsSync(specPath)) {
     const spec = readFileSync(specPath, "utf8");
