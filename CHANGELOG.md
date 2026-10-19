@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.26.0] - 2026-10-19
+
 ### Añadido
 
 - **La memoria del proyecto se inyecta al arrancar la sesión** — el hook `SessionStart` lee la sección `## Contexto Actual` de `MEMORY.md` (o de `plugins/<x>/MEMORY.md` si la sesión trabaja dentro de un plugin) y la añade al contexto, acotada igual que el `progress.md`. Antes, una sesión limpia arrancaba sin saber en qué se estaba trabajando salvo que el agente decidiera abrir el fichero; ahora el objetivo y los pendientes están delante desde el primer turno. Fuera de rama de tarea también entra: es justo cuando no hay `tasks/<id>/` de donde tirar. El hook solo lee; si no hay `MEMORY.md`, no dice nada.

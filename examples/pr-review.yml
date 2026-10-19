@@ -20,6 +20,6 @@ jobs:
       contents: read
       pull-requests: write
       id-token: write
-    uses: TU_USUARIO/biomas-workflow/.github/workflows/review.yml@v0.25.0
+    uses: TU_USUARIO/biomas-workflow/.github/workflows/review.yml@v0.26.0
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
