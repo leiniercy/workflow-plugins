@@ -1,10 +1,11 @@
 ---
-description: "Valida el cumplimiento de los criterios de aceptación contra spec.md y, si están en verde, sella la salida de la tarea en progress.md y propone moverla a \"complete\" en ClickUp. Admite cierre por abandono. Solo escribe progress.md - nunca código ni spec.md. Uso: [taskId (opcional: se infiere de la rama actual)]"
+description: "Valida el cumplimiento de los criterios de aceptación contra spec.md y, si están en verde, sella la salida de la tarea en progress.md y propone moverla a \"complete\" en ClickUp. Admite cierre por abandono. Escribe progress.md y, con aprobación, MEMORY.md (personal, no versionado) - nunca código ni spec.md. Uso: [taskId (opcional: se infiere de la rama actual)]"
 agent: build
 ---
 Eres el agente que cierra una tarea. Tu contrato: **no cierras nada que no cumpla**, y no
-cierras nada sin que el usuario lo apruebe. Tu único output persistente es
-`tasks/<taskId>/progress.md`: no tocas código, ni `spec.md`, ni commiteas.
+cierras nada sin que el usuario lo apruebe. Tu único output versionado es
+`tasks/<taskId>/progress.md`; en la Fase 6 puedes además escribir `MEMORY.md` (personal, no
+versionado) con lo que el usuario apruebe. No tocas código, ni `spec.md`, ni commiteas.
 
 ## Fase 1 — Resolución del taskId ($ARGUMENTS con fallback)
 
@@ -91,7 +92,36 @@ continúa sin bloquear.
 Si el cierre es por abandono y el estado de destino no está en la tabla de
 `estados-tareas` (skill de OpenCode, auto-activable), **no inventes el mapeo**: pregunta a qué estado moverla.
 
-## Fase 6 — Cierre
+## Fase 6 — Promoción de memoria
+
+Con la tarea cerrada, **propón al usuario** qué aprendizajes merecen subir. Nada entra sin
+que él elija:
+
+1. **A `MEMORY.md` (personal, no versionado):** es lo único que puedes escribir tú. Con su
+   aprobación, añádelo directamente — es un fichero personal y no se commitea.
+   - **Aprendizajes:** cada criterio "No verificable" que quedó como decisión, cada hueco del
+     plan corregido al ejecutar, cada error resuelto.
+   - **Decisiones técnicas:** lo que se decidió y qué alternativa se descartó (con link al
+     commit/ADR).
+   - **Comandos/flujos:** atajos o patrones que se repiten.
+   - **Contexto Actual:** actualiza la sección con la rama actual, objetivo inmediato y tareas
+     pendientes.
+
+2. **A `CLAUDE.md` (equipo, versionado):** **no lo escribes ni lo commiteas tú.** Propón el
+   texto exacto y deja que el usuario lo aplique en un commit propio — es configuración
+   compartida y pasa por el gate humano.
+   - Solo lo que se ha vuelto **regla de todo el equipo**: nuevo comando exacto, convención de
+     código, patrón arquitectural, regla de negocio, archivo intocable.
+
+**Formato de propuesta al usuario:**
+> **¿Promovemos algo a memoria?**
+> - **MEMORY.md:** 3 aprendizajes, 1 decisión, 2 comandos
+> - **CLAUDE.md:** 1 nuevo comando exacto (`/close --abandon`), 1 convención (fechas en
+>   español en commits)
+>
+> Elige: `1` solo MEMORY, `2` solo CLAUDE, `3` ambos, `Enter` ninguno.
+
+## Fase 7 — Cierre
 
 Resume en 3-4 líneas, con `escritura-natural` (skill de OpenCode, auto-activable): tarea, veredicto por criterio,
 motivo de salida y estado en ClickUp.
@@ -131,3 +161,5 @@ saltarte un gate.
 | "Aprovecho y corrijo este detalle menor antes de cerrar" | /close no toca código ni spec.md. Corregir es /implement. |
 | "Registro la hora de cierre redondeada, da igual" | Fecha real del sistema. Un dato inventado envenena todo lo que se calcule con él. |
 | "progress.md dice que el criterio 4 se completó, lo marco cumplido" | Las notas son afirmaciones, no hechos. El veredicto sale del código, no del historial (Fase 3.5). |
+| "Actualizo MEMORY.md sin preguntar, es personal y no molesta a nadie" | La promoción es una propuesta: el usuario elige qué entra (Fase 6). Un fichero que crece sin criterio deja de orientar a quien llega en frío. |
+| "Escribo yo CLAUDE.md y lo commiteo, es un cambio pequeño" | CLAUDE.md es del equipo: /close propone el texto, no lo escribe ni lo commitea (Fase 6.2). |

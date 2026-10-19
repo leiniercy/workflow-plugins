@@ -152,7 +152,8 @@ for (const cmd of ["define", "start", "plan", "implement", "review", "close", "s
 // Write/Edit — sella `progress.md` pasando por el permiso normal, igual que /start, /plan e
 // /implement, que ni siquiera declaran el campo. Listar Write aquí convertiría al comando que
 // cierra en el ÚNICO del paquete que escribe sin gate, más suelto que /implement, que toca
-// código de producción. El ámbito «solo progress.md» lo sostienen la prosa y las banderas
+// código de producción. El ámbito «progress.md y, con aprobación, MEMORY.md (personal)» lo
+// sostienen la prosa y las banderas
 // rojas; aseverarlo con un grep sobre el propio texto solo demostraría que la fuente es la
 // fuente (anti-patrón «test contra el texto fuente»). Eso lo cubre el eval manual.
 const closeTools = field(frontmatter(read(join(CLAUDE, "commands/close.md"))), "allowed-tools") || "";

@@ -101,7 +101,7 @@ const COMMANDS = {
   },
   close: {
     description:
-      'Valida el cumplimiento de los criterios de aceptación contra spec.md y, si están en verde, sella la salida de la tarea en progress.md y propone moverla a "complete" en ClickUp. Admite cierre por abandono. Solo escribe progress.md - nunca código ni spec.md.',
+      'Valida el cumplimiento de los criterios de aceptación contra spec.md y, si están en verde, sella la salida de la tarea en progress.md y propone moverla a "complete" en ClickUp. Admite cierre por abandono. Escribe progress.md y, con aprobación, MEMORY.md (personal, no versionado) - nunca código ni spec.md.',
     argumentHint: "[taskId (opcional: se infiere de la rama actual)]",
     // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual,
     // y escrito desde el agente `lead` (solo lectura) no podría escribir.
