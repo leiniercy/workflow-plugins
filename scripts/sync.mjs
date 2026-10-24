@@ -123,6 +123,16 @@ const COMMANDS = {
       "Bash(gh pr view:*)",
     ],
   },
+  // Analiza un prompt ANTES de responder: contexto, causa raíz, descomposición y rúbrica de 3
+  // criterios con bucle de corrección. Sin `allowed-tools` a propósito: no escribe en el repo,
+  // su artefacto es la respuesta en la conversación (ni siquiera escribe configuración).
+  clarify: {
+    description:
+      "Analiza un prompt de usuario antes de responder: recaba el contexto que falte (para qué, para quién, restricciones, criterio) preguntando antes de trabajar, separa el problema en partes pequeñas con instrucciones precisas y valida la respuesta contra una rúbrica de 3 criterios (precisión, completitud, ausencia de sesgos), iterando hasta que todos pasen. NO escribe en el repo.",
+    argumentHint: "[prompt o problema a analizar]",
+    // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual.
+    opencodeAgent: "build",
+  },
   // A petición y sin `allowed-tools` A PROPÓSITO. /review y /close lo declaran para
   // PRE-APROBAR lectura; todo lo que /setup escribe —CLAUDE.md, AGENTS.md, .gitignore— es
   // configuración compartida, y pre-aprobárselo le quitaría el prompt al único paso que lo
