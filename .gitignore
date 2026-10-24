@@ -36,3 +36,7 @@ plugins/backbone/claude/evals/results/
 # (core/templates/MEMORY.md.example) SÍ se versiona.
 /MEMORY.md
 /plugins/voice/MEMORY.md
+
+# Config local de OpenCode del consumidor (credenciales; la plantilla es
+# examples/opencode.json.example, que SÍ se versiona).
+/opencode.json
