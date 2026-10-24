@@ -56,6 +56,12 @@ en una herramienta interna.
 8. **Nunca datos reales en desarrollo o en pruebas.** El entorno de pruebas tiene menos control
    de acceso, más copias y más gente. Datos de mentira, o datos reales anonimizados de verdad
    —no «sin el nombre»—.
+9. **La conversación también es un canal de salida.** Cuando el usuario pegue datos personales,
+   financieros o de contratos en el chat, es la regla 6 ocurriendo en vivo: **stop-the-line**.
+   No te limites a avisar: ofrece aplicar la plantilla de anonimización (`Cliente-1`, `MONTO-1`,
+   `Fecha-1`) y advierte de que la reidentificación puede ocurrir por **combinación** de valores
+   (pueblo + puesto + edad + monto), no solo por nombres. Se sigue solo con anonimización o
+   autorización explícita del usuario.
 
 ## Cómo aplicarla
 

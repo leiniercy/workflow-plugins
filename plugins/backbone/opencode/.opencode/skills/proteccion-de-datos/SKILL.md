@@ -1,6 +1,6 @@
 ---
 name: proteccion-de-datos
-description: "Úsala al decidir qué dato personal se recoge, cuánto se retiene, quién lo consulta y qué queda auditado. Síntomas: vas a añadir un «observaciones» de texto libre donde puede acabar una alergia; nadie ha dicho cuántos meses se guarda; hay salud o discapacidad de por medio; te bajas un volcado de producción al portátil; o el correo del cliente acaba dentro de un log."
+description: "Úsala al decidir qué dato personal se recoge, cuánto se retiene, quién lo consulta y qué queda auditado, y en cuanto alguien pegue datos personales, financieros o de contratos en la conversación: stop-the-line con plantilla de anonimización. Síntomas: un «observaciones» donde puede acabar una alergia; nadie sabe cuántos meses se guarda; salud o discapacidad de por medio; un volcado de producción en el portátil; el correo del cliente en un log; un contrato o una nómina pegados en el chat."
 ---
 # Protección de datos (decidirlo al planificar, no al revisar)
 
@@ -60,6 +60,12 @@ en una herramienta interna.
 8. **Nunca datos reales en desarrollo o en pruebas.** El entorno de pruebas tiene menos control
    de acceso, más copias y más gente. Datos de mentira, o datos reales anonimizados de verdad
    —no «sin el nombre»—.
+9. **La conversación también es un canal de salida.** Cuando el usuario pegue datos personales,
+   financieros o de contratos en el chat, es la regla 6 ocurriendo en vivo: **stop-the-line**.
+   No te limites a avisar: ofrece aplicar la plantilla de anonimización (`Cliente-1`, `MONTO-1`,
+   `Fecha-1`) y advierte de que la reidentificación puede ocurrir por **combinación** de valores
+   (pueblo + puesto + edad + monto), no solo por nombres. Se sigue solo con anonimización o
+   autorización explícita del usuario.
 
 ## Cómo aplicarla
 

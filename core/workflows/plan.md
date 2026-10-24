@@ -67,6 +67,13 @@ confirman siempre en el código.
 
 ## Fase 4 — Propuesta de especificación (gate de aprobación)
 
+**Primero, clarifica.** Antes de poner enfoques sobre la mesa, caza las ambigüedades de lo que
+hay sobre la mesa (la descripción de la tarea, los comentarios de ClickUp, lo que ya dice
+`spec.md`): términos que cada uno puede leer distinto, requisitos que se contradicen y lo que
+falta — para qué es y para quién. Con {{guide:evidencia-y-preguntas}} decide qué se verifica,
+qué se asume declarándolo y qué se pregunta al usuario. Escribir criterios sobre una ambigüedad
+no la resuelve: solo mueve el error a la implementación.
+
 **Antes de redactar el enfoque, pon 2-3 enfoques sobre la mesa.** Salvo que la tarea sea
 trivial (un solo camino razonable, y lo dices en una línea), presenta las alternativas reales
 que salen de lo explorado en la Fase 3, cada una con su coste y su renuncia. **Empieza por la

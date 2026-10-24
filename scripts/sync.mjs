@@ -128,7 +128,7 @@ const COMMANDS = {
   // su artefacto es la respuesta en la conversación (ni siquiera escribe configuración).
   clarify: {
     description:
-      "Analiza un prompt de usuario antes de responder: recaba el contexto que falte (para qué, para quién, restricciones, criterio) preguntando antes de trabajar, separa el problema en partes pequeñas con instrucciones precisas y valida la respuesta contra una rúbrica de 3 criterios (precisión, completitud, ausencia de sesgos), iterando hasta que todos pasen. NO escribe en el repo.",
+      "Analiza un prompt de usuario antes de responder: clasifica los stakes (trivial, normal, crítico) y aplica el rigor proporcional, recaba el contexto que falte (para qué, para quién, restricciones, criterio) preguntando antes de trabajar, separa el problema en partes pequeñas con instrucciones precisas y valida la respuesta contra una rúbrica de 3 criterios con evidencia citada (precisión, completitud, ausencia de sesgos), iterando hasta que todos pasen; en desacuerdo de veredicto, gana el usuario. NO escribe en el repo.",
     argumentHint: "[prompt o problema a analizar]",
     // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual.
     opencodeAgent: "build",
@@ -459,7 +459,8 @@ const GUIDES = {
   },
   "proteccion-de-datos": {
     description:
-      "Úsala al decidir qué dato personal se recoge, cuánto se retiene, quién lo consulta y qué queda auditado. Síntomas: vas a añadir un «observaciones» de texto libre donde puede acabar una alergia; nadie ha dicho cuántos meses se guarda; hay salud o discapacidad de por medio; te bajas un volcado de producción al portátil; o el correo del cliente acaba dentro de un log.",
+      "Úsala al decidir qué dato personal se recoge, cuánto se retiene, quién lo consulta y qué queda auditado, y en cuanto alguien pegue datos personales, financieros o de contratos en la conversación: stop-the-line con plantilla de anonimización. Síntomas: un «observaciones» donde puede acabar una alergia; nadie sabe cuántos meses se guarda; salud o discapacidad de por medio; un volcado de producción en el portátil; el correo del cliente en un log; un contrato o una nómina pegados en el chat.",
+    packages: ["backbone", "voice"],
   },
   "incidente-en-produccion": {
     description:
