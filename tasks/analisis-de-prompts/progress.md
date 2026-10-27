@@ -2,9 +2,9 @@
 
 ## Estado actual
 
-Tarea completa en la rama (estudio, `/clarify` v3, micro-huecos, caso de eval y Task 8), suite
-estática en verde. Queda: push de la rama y PR cuando el usuario lo pida, y `/close` para
-validar A1–A16.
+Tarea completa y probada en sesiones reales de Claude y OpenCode (prueba manual del usuario en
+la interfaz de OpenCode incluida). Queda: push de la rama y PR cuando el usuario lo pida, y
+`/close` para validar A1–A16.
 
 ## Historial
 
@@ -125,3 +125,23 @@ validar A1–A16.
 - **Notas:** el brazo base del eval cargó la guía instalada (sin regla 9) en 2 de 3 corridas:
   el delta es regla 9 frente a la guía sin ella. Los casos 1.34–1.37 de `/clarify` son manuales,
   sin pasar todavía.
+
+### 2026-10-27 13:45 — implement
+
+- **Resultado:** `/clarify` probado en sesiones reales. **Claude** (`claude -p` con
+  `--plugin-dir`, repo de prueba en el scratchpad): stack → stakes, una pregunta con
+  recomendación y sin responder; con las respuestas, encargo + partes + contrato + registro;
+  dos correcciones sin cerrar → para y devuelve las decisiones (tope de A6); trivial; tarea del
+  repo → `/define` (A16); nómina pegada → versión anonimizada, aviso de combinación y «ya lo he
+  leído» (A3). Cero permisos denegados y el repo de prueba intacto (A7). **OpenCode v2.1.4**:
+  frontera correcta con `--agent plan`; `plan` se niega a escribir (sin intentarlo). Prueba
+  manual del usuario en la interfaz: `/clarify` aparece, corre como `plan` y se comporta igual.
+  Tras la prueba, el usuario decidió que lo **trivial se responda directamente** (Decisión 10):
+  cambiado en el comando, la bandera roja, una aserción nueva (847), el caso 1.35, el CHANGELOG
+  y A9; reprobado en Claude.
+- **Notas:** `opencode run` v2.1.4 **no ejecuta comandos de barra** (el mensaje entra literal;
+  ya no hay `--command`): los comandos solo se prueban en la interfaz. Desde Git Bash, OpenCode
+  falla al resolver el directorio; desde PowerShell vía `cmd /c`, el mensaje llega con las
+  comillas dentro. Proveedores de esta máquina: `freellmapi` devuelve 502 (enruta a DeepSeek
+  R1), Groq 403, el gratuito de OpenCode agotó su cupo; `nvidia/z-ai/glm-5.3` funciona pero se
+  colgó en dos casos. La interfaz de v2.1.4 sí encuentra `.opencode/command/` en singular.

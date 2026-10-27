@@ -132,8 +132,9 @@ const COMMANDS = {
       "Clarifica un prompt de usuario antes de que nadie lo responda: clasifica los stakes (trivial, normal, crítico) y aplica el rigor proporcional, recaba el contexto que falte (para qué, para quién, restricciones, criterio) preguntando, separa el problema en partes pequeñas con instrucciones precisas y fija el contrato de la respuesta: qué la pondría en rojo en precisión, completitud y sesgos. Datos sensibles: stop-the-line con plantilla de anonimización. NO responde al fondo ni escribe en el repo.",
     argumentHint: "[prompt o problema a analizar]",
     // OpenCode: el agente integrado `plan`, restringido para análisis (no `revisor`, cuyo
-    // prompt lo ata a /review). Sin comprobar en esta versión de OpenCode que `plan` bloquee
-    // la edición; si no, «no escribe» se sostiene por la prosa, como en Claude.
+    // prompt lo ata a /review). Probado en v2.1.4 (27/10/2026): en la interfaz, /clarify corre
+    // como `plan`, y ante una orden de escribir el modelo se niega sin intentarlo. Que el
+    // permiso de `plan` bloquee de verdad una escritura intentada no está comprobado.
     opencodeAgent: "plan",
     allowedTools: ["Read", "Glob", "Grep"],
   },

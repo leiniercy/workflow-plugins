@@ -106,9 +106,10 @@ for (const cmd of ["define", "start", "plan", "implement", "review", "close", "s
   assert(!/\bWrite\b/.test(tools) && !/\bEdit\b/.test(tools) && !/\bBash\b/.test(tools),
     "/clarify NO pre-aprueba Write, Edit ni Bash");
   assert(body.includes("**no respondes al fondo del prompt**"), "/clarify no responde al fondo (A5)");
-  assert(body.includes("Responder al fondo del prompt"), "/clarify lleva la bandera roja de responder");
+  assert(body.includes("Responder al fondo de un prompt normal o crítico"), "/clarify lleva la bandera roja de responder");
   assert(body.includes("Stakes: <nivel>"), "/clarify declara los stakes con su motivo (A9)");
-  assert(body.includes("**no depende del\nnivel**"), "/clarify comprueba datos sensibles en los tres niveles (A3)");
+  assert(body.includes("Con un prompt **trivial**, respóndelo directamente"), "/clarify responde el prompt trivial sin mandar a repetirlo (A9)");
+  assert(body.includes("**no\ndepende del nivel**"), "/clarify comprueba datos sensibles en los tres niveles (A3)");
   assert(body.includes("**combinación**"), "/clarify avisa de la reidentificación por combinación (A3)");
   assert(body.includes("el dato pegado ya lo ha leído el modelo"), "/clarify dice qué protege el stop-the-line y qué no");
   assert(body.includes("(máximo 5)"), "/clarify descompone en 5 partes como máximo (A4)");

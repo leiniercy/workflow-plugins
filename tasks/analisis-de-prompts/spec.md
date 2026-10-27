@@ -71,8 +71,9 @@ llegó a dos conclusiones que fijan el alcance de esta tarea:
 - [ ] **A8** — `node scripts/sync.mjs` genera el comando en ambos adaptadores y la suite de
       checks pasa en verde.
 - [ ] **A9** — `/clarify` clasifica el prompt por **stakes** (trivial / normal / crítico) antes
-      de aplicar el protocolo y declara el nivel con su motivo: trivial = contexto de una línea
-      sin rúbrica; normal = protocolo completo; crítico = protocolo completo + pre-mortem.
+      de aplicar el protocolo y declara el nivel con su motivo: trivial = lo responde directamente,
+      sin fases (única excepción a no responder); normal = protocolo completo; crítico =
+      protocolo completo + los seis roles y pre-mortem.
 - [ ] **A10** — El análisis multi-rol de `/clarify` tiene 6 roles con una **pregunta canónica**
       cada uno (no opinión libre): con stakes normal usa las 2–3 que más cambian el caso y dice
       por qué; con stakes crítico, las seis más el pre-mortem («¿por qué falló esto dentro de un
@@ -260,3 +261,8 @@ nuevo y más turnos para un comando conversacional. De paso: `/clarify` y la reg
 mismo («muestra la plantilla aplicada», no uno «aplica» y otro «ofrece»), y ambos dicen qué
 protege el stop-the-line y qué no; el paso de clarificación de `/plan` se reduce a una regla de
 la entrevista, porque el resto ya lo cubrían la entrevista y la auto-revisión de ambigüedad.
+
+**10. El prompt trivial se responde (27/10/2026, decisión del usuario tras probarlo).** En la
+prueba con Claude, `/clarify` paraba ante «¿cómo se escribe un for en Python?» y mandaba a
+repetirla en otro turno: cumplía la v3, pero era fricción sin valor, porque ahí no hay decisión
+que juzgar. Ahora la responde directamente; sigue sin responder lo normal ni lo crítico.
