@@ -2,9 +2,8 @@
 
 ## Estado actual
 
-Tarea completa y probada en sesiones reales de Claude y OpenCode (prueba manual del usuario en
-la interfaz de OpenCode incluida). Queda: push de la rama y PR cuando el usuario lo pida, y
-`/close` para validar A1–A16.
+**Cerrada** el 2026-10-27 14:30 (completada, 16/16 criterios). Publicada en backbone 0.27.0 y
+0.27.1; voice no se publicó (la guía nueva queda en su `[No publicado]`). Sin tarea en ClickUp.
 
 ## Historial
 
@@ -160,3 +159,15 @@ la interfaz de OpenCode incluida). Queda: push de la rama y PR cuando el usuario
   pedido escribir, el agente no tiene la herramienta `write` —`edit: deny` la quita del
   catálogo— y el fichero no se creó. El agente sí lista `execute` (Code Mode), que según el
   propio modelo puede crear worktrees: sin comprobar, queda como observación.
+
+### 2026-10-27 14:30 — complete
+
+- **Resultado:** 16/16 criterios cumplidos. A1–A7 y A9–A16, con evidencia en el código y en
+  `check-behavior` según `revisor-spec-tests`; A8 comprobado por `/close` sobre `main` (`sync.mjs`
+  y los 14 checks en verde). Comportamiento en ejecución comprobado en sesiones de Claude, y en
+  OpenCode por la prueba manual del usuario (dato del usuario). El gate destapó cuatro problemas
+  que se arreglaron antes del sello (Decisión 11).
+- **Notas:** cerrada **sin revisión**: no hubo PR ni `/review` (merge directo a `main`),
+  reconocido por el usuario. Sin comprobar: que `execute` (Code Mode) del agente `clarificador`
+  pueda crear worktrees. Sin tarea de ClickUp que mover.
+- **Salida:** completada

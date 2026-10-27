@@ -5,11 +5,21 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Cambiado
+
+- **En OpenCode, `/clarify` corre con su propio agente, `clarificador`** — en vez del `plan` integrado. Tiene denegadas la edición, la shell y el despacho de subagentes en su `permission`. Comprobado en OpenCode v2.1.4, incluso con `--auto` (que aprueba todo lo no denegado): el agente ni siquiera tiene la herramienta de escritura. Con `plan` no se pudo comprobar, porque el modelo se negaba sin llegar a intentarlo.
+
+- **La regla 9 de `proteccion-de-datos` y `/clarify` comparten el texto del stop-the-line** — vive una sola vez, en un snippet, para que los dos no se separen con el tiempo. Lo que dice no cambia.
+
+### Corregido
+
+- **Las comprobaciones de `/clarify` eran de adorno** — buscaban cada frase en todo el comando, así que pasaban aunque se borrara la fase que la contenía, y algunas se rompían con solo reajustar un párrafo. Ahora cada una mira su fase, y unas sondas rompen el comando a propósito para comprobar que fallan. Se añaden las que faltaban: una pregunta cada vez, qué se mantiene y qué cambia en cada corrección, y el siguiente paso al cerrar.
+
 ## [0.27.0] - 2026-10-27
 
 ### Añadido
 
-- **`/clarify`, para clarificar un prompt antes de responderlo** — a petición y fuera del camino de un ticket. Clasifica cuánto rigor pide el prompt (trivial, normal o crítico) y lo dice con su motivo; uno trivial lo responde sin más. Con los demás, pregunta lo que falta de contexto, intención, restricciones y criterio, distingue la causa del síntoma, separa el problema en cinco partes como mucho y lo mira desde 2–3 roles con una pregunta fija cada uno (los seis y un pre-mortem si es crítico). Termina en el contrato de la respuesta: qué la pondría en rojo en precisión, completitud y sesgos. **No responde al fondo** de lo que no es trivial: quien escribe una respuesta y luego se la evalúa tiende a aprobarse, así que el encargo se fija antes y se responde aparte. Tras dos correcciones sin cerrar, para y te devuelve la decisión. No escribe en el repo: en Claude solo pre-aprueba lectura, y en OpenCode corre con su propio agente, `clarificador`, que tiene denegadas la edición y la shell. Una tarea del repo la manda a `/define` o `/plan`.
+- **`/clarify`, para clarificar un prompt antes de responderlo** — a petición y fuera del camino de un ticket. Clasifica cuánto rigor pide el prompt (trivial, normal o crítico) y lo dice con su motivo; uno trivial lo responde sin más. Con los demás, pregunta lo que falta de contexto, intención, restricciones y criterio, distingue la causa del síntoma, separa el problema en cinco partes como mucho y lo mira desde 2–3 roles con una pregunta fija cada uno (los seis y un pre-mortem si es crítico). Termina en el contrato de la respuesta: qué la pondría en rojo en precisión, completitud y sesgos. **No responde al fondo** de lo que no es trivial: quien escribe una respuesta y luego se la evalúa tiende a aprobarse, así que el encargo se fija antes y se responde aparte. Tras dos correcciones sin cerrar, para y te devuelve la decisión. No escribe en el repo: en Claude solo pre-aprueba lectura y en OpenCode corre con el agente `plan`. Una tarea del repo la manda a `/define` o `/plan`.
 
 - **Datos personales pegados en el chat** — regla 9 de `proteccion-de-datos`, compartida ahora con voice: ante una nómina, un contrato o datos de clientes pegados en la conversación, para, muestra el texto con `Cliente-1`, `MONTO-1`, `Fecha-1` y avisa de que puesto, pueblo y edad juntos identifican aunque falte el nombre. Dice también lo que no arregla: el modelo ya leyó el dato; lo que se evita es que siga a ficheros, tareas, PRs o la respuesta. Medido con el caso `datos-sensibles-en-chat`: sin la regla, 0 de 3 corridas anonimizan; con ella, 3 de 3.
 
