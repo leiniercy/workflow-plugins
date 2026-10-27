@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.27.0] - 2026-10-27
+
 ### Añadido
 
 - **`/clarify`, para clarificar un prompt antes de responderlo** — a petición y fuera del camino de un ticket. Clasifica cuánto rigor pide el prompt (trivial, normal o crítico) y lo dice con su motivo; uno trivial lo responde sin más. Con los demás, pregunta lo que falta de contexto, intención, restricciones y criterio, distingue la causa del síntoma, separa el problema en cinco partes como mucho y lo mira desde 2–3 roles con una pregunta fija cada uno (los seis y un pre-mortem si es crítico). Termina en el contrato de la respuesta: qué la pondría en rojo en precisión, completitud y sesgos. **No responde al fondo** de lo que no es trivial: quien escribe una respuesta y luego se la evalúa tiende a aprobarse, así que el encargo se fija antes y se responde aparte. Tras dos correcciones sin cerrar, para y te devuelve la decisión. No escribe en el repo: en Claude solo pre-aprueba lectura y en OpenCode corre con el agente `plan`. Una tarea del repo la manda a `/define` o `/plan`.

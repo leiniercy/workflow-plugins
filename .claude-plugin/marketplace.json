@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "backbone",
-      "version": "0.26.0",
+      "version": "0.27.0",
       "source": "./plugins/backbone/claude",
       "description": "Flujo de desarrollo guiado por tareas de ClickUp: planificación con spec.md, implementación con TDD, revisión y continuidad entre sesiones."
     },
