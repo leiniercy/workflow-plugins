@@ -106,9 +106,6 @@ tarea en `tasks/analisis-de-prompts/`.
 - **Documento aparte para el estudio.** La tabla de encaje vive condensada en «Decisiones
   tomadas» (Decisión 7); un documento propio duplicaría y divergiría.
 - **CDD, EDD y la «constitución» como artefacto único.** Rechazados con argumento (Decisión 5).
-- **Aserciones nuevas en `check-behavior.mjs`** sobre `/clarify` y sus casos en
-  `docs/eval-comportamiento.md`. Tarea siguiente, una vez estabilizada la prosa.
-- **Documentar el comando en `README.md` y `CHANGELOG.md`.** Entran con la release.
 - **Análisis multi-rol automatizado con subagentes por rol.** La prosa lo pide como técnica de
   pensamiento con pregunta fija por rol; no hay despacho.
 - **Integración con ClickUp.** El comando no toca tareas: analiza prompts.
@@ -179,7 +176,7 @@ pegarlos en el chat es esa regla ocurriendo en vivo.
 | El rigor proporcional se usa para saltarse el protocolo siempre | El nivel de stakes se declara con su motivo; en duda, el nivel mayor |
 | La rúbrica se vuelve decorativa por complacencia del evaluador | Evidencia citada obligatoria + «¿qué haría falta para que fuera rojo?» + medición en la salida (A11) |
 | El paso de clarificación de `/plan` añade fricción | `evidencia-y-preguntas` decide qué se pregunta; solo lo que no está en ninguna fuente |
-| Un comando sin aserciones en `check-behavior` se degrada sin aviso | Fuera de alcance hoy, anotado como tarea siguiente |
+| Un comando sin aserciones en `check-behavior` se degrada sin aviso | 22 aserciones de `/clarify`, la regla 9 y `/plan` en `check-behavior` (27/10/2026) |
 | Los veredictos del estudio se olvidan y alguien propone CDD o la «constitución» en 6 meses | Quedan escritos con su argumento en la Decisión 5 |
 
 ## Decisiones tomadas

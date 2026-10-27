@@ -94,6 +94,47 @@ for (const cmd of ["define", "start", "plan", "implement", "review", "close", "s
   assert(body.includes("con la herramienta Skill (`backbone:define`"), "/lead de Claude lanza las fases con Skill");
 }
 
+// --- /clarify: clarifica sin responder ni escribir (tasks/analisis-de-prompts, Decisión 9) ---
+// allowed-tools no prohíbe (ADR-0008): se asevera que no PRE-APRUEBA escritura.
+{
+  const body = read(join(CLAUDE, "commands/clarify.md")) || "";
+  assert(body !== "", "comando /clarify existe");
+  assert(/Banderas rojas/i.test(body), "/clarify tiene tabla de Banderas rojas");
+  const tools = field(frontmatter(body), "allowed-tools") || "";
+  assert(/\bRead\b/.test(tools) && /\bGlob\b/.test(tools) && /\bGrep\b/.test(tools),
+    "/clarify pre-aprueba solo lectura (Read/Glob/Grep)");
+  assert(!/\bWrite\b/.test(tools) && !/\bEdit\b/.test(tools) && !/\bBash\b/.test(tools),
+    "/clarify NO pre-aprueba Write, Edit ni Bash");
+  assert(body.includes("**no respondes al fondo del prompt**"), "/clarify no responde al fondo (A5)");
+  assert(body.includes("Responder al fondo del prompt"), "/clarify lleva la bandera roja de responder");
+  assert(body.includes("Stakes: <nivel>"), "/clarify declara los stakes con su motivo (A9)");
+  assert(body.includes("**no depende del\nnivel**"), "/clarify comprueba datos sensibles en los tres niveles (A3)");
+  assert(body.includes("**combinación**"), "/clarify avisa de la reidentificación por combinación (A3)");
+  assert(body.includes("el dato pegado ya lo ha leído el modelo"), "/clarify dice qué protege el stop-the-line y qué no");
+  assert(body.includes("(máximo 5)"), "/clarify descompone en 5 partes como máximo (A4)");
+  assert(body.includes("las 2–3 que más cambian este\n   caso"), "/clarify usa 2–3 roles con stakes normal (A10)");
+  assert(body.includes("**Pre-mortem (solo stakes crítico).**"), "/clarify reserva el pre-mortem al nivel crítico (A10)");
+  assert(body.includes("qué tendría que aparecer en la respuesta para que saliera rojo"),
+    "/clarify fija el contrato con condiciones de rojo (A5)");
+  assert(body.includes("No hay una\n  tercera vuelta"), "/clarify tiene tope de dos correcciones (A6)");
+  assert(body.includes("**gana el usuario**"), "/clarify: en desacuerdo gana el usuario (A12)");
+  assert(body.includes("no es para ti"), "/clarify declara su frontera con /define y /plan (A16)");
+  assert(!/\{\{guide:/.test(body), "/clarify no deja tokens {{guide:}} sin resolver");
+}
+{
+  const oc = read(join(ROOT, "plugins/backbone/opencode/.opencode/command/clarify.md")) || "";
+  assert(/^agent: plan$/m.test(frontmatter(oc)), "OpenCode: /clarify corre con el agente integrado plan, no build");
+}
+assert((read(join(CLAUDE, "commands/plan.md")) || "").includes("**Empieza por las contradicciones y el «para quién».**"),
+  "/plan: la entrevista empieza por contradicciones y destinatario (A14)");
+// La regla 9 dice lo mismo que /clarify: muestra la plantilla aplicada (no «ofrece»).
+{
+  const pd = read(join(CLAUDE, "skills/proteccion-de-datos/SKILL.md")) || "";
+  assert(pd.includes("**La conversación también es un canal de salida.**"), "proteccion-de-datos lleva la regla 9 (A15)");
+  assert(pd.includes("muestra el texto con la plantilla de anonimización ya aplicada") && !pd.includes("ofrece aplicar la plantilla"),
+    "regla 9 aplica la plantilla, como /clarify (no solo la ofrece)");
+}
+
 // --- /lead en OpenCode: agente primario de solo lectura (probado en v2.0.20, 2026-10-04) ---
 // Allí ninguna herramienta ejecuta un comando de barra: /lead no lanza la fase, te dice cuál
 // escribir. A cambio, `permission` bloquea de verdad, no pre-aprueba como allowed-tools.

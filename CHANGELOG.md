@@ -5,6 +5,16 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- **`/clarify`, para clarificar un prompt antes de responderlo** — a petición y fuera del camino de un ticket. Clasifica cuánto rigor pide el prompt (trivial, normal o crítico) y lo dice con su motivo; con uno trivial, para. Con los demás, pregunta lo que falta de contexto, intención, restricciones y criterio, distingue la causa del síntoma, separa el problema en cinco partes como mucho y lo mira desde 2–3 roles con una pregunta fija cada uno (los seis y un pre-mortem si es crítico). Termina en el contrato de la respuesta: qué la pondría en rojo en precisión, completitud y sesgos. **No responde al fondo**: quien escribe una respuesta y luego se la evalúa tiende a aprobarse, así que el encargo se fija antes y se responde aparte. Tras dos correcciones sin cerrar, para y te devuelve la decisión. No escribe en el repo: en Claude solo pre-aprueba lectura y en OpenCode corre con el agente `plan`. Una tarea del repo la manda a `/define` o `/plan`.
+
+- **Datos personales pegados en el chat** — regla 9 de `proteccion-de-datos`, compartida ahora con voice: ante una nómina, un contrato o datos de clientes pegados en la conversación, para, muestra el texto con `Cliente-1`, `MONTO-1`, `Fecha-1` y avisa de que puesto, pueblo y edad juntos identifican aunque falte el nombre. Dice también lo que no arregla: el modelo ya leyó el dato; lo que se evita es que siga a ficheros, tareas, PRs o la respuesta. Medido con el caso `datos-sensibles-en-chat`: sin la regla, 0 de 3 corridas anonimizan; con ella, 3 de 3.
+
+### Cambiado
+
+- **`/plan` empieza la entrevista por las contradicciones y por el «para quién»** — una regla más de la entrevista de la Fase 4: dos requisitos que chocan o una tarea sin destinatario claro se resuelven antes que los detalles.
+
 ## [0.26.0] - 2026-10-19
 
 ### Añadido

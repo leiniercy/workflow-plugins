@@ -2,10 +2,9 @@
 
 ## Estado actual
 
-`/clarify` v3 («solo clarifica», Decisión 9) y los arreglos del análisis de la rama, aplicados
-sin commitear. Caso de eval `datos-sensibles-en-chat` creado para la regla 9; su medición con
-línea base está en curso. Queda: leer el resultado del eval, commit, y la Task 8 (aserciones en
-`check-behavior`, README/CHANGELOG) sobre la prosa definitiva.
+Tarea completa en la rama (estudio, `/clarify` v3, micro-huecos, caso de eval y Task 8), suite
+estática en verde. Queda: push de la rama y PR cuando el usuario lo pida, y `/close` para
+validar A1–A16.
 
 ## Historial
 
@@ -114,3 +113,15 @@ línea base está en curso. Queda: leer el resultado del eval, commit, y la Task
 - **Notas:** sin comprobar que el agente `plan` de OpenCode v2 bloquee la edición (anotado en
   `sync.mjs`). El commit `075d67b` (`.gitignore`) se queda en la rama por decisión del usuario:
   se menciona en la PR como cambio aparte.
+
+### 2026-10-27 12:06 — implement
+
+- **Resultado:** caso `datos-sensibles-en-chat` ajustado por decisión del usuario: el grupo de
+  «combinación» sale del grader (vocabulario abierto, ADR-0011) y se mide solo la anonimización;
+  base 0/3, con plugin 3/3, leído el texto. Commit `3b1d79a`. Task 8 hecha: 22 aserciones en
+  `check-behavior` (846 en total), fila de `/clarify` en el README y recuento 8 → 9 comandos,
+  casos manuales 1.33–1.37 en `docs/eval-comportamiento.md` y entrada en el CHANGELOG bajo
+  «No publicado». Suite estática completa en verde.
+- **Notas:** el brazo base del eval cargó la guía instalada (sin regla 9) en 2 de 3 corridas:
+  el delta es regla 9 frente a la guía sin ella. Los casos 1.34–1.37 de `/clarify` son manuales,
+  sin pasar todavía.

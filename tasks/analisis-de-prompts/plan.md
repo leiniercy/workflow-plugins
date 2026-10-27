@@ -178,9 +178,9 @@ Incluye los arreglos de la revisión brainstorm (Task 7) y la guía compartida c
 - [x] **Step 5: Regenerar y verificar** — 140 ficheros (la guía viaja a voice); suite en verde
       salvo `check-sync` pre-commit; el enrutado mejoró (rank-1 53,1 % → 55,2 %).
 
-### Task 8 (tarea siguiente, fuera de esta): aserciones y documentación
+### Task 8: aserciones y documentación
 
-- [ ] Añadir `clarify` a la lista de comandos de `check-behavior.mjs` con sus aserciones
+- [x] Añadir `clarify` a la lista de comandos de `check-behavior.mjs` con sus aserciones
       (stakes, rúbrica con evidencia, «no escribe») y sus casos en `docs/eval-comportamiento.md`.
-- [ ] Fila del comando en `README.md` y entrada en `CHANGELOG.md` con la release; actualizar el
+- [x] Fila del comando en `README.md` y entrada en `CHANGELOG.md` con la release; actualizar el
       recuento de comandos (8 → 9) en `MEMORY.md` al publicar.
