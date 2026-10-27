@@ -5,6 +5,10 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Añadido
+
+- La guía `proteccion-de-datos` viaja también en voice (novena compartida con backbone). Su regla 9 cubre el caso de voice: ante datos personales, financieros o de contratos de un cliente pegados en la conversación, para, muestra el texto con `Cliente-1`, `MONTO-1`, `Fecha-1` y avisa de que la combinación de valores identifica aunque falte el nombre.
+
 ### Cambiado
 
 - `/lead` separa lo comprobado de lo que no: lo primero lo dice en firme y con su origen; lo segundo, en su propia línea con «⚠ No comprobado:», terminando en lo que hay que mirar o en una pregunta. No nombra rutas, ramas ni cifras por patrón, y si no tiene evidencia de qué toca, pregunta en vez de proponer. La regla está en el snippet que comparte con el `/lead` de backbone.
