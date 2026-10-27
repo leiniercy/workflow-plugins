@@ -115,7 +115,7 @@ salen en los dos plugins (`packages: ["backbone", "voice"]`).
   verificar y firmar: `pandoc` no estaba instalado cuando se construyó esta versión. Las
   instrucciones están escritas y comprobadas, pero el primer entregable real es también la
   primera prueba.
-- **Con los dos plugins instalados, las ocho guías compartidas aparecen dos veces**, una por
+- **Con los dos plugins instalados, las nueve guías compartidas aparecen dos veces**, una por
   plugin (`backbone:diagramas` y `voice:diagramas`, por ejemplo), con el mismo contenido. Da igual
   cuál se cargue.
 

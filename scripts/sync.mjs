@@ -123,15 +123,19 @@ const COMMANDS = {
       "Bash(gh pr view:*)",
     ],
   },
-  // Analiza un prompt ANTES de responder: contexto, causa raíz, descomposición y rúbrica de 3
-  // criterios con bucle de corrección. Sin `allowed-tools` a propósito: no escribe en el repo,
-  // su artefacto es la respuesta en la conversación (ni siquiera escribe configuración).
+  // Clarifica un prompt ANTES de que nadie lo responda: contexto, causa raíz, descomposición y
+  // el contrato (rúbrica de 3 criterios) contra el que se juzgará la respuesta. NO responde al
+  // fondo: quien se evalúa su propia respuesta se da el visto bueno. Solo lee y conversa, así
+  // que `allowed-tools` pre-aprueba solo lectura, como /review y /lead.
   clarify: {
     description:
-      "Analiza un prompt de usuario antes de responder: clasifica los stakes (trivial, normal, crítico) y aplica el rigor proporcional, recaba el contexto que falte (para qué, para quién, restricciones, criterio) preguntando antes de trabajar, separa el problema en partes pequeñas con instrucciones precisas y valida la respuesta contra una rúbrica de 3 criterios con evidencia citada (precisión, completitud, ausencia de sesgos), iterando hasta que todos pasen; en desacuerdo de veredicto, gana el usuario. NO escribe en el repo.",
+      "Clarifica un prompt de usuario antes de que nadie lo responda: clasifica los stakes (trivial, normal, crítico) y aplica el rigor proporcional, recaba el contexto que falte (para qué, para quién, restricciones, criterio) preguntando, separa el problema en partes pequeñas con instrucciones precisas y fija el contrato de la respuesta: qué la pondría en rojo en precisión, completitud y sesgos. Datos sensibles: stop-the-line con plantilla de anonimización. NO responde al fondo ni escribe en el repo.",
     argumentHint: "[prompt o problema a analizar]",
-    // En OpenCode corre como `build`: sin `agent:`, un comando corre con el agente actual.
-    opencodeAgent: "build",
+    // OpenCode: el agente integrado `plan`, restringido para análisis (no `revisor`, cuyo
+    // prompt lo ata a /review). Sin comprobar en esta versión de OpenCode que `plan` bloquee
+    // la edición; si no, «no escribe» se sostiene por la prosa, como en Claude.
+    opencodeAgent: "plan",
+    allowedTools: ["Read", "Glob", "Grep"],
   },
   // A petición y sin `allowed-tools` A PROPÓSITO. /review y /close lo declaran para
   // PRE-APROBAR lectura; todo lo que /setup escribe —CLAUDE.md, AGENTS.md, .gitignore— es

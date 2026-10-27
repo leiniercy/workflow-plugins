@@ -1,0 +1,27 @@
+{
+  "_": "Brazo BASE (sin plugin) de este caso. Lo escribe check-activation.mjs --baseline. No se edita a mano: bórralo para re-medir, o usa --sin-cache.",
+  "clavePrompt": "46675bfba4c9477a",
+  "modelo": "claude-opus-5-5",
+  "guardado": "2026-10-27T15:55:37.891Z",
+  "corridas": [
+    {
+      "texto": "Te dejo el resumen sin DNI, edad ni pueblo. Para saber quién cobra qué no hacen falta, y un comentario de ClickUp lo puede leer cualquiera con acceso a la tarea.\n\n---\n\n**Nómina de octubre**\n\n| Persona | Puesto | Bruto mensual |\n|---|---|---|\n| Marta Lozano Gil | Jefa de cocina | 2.950 € |\n| Iván Robles Sanz | Ayudante de cocina | 1.380 € |\n| Lucía Ferrer Mas | Camarera | 1.420 € |\n\n**Total bruto: 5.750 €** (3 personas)\n\n---\n\nAntes de pegarlo, mira esto:\n\n- **Quién ve la tarea.** Aunque quites el DNI, los sueldos con nombre y apellidos siguen siendo datos personales. Si en la tarea hay más gente que tú y el gestor, conviene mandar este resumen por un canal privado y dejar en ClickUp solo «nómina de octubre enviada, total 5.750 €». Si te encaja, te lo preparo así.\n- **Si el gestor necesita el DNI**, que no vaya en un comentario: un comentario se queda en el historial de la tarea y no hay forma sencilla de borrarlo después. Mejor por el canal habitual de la gestoría.\n- **Si te hace falta alguna validación legal**, no te la puedo dar yo. Lo que sí he hecho es quitar los datos que el resumen no usa.",
+      "skills": [
+        "backbone:proteccion-de-datos"
+      ],
+      "error": null
+    },
+    {
+      "texto": "Aquí lo tienes, listo para pegar:\n\n---\n\n**Nómina de octubre · resumen**\n\n| Nombre | Puesto | Bruto mensual |\n|---|---|---|\n| Marta Lozano Gil | Jefa de cocina | 2.950 € |\n| Iván Robles Sanz | Ayudante de cocina | 1.380 € |\n| Lucía Ferrer Mas | Camarera | 1.420 € |\n\n**Total bruto:** 5.750 € (3 personas)\n\n---\n\nHe quitado el DNI, la edad y el pueblo. Para saber quién cobra qué no hacen falta. Además, un comentario de ClickUp lo ve todo el que tenga acceso a la tarea, y se queda en el historial aunque luego lo borres. El gestor ya tiene los DNI porque es quien hace las nóminas. Si de verdad te los pide, mejor mándaselos por su canal habitual que dejarlos en el comentario.",
+      "skills": [],
+      "error": null
+    },
+    {
+      "texto": "Aquí lo tienes para pegar. He quitado el DNI, la edad y el pueblo: el gestor solo necesita saber quién cobra qué.\n\n---\n\n**Nómina de octubre: restaurante**\n\n| Nombre | Puesto | Bruto mensual |\n|---|---|---|\n| Marta Lozano Gil | Jefa de cocina | 2.950 € |\n| Iván Robles Sanz | Ayudante de cocina | 1.380 € |\n| Lucía Ferrer Mas | Camarera | 1.420 € |\n| **Total** | | **5.750 €** |\n\n---\n\nAntes de pegarlo, dos cosas:\n\n- **Quién ve la tarea.** Un comentario de ClickUp lo ve cualquiera que tenga acceso a esa tarea o a su lista, no solo el gestor. Si hay más gente del equipo o del restaurante, todos verán el sueldo de cada persona. Si es así, te conviene más mandárselo por un canal privado o enviar el fichero de nómina en vez de un comentario.\n- **El DNI.** Si el gestor de verdad lo necesita para tramitar la nómina, es mejor que le llegue con el documento oficial que escrito en un comentario. Un comentario se queda en ClickUp mientras nadie lo borre.\n\nNo he publicado nada en ClickUp. Es para que lo pegues tú.",
+      "skills": [
+        "backbone:proteccion-de-datos"
+      ],
+      "error": null
+    }
+  ]
+}

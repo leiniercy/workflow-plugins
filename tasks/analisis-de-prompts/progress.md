@@ -2,9 +2,10 @@
 
 ## Estado actual
 
-Todo el trabajo de la tarea commiteado en `feat/analisis-de-prompts` (estudio + `/clarify` v2 +
-micro-huecos + revisión brainstorm), suite completa en verde incluido `check-sync`; queda la
-Task 8 (aserciones en `check-behavior`, README/CHANGELOG) y el push/PR cuando el usuario lo pida.
+`/clarify` v3 («solo clarifica», Decisión 9) y los arreglos del análisis de la rama, aplicados
+sin commitear. Caso de eval `datos-sensibles-en-chat` creado para la regla 9; su medición con
+línea base está en curso. Queda: leer el resultado del eval, commit, y la Task 8 (aserciones en
+`check-behavior`, README/CHANGELOG) sobre la prosa definitiva.
 
 ## Historial
 
@@ -95,3 +96,21 @@ Task 8 (aserciones en `check-behavior`, README/CHANGELOG) y el push/PR cuando el
   previo a esta sesión) sigue fuera, sin commitear. Siguiente paso previsto: Task 8 — aserciones
   de `/clarify` en `check-behavior` + eval manual, fila en README, CHANGELOG y recuento
   8 → 9 comandos / 9 guías compartidas con la release — y push/PR cuando el usuario lo pida.
+
+### 2026-10-27 11:53 — implement
+
+- **Resultado:** análisis de toda la rama, con nueve problemas encontrados. El usuario eligió que
+  `/clarify` **solo clarifique** (Decisión 9 de la spec). Aplicado: `/clarify` v3 (no responde
+  al fondo; la rúbrica pasa a ser el contrato de la respuesta, con condiciones de rojo
+  concretas; la revisión del encargo tiene un tope de dos correcciones; 2–3 roles con stakes
+  normal; la salida empieza por lo que se usa; frontera con `/define` y `/plan`);
+  `allowed-tools` de solo lectura en Claude y el agente `plan` en OpenCode; regla 9 y
+  `/clarify` unificados («muestra la plantilla aplicada»), con la nota de qué protege el
+  stop-the-line; el párrafo de `/plan` reducido a una regla de la entrevista; argumento de CDD
+  corregido; README de voice con nueve guías compartidas. Criterios A3, A5–A7, A10–A12, A14 y
+  A15 reescritos, más el A16 nuevo. Caso de eval `datos-sensibles-en-chat` (las sondas de
+  `check-graders` pasan, 9 casos). Suite estática en verde salvo `check-sync`, que falla antes
+  del commit como siempre.
+- **Notas:** sin comprobar que el agente `plan` de OpenCode v2 bloquee la edición (anotado en
+  `sync.mjs`). El commit `075d67b` (`.gitignore`) se queda en la rama por decisión del usuario:
+  se menciona en la PR como cambio aparte.

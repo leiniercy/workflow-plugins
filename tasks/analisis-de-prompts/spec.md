@@ -50,41 +50,49 @@ llegó a dos conclusiones que fijan el alcance de esta tarea:
       restricciones, criterio) cuando los stakes lo piden: con `evidencia-y-preguntas` decide qué
       se verifica, qué se asume declarándolo y qué se pregunta, y pregunta antes de continuar.
 - [ ] **A3** — Si el prompt trae datos personales, financieros o de contratos, `/clarify` hace
-      stop-the-line: aplica la plantilla de anonimización (`Cliente-1`, `MONTO-1`, `Fecha-1`) y
-      advierte de que la reidentificación puede ocurrir por combinación de valores, no solo por
-      nombres. Solo sigue con anonimización o autorización explícita (`proteccion-de-datos`).
+      stop-the-line en los tres niveles de stakes: muestra el prompt con la plantilla de
+      anonimización aplicada (`Cliente-1`, `MONTO-1`, `Fecha-1`), advierte de que la
+      reidentificación puede ocurrir por combinación de valores y dice qué protege y qué no (el
+      modelo ya leyó el dato; se evita que siga viajando). Solo sigue con la versión anonimizada
+      o autorización explícita (`proteccion-de-datos`).
 - [ ] **A4** — `/clarify` separa el problema en partes pequeñas (máximo 5) con instrucciones
       precisas para cada una; si no caben en 5, vuelve a acotar.
-- [ ] **A5** — `/clarify` evalúa la respuesta contra una rúbrica de exactamente 3 criterios
-      (precisión, completitud, ausencia de sesgos — representación, confirmación, omisión), con
-      las 4 preguntas del protocolo y **veredicto con evidencia**: cita de la parte que respalda
-      cada veredicto y respuesta a «¿qué haría falta para que saliera rojo?»; un verde sin cita
-      no cuenta. «¿Sirve para mi contexto?» vive en Completitud, anclada al campo Criterio.
-- [ ] **A6** — Con algún criterio en rojo, `/clarify` dice qué mantener y qué cambiar, deja
-      registro de la vuelta (criterio, qué se mantuvo, qué se cambió) y re-evalúa; con 2 rojos
-      del mismo criterio vuelve a la Fase 1; el bucle termina solo con los 3 criterios en verde
-      o parada del usuario.
-- [ ] **A7** — `/clarify` no escribe en el repo: su artefacto es la respuesta en la conversación.
+- [ ] **A5** — `/clarify` **no responde al fondo del prompt**: fija el contrato de la respuesta
+      con una rúbrica de exactamente 3 criterios (precisión, completitud, ausencia de sesgos —
+      representación, confirmación, omisión) y, para cada uno, una condición de rojo concreta y
+      comprobable contra un texto. «¿Sirve para mi contexto?» vive en Completitud, anclada al
+      campo Criterio.
+- [ ] **A6** — `/clarify` presenta el encargo para que el usuario lo confirme; con una
+      corrección dice qué se mantiene y qué cambia; tras dos correcciones sin cerrar, para y
+      devuelve la decisión pendiente al usuario (sin tercera vuelta).
+- [ ] **A7** — `/clarify` no escribe en el repo: su artefacto es el encargo en la conversación.
+      En Claude, `allowed-tools` pre-aprueba solo lectura; en OpenCode corre con el agente
+      integrado `plan`.
 - [ ] **A8** — `node scripts/sync.mjs` genera el comando en ambos adaptadores y la suite de
       checks pasa en verde.
 - [ ] **A9** — `/clarify` clasifica el prompt por **stakes** (trivial / normal / crítico) antes
       de aplicar el protocolo y declara el nivel con su motivo: trivial = contexto de una línea
       sin rúbrica; normal = protocolo completo; crítico = protocolo completo + pre-mortem.
-- [ ] **A10** — El análisis multi-rol de `/clarify` usa 6 roles con una **pregunta canónica**
-      cada uno (no opinión libre), y el pre-mortem («¿por qué falló esto dentro de un mes?») es
-      obligatorio solo en stakes crítico.
-- [ ] **A11** — La salida de `/clarify` cierra con la **medición del protocolo**: vueltas de
-      bucle y veredictos rojo→verde; si salió toda verde a la primera, lo dice en voz alta.
-- [ ] **A12** — En desacuerdo de veredicto entre usuario y agente, **gana el usuario** y el
+- [ ] **A10** — El análisis multi-rol de `/clarify` tiene 6 roles con una **pregunta canónica**
+      cada uno (no opinión libre): con stakes normal usa las 2–3 que más cambian el caso y dice
+      por qué; con stakes crítico, las seis más el pre-mortem («¿por qué falló esto dentro de un
+      mes?»).
+- [ ] **A11** — La salida de `/clarify` empieza por lo que se usa (encargo clarificado, partes,
+      contrato) y deja el registro compacto al final; cierra con el siguiente paso: responder
+      sobre el encargo y comprobar la respuesta contra el contrato.
+- [ ] **A12** — En desacuerdo entre usuario y agente sobre el encargo, **gana el usuario** y el
       motivo queda registrado en la salida.
+- [ ] **A16** — `/clarify` declara su frontera: una tarea del repo va a `/define` o `/plan`.
 - [ ] **A13** — El **estudio** queda registrado en «Decisiones tomadas» de esta spec con su
       veredicto por pieza (adoptado de facto / suficiente / adoptado nuevo / rechazado con
       argumento), incluidos los rechazos de CDD, EDD y la «constitución».
-- [ ] **A14** — `/plan` abre su propuesta con el paso de **clarificación** (SDD paso 3): caza
-      ambigüedades, contradicciones y huecos (para qué, para quién) antes de escribir criterios.
+- [ ] **A14** — La entrevista de `/plan` empieza por las **contradicciones** y el «para quién»
+      (SDD paso 3), como una regla más de «Cómo dialogar», sin repetir lo que ya cubren la
+      entrevista y la auto-revisión de ambigüedad de la Fase 5.
 - [ ] **A15** — `proteccion-de-datos` lleva la **regla transversal de conversación**: ante datos
-      personales, financieros o de contratos pegados en el chat, stop-the-line con plantilla de
-      anonimización y aviso de reidentificación por combinación.
+      personales, financieros o de contratos pegados en el chat, stop-the-line con la plantilla
+      de anonimización aplicada, aviso de reidentificación por combinación y la misma redacción
+      que `/clarify` sobre qué protege y qué no.
 
 ## Alcance
 
@@ -210,9 +218,10 @@ duplicaría.** Veredicto por pieza (23/10/2026):
   PDD (`valor-y-prioridad` + telemetría de flujo de la tarea `cierre-y-telemetria`, que espera
   muestra — no duplicarla).
 - **Adoptado nuevo:** el protocolo conversacional completo → `/clarify`, el único hueco real.
-- **Rechazados con argumento:** **CDD** (fuera de foco: el producto del plugin no es frontend;
-  Storybook es decisión de stack del consumidor, y `usabilidad-accesibilidad` +
-  `patrones-diseno` cubren lo razonable), **EDD** (fuera de foco para un plugin de flujo de
+- **Rechazados con argumento:** **CDD** (backbone se usa en repos de frontend, pero desarrollar
+  por componentes aislados —con Storybook o sin él— es decisión del stack de cada consumidor,
+  no del flujo de trabajo; lo que sí es del flujo ya lo cubren `usabilidad-accesibilidad`, los
+  tests de componente de `niveles-y-tipos-de-prueba` y `patrones-diseno`), **EDD** (fuera de foco para un plugin de flujo de
   trabajo) y la **«constitución» como artefacto único** (duplicaría ADRs, SECURITY.md y los
   gates; divergirían — la constitución ya existe, distribuida y verificada por check-*).
 
@@ -238,3 +247,19 @@ en `clarify.md`. **(c)** La `description` de `clarify` en `COMMANDS` seguía en 
 cliente; arreglo: `packages: ["backbone", "voice"]` en la guía (novena compartida). El enrutado
 mejoró con las descriptions nuevas (rank-1 53,1 % → 55,2 % en `check-routing`); los seis roles y
 el pre-mortem solo en crítico pasan el YAGNI sin cambios.
+
+**9. `/clarify` solo clarifica: no responde ni se evalúa (27/10/2026, decisión del usuario).**
+Un análisis de la rama destapó que la v2 mezclaba dos trabajos —clarificar el prompt y
+responderlo— y que el mismo modelo se evaluaba su propia respuesta: el sesgo de complacencia que
+la rúbrica quería evitar. La v3 entrega el encargo clarificado y el **contrato de la respuesta**
+(una condición de rojo concreta por criterio) y para; quien responda lo hace sobre ese encargo.
+Con eso: el bucle pasa a ser la revisión del encargo con el usuario, con tope de dos
+correcciones (la v2 podía rebotar sin fin entre la Fase 4 y la Fase 1); con stakes normal se
+usan 2–3 roles, no seis; la salida empieza por lo que se usa; `allowed-tools` de solo lectura en
+Claude y el agente integrado `plan` en OpenCode (la v2 corría como `build` con una justificación
+que no encajaba: el comando sí es de solo lectura); y la frontera con `/define` y `/plan` queda
+escrita. Se descartó responder con un evaluador de contexto fresco: más rigor, pero un subagente
+nuevo y más turnos para un comando conversacional. De paso: `/clarify` y la regla 9 dicen lo
+mismo («muestra la plantilla aplicada», no uno «aplica» y otro «ofrece»), y ambos dicen qué
+protege el stop-the-line y qué no; el paso de clarificación de `/plan` se reduce a una regla de
+la entrevista, porque el resto ya lo cubrían la entrevista y la auto-revisión de ambigüedad.
