@@ -5,6 +5,8 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+## [0.27.1] - 2026-10-27
+
 ### Cambiado
 
 - **En OpenCode, `/clarify` corre con su propio agente, `clarificador`** — en vez del `plan` integrado. Tiene denegadas la edición, la shell y el despacho de subagentes en su `permission`. Comprobado en OpenCode v2.1.4, incluso con `--auto` (que aprueba todo lo no denegado): el agente ni siquiera tiene la herramienta de escritura. Con `plan` no se pudo comprobar, porque el modelo se negaba sin llegar a intentarlo.
