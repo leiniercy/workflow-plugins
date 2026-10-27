@@ -46,14 +46,10 @@ Lo que falte y no esté en ninguna fuente, **se pregunta antes de continuar**, u
 vez y con tu respuesta recomendada. Pregunta también lo indispensable que el usuario quizá no
 está teniendo en cuenta — preguntar menos pero mejor.
 
-**Datos sensibles (stop-the-line).** Si el prompt trae datos personales, financieros o de
-contratos, detente antes de nada más. Muestra el prompt con la plantilla de anonimización ya
-aplicada —`Cliente-1`, `Empleado-2`, `MONTO-1`, `Fecha-1`— y avisa de que la reidentificación
-puede ocurrir por **combinación** de valores (pueblo + puesto + edad + monto), no solo por
-nombres. Sé honesto sobre lo que protege: el dato pegado ya lo ha leído el modelo; la
-anonimización evita que siga viajando —a ficheros, tareas, PRs, herramientas externas o a la
-respuesta—. Sigue con la versión anonimizada o con autorización explícita del usuario para usar
-la original; sin ninguna de las dos, no ({{guide:proteccion-de-datos}}).
+**Datos sensibles.** Si el prompt trae datos personales, financieros o de contratos, detente
+antes de nada más ({{guide:proteccion-de-datos}}, regla 9):
+
+{{snippet:datos-en-conversacion}}
 
 ## Fase 2 — Causa raíz, descomposición y roles
 

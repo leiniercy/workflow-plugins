@@ -145,3 +145,18 @@ la interfaz de OpenCode incluida). Queda: push de la rama y PR cuando el usuario
   comillas dentro. Proveedores de esta máquina: `freellmapi` devuelve 502 (enruta a DeepSeek
   R1), Groq 403, el gratuito de OpenCode agotó su cupo; `nvidia/z-ai/glm-5.3` funciona pero se
   colgó en dos casos. La interfaz de v2.1.4 sí encuentra `.opencode/command/` en singular.
+
+### 2026-10-27 14:29 — implement
+
+- **Resultado:** arreglos del gate de `/close` (Decisión 11), aprobados por el usuario. Spec al
+  día con la v3 (Enfoque técnico, Alcance, Áreas afectadas, A7). Contrato de `/clarify` en
+  `check-behavior` por secciones y con espacios normalizados, más cinco sondas que rompen el
+  comando a propósito: sin la Fase 1 fallan A2 y A3, una frase pegada fuera de la Fase 0 o de la
+  Fase 4 no cuenta, y un reajuste de líneas no rompe nada (862 aserciones). Nuevas aserciones de
+  A2, A6 y A11. El stop-the-line vive una vez en `core/snippets/datos-en-conversacion.md`, que
+  usan la regla 9 y la Fase 1. En OpenCode, `/clarify` corre con su agente `clarificador`
+  (`edit: deny`, shell y `task` bloqueados). CHANGELOG 0.27.0 ajustado. Suite completa en verde.
+- **Notas:** bloqueo **comprobado** en OpenCode v2.1.4 con `--auto` (aprueba lo no denegado):
+  pedido escribir, el agente no tiene la herramienta `write` —`edit: deny` la quita del
+  catálogo— y el fichero no se creó. El agente sí lista `execute` (Code Mode), que según el
+  propio modelo puede crear worktrees: sin comprobar, queda como observación.

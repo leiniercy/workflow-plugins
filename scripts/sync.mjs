@@ -131,11 +131,10 @@ const COMMANDS = {
     description:
       "Clarifica un prompt de usuario antes de que nadie lo responda: clasifica los stakes (trivial, normal, crítico) y aplica el rigor proporcional, recaba el contexto que falte (para qué, para quién, restricciones, criterio) preguntando, separa el problema en partes pequeñas con instrucciones precisas y fija el contrato de la respuesta: qué la pondría en rojo en precisión, completitud y sesgos. Datos sensibles: stop-the-line con plantilla de anonimización. NO responde al fondo ni escribe en el repo.",
     argumentHint: "[prompt o problema a analizar]",
-    // OpenCode: el agente integrado `plan`, restringido para análisis (no `revisor`, cuyo
-    // prompt lo ata a /review). Probado en v2.1.4 (27/10/2026): en la interfaz, /clarify corre
-    // como `plan`, y ante una orden de escribir el modelo se niega sin intentarlo. Que el
-    // permiso de `plan` bloquee de verdad una escritura intentada no está comprobado.
-    opencodeAgent: "plan",
+    // OpenCode: su propio agente primario `clarificador`, con `edit: deny` y la shell bloqueada
+    // (ver «(a.bis.2)»). Antes corría con el integrado `plan`, cuyo bloqueo no se pudo
+    // comprobar: el modelo se negaba a escribir sin intentarlo (v2.1.4, 27/10/2026).
+    opencodeAgent: "clarificador",
     allowedTools: ["Read", "Glob", "Grep"],
   },
   // A petición y sin `allowed-tools` A PROPÓSITO. /review y /close lo declaran para
@@ -914,6 +913,39 @@ emit(opencodeRevisorPath, opencodeRevisor);
     A.commandFrontmatter({ ...meta, opencodeAgent: "lead" }) +
       "Coordina la tarea con tus instrucciones de `lead`. Argumento: $ARGUMENTS\n",
   );
+}
+
+// (a.bis.2) `clarificador`: agente PRIMARIO de solo lectura para /clarify. El agente integrado
+// `plan` se negó a escribir en la prueba del 2026-10-27 (v2.1.4), pero sin llegar a intentarlo,
+// así que su bloqueo no quedó comprobado. Aquí el «no escribe» lo declara `permission`, como en
+// `revisor` y `lead` (deny bloqueó de verdad en `lead`, v2.0.20; sin comprobar en v2.1.4). El
+// comando /clarify corre bajo este agente y lleva las instrucciones; el agente solo se presenta.
+{
+  const agente = [
+    "---",
+    "description: " +
+      yamlString(
+        "Agente de solo lectura para /clarify: clarifica un prompt antes de que nadie lo responda. Lee y pregunta; no edita ficheros ni ejecuta shell: su permission lo bloquea.",
+      ),
+    "mode: primary",
+    "permission:",
+    "  edit: deny",
+    "  webfetch: deny",
+    "  websearch: deny",
+    "  bash:",
+    '    "*": deny',
+    "  task:",
+    '    "*": deny',
+    "---",
+    "",
+    "Eres el agente de **clarificación** de solo lectura. Tu función es ejecutar el comando",
+    "`/clarify`: clarificar un prompt antes de que nadie lo responda y entregar el encargo y el",
+    "contrato de la respuesta. Puedes leer ficheros y preguntar al usuario; no editas nada ni",
+    "ejecutas la shell, y tu `permission` lo bloquea. Si del análisis sale trabajo que hacer, el",
+    "usuario cambia de agente o lanza `/define` o `/plan`.",
+    "",
+  ].join("\n");
+  emit(join(ROOT, "plugins/backbone/opencode/.opencode/agent/clarificador.md"), agente);
 }
 
 // (a.ter) Las fases como subagentes ocultos que `lead` despacha con task. Probado en la

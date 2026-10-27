@@ -38,6 +38,53 @@ function field(fm, name) {
   const m = new RegExp("^" + name + ":\\s*(.*)$", "m").exec(fm);
   return m ? m[1].trim() : null;
 }
+/** Espacios y saltos colapsados: reajustar un párrafo no debe romper una aserción. */
+function norm(s) {
+  return (s || "").replace(/\s+/g, " ").trim();
+}
+/**
+ * El texto de una sección `## <cabecera>…` hasta la siguiente `## `, normalizado. Con
+ * cabecera null, lo que va antes de la primera `## ` (el preámbulo). Así una aserción mira
+ * la fase donde vive su contrato, no el fichero entero.
+ */
+function seccionNorm(texto, cabecera) {
+  const t = "\n" + (texto || "");
+  if (cabecera === null) return norm(t.split(/\n## /)[0]);
+  const i = t.indexOf("\n## " + cabecera);
+  if (i < 0) return "";
+  const resto = t.slice(i + 1);
+  const fin = resto.indexOf("\n## ");
+  return norm(fin < 0 ? resto : resto.slice(0, fin));
+}
+/**
+ * El contrato de /clarify, sección a sección (spec analisis-de-prompts, A1–A16). Devuelve
+ * [ok, mensaje] para poder correrlo también contra copias rotas a propósito (las sondas).
+ */
+function contratoClarify(body) {
+  const pre = seccionNorm(body, null);
+  const f = (n) => seccionNorm(body, "Fase " + n);
+  const banderas = seccionNorm(body, "Banderas rojas");
+  return [
+    [pre.includes("**no respondes al fondo del prompt**"), "/clarify no responde al fondo (A5)"],
+    [pre.includes("no es para ti") && pre.includes("`/define`") && pre.includes("`/plan`"),
+      "/clarify declara su frontera con /define y /plan en el preámbulo (A16)"],
+    [f(0).includes("Stakes: <nivel>"), "/clarify declara los stakes con su motivo (A9)"],
+    [f(0).includes("Con un prompt **trivial**, respóndelo directamente"), "/clarify responde el prompt trivial sin mandar a repetirlo (A9)"],
+    [f(0).includes("**no depende del nivel**"), "/clarify comprueba datos sensibles en los tres niveles (A3)"],
+    [f(1).includes("se pregunta antes de continuar**, una pregunta cada vez"), "/clarify pregunta lo que falta, una pregunta cada vez (A2)"],
+    [f(1).includes("**combinación**"), "/clarify avisa de la reidentificación por combinación en la Fase 1 (A3)"],
+    [f(1).includes("el dato pegado ya lo ha leído el modelo"), "/clarify dice qué protege el stop-the-line y qué no en la Fase 1 (A3)"],
+    [f(2).includes("(máximo 5)"), "/clarify descompone en 5 partes como máximo (A4)"],
+    [f(2).includes("las 2–3 que más cambian este caso"), "/clarify usa 2–3 roles con stakes normal (A10)"],
+    [f(2).includes("**Pre-mortem (solo stakes crítico).**"), "/clarify reserva el pre-mortem al nivel crítico (A10)"],
+    [f(3).includes("qué tendría que aparecer en la respuesta para que saliera rojo"), "/clarify fija el contrato con condiciones de rojo (A5)"],
+    [f(4).includes("**qué se mantiene**") && f(4).includes("**qué cambia**"), "/clarify dice qué se mantiene y qué cambia en cada corrección (A6)"],
+    [f(4).includes("No hay una tercera vuelta"), "/clarify tiene tope de dos correcciones (A6)"],
+    [f(4).includes("**gana el usuario**"), "/clarify: en desacuerdo gana el usuario (A12)"],
+    [f(5).includes("Cierra con el siguiente paso"), "/clarify cierra la salida con el siguiente paso (A11)"],
+    [banderas.includes("Responder al fondo de un prompt normal o crítico"), "/clarify lleva la bandera roja de responder"],
+  ];
+}
 
 // --- /review: read-only + puede despachar subagentes ---
 const reviewFm = frontmatter(read(join(CLAUDE, "commands/review.md")));
@@ -105,35 +152,52 @@ for (const cmd of ["define", "start", "plan", "implement", "review", "close", "s
     "/clarify pre-aprueba solo lectura (Read/Glob/Grep)");
   assert(!/\bWrite\b/.test(tools) && !/\bEdit\b/.test(tools) && !/\bBash\b/.test(tools),
     "/clarify NO pre-aprueba Write, Edit ni Bash");
-  assert(body.includes("**no respondes al fondo del prompt**"), "/clarify no responde al fondo (A5)");
-  assert(body.includes("Responder al fondo de un prompt normal o crítico"), "/clarify lleva la bandera roja de responder");
-  assert(body.includes("Stakes: <nivel>"), "/clarify declara los stakes con su motivo (A9)");
-  assert(body.includes("Con un prompt **trivial**, respóndelo directamente"), "/clarify responde el prompt trivial sin mandar a repetirlo (A9)");
-  assert(body.includes("**no\ndepende del nivel**"), "/clarify comprueba datos sensibles en los tres niveles (A3)");
-  assert(body.includes("**combinación**"), "/clarify avisa de la reidentificación por combinación (A3)");
-  assert(body.includes("el dato pegado ya lo ha leído el modelo"), "/clarify dice qué protege el stop-the-line y qué no");
-  assert(body.includes("(máximo 5)"), "/clarify descompone en 5 partes como máximo (A4)");
-  assert(body.includes("las 2–3 que más cambian este\n   caso"), "/clarify usa 2–3 roles con stakes normal (A10)");
-  assert(body.includes("**Pre-mortem (solo stakes crítico).**"), "/clarify reserva el pre-mortem al nivel crítico (A10)");
-  assert(body.includes("qué tendría que aparecer en la respuesta para que saliera rojo"),
-    "/clarify fija el contrato con condiciones de rojo (A5)");
-  assert(body.includes("No hay una\n  tercera vuelta"), "/clarify tiene tope de dos correcciones (A6)");
-  assert(body.includes("**gana el usuario**"), "/clarify: en desacuerdo gana el usuario (A12)");
-  assert(body.includes("no es para ti"), "/clarify declara su frontera con /define y /plan (A16)");
-  assert(!/\{\{guide:/.test(body), "/clarify no deja tokens {{guide:}} sin resolver");
+  for (const [ok, msg] of contratoClarify(body)) assert(ok, msg);
+  assert(!/\{\{(guide|snippet):/.test(body), "/clarify no deja tokens {{guide:}} ni {{snippet:}} sin resolver");
+
+  // Sondas (como las de check-graders, ADR-0007): el contrato tiene que FALLAR cuando se rompe
+  // y AGUANTAR un simple reajuste de líneas. Si una sonda no hace fallar lo que debe, la
+  // aserción es decorativa: buscaba la frase en cualquier sitio del fichero.
+  const falla = (texto, trozo) =>
+    contratoClarify(texto).filter(([ok, msg]) => !ok && msg.includes(trozo)).length > 0;
+  const sinSeccion = (texto, cabecera) =>
+    texto.replace(new RegExp("\\n## " + cabecera + "[\\s\\S]*?(?=\\n## )"), "\n");
+  // Reajuste: junta las líneas de cada párrafo (respeta líneas en blanco y títulos `#`).
+  assert(contratoClarify(body.replace(/([^\n])\n(?=[^\n#])/g, "$1 ")).every(([ok]) => ok),
+    "sonda: el contrato de /clarify aguanta un reajuste de líneas");
+  assert(falla(sinSeccion(body, "Fase 1"), "(A3)"),
+    "sonda: sin la Fase 1, el gate de datos sensibles (A3) falla");
+  assert(falla(sinSeccion(body, "Fase 1"), "(A2)"),
+    "sonda: sin la Fase 1, «una pregunta cada vez» (A2) falla");
+  assert(falla(sinSeccion(body, "Fase 0") + "\nel gate no depende del nivel\n", "tres niveles"),
+    "sonda: sin la Fase 0, la frase pegada en otra sección no salva el gate en tres niveles");
+  assert(falla(sinSeccion(body, "Fase 4") + "\nNo hay una tercera vuelta. **gana el usuario**\n", "(A6)"),
+    "sonda: sin la Fase 4, el tope (A6) pegado fuera de su fase no cuenta");
+  assert(falla(body.replace(/\| Responder al fondo de un prompt normal o crítico[^\n]*\n/, ""), "bandera roja"),
+    "sonda: sin su fila, la bandera roja de responder falla");
 }
 {
   const oc = read(join(ROOT, "plugins/backbone/opencode/.opencode/command/clarify.md")) || "";
-  assert(/^agent: plan$/m.test(frontmatter(oc)), "OpenCode: /clarify corre con el agente integrado plan, no build");
+  assert(/^agent: clarificador$/m.test(frontmatter(oc)), "OpenCode: /clarify corre con su agente clarificador, no build ni plan");
+  const ag = read(join(ROOT, "plugins/backbone/opencode/.opencode/agent/clarificador.md")) || "";
+  const fm = frontmatter(ag);
+  assert(/^mode: primary$/m.test(fm), "OpenCode: clarificador es agente primario");
+  assert(/^  edit: deny$/m.test(fm), "OpenCode: clarificador bloquea la edición (edit: deny)");
+  assert(/^    "\*": deny$/m.test(fm) && !/: allow$/m.test(fm), "OpenCode: clarificador bloquea toda la shell y no permite nada más");
 }
-assert((read(join(CLAUDE, "commands/plan.md")) || "").includes("**Empieza por las contradicciones y el «para quién».**"),
-  "/plan: la entrevista empieza por contradicciones y destinatario (A14)");
-// La regla 9 dice lo mismo que /clarify: muestra la plantilla aplicada (no «ofrece»).
+assert(seccionNorm(read(join(CLAUDE, "commands/plan.md")) || "", "Fase 4").includes("**Empieza por las contradicciones y el «para quién».**"),
+  "/plan: la entrevista de la Fase 4 empieza por contradicciones y destinatario (A14)");
+// La regla 9 y /clarify comparten el texto del stop-the-line (snippet datos-en-conversacion).
 {
-  const pd = read(join(CLAUDE, "skills/proteccion-de-datos/SKILL.md")) || "";
+  const pd = norm(read(join(CLAUDE, "skills/proteccion-de-datos/SKILL.md")) || "");
+  const fase1 = seccionNorm(read(join(CLAUDE, "commands/clarify.md")) || "", "Fase 1");
+  const snip = norm(read(join(ROOT, "core/snippets/datos-en-conversacion.md")) || "");
+  assert(snip.length > 0, "existe el snippet datos-en-conversacion");
   assert(pd.includes("**La conversación también es un canal de salida.**"), "proteccion-de-datos lleva la regla 9 (A15)");
-  assert(pd.includes("muestra el texto con la plantilla de anonimización ya aplicada") && !pd.includes("ofrece aplicar la plantilla"),
-    "regla 9 aplica la plantilla, como /clarify (no solo la ofrece)");
+  assert(pd.includes(snip), "regla 9 incluye el texto del snippet entero (A15)");
+  assert(fase1.includes(snip), "la Fase 1 de /clarify incluye el mismo texto del snippet (A15: misma redacción)");
+  assert(snip.includes("el dato pegado ya lo ha leído el modelo") && !pd.includes("ofrece aplicar la plantilla"),
+    "el stop-the-line dice qué protege y aplica la plantilla (no solo la ofrece)");
 }
 
 // --- /lead en OpenCode: agente primario de solo lectura (probado en v2.0.20, 2026-10-04) ---

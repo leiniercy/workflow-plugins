@@ -66,8 +66,8 @@ llegó a dos conclusiones que fijan el alcance de esta tarea:
       corrección dice qué se mantiene y qué cambia; tras dos correcciones sin cerrar, para y
       devuelve la decisión pendiente al usuario (sin tercera vuelta).
 - [ ] **A7** — `/clarify` no escribe en el repo: su artefacto es el encargo en la conversación.
-      En Claude, `allowed-tools` pre-aprueba solo lectura; en OpenCode corre con el agente
-      integrado `plan`.
+      En Claude, `allowed-tools` pre-aprueba solo lectura; en OpenCode corre con su agente
+      `clarificador`, con `edit: deny` y la shell bloqueada.
 - [ ] **A8** — `node scripts/sync.mjs` genera el comando en ambos adaptadores y la suite de
       checks pasa en verde.
 - [ ] **A9** — `/clarify` clasifica el prompt por **stakes** (trivial / normal / crítico) antes
@@ -98,9 +98,11 @@ llegó a dos conclusiones que fijan el alcance de esta tarea:
 ## Alcance
 
 El estudio registrado en esta spec; el comando `/clarify` (prosa en `core/workflows/clarify.md`,
-v2 con C1–C7); su entrada en `COMMANDS` de `scripts/sync.mjs`; el paso de clarificación en
-`core/workflows/plan.md`; la regla 9 en `core/guides/proteccion-de-datos.md`; y el esqueleto de
-tarea en `tasks/analisis-de-prompts/`.
+v3: solo clarifica, Decisiones 9 y 10); su entrada en `COMMANDS` de `scripts/sync.mjs` y su agente
+`clarificador` de OpenCode; la regla de la entrevista en `core/workflows/plan.md`; la regla 9 en
+`core/guides/proteccion-de-datos.md`, con el stop-the-line en el snippet compartido
+`core/snippets/datos-en-conversacion.md`; el caso de eval `datos-sensibles-en-chat`; y el
+esqueleto de tarea en `tasks/analisis-de-prompts/`.
 
 ## Fuera de alcance
 
@@ -113,20 +115,21 @@ tarea en `tasks/analisis-de-prompts/`.
 
 ## Enfoque técnico
 
-### Un comando de prosa, sin código nuevo
+### Un comando de prosa, de solo lectura
 
 Igual que el resto de comandos: markdown en `core/workflows/clarify.md` más entrada en
-`COMMANDS`. Sin `allowed-tools` a propósito: no toca ficheros, solo lee y conversa (mismo
-criterio que `/setup`). En OpenCode corre como `build`, como el resto de comandos que no son
-solo-lectura puros.
+`COMMANDS`. Solo lee y conversa, así que en Claude `allowed-tools` pre-aprueba solo lectura
+(`Read`, `Glob`, `Grep`), como `/review` y `/lead`. En OpenCode corre con su propio agente
+primario `clarificador`, cuyo `permission` deniega la edición y toda la shell, como `revisor`.
 
-### La rúbrica vive en la prosa del comando, con evidencia obligatoria
+### La rúbrica es el contrato de la respuesta, no una autoevaluación
 
 Tres criterios fijos —precisión, completitud, ausencia de sesgos— y las cuatro preguntas del
-protocolo. Todo veredicto cita la parte que lo respalda y responde a la inversión («¿qué haría
-falta para que fuera rojo?»): la técnica *consider the opposite* contra la complacencia del
-evaluador. El ajuste al contexto («¿sirve para mi contexto?») se evalúa dentro de Completitud,
-anclada al campo Criterio. El bucle deja registro y tiene condición de parada escrita.
+protocolo. `/clarify` no se evalúa una respuesta propia: fija, antes de que nadie responda, qué
+pondría la respuesta en rojo en cada criterio, con una condición concreta y comprobable contra
+un texto (la inversión «¿qué haría falta para que fuera rojo?», *consider the opposite*). El
+ajuste al contexto («¿sirve para mi contexto?») va dentro de Completitud, anclado al campo
+Criterio. La revisión del encargo con el usuario tiene un tope escrito de dos correcciones.
 
 ### El rigor es proporcional a los stakes
 
@@ -143,10 +146,12 @@ decoración, y la salida lo dice.
 
 ### Los micro-huecos se resuelven en lo que ya existe
 
-El paso de clarificación entra en la Fase 4 de `/plan` (abre la propuesta; sin comando nuevo),
-y la regla de conversación entra como regla 9 de `proteccion-de-datos` — que ya declara que
-mandar datos personales a un tercero (incluido un modelo de lenguaje) es decisión del usuario:
-pegarlos en el chat es esa regla ocurriendo en vivo.
+La clarificación entra en la Fase 4 de `/plan` como una regla más de la entrevista (empezar por
+las contradicciones y el «para quién»; sin comando nuevo), y la regla de conversación entra como
+regla 9 de `proteccion-de-datos` — que ya declara que mandar datos personales a un tercero
+(incluido un modelo de lenguaje) es decisión del usuario: pegarlos en el chat es esa regla
+ocurriendo en vivo. El texto del stop-the-line vive una sola vez en un snippet que comparten la
+regla 9 y `/clarify`, para que no diverjan.
 
 ## Áreas afectadas
 
@@ -154,15 +159,18 @@ pegarlos en el chat es esa regla ocurriendo en vivo.
 
 | Fichero | Cambio |
 |---|---|
-| `core/workflows/clarify.md` | nuevo (v2 con C1–C7) |
-| `core/workflows/plan.md` | paso de clarificación al abrir la Fase 4 |
+| `core/workflows/clarify.md` | nuevo (v3) |
+| `core/workflows/plan.md` | regla de la entrevista de la Fase 4 |
 | `core/guides/proteccion-de-datos.md` | regla 9: stop-the-line con datos sensibles en conversación; compartida con voice |
-| `scripts/sync.mjs` | entrada `clarify` en `COMMANDS` |
+| `core/snippets/datos-en-conversacion.md` | nuevo: el texto del stop-the-line, compartido por la regla 9 y `/clarify` |
+| `scripts/sync.mjs` | entrada `clarify` en `COMMANDS` y el agente `clarificador` de OpenCode |
+| `scripts/check-behavior.mjs` | contrato de `/clarify` por secciones, con sondas |
 
 **Generado por `sync.mjs`** (no editar a mano): `plugins/backbone/claude/commands/clarify.md`,
-`plugins/backbone/opencode/.opencode/command/clarify.md` y los regenerados de los tocados.
+`plugins/backbone/opencode/.opencode/command/clarify.md`,
+`plugins/backbone/opencode/.opencode/agent/clarificador.md` y los regenerados de los tocados.
 
-**No se toca:** agentes, hooks, `routing.json`.
+**No se toca:** hooks, agentes de Claude, `routing.json`.
 
 ## Dependencias
 
@@ -177,7 +185,7 @@ pegarlos en el chat es esa regla ocurriendo en vivo.
 | El rigor proporcional se usa para saltarse el protocolo siempre | El nivel de stakes se declara con su motivo; en duda, el nivel mayor |
 | La rúbrica se vuelve decorativa por complacencia del evaluador | Evidencia citada obligatoria + «¿qué haría falta para que fuera rojo?» + medición en la salida (A11) |
 | El paso de clarificación de `/plan` añade fricción | `evidencia-y-preguntas` decide qué se pregunta; solo lo que no está en ninguna fuente |
-| Un comando sin aserciones en `check-behavior` se degrada sin aviso | 22 aserciones de `/clarify`, la regla 9 y `/plan` en `check-behavior` (27/10/2026) |
+| Un comando sin aserciones en `check-behavior` se degrada sin aviso | Contrato de `/clarify` comprobado sección a sección en `check-behavior`, con sondas que lo rompen a propósito y deben hacerlo fallar |
 | Los veredictos del estudio se olvidan y alguien propone CDD o la «constitución» en 6 meses | Quedan escritos con su argumento en la Decisión 5 |
 
 ## Decisiones tomadas
@@ -266,3 +274,14 @@ la entrevista, porque el resto ya lo cubrían la entrevista y la auto-revisión 
 prueba con Claude, `/clarify` paraba ante «¿cómo se escribe un for en Python?» y mandaba a
 repetirla en otro turno: cumplía la v3, pero era fricción sin valor, porque ahí no hay decisión
 que juzgar. Ahora la responde directamente; sigue sin responder lo normal ni lo crítico.
+
+**11. Arreglos del gate de /close (27/10/2026, decisión del usuario).** El revisor de criterios
+encontró cuatro cosas, y se arreglaron antes de publicar la 0.27.0: **(a)** esta spec describía
+todavía la v2 en «Enfoque técnico», «Alcance» y «Áreas afectadas»; **(b)** las aserciones de
+`/clarify` buscaban la frase en todo el fichero —pasaban aunque se borrara la fase— y algunas se
+rompían por un reajuste de líneas: ahora miran su sección, con espacios normalizados, y unas
+sondas rompen el comando a propósito para comprobar que fallan (como las de `check-graders`,
+ADR-0007); **(c)** A2, A6 y A11 no tenían aserción; **(d)** la regla 9 y la Fase 1 copiaban el
+mismo texto a mano: ahora lo comparten en el snippet `datos-en-conversacion`. Y lo no comprobado
+de OpenCode —si el `plan` integrado bloquea una escritura intentada— se sustituye por un agente
+propio, `clarificador`, con el bloqueo declarado en su `permission`.
