@@ -5,6 +5,10 @@ Versionado [SemVer](https://semver.org/lang/es/).
 
 ## [No publicado]
 
+### Cambiado
+
+- **El marketplace pasa a llamarse `leiniercy`** (antes `biomas`). Los plugins se instalan ahora con `backbone@leiniercy` y `voice@leiniercy`. El repo de GitHub sigue siendo `leiniercy/biomas-workflow`. Si ya lo tenías instalado, quita el marketplace viejo (`/plugin marketplace remove biomas`), añádelo de nuevo y reinstala los plugins. En el `.claude/settings.json` de cada repo consumidor, cambia la clave de `extraKnownMarketplaces` y las de `enabledPlugins` (`backbone@biomas` → `backbone@leiniercy`).
+
 ## [0.27.1] - 2026-10-27
 
 ### Cambiado

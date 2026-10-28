@@ -109,12 +109,12 @@ writeFileSync(CHANGELOG, changelog.replace(MARKER, replacement));
 // 4) examples/repo-settings.json — el `ref` (tag) que copian los repos consumidores (solo backbone)
 if (settingsRef) {
   const settings = JSON.parse(readFileSync(REPO_SETTINGS, "utf8"));
-  const biomas = settings.extraKnownMarketplaces && settings.extraKnownMarketplaces.biomas;
-  if (biomas && biomas.source) {
-    biomas.source.ref = "v" + next;
+  const marketplace = settings.extraKnownMarketplaces && settings.extraKnownMarketplaces.leiniercy;
+  if (marketplace && marketplace.source) {
+    marketplace.source.ref = "v" + next;
     writeFileSync(REPO_SETTINGS, JSON.stringify(settings, null, 2) + "\n");
   } else {
-    throw new Error("No se encontró extraKnownMarketplaces.biomas.source en repo-settings.json");
+    throw new Error("No se encontró extraKnownMarketplaces.leiniercy.source en repo-settings.json");
   }
 }
 

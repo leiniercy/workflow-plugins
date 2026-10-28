@@ -1,4 +1,4 @@
-# voice · segundo plugin del marketplace `biomas`
+# voice · segundo plugin del marketplace `leiniercy`
 
 **Entra un encargo de cliente, sale un entregable que se puede enviar.** Manuales de
 usuario, presentaciones e informes técnicos, hechos con la misma disciplina que `backbone`
@@ -18,7 +18,7 @@ sigue la regla del repo (ADR-0001, la decisión de que `core/` es la fuente úni
 
 ```
 /plugin marketplace add leiniercy/biomas-workflow
-/plugin install voice@biomas
+/plugin install voice@leiniercy
 /reload-plugins
 ```
 

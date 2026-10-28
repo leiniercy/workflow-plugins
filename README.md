@@ -1,4 +1,4 @@
-# backbone · marketplace `biomas`
+# backbone · marketplace `leiniercy`
 
 **Entra un ticket de ClickUp, sale una PR que otra persona puede revisar.** Entre medias el
 agente recorre siempre el mismo camino de cinco pasos, deja por escrito en el repo lo que
@@ -14,7 +14,7 @@ Funciona igual en **Claude Code** y en **OpenCode**. La única diferencia es có
 | **Qué es** | Un flujo de desarrollo para agentes de IA, guiado por tareas de ClickUp: `spec.md` → TDD → revisión → cierre |
 | **Para quién** | Equipos que ya trabajan por ticket, con criterios de aceptación y una PR que revisa un humano |
 | **Qué trae** | 9 comandos · 32 guías que se activan solas · 8 subagentes de solo lectura · 4 hooks |
-| **Dónde corre** | Claude Code (plugin del marketplace `biomas`) · OpenCode (carpeta `.opencode/` lista para copiar) |
+| **Dónde corre** | Claude Code (plugin del marketplace `leiniercy`) · OpenCode (carpeta `.opencode/` lista para copiar) |
 | **Mínimo para arrancar** | Git con rama base `develop` + Node.js 18+ |
 | **Para el 100 %** | ClickUp, `gh`, graphify, `CLAUDE.md` y tres add-ons — [tabla de complementos](#los-complementos) |
 | **Qué NO hace** | Aprobar por ti. `/review` solo informa, y el paso a `complete` lo firma siempre una persona |
@@ -23,7 +23,7 @@ Funciona igual en **Claude Code** y en **OpenCode**. La única diferencia es có
 
 - **`backbone`** (este README): de un ticket de ClickUp a una PR que otra persona revisa.
 - **`voice`**: de un encargo de cliente a un entregable que se puede enviar (manual de usuario,
-  presentación, informe técnico). Se instala aparte con `/plugin install voice@biomas`; mira su
+  presentación, informe técnico). Se instala aparte con `/plugin install voice@leiniercy`; mira su
   [README](plugins/voice/README.md).
 
 ## El problema que resuelve
@@ -199,7 +199,7 @@ nuestros. Un número que no has reproducido en tu código es una expectativa, no
 
 ```
 /plugin marketplace add leiniercy/biomas-workflow
-/plugin install backbone@biomas
+/plugin install backbone@leiniercy
 /reload-plugins
 ```
 
@@ -313,7 +313,7 @@ biomas-workflow/
 │   │           ├── scripts/       (generado por sync.mjs — copia de core/scripts)
 │   │           └── guides/        (generado por sync.mjs — no editar a mano)
 │   └── voice/                 segundo plugin (entregables de cliente): README, memoria de trabajo propia y su salida generada en claude/
-├── .claude-plugin/marketplace.json   ← marketplace "biomas" (apunta a plugins/backbone/claude y a plugins/voice/claude)
+├── .claude-plugin/marketplace.json   ← marketplace "leiniercy" (apunta a plugins/backbone/claude y a plugins/voice/claude)
 ├── docs/adr/                  decisiones de arquitectura del plugin (léelas antes de re-litigar una)
 ├── .github/workflows/         review.yml (CI de PRs) · sync-check · version-check · behavior-check · manifest-check · hygiene-check · codeql · secret-scan
 └── examples/                  plantillas para repos consumidores

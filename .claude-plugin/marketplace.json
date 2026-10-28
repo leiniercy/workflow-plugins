@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "biomas",
-  "description": "Marketplace de biomas: backbone, flujo de desarrollo agéntico guiado por tareas de ClickUp (spec → TDD → revisión), y voice, entregables de cliente con la misma disciplina. Ambos con gates humanos y continuidad entre sesiones.",
+  "name": "leiniercy",
+  "description": "Marketplace de leiniercy: backbone, flujo de desarrollo agéntico guiado por tareas de ClickUp (spec → TDD → revisión), y voice, entregables de cliente con la misma disciplina. Ambos con gates humanos y continuidad entre sesiones.",
   "owner": {
     "name": "Leiniercy",
     "email": "leiner.caraballo@rockstardata.ai"

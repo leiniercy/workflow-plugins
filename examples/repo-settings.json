@@ -1,7 +1,7 @@
 {
   "//": "Bloque para el .claude/settings.json del repo consumidor. Ajusta TU_USUARIO y el tag en 'ref' (el pin va en ref, nunca como sufijo # del repo).",
   "extraKnownMarketplaces": {
-    "biomas": {
+    "leiniercy": {
       "source": {
         "source": "github",
         "repo": "TU_USUARIO/biomas-workflow",
@@ -11,7 +11,7 @@
   },
   "autoUpdate": false,
   "enabledPlugins": {
-    "backbone@biomas": true
+    "backbone@leiniercy": true
   },
   "//env": "Opcional. BACKBONE_PROTECTED_PATHS son fragmentos de ruta (separados por comas) que el hook PreToolUse del plugin protege: escribir en ellos pedirá aprobación al usuario. BACKBONE_GUARD=off desactiva ese hook por completo si te resulta ruidoso.",
   "env": {

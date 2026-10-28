@@ -65,8 +65,8 @@ for (const { name, pluginJson, changelog, settingsRef: checkRef } of PLUGINS) {
   if (checkRef) {
     // El `ref` (tag) de la plantilla que copian los consumidores debe ser "v" + versión.
     const settings = JSON.parse(readFileSync(REPO_SETTINGS, "utf8"));
-    const ref = settings.extraKnownMarketplaces?.biomas?.source?.ref;
-    if (!ref) problems.push("examples/repo-settings.json no tiene extraKnownMarketplaces.biomas.source.ref.");
+    const ref = settings.extraKnownMarketplaces?.leiniercy?.source?.ref;
+    if (!ref) problems.push("examples/repo-settings.json no tiene extraKnownMarketplaces.leiniercy.source.ref.");
     if (pluginV && ref && ref !== "v" + pluginV) {
       problems.push(`examples/repo-settings.json ref (${ref}) != v${pluginV}.`);
     }

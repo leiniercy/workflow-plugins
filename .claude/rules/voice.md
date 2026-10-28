@@ -6,7 +6,7 @@ paths:
 
 # Estás trabajando en voice
 
-`voice` es el segundo plugin del marketplace `biomas`. Tiene **su propia memoria de
+`voice` es el segundo plugin del marketplace `leiniercy`. Tiene **su propia memoria de
 trabajo** en `plugins/voice/MEMORY.md`, separada de la de backbone (`/MEMORY.md`).
 
 1. Lee `plugins/voice/MEMORY.md` antes de seguir: ahí están el estado de las tareas y lo que se

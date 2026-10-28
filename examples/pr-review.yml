@@ -1,6 +1,6 @@
 name: Revisión de PR con Claude
 
-# Caller para repos consumidores del marketplace "biomas".
+# Caller para repos consumidores del marketplace "leiniercy".
 # Copia este fichero a .github/workflows/pr-review.yml de tu repo y ajusta TU_USUARIO.
 #
 # IMPRESCINDIBLE: en reusable workflows los permisos se conceden AQUÍ, en el job

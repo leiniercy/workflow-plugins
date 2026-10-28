@@ -1,6 +1,6 @@
 name: Revisión automática de PR (reusable)
 
-# Workflow reusable del marketplace "biomas".
+# Workflow reusable del marketplace "leiniercy".
 # Los repos consumidores lo invocan vía workflow_call (ver examples/pr-review.yml).
 # IMPORTANTE: los permissions se declaran en el JOB DEL CALLER, no aquí.
 
